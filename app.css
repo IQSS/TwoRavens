@@ -77,3 +77,39 @@ text.id {
   text-anchor: middle;
   font-weight: bold;
 }
+
+
+.left {
+    float:left;
+    width: 33.3%;
+    height:600px;
+    box-sizing: border-box; margin: 0;
+    overfill:scroll;
+}
+
+#option {
+    position:relative;
+}
+
+#leftpanel {
+    float:left;
+    border:1px solid red;
+    width: 15%;
+}
+
+#rightpanel {
+    border:1px solid blue;
+    width: 15%;
+}
+
+#main {
+    border:1px solid green;
+    width: 70%;
+}
+
+#sandbox {
+    width:500px;
+    height:400px;
+}
+
+

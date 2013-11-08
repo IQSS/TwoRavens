@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Sola Fide</title>
     <link rel="stylesheet" href="app.css">
+        <script type="text/javascript" src="d3.v3.min.js"></script>
+
   </head>
   
 
@@ -21,38 +23,55 @@
 
 
   <body>
-  	
-  </body>
+      
+      <div id="option">
+          <input name="forceButton"
+          type="button"
+          value="Force"
+          onclick="forceSwitch()" />
+          <input name="estimateButton"
+          type="button"
+          value="Estimate"
+          onclick="estimate()" />
+          <input name="timeButton"
+          type="button"
+          value="Time"
+          onclick="time()" />
+          <input name="csButton"
+          type="button"
+          value="Cross Section"
+          onclick="cs()" />
+        <input name="layoutButton"
+        type="button"
+        value="Layout"
+        onclick="layout()" />
 
-<div id="option">
-    <input name="forceButton" 
-                 type="button" 
-                value="Force" 
-                onclick="forceSwitch()" />
-    <input name="estimateButton" 
-                 type="button" 
-                value="Estimate" 
-                onclick="estimate()" />
-
-<div class="tab_content tab1">
-    <div id="dialerdiv1" style="float: left; width: 505px;">
-       
+      </div>
+    
+    <div class="left" id="leftpanel">
     </div>
-    <div id="dialerdiv2" style="float: left; width: 705px;">
-                   
-    </div>
-    <div style="clear: both;"></div>
-</div> 
 
-  <script type="text/javascript" src="d3.v3.min.js"></script>
-  <!--script type="text/javascript" src="d3.csv.js"></script-->
-  <!--script src="http://d3js.org/d3.v3.min.js"></script-->
-  <script src="app.js"></script>
+
+    <div class="left" id="main">
+     </div>
+
+
+    <div class="left" id="rightpanel">
+    </div>
+
+
+<!--script type="text/javascript" src="test.js"></script>
+ <!--script type="text/javascript" src="d3.csv.js"></script-->
+<!--script src="http://d3js.org/d3.v3.min.js"></script-->
+<script src="app.js"></script>
+
 
 
   <!--script src="kde.js"></script-->
 
 
+  </body>
 
 
 </html>
+
