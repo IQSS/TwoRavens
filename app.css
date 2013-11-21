@@ -80,7 +80,6 @@ text.id {
 
 
 .left {
-    float:left;
     width: 33.3%;
     height:600px;
     box-sizing: border-box; margin: 0;
@@ -98,11 +97,18 @@ text.id {
 }
 
 #rightpanel {
+    right:0;
+    position:absolute;
     border:1px solid blue;
     width: 15%;
 }
+/*
+#rightpanel:hover {
+    width:50%;
+}*/
 
 #main {
+    float:left;
     border:1px solid green;
     width: 70%;
 }
