@@ -9,22 +9,30 @@ svg {
 }
 
 #tooltip {
-position: absolute;
-width: 400px;
-height: auto;
-padding: 10px;
-background-color: white;
--webkit-border-radius: 2px;
--moz-border-radius: 2px;
-border-radius: 2px;
--webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4); -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4); box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4); pointer-events: none;
-}
-#tooltip.hidden {
-}
-display: none;
-#tooltip p { margin: 0;
-font-family: sans-serif; font-size: 16px;
-}
+				position: absolute;
+				width: 200px;
+				height: auto;
+				padding: 10px;
+				background-color: white;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				pointer-events: none;
+			}
+			
+			.hidden {
+				display: none;
+			}
+			
+			#tooltip p {
+				margin: 0;
+				font-family: sans-serif;
+				font-size: 16px;
+				line-height: 20px;
+			}
 
 
 .arc path {
@@ -118,4 +126,59 @@ text.id {
     height:400px;
 }
 
+#Tabs ul {
+padding: 0px;
+margin: 0px;
+margin-left: 10px;
+list-style-type: none;
+}
 
+#Tabs ul li {
+display: inline-block;
+clear: none;
+float: left;
+height: 24px;
+}
+
+#Tabs ul li a {
+position: relative;
+margin-top: 16px;
+display: block;
+margin-left: 6px;
+line-height: 24px;
+padding-left: 10px;
+background: #f6f6f6;
+z-index: 9999;
+border: 1px solid #ccc;
+border-bottom: 0px;
+
+/* The following four lines are to make the top left and top right corners of each tab rounded. */
+-moz-border-radius-topleft: 4px;
+border-top-left-radius: 4px;
+-moz-border-radius-topright: 4px;
+border-top-right-radius: 4px;
+/* end of rounded borders */
+
+width: 40%;
+color: #000000;
+text-decoration: none;
+font-weight: bold;
+}
+
+#Tabs ul li a:hover {
+text-decoration: underline; 
+}
+
+#Tabs #Content_Area {
+padding: 0 15px;
+clear:both;
+overflow:hidden;
+line-height:19px;
+position: relative;
+top: 20px;
+z-index: 5;
+height: 100%;
+overflow: scroll;
+}
+
+p { padding-left: 15px; }

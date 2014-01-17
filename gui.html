@@ -42,11 +42,22 @@
           value="Cross Section"
           onclick="cs()" />
       </div>
-    
+  
     <div class="left" id="leftpanel">
+        <div id="Tabs">
+            <ul>
+                <li id="li_tab1" onclick="tab('tab1')" ><a>Variables</a></li>
+                <li id="li_tab2" onclick="tab('tab2')"><a>Estimators</a></li>
+            </ul>
+            <div id="Content_Area">
+                <div id="tab1">
+                </div>
+                <div id="tab2" style="display: none;">
+                </div>
+            </div> <!– End of Content_Area Div –>
+        </div> <!– End of Tabs Div –>
     </div>
-
-
+ 
     <div class="left" id="main">
      </div>
 
@@ -56,11 +67,18 @@
     
     <div style="clear:left;"></div>
 
+    <div id="tooltip" style="display: none;">
+        <p><strong>Summary Statistics</strong></p>
+        <p><span id="value">100</span></p>
+        </div>
+
+
+
 
 <!--script type="text/javascript" src="test.js"></script>
  <!--script type="text/javascript" src="d3.csv.js"></script-->
 <!--script src="http://d3js.org/d3.v3.min.js"></script-->
-<script src="app.js"></script>
+<script src="app_ddi.js"></script>
 
 
 
