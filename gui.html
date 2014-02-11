@@ -78,6 +78,15 @@
 <!--script type="text/javascript" src="test.js"></script>
  <!--script type="text/javascript" src="d3.csv.js"></script-->
 <!--script src="http://d3js.org/d3.v3.min.js"></script-->
+<script>
+  var myurl=window.location.toString();
+  var fileid=myurl.substring(myurl.indexOf("dfId=")+5);
+  var cindex=fileid.indexOf("&");
+  if (cindex > 0) {
+    fileid=fileid.substring(0,cindex);
+  };
+  console.log("fileid: "+fileid);
+</script>
 <script src="app_ddi.js"></script>
 
 
