@@ -110,6 +110,9 @@ var nodes = [];
 // load data from DDI with d3
 //d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
 // pass the entire link bc the id might not be unique
+// temporary defaults for the fileid and hostname, pointing to 
+// the sample data set on dvn-build, until more "real" data become
+// available:
 if (!hostname) {
         hostname="dvn-build.hmdc.harvard.edu";
 }
