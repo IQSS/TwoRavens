@@ -80,12 +80,26 @@
 <!--script src="http://d3js.org/d3.v3.min.js"></script-->
 <script>
   var myurl=window.location.toString();
-  var fileid=myurl.substring(myurl.indexOf("dfId=")+5);
-  var cindex=fileid.indexOf("&");
-  if (cindex > 0) {
-    fileid=fileid.substring(0,cindex);
+  var fileid="";
+  var cindex=0;
+  if (myurl.indexOf("dfId=") > 0) {
+    fileid=myurl.substring(myurl.indexOf("dfId=")+5);
+    cindex=fileid.indexOf("&");
+    if (cindex > 0) {
+      fileid=fileid.substring(0,cindex);
+    };
   };
+  var hostname="";
+  if (myurl.indexOf("host=") > 0) {
+    hostname=myurl.substring(myurl.indexOf("host=")+5);
+    cindex=hostname.indexOf("&");
+    if (cindex > 0) {
+      hostname=hostname.substring(0,cindex);
+    };
+  };
+
   console.log("fileid: "+fileid);
+  console.log("hostname: "+hostname);
 </script>
 <script src="app_ddi.js"></script>
 
