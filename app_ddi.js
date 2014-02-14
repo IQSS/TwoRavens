@@ -110,9 +110,14 @@ var nodes = [];
 // load data from DDI with d3
 //d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
 // pass the entire link bc the id might not be unique
-// "dvn-build.hmdc.harvard.edu" is still hard-coded; will make this a parameter as well: (L.A.)
-var metadataurl="http://dvn-build.hmdc.harvard.edu/api/meta/datafile/";
-metadataurl=metadataurl+fileid; 
+if (!hostname) {
+        hostname="dvn-build.hmdc.harvard.edu";
+}
+var metadataurl="http://"+hostname+"/api/meta/datafile/";
+if (!fileid) {
+        fileid=2429360;
+}
+metadataurl=metadataurl+fileid;
 console.log("metadata url: "+metadataurl);
 // d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
 d3.xml(metadataurl, "application/xml", function(xml) {
