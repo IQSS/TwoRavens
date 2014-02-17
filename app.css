@@ -91,7 +91,7 @@ text.id {
     width: 33.3%;
     height:600px;
     box-sizing: border-box; margin: 0;
-    overfill:scroll;
+    overflow:scroll;
 }
 
 #option {
@@ -172,7 +172,6 @@ text-decoration: underline;
 #Tabs #Content_Area {
 padding: 0 15px;
 clear:both;
-overflow:hidden;
 line-height:19px;
 position: relative;
 top: 20px;
