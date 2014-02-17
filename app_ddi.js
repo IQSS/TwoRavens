@@ -9,6 +9,7 @@
 
 var svg = d3.select("#main.left")
 .append('svg');
+
 //.attr('width', width)
 //.attr('height', height);
 var tempWidth = d3.select("#main.left").style("width")
@@ -29,6 +30,7 @@ var placeholder = d3.select("#rightpanel.left")
 
 //var varpanel = d3.select("#leftpanel.left")
 //.append('svg')
+//.attr('height', 2000);
 
 // location of Summary Statistics popup window
 var xPos = 250;
@@ -47,12 +49,25 @@ var timeColor = d3.rgb("black");
 var colorCS=false;
 var csColor = d3.rgb("white");
 
+var depVar=false;
+
 var varColor = d3.rgb("aliceblue");
 var selVarColor = d3.rgb("salmon");
 
 // Zelig models, eventually this could be a separate xml file that is imported
-var zmods = ["OLS", "Logit"];
-var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[] };
+//var zmods = ["OLS", "Logit"];
+var mods = [];
+d3.json("data/zeligmodels.json", function(error, json) {
+        if (error) return console.warn(error);
+        var jsondata = json;
+ //       console.log(jsondata);
+        jsondata.zeligmodels.forEach(function(d) {
+        mods.push(d["-name"]);
+                                    });
+        });
+var zmods = mods;
+
+var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:"" };
 
   // Radius of circle 
 var allR = 40;
@@ -110,6 +125,7 @@ var nodes = [];
 // load data from DDI with d3
 //d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
 // pass the entire link bc the id might not be unique
+
 // temporary defaults for the fileid and hostname, pointing to 
 // the sample data set on dvn-build, until more "real" data become
 // available:
@@ -157,7 +173,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-        allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd});
+        allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd});
        };
  
    //    console.log(allNodes);
@@ -172,6 +188,10 @@ d3.xml(metadataurl, "application/xml", function(xml) {
               else {return selVarColor;}
               });
    
+       d3.select("#tab2")
+       .style('height', 2000)
+       .style('overfill', 'scroll');
+       
        d3.select("#tab2").selectAll("p")
        .data(zmods)
        .enter()
@@ -457,18 +477,26 @@ function layout() {
                var myIndex = findNodeIndex(d.name);
                 return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol); // IF d is equal to selected_node return brighter color ELSE return normal color
                })
+        .style('stroke', function(d){
+               var myIndex = findNodeIndex(d.name);
+               return (d3.rgb(d.nodeStroke)); // IF d is equal to selected_node return brighter color ELSE return normal color
+               })
+        .style('stroke-width', function(d){
+               var myIndex = findNodeIndex(d.name);
+               return (d.strokeWidth)
+               })
         .on('click',function() {
             d3.select(this)
             .style('fill', function(d) {
-                   if(colorCS) {
+                   if(colorCS && d.strokeWidth!='4') {
                     colorCS=false;
-                   d.nodeCol = d3.rgb(csColor);
-                   zparams.zcross = d.name;
+                    d.nodeCol = d3.rgb(csColor);
+                    zparams.zcross = d.name;
              //      console.log(d.id);  d.id is literally the id number  colors() is literally a scale declared at the top
-                   return (d3.rgb(csColor));
+                    return (d3.rgb(csColor));
                    // here you want to do: colors(d.id) = csColor
                    }
-                   else if(colorTime){
+                   else if(colorTime && d.strokeWidth!='4'){
                     colorTime=false;
                     d.nodeCol = d3.rgb(timeColor);
                    zparams.ztime = d.name;
@@ -481,6 +509,17 @@ function layout() {
                     return(d3.rgb(d.nodeCol));
                    }
         
+                   })
+            .style('stroke-width', function(d) {
+                   if(depVar){
+                    depVar=false;
+                    zparams.zdv = d.name;
+                    d.strokeWidth = '4';
+                    return('4');
+                   }
+                   else {
+                    return d.strokeWidth;
+                   }
                    });
             });
         
@@ -668,7 +707,7 @@ function layout() {
         //    .style(  fill: url(#fade); )
         .style('stroke', function(d) {
                var myIndex = findNodeIndex(d.name);
-               return d3.rgb(d.nodeCol).darker().toString(); })
+               return d3.rgb(d.nodeStroke).toString(); })
         .classed('reflexive', function(d) { return d.reflexive; })
         .on('mouseover', function(d) {
             //console.log("this is where to add summary stats");
@@ -965,9 +1004,8 @@ function forceSwitch() {
 }
 
 function estimate() {
-    // should all zparams be left empty until estimate is clicked?
     // write links to file & run R CMD
-    //estimated=true;
+    
     zparams.zedges = [];
     zparams.zvars = [];
     
@@ -989,6 +1027,11 @@ function time() {
 function cs() {
     colorCS = true;
 }
+
+function dv() {
+    depVar = true;
+}
+
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
 function loadXMLDoc(XMLname)
