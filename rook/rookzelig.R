@@ -1,16 +1,40 @@
-install.packages(c("Rook","rjson","Zelig"))
+##
+##  rookzelig.r
+##
+##  25/2/14
+##
+
+#install.packages(c("Rook","rjson","Zelig"))
 
 library(Rook)
 library(rjson)
 library(Zelig)
 
-R.server <- Rhttpd$new()
-cat("Type:", typeof(R.server), "Class:", class(R.server))
+myPort <- 8000
+myInterface <- "127.0.0.1"
+status <- -1
 
+status<-.Call(tools:::startHTTPD, myInterface, myPort)
+
+if( status!=0 ){
+    print("WARNING: Error setting interface or port")
+    stop()
+}#else{
+#   unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
+#    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
+#}
+
+
+R.server <- Rhttpd$new()
+
+
+cat("Type:", typeof(R.server), "Class:", class(R.server))
 R.server$add(app = File$new(getwd()), name = "pic_dir")
 print(R.server)
 
 R.server$start()
+R.server$listenAddr <- myInterface
+R.server$listenPort <- myPort
 
 
 
@@ -76,17 +100,13 @@ getDataverse<-function(hostname, fileid){
 
 
 
-
-
-
-
-
-
 R.server$add(app = zelig.app, name = "zeligapp")
-
 
 print(R.server)
 
+
+
 #R.server$browse("My rook app")
 #R.server$stop()
+#R.server$remove(all=TRUE)
 
