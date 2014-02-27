@@ -4,14 +4,20 @@
 ##  25/2/14
 ##
 
-#install.packages(c("Rook","rjson","Zelig"))
+##install.packages(c("Rook","rjson","Zelig"))
+##setwd("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/rook")
+
+#!/usr/bin/env Rscript
 
 library(Rook)
 library(rjson)
 library(Zelig)
 
-myPort <- 8000
-myInterface <- "127.0.0.1"
+
+myPort <- "8000"
+myInterface <- "0.0.0.0"
+#myInterface <- "127.0.0.1"
+#myInterface <- "140.247.0.42"
 status <- -1
 
 status<-.Call(tools:::startHTTPD, myInterface, myPort)
@@ -19,11 +25,13 @@ status<-.Call(tools:::startHTTPD, myInterface, myPort)
 if( status!=0 ){
     print("WARNING: Error setting interface or port")
     stop()
-}#else{
+} #else{
 #   unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
 #    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
 #}
 
+## maybe something like this gets around the access-control limits of CRAN?
+#R.server$add(name = "solafide", app = "/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/app_ddi.js") ...but not an app...
 
 R.server <- Rhttpd$new()
 
@@ -32,17 +40,15 @@ cat("Type:", typeof(R.server), "Class:", class(R.server))
 R.server$add(app = File$new(getwd()), name = "pic_dir")
 print(R.server)
 
-R.server$start()
+# vjd: added port=myPort
+R.server$start(listen=myInterface, port=myPort)
 R.server$listenAddr <- myInterface
 R.server$listenPort <- myPort
 
 
-
-
 zelig.app <- function(env){
     request <- Request$new(env)
-    response <- Response$new()
-    
+    response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     everything <- fromJSON(request$params()$solaJSON)
 
 #mydata<-getDataverse(host=everything$host, fileid=everything$fileid)
@@ -59,6 +65,7 @@ zelig.app <- function(env){
     plot(everything$x,everything$y)
     dev.off()
     
+    #   response$headers("localhost:8888")
     response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
     response$finish()
@@ -104,9 +111,12 @@ R.server$add(app = zelig.app, name = "zeligapp")
 
 print(R.server)
 
+#R.server$browse(zeligapp)
+#http://127.0.0.1:8000/custom/zeligapp?solaJSON={"x":[1,2,4,7],"y":[3,5,7,9]}
+#http://0.0.0.0:8000/custom/pic_dir/james.png
 
 
-#R.server$browse("My rook app")
+#R.server$browse("zeligapp")
 #R.server$stop()
 #R.server$remove(all=TRUE)
 
