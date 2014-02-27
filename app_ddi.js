@@ -67,7 +67,7 @@ d3.json("data/zeligmodels.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:"" };
+var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:"", zhostname:"", zfileid:"" };
 
   // Radius of circle 
 var allR = 40;
@@ -1006,6 +1006,9 @@ function forceSwitch() {
 function estimate() {
     // write links to file & run R CMD
     
+    zparams.zhostname = hostname;
+    zparams.zfileid = fileid;
+    
     zparams.zedges = [];
     zparams.zvars = [];
     
@@ -1018,7 +1021,78 @@ function estimate() {
         zparams.zedges.push(srctgt);
     }
     console.log(zparams);
+    
+    //sometimes these things are easier than you feel they should be...
+    //package the zparams object as JSON
+    var jsonout = JSON.stringify(zparams);
+    var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
+    var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
+    
+    urlcall = base.concat(test);
+    console.log(urlcall);
+    
+    
+    
+  //  var xmlhttp=new XMLHttpRequest();
+  //  xmlhttp.open("GET",url,true);
+  //  xmlhttp.send();
+    
+    makeCorsRequest(urlcall);
+    
 }
+
+// below from http://www.html5rocks.com/en/tutorials/cors/ for cross-origin resource sharing (an issue when moving from port to port)
+// Create the XHR object.
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+    } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+    } else {
+        // CORS not supported.
+        xhr = null;
+    }
+    return xhr;
+}
+
+// Helper method to parse the title tag from the response.
+//function getTitle(text) {
+//    return text.match('<title>(.*)?</title>')[1];
+//}
+
+// Make the actual CORS request.
+function makeCorsRequest(url) {
+    // All HTML5 Rocks properties support CORS.
+    // var url = 'http://updates.html5rocks.com';
+    
+    var xhr = createCORSRequest('GET', url);
+    if (!xhr) {
+        alert('CORS not supported');
+        return;
+    }
+    
+    // Response handlers for asynchronous load.  disabled for now
+            xhr.onload = function() {
+     var text = xhr.responseText;
+ //    var title = getTitle(text);
+     //alert('Response from CORS request to ' + url + ': ' + title);
+     alert('Response from CORS request to ' + url + ': ');
+                
+            };
+     
+     xhr.onerror = function() {
+     alert('Woops, there was an error making the request.');
+     };
+    
+    xhr.send();
+}
+
+
+
 
 function time() {
     colorTime = true;
