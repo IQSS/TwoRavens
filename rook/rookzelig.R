@@ -51,46 +51,64 @@ zelig.app <- function(env){
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     everything <- fromJSON(request$params()$solaJSON)
 
-#mydata<-getDataverse(host=everything$host, fileid=everything$fileid)
-#mydv<-everything$dependentVariable
-#myformula<-buildFormula(mydata, mydv, everything$linkageList)
-#mymodel<-everything$model
+	mydata <- getDataverse(host=everything$host, fileid=everything$fileid)
+	mydv <- everything$dependentVariable
+	myformula <- buildFormula(dv=mydv, linkagelist=everything$linkageList, varnames=names(mydata))
+	mymodel <- everything$model
 
-#z.out<-zelig(formula=myformula, model=mymodel, data=mydata)
-
-    x<-runif(5)
-    y<-runif(5)
+	z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
+	x.out <- setx(z.out)
+	s.out <- sim(z.out, x=x.out)
 
     png(file.path(getwd(), "james.png"))
-    plot(everything$x,everything$y)
+    #plot(everything$x,everything$y)
+    plot(s.out)
     dev.off()
     
-    #   response$headers("localhost:8888")
-    response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
+    #response$headers("localhost:8888")
+    #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
+    resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
+    resultgraphs <- toJSON(resultgraphs)
+    response$write(resultgraphs)
+
     response$finish()
 }
 
-
-
-
-
-
-
-buildFormula<-function(data, dv, linkagelist){
+buildFormula<-function(dv, linkagelist, varnames=NULL){
     
-    k<-ncol(data)
-    varnames<-names(data)
+    if(is.null(varnames)){
+    	varnames<-unique(c(dv,linkagelist))
+    }
+
+    k<-length(varnames)
     relationship.matrix<-matrix(0,nrow=k,ncol=k)
     
+    # define relationship matrix
+    # relmat[i,j]==1 => "i caused by j"
     for(i in 1:nrow(linkagelist)){
         row.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )  # min() solves ties with shared variable names
         col.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )
-        relationship.matrix[row.position,col.position]<-1
+        relmat[row.position,col.position]<-1
     }
     
+    # store matrix contains all backwards linked variables
+    store<-relmat.n<-relmat<-a
+
+    continue<-TRUE
+    while(continue){
+      	relmat.n<-relmat.n %*% relmat
+      	relmat.n[store==1]<-0   # stops following previously traced path
+      	relmat.n[relmat.n>1]<-1 # converts to boolean indicator matrix 
+      	store<-store + relmat.n # trace all long run paths
+      	store[store>1]<-1       # converts to boolean indicator matrix
+      	continue<-(sum(relmat.n)>0)  # no new paths to trace
+    }
+
     j<-min( (1:k)[varnames %in% dv ] )
-    flag<- relationship.matrix[j,]==1
+    rhsIndicator<-store[j,]  # these are the variables that have a path to dv
+    rhsIndicator[j]<-0       # do not want dv as its own rhs variable
+    flag<-rhsIndicator==1    
     rhs.names<-varnames[flag]
     formula<-as.formula(paste(dv," ~ ", paste(rhs.names,collapse=" + ")))
             
@@ -99,13 +117,10 @@ buildFormula<-function(data, dv, linkagelist){
 
 
 getDataverse<-function(hostname, fileid){
-    path<-paste("http://",hostname,"/api/meta/datafile/",fileid,sep="")
-    mydata<-read.csv(url=path)
+    path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
+    mydata<-read.csv(file=path)
     return(mydata)
 }
-
-
-
 
 R.server$add(app = zelig.app, name = "zeligapp")
 
