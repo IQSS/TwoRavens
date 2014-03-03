@@ -1028,7 +1028,8 @@ function estimate() {
     var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
     var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     
-    urlcall = base.concat(test);
+    //urlcall = base.concat(test);
+    urlcall = base.concat(jsonout);
     console.log(urlcall);
     
     
