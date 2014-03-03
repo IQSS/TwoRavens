@@ -49,12 +49,21 @@ R.server$listenPort <- myPort
 zelig.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
+
+    print(request$params())
     everything <- fromJSON(request$params()$solaJSON)
 
-	mydata <- getDataverse(host=everything$host, fileid=everything$fileid)
-	mydv <- everything$dependentVariable
-	myformula <- buildFormula(dv=mydv, linkagelist=everything$linkageList, varnames=names(mydata))
-	mymodel <- everything$model
+    print(everything)
+
+	mydv <- everything$zdv
+	myedges<-everything$zedges
+	mymodel <- everything$zmodel
+
+    print("_+_+_+_+_+_+_+_+_")
+	print(myedges)
+
+	mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=names(mydata))
 
 	z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
 	x.out <- setx(z.out)
