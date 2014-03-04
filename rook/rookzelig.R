@@ -56,14 +56,15 @@ zelig.app <- function(env){
     print(everything)
 
 	mydv <- everything$zdv
-	myedges<-everything$zedges
+	myedges<-edgeReformat(everything$zedges)
 	mymodel <- everything$zmodel
 
     print("_+_+_+_+_+_+_+_+_")
 	print(myedges)
 
 	mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
-	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=names(mydata))
+	print(names(mydata))
+	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
 
 	z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
 	x.out <- setx(z.out)
@@ -84,25 +85,50 @@ zelig.app <- function(env){
     response$finish()
 }
 
+edgeReformat<-function(edges){
+	k<-length(edges)
+	new<-matrix(NA,nrow=k,ncol=2)
+	for(i in 1:k){
+		new[i,1]<-edges[[i]][1]
+		new[i,2]<-edges[[i]][2]
+	}
+
+    print("new")
+    print(new)
+    return(new)
+
+
+}
+
+
 buildFormula<-function(dv, linkagelist, varnames=NULL){
     
+
+
     if(is.null(varnames)){
     	varnames<-unique(c(dv,linkagelist))
     }
 
+    print(linkagelist)
+    print(varnames)
+
     k<-length(varnames)
-    relationship.matrix<-matrix(0,nrow=k,ncol=k)
+    relmat<-matrix(0,nrow=k,ncol=k)
     
     # define relationship matrix
     # relmat[i,j]==1 => "i caused by j"
+    # NOTE: AWKWARD FORMAT - should reformat into matrix.
+
     for(i in 1:nrow(linkagelist)){
-        row.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )  # min() solves ties with shared variable names
-        col.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )
+        row.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )  # min() solves ties with shared variable names
+        col.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )   
         relmat[row.position,col.position]<-1
     }
-    
+    print("relmat")
+    print(relmat)
+
     # store matrix contains all backwards linked variables
-    store<-relmat.n<-relmat<-a
+    store<-relmat.n<-relmat
 
     continue<-TRUE
     while(continue){
@@ -113,14 +139,18 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
       	store[store>1]<-1       # converts to boolean indicator matrix
       	continue<-(sum(relmat.n)>0)  # no new paths to trace
     }
-
+    print("store")
+    print(store)
+    
     j<-min( (1:k)[varnames %in% dv ] )
     rhsIndicator<-store[j,]  # these are the variables that have a path to dv
     rhsIndicator[j]<-0       # do not want dv as its own rhs variable
     flag<-rhsIndicator==1    
     rhs.names<-varnames[flag]
     formula<-as.formula(paste(dv," ~ ", paste(rhs.names,collapse=" + ")))
-            
+         
+    print(formula)
+
     return(formula)
 }
 
