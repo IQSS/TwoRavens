@@ -58,8 +58,8 @@ zelig.app <- function(env){
 	mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
 
-print(names(mydata))
-print(myformula)
+	print(names(mydata))
+	print(myformula)
 
 	assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
 
@@ -77,11 +77,11 @@ print(myformula)
     dev.off()
     
     #response$headers("localhost:8888")
-    #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
+    response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
-    resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
+    #resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
     #resultgraphs <- toJSON(resultgraphs)
-    response$write(resultgraphs)
+    #response$write(resultgraphs)
 
     response$finish()
 }
