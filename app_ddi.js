@@ -1003,8 +1003,11 @@ function forceSwitch() {
     forcetoggle = !forcetoggle;
 }
 
-function estimate() {
+function estimate(btn) {
     // write links to file & run R CMD
+
+    var property=document.getElementById(btn);
+    property.style.backgroundColor="#CC3333";
     
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
@@ -1026,8 +1029,7 @@ function estimate() {
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
     var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
-    var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
-    
+    //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     //urlcall = base.concat(test);
     urlcall = base.concat(jsonout);
     console.log(urlcall);
@@ -1037,8 +1039,15 @@ function estimate() {
   //  var xmlhttp=new XMLHttpRequest();
   //  xmlhttp.open("GET",url,true);
   //  xmlhttp.send();
+
+    function estimateSuccess(btn) {
+      var property=document.getElementById(btn);
+      estimated=true;
+      property.style.backgroundColor="#00CC33";
+    }
     
-    makeCorsRequest(urlcall);
+    makeCorsRequest(urlcall,btn, estimateSuccess);
+
     
 }
 
@@ -1066,10 +1075,9 @@ function createCORSRequest(method, url) {
 //}
 
 // Make the actual CORS request.
-function makeCorsRequest(url) {
+function makeCorsRequest(url,btn,callback) {
     // All HTML5 Rocks properties support CORS.
     // var url = 'http://updates.html5rocks.com';
-    
     var xhr = createCORSRequest('GET', url);
     if (!xhr) {
         alert('CORS not supported');
@@ -1077,17 +1085,24 @@ function makeCorsRequest(url) {
     }
     
     // Response handlers for asynchronous load.  disabled for now
-            xhr.onload = function() {
-     var text = xhr.responseText;
- //    var title = getTitle(text);
-     //alert('Response from CORS request to ' + url + ': ' + title);
-     alert('Response from CORS request to ' + url + ': ');
-                
-            };
+    xhr.onload = function() {
+      console.log(xhr.responseText);
+      var text = xhr.responseText;
+      var json = JSON.parse(text);
+      if (json.success) {
+        callback(btn);
+  //    var title = getTitle(text);
+  //    alert('Response from CORS request to ' + url + ': ' + title);
+        alert('Response from CORS request to ' + url + ': ');
+      }else{
+       callback(btn);
+        alert("failed to get result from Zelig");
+      }
+    };
      
-     xhr.onerror = function() {
-     alert('Woops, there was an error making the request.');
-     };
+    xhr.onerror = function() {
+      alert('Woops, there was an error making the request.');
+    };
     
     xhr.send();
 }

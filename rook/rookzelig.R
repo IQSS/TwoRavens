@@ -26,7 +26,7 @@ if( status!=0 ){
     print("WARNING: Error setting interface or port")
     stop()
 } #else{
-#   unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
+#    unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
 #    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
 #}
 
@@ -77,11 +77,13 @@ zelig.app <- function(env){
     dev.off()
     
     #response$headers("localhost:8888")
-    response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
+    #response$write("Hello")
+    #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
-    #resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
-    #resultgraphs <- toJSON(resultgraphs)
-    #response$write(resultgraphs)
+    resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
+    resultgraphs <- toJSON(resultgraphs)
+    print(resultgraphs)
+    response$write(resultgraphs)
 
     response$finish()
 }
