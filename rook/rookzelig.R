@@ -50,39 +50,46 @@ zelig.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
 
-    print(request$params())
     everything <- fromJSON(request$params()$solaJSON)
 
-    print(everything)
-
 	mydv <- everything$zdv
-	myedges<-edgeReformat(everything$zedges)
 	mymodel <- everything$zmodel
-
-    print("_+_+_+_+_+_+_+_+_")
-	print(myedges)
-
+	myedges<-edgeReformat(everything$zedges)
 	mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
-	print(names(mydata))
 	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
 
+print(names(mydata))
+print(myformula)
+
+	assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
+
 	z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
+	print(summary(z.out))
+	assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
 	x.out <- setx(z.out)
+	assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
 	s.out <- sim(z.out, x=x.out)
+	assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
     png(file.path(getwd(), "james.png"))
-    #plot(everything$x,everything$y)
-    plot(s.out)
+    plot(runif(5),runif(5))
+    #plot(s.out)
     dev.off()
     
     #response$headers("localhost:8888")
     #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
     resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
-    resultgraphs <- toJSON(resultgraphs)
+    #resultgraphs <- toJSON(resultgraphs)
     response$write(resultgraphs)
 
     response$finish()
+}
+
+getDataverse<-function(hostname, fileid){
+    path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
+    mydata<-read.delim(file=path)
+    return(mydata)
 }
 
 edgeReformat<-function(edges){
@@ -92,40 +99,26 @@ edgeReformat<-function(edges){
 		new[i,1]<-edges[[i]][1]
 		new[i,2]<-edges[[i]][2]
 	}
-
-    print("new")
-    print(new)
     return(new)
-
-
 }
-
 
 buildFormula<-function(dv, linkagelist, varnames=NULL){
     
-
-
     if(is.null(varnames)){
     	varnames<-unique(c(dv,linkagelist))
     }
-
-    print(linkagelist)
-    print(varnames)
 
     k<-length(varnames)
     relmat<-matrix(0,nrow=k,ncol=k)
     
     # define relationship matrix
     # relmat[i,j]==1 => "i caused by j"
-    # NOTE: AWKWARD FORMAT - should reformat into matrix.
 
     for(i in 1:nrow(linkagelist)){
         row.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )  # min() solves ties with shared variable names
         col.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )   
         relmat[row.position,col.position]<-1
     }
-    print("relmat")
-    print(relmat)
 
     # store matrix contains all backwards linked variables
     store<-relmat.n<-relmat
@@ -139,8 +132,6 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
       	store[store>1]<-1       # converts to boolean indicator matrix
       	continue<-(sum(relmat.n)>0)  # no new paths to trace
     }
-    print("store")
-    print(store)
     
     j<-min( (1:k)[varnames %in% dv ] )
     rhsIndicator<-store[j,]  # these are the variables that have a path to dv
@@ -148,18 +139,11 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     flag<-rhsIndicator==1    
     rhs.names<-varnames[flag]
     formula<-as.formula(paste(dv," ~ ", paste(rhs.names,collapse=" + ")))
-         
-    print(formula)
 
     return(formula)
 }
 
 
-getDataverse<-function(hostname, fileid){
-    path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
-    mydata<-read.csv(file=path)
-    return(mydata)
-}
 
 R.server$add(app = zelig.app, name = "zeligapp")
 
@@ -173,4 +157,5 @@ print(R.server)
 #R.server$browse("zeligapp")
 #R.server$stop()
 #R.server$remove(all=TRUE)
+#mydata<-getDataverse(hostname="dvn-build.hmdc.harvard.edu", fileid="2429360")
 
