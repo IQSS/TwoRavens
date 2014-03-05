@@ -71,16 +71,32 @@ zelig.app <- function(env){
 	s.out <- sim(z.out, x=x.out)
 	assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
-    png(file.path(getwd(), "james.png"))
-    plot(runif(5),runif(5))
-    #plot(s.out)
-    dev.off()
-    
+    qicount<-0
+    resultgraphs<-list()
+    for(i in 1:length(s.out$qi)){
+      if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
+      	qicount<-qicount+1
+    	png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+    	Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
+    	dev.off()
+    	resultgraphs[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+      }
+    }
+
+    if(qicount>0){
+    	names(resultgraphs)<-paste("output",1:length(resultgraphs),sep="")
+    }else{
+    	resultgraphs<-list(output1="WARNING: There are no Zelig output graphs to show.")
+    }
+
+    #png(file.path(getwd(), "james.png"))
+    #plot(runif(5),runif(5))
+    #dev.off()
+
     #response$headers("localhost:8888")
     #response$write("Hello")
     #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
-    resultgraphs <- list(output1=paste(R.server$full_url("pic_dir"), "/james.png", sep = "") )
     resultgraphs <- toJSON(resultgraphs)
     print(resultgraphs)
     response$write(resultgraphs)
@@ -145,8 +161,6 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     return(formula)
 }
 
-
-
 R.server$add(app = zelig.app, name = "zeligapp")
 
 print(R.server)
@@ -160,4 +174,5 @@ print(R.server)
 #R.server$stop()
 #R.server$remove(all=TRUE)
 #mydata<-getDataverse(hostname="dvn-build.hmdc.harvard.edu", fileid="2429360")
+#z.out<-zelig(cntryerb~cntryera + dyadidyr, model="ls", data=mydata)
 

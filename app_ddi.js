@@ -1029,6 +1029,8 @@ function estimate(btn) {
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
     var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
+//    var base = "http://0.0.0.0:8080/custom/zeligapp?solaJSON="
+
     //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     //urlcall = base.concat(test);
     urlcall = base.concat(jsonout);
@@ -1088,14 +1090,16 @@ function makeCorsRequest(url,btn,callback) {
     xhr.onload = function() {
       console.log(xhr.responseText);
       var text = xhr.responseText;
+      console.log(text);
       var json = JSON.parse(text);
+      console.log(json);
       if (json.success) {
         callback(btn);
   //    var title = getTitle(text);
   //    alert('Response from CORS request to ' + url + ': ' + title);
         alert('Response from CORS request to ' + url + ': ');
       }else{
-       callback(btn);
+        callback(btn);
         alert("failed to get result from Zelig");
       }
     };
