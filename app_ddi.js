@@ -6,7 +6,6 @@
 //var leftpanel = d3.select("body")
 //.append('svg');
 
-
 var svg = d3.select("#main.left")
 .append('svg');
 
@@ -1007,7 +1006,7 @@ function estimate(btn) {
     // write links to file & run R CMD
 
     var property=document.getElementById(btn);
-    property.style.backgroundColor="#CC3333";
+    property.style.backgroundColor="#66CCFF";
     
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
@@ -1042,13 +1041,20 @@ function estimate(btn) {
   //  xmlhttp.open("GET",url,true);
   //  xmlhttp.send();
 
-    function estimateSuccess(btn) {
+    function estimateSuccess(btn,json) {
       var property=document.getElementById(btn);
       estimated=true;
       property.style.backgroundColor="#00CC33";
     }
     
-    makeCorsRequest(urlcall,btn, estimateSuccess);
+    function estimateFail(btn) {
+      var property=document.getElementById(btn);
+      estimated=true;
+      property.style.backgroundColor="#CC3333";
+    }
+
+
+    makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
 
     
 }
@@ -1077,7 +1083,7 @@ function createCORSRequest(method, url) {
 //}
 
 // Make the actual CORS request.
-function makeCorsRequest(url,btn,callback) {
+function makeCorsRequest(url,btn,callback, warningcallback) {
     // All HTML5 Rocks properties support CORS.
     // var url = 'http://updates.html5rocks.com';
     var xhr = createCORSRequest('GET', url);
@@ -1088,19 +1094,21 @@ function makeCorsRequest(url,btn,callback) {
     
     // Response handlers for asynchronous load.  disabled for now
     xhr.onload = function() {
-      console.log(xhr.responseText);
       var text = xhr.responseText;
       console.log(text);
-      var json = JSON.parse(text);
+      console.log(typeof text);
+      //var json = JSON.parse(text);   // should wrap in try / catch
+      var json = eval('(' + text + ')');  // .parse was not creating an object ??
       console.log(json);
-      if (json.success) {
-        callback(btn);
-  //    var title = getTitle(text);
-  //    alert('Response from CORS request to ' + url + ': ' + title);
-        alert('Response from CORS request to ' + url + ': ');
+      console.log(typeof json);
+      
+      var names = Object.keys( json);
+
+      if (names[0] == "warning"){
+        warningcallback(btn);
+        alert("Warning:" + json.warning);
       }else{
         callback(btn);
-        alert("failed to get result from Zelig");
       }
     };
      
