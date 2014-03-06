@@ -1097,16 +1097,16 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
       var text = xhr.responseText;
       console.log(text);
       console.log(typeof text);
-      //var json = JSON.parse(text);   // should wrap in try / catch
-      var json = eval('(' + text + ')');  // .parse was not creating an object ??
+      var json = JSON.parse(text);   // should wrap in try / catch
+      //var json = eval('(' + text + ')'); 
       console.log(json);
       console.log(typeof json);
       
-      var names = Object.keys( json);
+      var names = Object.keys(json);
 
       if (names[0] == "warning"){
         warningcallback(btn);
-        alert("Warning:" + json.warning);
+        alert("Warning: " + json.warning);
       }else{
         callback(btn);
       }
