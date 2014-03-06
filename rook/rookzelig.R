@@ -51,57 +51,102 @@ zelig.app <- function(env){
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
 
     everything <- fromJSON(request$params()$solaJSON)
+    print(everything)
 
-	mydv <- everything$zdv
-	mymodel <- everything$zmodel
-	myedges<-edgeReformat(everything$zedges)
-	mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
-	myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
+    warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
 
-	print(names(mydata))
-	print(myformula)
+	if(!warning){
+		mydv <- everything$zdv
+		if(identical(mydv,"")){
+			warning <- TRUE
+			result<-list(warning="No dependent variable selected.")
+		}
+	}
 
-	assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
+	if(!warning){
+		mymodel <- everything$zmodel
+		if(identical(mymodel,"")){
+			warning <- TRUE
+			result<-list(warning="No model selected.")
+		}
+	}
 
-	z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
-	print(summary(z.out))
-	assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
-	x.out <- setx(z.out)
-	assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
-	s.out <- sim(z.out, x=x.out)
-	assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
+	if(!warning){
+		myedges<-edgeReformat(everything$zedges)
+		if(is.null(myedges)){
+			warning <- TRUE
+			result<-list(warning="Problem creating edges.")
+		}
+	}
 
-    qicount<-0
-    resultgraphs<-list()
-    for(i in 1:length(s.out$qi)){
-      if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
-      	qicount<-qicount+1
-    	png(file.path(getwd(), paste("output",qicount,".png",sep="")))
-    	Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
-    	dev.off()
-    	resultgraphs[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
-      }
-    }
+	if(!warning){ 
+		mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+		if(is.null(mydata)){
+			warning <- TRUE
+			result<-list(warning="Dataset not loadable from Dataverse")
+		}
+	}
 
-    if(qicount>0){
-    	names(resultgraphs)<-paste("output",1:length(resultgraphs),sep="")
-    }else{
-    	resultgraphs<-list(output1="WARNING: There are no Zelig output graphs to show.")
-    }
+	if(!warning){ 
+		myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
+		if(is.null(myformula)){
+			warning <- TRUE
+			result<-list(warning="Problem constructing formula expression.")
+		}
+	}
 
+	if(!warning){
+		print(names(mydata))
+		print(myformula)
+	
+
+  		assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
+		z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
+		print(summary(z.out))
+		assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
+		x.out <- setx(z.out)
+		assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
+		s.out <- sim(z.out, x=x.out)
+		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
+
+    	qicount<-0
+    	result<-list()
+    	for(i in 1:length(s.out$qi)){
+    	  	if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
+      			qicount<-qicount+1
+    			png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+    			Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
+    			dev.off()
+    			result[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+    	  	}
+    	}
+
+    	if(qicount>0){
+    		names(result)<-paste("output",1:length(resultgraphs),sep="")
+    	}else{
+    		warning<-TRUE
+    		result<-list(warning="There are no Zelig output graphs to show.")
+	    }
+	}
     #png(file.path(getwd(), "james.png"))
     #plot(runif(5),runif(5))
     #dev.off()
 
     #response$headers("localhost:8888")
-    #response$write("Hello")
-    #response$write(paste("<img src =", R.server$full_url("pic_dir"), "/james.png",  ">", sep = ""))
     
-    resultgraphs <- toJSON(resultgraphs)
+    result<- toJSON(result)
     print(resultgraphs)
-    response$write(resultgraphs)
-
+    response$write(result)
     response$finish()
+}
+
+# Attempt at a termination function so as to streamline code 
+terminate<-function(response,warning){
+	jsonWarning <- toJSON(list(warning=warning))
+    print(jsonWarning)
+    response$write(jsonWarning)
+    response$finish()
+    stop()
 }
 
 getDataverse<-function(hostname, fileid){
