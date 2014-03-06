@@ -122,7 +122,7 @@ zelig.app <- function(env){
     	}
 
     	if(qicount>0){
-    		names(result)<-paste("output",1:length(resultgraphs),sep="")
+    		names(result)<-paste("output",1:length(result),sep="")
     	}else{
     		warning<-TRUE
     		result<-list(warning="There are no Zelig output graphs to show.")
@@ -135,7 +135,7 @@ zelig.app <- function(env){
     #response$headers("localhost:8888")
     
     result<- toJSON(result)
-    print(resultgraphs)
+    print(result)
     response$write(result)
     response$finish()
 }
