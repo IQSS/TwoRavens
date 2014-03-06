@@ -151,7 +151,7 @@ terminate<-function(response,warning){
 
 getDataverse<-function(hostname, fileid){
     path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
-    mydata<-read.delim(file=path)
+    mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)  # if data is not readable, return NULL
     return(mydata)
 }
 
