@@ -44,8 +44,12 @@
           onclick="cs()" />
           <input name="dvButton"
           type="button"
-          value="DV"
+          value="Dep Var"
           onclick="dv()" />
+          <input name="reset"
+          type="button"
+          value="Reset"
+          onclick="reset()" />
 
       </div>
   
@@ -74,10 +78,9 @@
     <div style="clear:left;"></div>
 
     <div id="tooltip" style="display: none;">
-        <p><strong>Summary Statistics</strong></p>
-        <p><span id="value">100</span></p>
+        <p><span id="tooltiptext">Summary Statistics</span></p>
+    <!--    <p><span id="value">100</span></p>  -->
         </div>
-
 
 
 

@@ -20,8 +20,8 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 //console.log(width)
 //console.log(height)
 
-var placeholder = d3.select("#rightpanel.left")
-.append('svg');
+//var resultspanel = d3.select("#rightpanel.left")
+//.append('svg');
 
 //      .attr('y',-1800)
 //.attr('width', 200)
@@ -55,18 +55,19 @@ var selVarColor = d3.rgb("salmon");
 
 // Zelig models, eventually this could be a separate xml file that is imported
 //var zmods = ["OLS", "Logit"];
-var mods = [];
+var mods = new Object;
 d3.json("data/zeligmodels.json", function(error, json) {
         if (error) return console.warn(error);
         var jsondata = json;
  //       console.log(jsondata);
         jsondata.zeligmodels.forEach(function(d) {
-        mods.push(d["-name"]);
+       // mods.push(d["-name"]);
+        mods[d["-name"]] = d["description"];
                                     });
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:"", zhostname:"", zfileid:"" };
+var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
 
   // Radius of circle 
 var allR = 40;
@@ -190,9 +191,11 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        d3.select("#tab2")
        .style('height', 2000)
        .style('overfill', 'scroll');
+     
+       var modellist = Object.keys(zmods);
        
        d3.select("#tab2").selectAll("p")
-       .data(zmods)
+       .data(modellist)
        .enter()
        .append("p")
        .text(function(d){return d;})
@@ -354,7 +357,7 @@ function layout() {
         }
     
     
-    //  add a listerner to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes
+    //  add listerners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
     .on("mouseover", function(d) {
         var onNode = findNode(d);
@@ -387,7 +390,20 @@ function layout() {
         restart();
         });
         
-        d3.select("#tab2").selectAll("p")
+    d3.select("#tab2").selectAll("p")
+    .on("mouseover", function(d) {
+        d3.select("#tooltip")
+        .style("left", xPos + "px")
+        .style("top", yPos + "px")
+        .select("#tooltiptext")
+        .html("<strong>Model Description</strong><br>" + zmods[d])
+       
+        d3.select("#tooltip").style("display", "inline");
+        })
+    .on("mouseout", function() {
+        //Remove the tooltip
+        d3.select("#tooltip").style("display", "none");
+        })
         //  d3.select("#Display_content")
         .on("click", function(){
             var myColor = d3.select(this).style('background-color');
@@ -512,9 +528,17 @@ function layout() {
             .style('stroke-width', function(d) {
                    if(depVar){
                     depVar=false;
-                    zparams.zdv = d.name;
-                    d.strokeWidth = '4';
-                    return('4');
+                        if(d.strokeWidth=='4') {
+                            d.strokeWidth = '1';
+                   var dvIndex = zparams.zdv.indexOf(d.name);
+                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                   //         zparams.zdv = "";
+                        }
+                        else {
+                            d.strokeWidth = '4';
+                            zparams.zdv.push(d.name);
+                        }
+                    return(d.strokeWidth);
                    }
                    else {
                     return d.strokeWidth;
@@ -574,7 +598,7 @@ function layout() {
         ;
         
         
-        
+// VJD: this is where the hardcoded images were initially piped into the rightpanel.  the mousedown portions have been commented out, but those blue arcs can probably be used for something so they have been left as is.
         g.append("path")
         .attr("d", arc1)
         .style("fill", "steelblue")
@@ -588,15 +612,15 @@ function layout() {
             }
             }
             })
-        .on('mousedown',function(d){
+    /*    .on('mousedown',function(d){
             var test=0;
-            placeholder.selectAll("image").data([0])
+            resultspanel.selectAll("image").data([0])
             .enter()
             .append("svg:image")
             .attr("xlink:href", "data/gr1.jpeg")
             .attr("width", 200)
             .attr("height", 200);
-            })
+            })   */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()
@@ -620,15 +644,15 @@ function layout() {
             }
             }
             })
-        .on('mousedown',function(d){
+     /*   .on('mousedown',function(d){
             var test=0;
-            placeholder.selectAll("image").data([0])
+            resultspanel.selectAll("image").data([0])
             .enter()
             .append("svg:image")
             .attr("xlink:href", "data/gr7.jpeg")
             .attr("width", 200)
             .attr("height", 200);
-            })
+            })   */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()
@@ -651,15 +675,15 @@ function layout() {
             }
             }
             })
-        .on('mousedown',function(d){
+    /*    .on('mousedown',function(d){
             var test=0;
-            placeholder.selectAll("image").data([0])
+            resultspanel.selectAll("image").data([0])
             .enter()
             .append("svg:image")
             .attr("xlink:href", "data/gr8.jpeg")
             .attr("width", 200)
             .attr("height", 200);
-            })
+            }) */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()  .attr("fill-opacity", 0)
@@ -1024,11 +1048,9 @@ function estimate(btn) {
     }
     console.log(zparams);
     
-    //sometimes these things are easier than you feel they should be...
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
     var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
-//    var base = "http://0.0.0.0:8080/custom/zeligapp?solaJSON="
 
     //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     //urlcall = base.concat(test);
@@ -1036,15 +1058,41 @@ function estimate(btn) {
     console.log(urlcall);
     
     
-    
-  //  var xmlhttp=new XMLHttpRequest();
-  //  xmlhttp.open("GET",url,true);
-  //  xmlhttp.send();
-
     function estimateSuccess(btn,json) {
       var property=document.getElementById(btn);
       estimated=true;
       property.style.backgroundColor="#00CC33";
+     
+        // pipe in figures to right panel
+        var filelist = new Array;
+        for(var i in json.images) {
+            var zfig = document.createElement("img");
+            zfig.setAttribute("src", json.images[i]);
+            zfig.setAttribute('width', 200);
+            zfig.setAttribute('height', 200);
+            document.getElementById("rightpanel").appendChild(zfig);
+            //            filelist.push(json[i]);
+        }
+        
+  /*  this is the d3 code for adding images to the rightpanel div.  this *should* work, or some variant of it should, but it does not.  so, the images are piped in using straight javascript as above.
+      //  resultspanel.selectAll("image")
+        d3.select("#rightpanel").selectAll("image")
+        .data(filelist)
+        .enter()
+        .append("image")
+        .attr('xlink:href', function(d){
+              return d;
+              })
+        .attr('width', 200)
+        .attr('height', 200); */
+        
+        var rCall = [];
+        rCall[0] = json.call;
+        d3.select("#main.left").selectAll("p")
+        .data(rCall)
+        .enter()
+        .append("p")
+        .text(function(d){ return d; });
     }
     
     function estimateFail(btn) {
@@ -1095,12 +1143,12 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
     // Response handlers for asynchronous load.  disabled for now
     xhr.onload = function() {
       var text = xhr.responseText;
-      console.log(text);
-      console.log(typeof text);
+   //   console.log(text);
+   //   console.log(typeof text);
       var json = JSON.parse(text);   // should wrap in try / catch
       //var json = eval('(' + text + ')'); 
-      console.log(json);
-      console.log(typeof json);
+    //  console.log(json);
+   //   console.log(typeof json);
       
       var names = Object.keys(json);
 
@@ -1108,7 +1156,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
         warningcallback(btn);
         alert("Warning: " + json.warning);
       }else{
-        callback(btn);
+        callback(btn, json);
       }
     };
      
@@ -1134,6 +1182,9 @@ function dv() {
     depVar = true;
 }
 
+function reset() {
+    location.reload();
+}
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
 function loadXMLDoc(XMLname)
@@ -1173,8 +1224,8 @@ function popup(d, x, y) {
     d3.select("#tooltip")
     .style("left", x + "px")
     .style("top", y + "px")
-    .select("#value")
-    .html("median: " + d.median + "<br> mode: " + d.mode + "<br> maximum: " + d.maximum + "<br> minimum: " + d.minimum + "<br> mean: " + d.mean + "<br> invalid: " + d.invalid + "<br> valid: " + d.valid + "<br> stand dev: " + d.standardDeviation);
+    .select("#tooltiptext")
+    .html("<strong>Summary Statistics</strong>" + " <br> median: " + d.median + "<br> mode: " + d.mode + "<br> maximum: " + d.maximum + "<br> minimum: " + d.minimum + "<br> mean: " + d.mean + "<br> invalid: " + d.invalid + "<br> valid: " + d.valid + "<br> stand dev: " + d.standardDeviation);
     
     d3.select("#tooltip").style("display", "inline");
 
