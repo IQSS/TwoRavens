@@ -102,6 +102,8 @@ zelig.app <- function(env){
 
   		assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
 		z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
+		almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
+
 		print(summary(z.out))
 		assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
 		x.out <- setx(z.out)
@@ -110,19 +112,23 @@ zelig.app <- function(env){
 		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
     	qicount<-0
-    	result<-list()
+    	imageVector<-list()
+    	#result<-list()
     	for(i in 1:length(s.out$qi)){
     	  	if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
       			qicount<-qicount+1
     			png(file.path(getwd(), paste("output",qicount,".png",sep="")))
     			Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
     			dev.off()
-    			result[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+    			imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+    			#result[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
     	  	}
     	}
 
     	if(qicount>0){
-    		names(result)<-paste("output",1:length(result),sep="")
+    		names(imageVector)<-paste("output",1:length(imageVector),sep="")
+    		result<-list(images=imageVector, call=almostCall)
+    		#names(result)<-paste("output",1:length(result),sep="")
     	}else{
     		warning<-TRUE
     		result<-list(warning="There are no Zelig output graphs to show.")
