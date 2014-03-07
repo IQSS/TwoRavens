@@ -56,7 +56,7 @@ var selVarColor = d3.rgb("salmon");
 // Zelig models, eventually this could be a separate xml file that is imported
 //var zmods = ["OLS", "Logit"];
 var mods = new Object;
-d3.json("data/zeligmodels.json", function(error, json) {
+d3.json("data/zeligmodels2.json", function(error, json) {
         if (error) return console.warn(error);
         var jsondata = json;
  //       console.log(jsondata);
