@@ -416,6 +416,7 @@ function layout() {
                     return selVarColor;
                    }
                    else {
+                    zparams.zmodel = "";
                     return varColor;
                    }
                    });
