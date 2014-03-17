@@ -31,15 +31,15 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
             
             if(length(uniqueValues)< histlimit){
                 output<- table(mydata[,i])
-                hold[[i]]<- output
+                hold[[i]]<- list(type="bar", values=output)
             }else{
                 output<- density( mydata[,i], n=50 )
-                hold[[i]]<- list(x=output$x, y=output$y)
+                hold[[i]]<- list(type="continuous", x=output$x, y=output$y)
                 
             }
             
         }else{
-            hold[[i]]<-"character"
+            hold[[i]]<-list(type="character")
         }
     }
     names(hold)<-varnames
