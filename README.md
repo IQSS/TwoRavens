@@ -3,9 +3,11 @@ ZeligGUI
 
 March 21: dataset icon
 
-March 14: have separate metadata that holds the histograms (and other pre-processed data)
+March 21: subset data by observation values, regardless of whether or not the API yet supports this
 
-March 14: subset data by observation values, regardless of whether or not the API yet supports this
+March 14: **Done** *have separate preprocessed metadata that holds histograms (and other pre-processed summary data)*
+
+March 14: **Done** *display R/Zelig code equivalent to model estimated*
 
 March 7: **Done** *rewrite the data/zeligmodels.json file to correspond with what is currently supported, with mouseover descriptions.*  
 
