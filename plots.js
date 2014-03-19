@@ -63,7 +63,8 @@ function density(data) {
     
     var plotsvg = d3.select(mydiv).append("svg")
     .attr("id", function(d){
-          return data.varname.toString().concat(".",arguments.callee.caller.name);
+          console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          return data.varname.toString().concat(".",mydiv.substr(1));
           })
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
