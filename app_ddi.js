@@ -35,6 +35,15 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 var xPos = 250;
 var yPos = 50;
 
+// position the subset and setx divs
+d3.select("#subset")
+.style("right", xPos + "px")
+.style("top", yPos + "px")
+
+d3.select("#setx")
+.style("right", xPos + "px")
+.style("top", yPos + "px")
+
 
 var forcetoggle=true;
 var estimated=false;
@@ -50,6 +59,9 @@ var csColor = d3.rgb("white");
 
 var depVar=false;
 
+var subsetdiv=false;
+var setxdiv=false;
+
 var varColor = d3.rgb("aliceblue");
 var selVarColor = d3.rgb("salmon");
 
@@ -59,7 +71,7 @@ var mods = new Object;
 d3.json("data/zeligmodels2.json", function(error, json) {
         if (error) return console.warn(error);
         var jsondata = json;
- //       console.log(jsondata);
+        console.log(jsondata);
         jsondata.zeligmodels.forEach(function(d) {
        // mods.push(d["-name"]);
         mods[d["-name"]] = d["description"];
@@ -69,7 +81,20 @@ var zmods = mods;
 
 var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
 
-  // Radius of circle 
+
+// read in pre-processed data
+var preprocess = new Object;
+d3.json("data/preprocess2429360.txt", function(error, json) {
+        if (error) return console.warn(error);
+        var jsondata = json;
+        
+        //copying the object
+        for(var key in jsondata) {
+            preprocess[key] = jsondata[key];
+        }
+        });
+
+  // Radius of circle
 var allR = 40;
 
   //Width and height for histgrams
@@ -138,8 +163,8 @@ if (!fileid) {
 }
 metadataurl=metadataurl+fileid;
 console.log("metadata url: "+metadataurl);
-// d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
-d3.xml(metadataurl, "application/xml", function(xml) {
+ d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
+//d3.xml(metadataurl, "application/xml", function(xml) {
         var vars = xml.documentElement.getElementsByTagName("var");
        var temp = xml.documentElement.getElementsByTagName("fileName");
        zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -151,7 +176,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        hold = [0, 0, 0, 0, 0, 0, 0];
        var myvalues = [0, 0, 0, 0, 0];
 
-       for (i=0;i<10;i++) { //NOTE: this is hardcoded to 10 rather than vars.length
+       for (i=0;i<vars.length;i++) { //NOTE: this is hardcoded to 10 rather than vars.length
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -173,7 +198,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-        allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, subsetplot: false, setxplot: false});
        };
  
    //    console.log(allNodes);
@@ -1233,6 +1258,85 @@ function popup(d, x, y) {
 }
 
 
+function subset() {
+    if (subsetdiv==true) {
+        subsetdiv = false;
+        d3.select("#subset")
+        .style("display", "none");
+        return;
+    }
+    subsetdiv = true;
 
+    d3.select("#subset")
+    .style("display", "inline");
+
+    
+    // select variables in main
+    var myVars = [];
+    for(var j=0; j < nodes.length; j++ ) {
+        myVars.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
+    }
+    
+    var data;
+    for (var i = 0; i < myVars.length; i++) {
+        if (myVars[i].properties.type === "continuous" & findNode(myVars[i].varname).subsetplot==false) {
+            findNode(myVars[i].varname).subsetplot=true;
+            data = myVars[i];
+            
+            // maybe a better way to get this plot info?
+            var plotinfo = density(data);
+            var x = plotinfo[0];
+            var y = plotinfo[1];
+            var plotsvg = plotinfo[2];
+            var width = plotinfo[3];
+            var height = plotinfo[4];
+            
+            var brush = d3.svg.brush()
+            .x(x)
+            .on("brush", function() {
+                brushed;
+                writebrush();
+                });
+            
+            plotsvg.append("g")
+            .attr("class", "x brush")
+            .call(brush)
+            .selectAll("rect")
+            .attr("height", height);
+            
+        }
+        
+    }
+    
+    function brushed() {
+        x.domain(brush.empty() ? x.domain() : brush.extent());
+    }
+    
+    function writebrush() {
+        d3.select("#subset").select("svg").append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("")
+        .text(brush.extent());
+//        console.log(brush.extent());
+    }
+}
+
+function setx() {
+    
+    if (setxdiv==true) {
+        setxdiv = false;
+        d3.select("#setx")
+        .style("display", "none");
+        return;
+    }
+    setxdiv = true;
+    
+    d3.select("#setx")
+    .style("display", "inline");
+
+}
 
 

@@ -34,6 +34,47 @@ svg {
 				line-height: 20px;
 			}
 
+#subset {
+				position: absolute;
+				width: 33.3%;
+				height: 100%;
+				padding: 10px;
+                overflow:scroll;
+				background-color: white;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				pointer-events: none;
+			}
+			
+			.hidden {
+				display: none;
+			}
+			
+#setx {
+				position: absolute;
+				width: 33.3%;
+				height: 100%;
+				padding: 10px;
+                overflow:scroll;
+				background-color: white;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				pointer-events: none;
+			}
+			
+			.hidden {
+				display: none;
+			}
+
+
 .arc path {
   stroke: #fff;
 }
@@ -180,3 +221,22 @@ overflow: scroll;
 }
 
 p { padding-left: 15px; }
+
+
+path { 
+    fill: steelblue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
+

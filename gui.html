@@ -5,6 +5,7 @@
     <title>Sola Fide</title>
     <link rel="stylesheet" href="app.css">
         <script type="text/javascript" src="d3.v3.min.js"></script>
+        <script src="plots.js" type="text/javascript"></script>
 
   </head>
   
@@ -50,6 +51,14 @@
           type="button"
           value="Reset"
           onclick="reset()" />
+          <input name="subset"
+          type="button"
+          value="Subset"
+          onclick="subset()" />
+          <input name="setx"
+          type="button"
+          value="setx"
+          onclick="setx()" />
 
       </div>
   
@@ -81,6 +90,12 @@
         <p><span id="tooltiptext">Summary Statistics</span></p>
     <!--    <p><span id="value">100</span></p>  -->
         </div>
+    
+    <div id="subset" style="display:none;">
+    </div>
+    
+    <div id="setx" style="display:none;">
+    </div>
 
 
 
@@ -111,7 +126,6 @@
   console.log("hostname: "+hostname);
 </script>
 <script src="app_ddi.js"></script>
-
 
 
   <!--script src="kde.js"></script-->
