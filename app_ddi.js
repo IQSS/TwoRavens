@@ -320,7 +320,7 @@ function layout() {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
+        .style('fill', '#000');
         
         svg.append('svg:defs').append('svg:marker')
         .attr('id', 'start-arrow')
@@ -331,7 +331,7 @@ function layout() {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M10,-5L0,0L10,5')
-        .attr('fill', '#000');
+        .style('fill', '#000');
 
         // line displayed when dragging new nodes
         var drag_line = svg.append('svg:path')
