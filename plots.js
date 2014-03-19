@@ -7,7 +7,7 @@ function density(data) {
         mydiv = "#subset";
     }
     else if(arguments.callee.caller.name=="setx") {
-        mydiv = "#subset";
+        mydiv = "#setx";
     }
     else {
         return (alert("Error: incorrect div selected for plots"));
@@ -62,6 +62,9 @@ function density(data) {
     .y1(function(d) { return y(d.y); });
     
     var plotsvg = d3.select(mydiv).append("svg")
+    .attr("id", function(d){
+          return data.varname.toString().concat(".",arguments.callee.caller.name);
+          })
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -80,6 +83,13 @@ function density(data) {
     plotsvg.append("g")
     .attr("class", "y axis")
     .call(yAxis);
+    
+    plotsvg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0-(margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text(data.varname);
 
     return [x, y, plotsvg, width, height];
 }

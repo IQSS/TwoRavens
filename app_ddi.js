@@ -198,7 +198,7 @@ console.log("metadata url: "+metadataurl);
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, subsetplot: false, setxplot: false});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "setxplot":false});
        };
  
    //    console.log(allNodes);
@@ -1265,45 +1265,62 @@ function subset() {
         .style("display", "none");
         return;
     }
+    
+    if (setxdiv==true) {
+        setxdiv = false;
+        d3.select("#setx")
+        .style("display", "none");
+    }
+
     subsetdiv = true;
 
     d3.select("#subset")
     .style("display", "inline");
 
     
-    // select variables in main
-    var myVars = [];
+    // build arrays from nodes in main
+    var dataArray = [];
+    var varArray = [];
     for(var j=0; j < nodes.length; j++ ) {
-        myVars.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
+        dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
+        varArray.push(nodes[j].name);
     }
     
-    var data;
-    for (var i = 0; i < myVars.length; i++) {
-        if (myVars[i].properties.type === "continuous" & findNode(myVars[i].varname).subsetplot==false) {
-            findNode(myVars[i].varname).subsetplot=true;
-            data = myVars[i];
+    for (var i = 0; i < allNodes.length; i++) {
+        var j = varArray.indexOf(allNodes[i].name);
+        if (j > -1) {
+            if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
+                allNodes[i].subsetplot=true;
             
-            // maybe a better way to get this plot info?
-            var plotinfo = density(data);
-            var x = plotinfo[0];
-            var y = plotinfo[1];
-            var plotsvg = plotinfo[2];
-            var width = plotinfo[3];
-            var height = plotinfo[4];
+                // maybe a better way to get this plot info?
+                var plotinfo = density(dataArray[j]);
+                var x = plotinfo[0];
+                var y = plotinfo[1]; // not used
+                var plotsvg = plotinfo[2];
+                var width = plotinfo[3];
+                var height = plotinfo[4]; // not used
             
-            var brush = d3.svg.brush()
-            .x(x)
-            .on("brush", function() {
-                brushed;
-                writebrush();
-                });
+                var brush = d3.svg.brush()
+                .x(x)
+                .on("brush", function() {
+                    brushed;
+             //   writebrush();
+                    });
             
-            plotsvg.append("g")
-            .attr("class", "x brush")
-            .call(brush)
-            .selectAll("rect")
-            .attr("height", height);
+                plotsvg.append("g")
+                .attr("class", "x brush")
+                .call(brush)
+                .selectAll("rect")
+                .attr("height", height);
             
+            }
+        }
+        
+        else {
+            allNodes[i].subsetplot=false;
+            var temp = "#".concat(allNodes[i].name,".subset");
+            d3.select(temp)
+            .remove();
         }
         
     }
@@ -1332,10 +1349,51 @@ function setx() {
         .style("display", "none");
         return;
     }
+    
+    if (subsetdiv==true) {
+        subsetdiv = false;
+        d3.select("#subset")
+        .style("display", "none");
+    }
     setxdiv = true;
     
     d3.select("#setx")
     .style("display", "inline");
+
+    // build arrays from nodes in main
+    var dataArray = [];
+    var varArray = [];
+    for(var j=0; j < nodes.length; j++ ) {
+        dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
+        varArray.push(nodes[j].name);
+    }
+    
+    for (var i = 0; i < allNodes.length; i++) {
+        var j = varArray.indexOf(allNodes[i].name);
+        if (j > -1) {
+            if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
+                allNodes[i].setxplot=true;
+                
+                // maybe a better way to get this plot info?
+                var plotinfo = density(dataArray[j]);
+                var x = plotinfo[0];
+                var y = plotinfo[1]; // not used
+                var plotsvg = plotinfo[2];
+                var width = plotinfo[3];
+                var height = plotinfo[4]; // not used
+                
+            // add sliders
+            }
+        }
+        
+        else {
+            allNodes[i].setxplot=false;
+            var temp = "#".concat(allNodes[i].name,".setx");
+            d3.select(temp)
+            .remove();
+        }
+        
+    }
 
 }
 
