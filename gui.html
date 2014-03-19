@@ -3,15 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title>Sola Fide</title>
-    <link rel="stylesheet" href="app.css">
+        
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+        
+        <link rel="stylesheet" href="app.css">
+            
+        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+        
         <script type="text/javascript" src="d3.v3.min.js"></script>
-        <script src="plots.js" type="text/javascript"></script>
-
+        <script type="text/javascript" src="plots.js"></script>
   </head>
   
-
-
-
 <!--svg id="accidents">
 <defs>
    <linearGradient id="fade" x1="0%" y1="50%" x2="50%" y2="100%">
@@ -21,11 +24,9 @@
 </defs>
 </svg-->
 
-
-
   <body>
       
-      <div id="option">
+      <nav id="option" class="navbar navbar-default navbar-fixed-top" role="navigation">
           <input name="forceButton"
           type="button"
           value="Force"
@@ -59,48 +60,40 @@
           type="button"
           value="setx"
           onclick="setx()" />
-
-      </div>
+      </nav>
   
     <div class="left" id="leftpanel">
         <div id="Tabs">
-            <ul>
-                <li id="li_tab1" onclick="tab('tab1')" ><a>Variables</a></li>
-                <li id="li_tab2" onclick="tab('tab2')"><a>Models</a></li>
+            <ul class="nav nav-tabs">
+                <li id="li_tab1" class="active" onclick="tab('tab1')"><a data-toggle="tab">Variables</a></li>
+                <li id="li_tab2" onclick="tab('tab2')"><a data-toggle="tab">Models</a></li>
             </ul>
-            <div id="Content_Area">
-                <div id="tab1">
+            <div id="Content_Area" class="tab-content">
+                <div id="tab1" class="tab-pane active">
                 </div>
-                <div id="tab2" style="display: none;">
+                <div id="tab2" class="tab-pane">
                 </div>
             </div> <!– End of Content_Area Div –>
         </div> <!– End of Tabs Div –>
     </div>
  
-    <div class="left" id="main">
-     </div>
+    <div class="left" id="main"></div>
 
-
-    <div class="left" id="rightpanel">
-    </div>
+    <div class="left" id="rightpanel"></div>
     
     <div style="clear:left;"></div>
 
     <div id="tooltip" style="display: none;">
         <p><span id="tooltiptext">Summary Statistics</span></p>
-    <!--    <p><span id="value">100</span></p>  -->
-        </div>
-    
-    <div id="subset" style="display:none;">
+        <!--<p><span id="value">100</span></p>-->
     </div>
     
-    <div id="setx" style="display:none;">
-    </div>
-
-
+    <div id="subset" style="display:none;"></div>
+    
+    <div id="setx" style="display:none;"></div>
 
 <!--script type="text/javascript" src="test.js"></script>
- <!--script type="text/javascript" src="d3.csv.js"></script-->
+<!--script type="text/javascript" src="d3.csv.js"></script-->
 <!--script src="http://d3js.org/d3.v3.min.js"></script-->
 <script>
   var myurl=window.location.toString();
@@ -127,12 +120,8 @@
 </script>
 <script src="app_ddi.js"></script>
 
-
-  <!--script src="kde.js"></script-->
-
+<!--script src="kde.js"></script-->
 
   </body>
-
-
 </html>
 
