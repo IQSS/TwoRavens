@@ -4,7 +4,7 @@
 ##  25/2/14
 ##
 
-install.packages(c("Rook","rjson","Zelig"))
+install.packages(c("Rook","rjson","Zelig"), repos = "http://watson.nci.nih.gov/cran_mirror/")
 ##setwd("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/rook")
 
 #!/usr/bin/env Rscript
