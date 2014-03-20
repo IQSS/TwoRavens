@@ -27,40 +27,65 @@
 
   <body>
       
-      <nav id="option" class="navbar navbar-default navbar-fixed-top" role="navigation">
-          <input name="forceButton"
-          type="button"
-          value="Force"
-          onclick="forceSwitch()" />
-          <input name="estimateButton"
-          type="button"
-          id="btnEstimate"
-          value="Estimate"
-          onclick="estimate('btnEstimate')" />
-          <input name="timeButton"
-          type="button"
-          value="Time"
-          onclick="time()" />
-          <input name="csButton"
-          type="button"
-          value="Cross Section"
-          onclick="cs()" />
-          <input name="dvButton"
-          type="button"
-          value="Dep Var"
-          onclick="dv()" />
-          <input name="reset"
-          type="button"
-          value="Reset"
-          onclick="reset()" />
-          <input name="subset"
-          type="button"
-          value="Subset"
-          onclick="subset()" />
-          <input name="setx"
-          type="button"
-          value="setx"
-          onclick="setx()" />
+      <nav id="option" class="navbar navbar-default" role="navigation">
+          <div>
+              <div class="navbar-header">
+                  <a class="navbar-brand" href="#" style="pointer-events:none;color:#C55B28;">Sola Fide</a>
+              </div>
+              
+              <div>
+                  <div class="navbar-form navbar-left" role="settings1">
+                      <div class="form-group">
+                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 1</p>
+                      </div>
+                      <input name="timeButton"
+                      type="button" class="btn btn-default"
+                      value="Time"
+                      onclick="time()" />
+                      <input name="csButton"
+                      type="button" class="btn btn-default"
+                      value="Cross Section"
+                      onclick="cs()" />
+                      <input name="dvButton"
+                      type="button" class="btn btn-default"
+                      value="Dep Var"
+                      onclick="dv(); $(this).addClass('btn btn-info active');" />
+                  </div>
+                  <div class="navbar-form navbar-left" role="settings2">
+                      <div class="form-group">
+                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
+                      </div>
+                      <input name="subset"
+                      type="button" class="btn btn-default"
+                      value="Subset"
+                      onclick="subset()" />
+                      <input name="setx"
+                      type="button" class="btn btn-default"
+                      value="setx"
+                      onclick="setx()" />
+                  </div>
+                  <div class="navbar-form navbar-left" role="settings3">
+                      <div class="form-group">
+                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 3</p>
+                      </div>
+                      <input name="estimateButton"
+                      type="button" class="btn btn-default"
+                      id="btnEstimate"
+                      value="Estimate"
+                      onclick="estimate('btnEstimate')" />
+                  </div>
+                  <div class="navbar-form navbar-right" role="settings4">
+                      <input name="forceButton"
+                      type="button" class="btn btn-default"
+                      value="Force"
+                      onclick="forceSwitch()" />
+                      <input name="reset"
+                      type="button" class="btn btn-default"
+                      value="Reset"
+                      onclick="reset()" />
+                  </div>
+              </div>
+          </div>
       </nav>
   
     <div class="left" id="leftpanel">

@@ -48,7 +48,8 @@ var csColor = d3.rgb("white");
 var varColor = d3.rgb("aliceblue");
 var selVarColor = d3.rgb("salmon");
 
-  // Radius of circle 
+
+  // Radius of circle
 var allR = 40;
 
   //Width and height for histgrams

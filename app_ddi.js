@@ -556,12 +556,14 @@ function layout() {
                     depVar=false;
                         if(d.strokeWidth=='4') {
                             d.strokeWidth = '1';
+                            d.nodeStroke = 'black'; // BUG: MUST CLICK TWICE TO REMOVE
                    var dvIndex = zparams.zdv.indexOf(d.name);
                    if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
                    //         zparams.zdv = "";
                         }
                         else {
                             d.strokeWidth = '4';
+                            d.nodeStroke = '#28A4C9'; // BUG: MUST CLICK TWICE TO APPLY
                             zparams.zdv.push(d.name);
                         }
                     return(d.strokeWidth);
@@ -569,7 +571,8 @@ function layout() {
                    else {
                     return d.strokeWidth;
                    }
-                   });
+                   })
+                $('#option input[name="dvButton"]').removeClass('btn-info active').css('border-color', '#28A4C9'); // Removes style class from Dep Var button
             });
         
      /*
