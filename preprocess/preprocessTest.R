@@ -24,4 +24,10 @@ testdata<-data.frame(td1,td2,td3,td4,td5)
 json<-preprocess(testdata=testdata)
 
 json2<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=2429360)
+json3<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=170)
+json4<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=171)
+
+write(json2,file="../data/preprocess2429360.txt")
+write(json3,file="../data/preprocess170.txt")
+write(json4,file="../data/preprocess171.txt")
 
