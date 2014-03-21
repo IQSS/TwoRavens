@@ -27,13 +27,13 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
     
     for(i in 1:k){
         if(is.numeric(mydata[,i])){
-            uniqueValues<-sort(unique(mydata[,i]))
+            uniqueValues<-sort(na.omit(unique(mydata[,i])))
             
             if(length(uniqueValues)< histlimit){
                 output<- table(mydata[,i])
                 hold[[i]]<- list(type="bar", values=output)
             }else{
-                output<- density( mydata[,i], n=50 )
+                output<- density( mydata[,i], n=50, na.rm=TRUE )
                 hold[[i]]<- list(type="continuous", x=output$x, y=output$y)
                 
             }
