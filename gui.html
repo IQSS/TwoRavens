@@ -88,7 +88,7 @@
           </div>
       </nav>
   
-    <div class="left" id="leftpanel">
+    <!--<div class="left" id="leftpanel">
         <div id="Tabs">
             <ul class="nav nav-tabs">
                 <li id="li_tab1" class="active" onclick="tab('tab1')"><a data-toggle="tab">Variables</a></li>
@@ -99,11 +99,33 @@
                 </div>
                 <div id="tab2" class="tab-pane">
                 </div>
-            </div> <!– End of Content_Area Div –>
-        </div> <!– End of Tabs Div –>
-    </div>
+            </div>
+        </div>
+    </div>-->
  
-    <div class="left" id="main"></div>
+    <div class="left svg-marg-left" id="main" style="position:relative;">
+    
+        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F0F8FF;">
+            
+            <div id="togglepanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;" class="glyphicon glyphicon-play"></span></div>
+            
+            <div class="row-fluid">
+                <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="tab('tab1')">Variables</button></div>
+                <div style="float:left;margin-left:1em;"><button class="btn" id="btnPanel2" onclick="tab('tab2')">Models</button></div>
+            </div>
+            <div class="row-fluid" style="clear:left;margin-top:.5em;">
+                <div id="leftpanelcontent">
+                    <div id="Content_Area">
+                        <div id="tab1" class="active">
+                        </div>
+                        <div id="tab2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
 
     <div class="left" id="rightpanel"></div>
     
@@ -122,6 +144,16 @@
 <!--script type="text/javascript" src="d3.csv.js"></script-->
 <!--script src="http://d3js.org/d3.v3.min.js"></script-->
 <script>
+    
+    /* initially hide panels */
+//    $('#panel2').hide();
+
+  $('#leftpanel span.glyphicon').click(function(){
+      $('#leftpanel > div.row-fluid').toggle();
+      $('#leftpanel').toggleClass('closepanel');
+      $('#main').toggleClass('svg-marg-left');
+  });
+    
   var myurl=window.location.toString();
   var fileid="";
   var cindex=0;
