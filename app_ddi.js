@@ -155,7 +155,7 @@ var nodes = [];
 // the sample data set on dvn-build, until more "real" data become
 // available:
 if (!hostname) {
-        hostname="dvn-build.hmdc.harvard.edu";
+        hostname="localhost:8080";
 }
 var metadataurl="http://"+hostname+"/api/meta/datafile/";
 if (!fileid) {
@@ -163,7 +163,8 @@ if (!fileid) {
 }
 metadataurl=metadataurl+fileid;
 console.log("metadata url: "+metadataurl);
- d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
+//d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
+d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/15", "application/xml", function(xml) {
 //d3.xml(metadataurl, "application/xml", function(xml) {
         var vars = xml.documentElement.getElementsByTagName("var");
        var temp = xml.documentElement.getElementsByTagName("fileName");
@@ -211,7 +212,19 @@ console.log("metadata url: "+metadataurl);
        .style('background-color',function(d) {
               if(findNodeIndex(d) > 2) {return varColor;}
               else {return selVarColor;}
-              });
+              })
+       .attr("data-container", "body")
+       .attr("data-toggle", "popover")
+       .attr("data-trigger", "hover")
+       .attr("data-position", "right auto")
+       .attr("data-html", "true")
+       .attr("onmouseover", "$(this).popover('toggle');")
+       .attr("onmouseout", "$(this).popover('toggle');")
+       .attr("data-original-title", "Summary Statistics")
+       .attr("data-content", function(d) {
+             var onNode = findNode(d);
+             return popoverContent(onNode);
+             });
    
        d3.select("#tab2")
        .style('height', 2000)
@@ -226,14 +239,41 @@ console.log("metadata url: "+metadataurl);
        .text(function(d){return d;})
        .style('background-color',function(d) {
               return varColor;
-              });
+              })
+       .attr("data-container", "body")
+       .attr("data-toggle", "popover")
+       .attr("data-trigger", "hover")
+       .attr("data-position", "right auto")
+       .attr("data-html", "true")
+       .attr("onmouseover", "$(this).popover('toggle');")
+       .attr("onmouseout", "$(this).popover('toggle');")
+       .attr("data-original-title", "Model Description")
+       .attr("data-content", function(d){
+              return zmods[d];
+             });
      
        layout();
 
        
        });
 
-
+function popoverContent(d) {
+    return "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>";
+}
 
  /*
 //  Original data load
@@ -385,12 +425,15 @@ function layout() {
     //  add listerners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
     .on("mouseover", function(d) {
-        var onNode = findNode(d);
-        popup(onNode, xPos, yPos);
+        // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
+        $("body div.popover")
+        .addClass("variables");
+        $("body div.popover div.popover-content")
+        .addClass("form-horizontal");
          })
     .on("mouseout", function() {
         //Remove the tooltip
-        d3.select("#tooltip").style("display", "none");
+        //d3.select("#tooltip").style("display", "none");
         })
     .on("click", function(){
         d3.select(this)
@@ -417,17 +460,11 @@ function layout() {
         
     d3.select("#tab2").selectAll("p")
     .on("mouseover", function(d) {
-        d3.select("#tooltip")
-        .style("left", xPos + "px")
-        .style("top", yPos + "px")
-        .select("#tooltiptext")
-        .html("<strong>Model Description</strong><br>" + zmods[d])
-       
-        d3.select("#tooltip").style("display", "inline");
+        // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         })
     .on("mouseout", function() {
         //Remove the tooltip
-        d3.select("#tooltip").style("display", "none");
+        //d3.select("#tooltip").style("display", "none");
         })
         //  d3.select("#Display_content")
         .on("click", function(){
@@ -526,6 +563,18 @@ function layout() {
                var myIndex = findNodeIndex(d.name);
                return (d.strokeWidth)
                })
+        .attr("data-container", "body")
+        .attr("data-toggle", "popover")
+        .attr("data-trigger", "hover")
+        .attr("data-position", "right auto")
+        .attr("data-html", "true")
+        .attr("onmouseover", "$(this).popover('toggle');")
+        .attr("onmouseout", "$(this).popover('toggle');")
+        .attr("data-original-title", "Summary Statistics")
+        .attr("data-content", function(d) {
+              var onNode = findNodeIndex(d.name);
+              return popoverContent(onNode);
+              })
         .on('click',function() {
             d3.select(this)
             .style('fill', function(d) {
@@ -572,7 +621,6 @@ function layout() {
                     return d.strokeWidth;
                    }
                    })
-                $('#option input[name="dvButton"]').removeClass('btn-info active').css('border-color', '#28A4C9'); // Removes style class from Dep Var button
             });
         
      /*
@@ -854,7 +902,7 @@ function layout() {
         // SVG doesn't support text wrapping... overlay html div? yup
         g.selectAll("circle.node")
         .on("mouseover", function(d) {
-            popup(d, xPos, yPos);
+            // popup(d, xPos, yPos);
             /*
             //Create the tooltip label
             d3.select("#tooltip")
@@ -1248,15 +1296,36 @@ function tab(tab) {
     document.getElementById('btnPanel'+tab).setAttribute("class", "btn active");
 }
 
-function popup(d, x, y) {
+
+function popupX(d) {
     //Create the tooltip label
     d3.select("#tooltip")
-    .style("left", x + "px")
-    .style("top", y + "px")
+    .style("left", tempX + "px")
+    .style("top", tempY + "px")
     .select("#tooltiptext")
-    .html("<strong>Summary Statistics</strong>" + " <br> median: " + d.median + "<br> mode: " + d.mode + "<br> maximum: " + d.maximum + "<br> minimum: " + d.minimum + "<br> mean: " + d.mean + "<br> invalid: " + d.invalid + "<br> valid: " + d.valid + "<br> stand dev: " + d.standardDeviation);
+    .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>"
+          );
     
-    d3.select("#tooltip").style("display", "inline");
+    /*.html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);*/
+    
+    //d3.select("#tooltip")
+    //.style("display", "inline")
+    //.select("#tooltip h3.popover-title")
+    //.html("Summary Statistics");
 
 }
 

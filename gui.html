@@ -41,15 +41,15 @@
                       <input name="timeButton"
                       type="button" class="btn btn-default"
                       value="Time"
-                      onclick="time()" />
+                      onclick="time(); $(this).removeClass('btn-default').addClass('btn btn-primary active');"/>
                       <input name="csButton"
                       type="button" class="btn btn-default"
                       value="Cross Section"
-                      onclick="cs()" />
+                      onclick="cs(); $(this).removeClass('btn-default').addClass('btn btn-success active');" />
                       <input name="dvButton"
                       type="button" class="btn btn-default"
                       value="Dep Var"
-                      onclick="dv(); $(this).addClass('btn btn-info active');" />
+                      onclick="dv(); $(this).removeClass('btn-default').addClass('btn btn-info active');"/>
                   </div>
                   <div class="navbar-form navbar-left" role="settings2">
                       <div class="form-group">
@@ -103,19 +103,19 @@
         </div>
     </div>-->
  
-    <div class="left svg-marg-left" id="main" style="position:relative;">
+    <div class="left svg-leftpanel svg-rightpanel" id="main" style="position:relative;">
     
-        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F0F8FF;">
+        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em;">
             
-            <div id="togglepanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;" class="glyphicon glyphicon-play"></span></div>
+            <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:red;" class="glyphicon glyphicon-play"></span></div>
             
             <div class="row-fluid">
                 <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="tab('tab1')">Variables</button></div>
                 <div style="float:left;margin-left:1em;"><button class="btn" id="btnPanel2" onclick="tab('tab2')">Models</button></div>
             </div>
-            <div class="row-fluid" style="clear:left;margin-top:.5em;">
+            <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
-                    <div id="Content_Area">
+                    <div id="Content_Area" style="overflow: scroll; height:528px;">
                         <div id="tab1" class="active">
                         </div>
                         <div id="tab2">
@@ -124,17 +124,23 @@
                 </div>
             </div>
         </div>
+        
+        
+        
+        <div id="rightpanel" class="container" style="height:578px;position:absolute;top:10px;right:10px;background:#F9F9F9;">
+            
+            <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:blue;" class="glyphicon glyphicon-play"></span></div>
+            
+        </div>
     
     </div>
-
-    <div class="left" id="rightpanel"></div>
     
     <div style="clear:left;"></div>
 
-    <div id="tooltip" style="display: none;">
-        <p><span id="tooltiptext">Summary Statistics</span></p>
-        <!--<p><span id="value">100</span></p>-->
-    </div>
+    <!--<div id="tooltip" style="display: none;">
+        <h3 class="popover-title">Summary Statistics</h3>
+        <div id="tooltiptext" class="popover-content form-horizontal"></div>
+    </div>-->
     
     <div id="subset" style="display:none;"></div>
     
@@ -151,7 +157,11 @@
   $('#leftpanel span.glyphicon').click(function(){
       $('#leftpanel > div.row-fluid').toggle();
       $('#leftpanel').toggleClass('closepanel');
-      $('#main').toggleClass('svg-marg-left');
+      $('#main').toggleClass('svg-leftpanel');
+  });
+  $('#rightpanel span.glyphicon').click(function(){
+      $('#rightpanel').toggleClass('closepanel');
+      $('#main').toggleClass('svg-rightpanel');
   });
     
   var myurl=window.location.toString();
