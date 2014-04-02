@@ -30,14 +30,14 @@
       <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
               <div class="navbar-header">
-                  <a class="navbar-brand" href="#" style="pointer-events:none;color:#C55B28;">Sola Fide</a>
+                  <a class="navbar-brand" href="#" style="pointer-events:none;color:#C55B28;font-size:2em;">Sola Fide</a>
               </div>
               
               <div>
                   <div class="navbar-form navbar-left" role="settings1">
-                      <div class="form-group">
+                      <!--<div class="form-group">
                           <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 1</p>
-                      </div>
+                      </div>-->
                       <input name="timeButton"
                       type="button" class="btn btn-default"
                       value="Time"
@@ -50,8 +50,14 @@
                       type="button" class="btn btn-default"
                       value="Dep Var"
                       onclick="dv(); $(this).removeClass('btn-default').addClass('btn btn-info active');"/>
+                  
+                      <input name="estimateButton"
+                      type="button" class="btn btn-default"
+                      id="btnEstimate"
+                      value="Estimate"
+                      onclick="estimate('btnEstimate')" style="margin-left:2em;"/>
                   </div>
-                  <div class="navbar-form navbar-left" role="settings2">
+                  <!--<div class="navbar-form navbar-left" role="settings2">
                       <div class="form-group">
                           <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
                       </div>
@@ -63,17 +69,7 @@
                       type="button" class="btn btn-default"
                       value="setx"
                       onclick="setx()" />
-                  </div>
-                  <div class="navbar-form navbar-left" role="settings3">
-                      <div class="form-group">
-                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 3</p>
-                      </div>
-                      <input name="estimateButton"
-                      type="button" class="btn btn-default"
-                      id="btnEstimate"
-                      value="Estimate"
-                      onclick="estimate('btnEstimate')" />
-                  </div>
+                  </div>-->
                   <div class="navbar-form navbar-right" role="settings4">
                       <input name="forceButton"
                       type="button" class="btn btn-default"
@@ -111,7 +107,8 @@
             
             <div class="row-fluid">
                 <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="tab('tab1')">Variables</button></div>
-                <div style="float:left;margin-left:1em;"><button class="btn" id="btnPanel2" onclick="tab('tab2')">Models</button></div>
+                <div style="float:left;margin-left:.5em;"><button class="btn" id="btnPanel2" onclick="tab('tab2')">Models</button></div>
+                <div style="float:left;margin-left:.5em;"><button class="btn" id="btnPanel3" onclick="tab('tab3')">Summary</button></div>
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
@@ -120,16 +117,47 @@
                         </div>
                         <div id="tab2">
                         </div>
+                        <div id="tab3">
+                            <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view it's summary statistics.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        
-        
         <div id="rightpanel" class="container" style="height:578px;position:absolute;top:10px;right:10px;background:#F9F9F9;">
             
             <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:blue;" class="glyphicon glyphicon-play"></span></div>
+            
+            <div style="height:576px;overflow:scroll;">
+                
+                <div style="padding:.5em 0;">
+                    <!--<div class="form-group">
+                        <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
+                    </div>-->
+                    <input name="subset"
+                    type="button" class="btn btn-default"
+                    value="Subset"
+                    onclick="subset();" style="margin-right:.5em;"/>
+                    <input name="setx"
+                    type="button" class="btn btn-default"
+                    value="Set-X"
+                    onclick="setx();" />
+                </div>
+                
+                <div id="subset" style="display:none;"></div>
+                
+                <div id="setx" style="display:none;"></div>
+                
+                <div style="float:left;">
+                    
+                    <div>RESULTS</div>
+                    
+                    <div id="rightpanelcontent"></div>
+                    
+                </div>
+            
+            </div>
             
         </div>
     
@@ -141,10 +169,6 @@
         <h3 class="popover-title">Summary Statistics</h3>
         <div id="tooltiptext" class="popover-content form-horizontal"></div>
     </div>-->
-    
-    <div id="subset" style="display:none;"></div>
-    
-    <div id="setx" style="display:none;"></div>
 
 <!--script type="text/javascript" src="test.js"></script>
 <!--script type="text/javascript" src="d3.csv.js"></script-->
@@ -155,15 +179,28 @@
 //    $('#panel2').hide();
 
   $('#leftpanel span.glyphicon').click(function(){
-      $('#leftpanel > div.row-fluid').toggle();
-      $('#leftpanel').toggleClass('closepanel');
-      $('#main').toggleClass('svg-leftpanel');
+      closeLeftPanel();
   });
   $('#rightpanel span.glyphicon').click(function(){
+      closeRightPanel();
+  });
+  
+  function closeLeftPanel() {
+      if ($('#leftpanel').hasClass('forceclosepanel')) {
+        // do nothing
+      } else {
+          $('#leftpanel > div.row-fluid').toggleClass('closepanel');
+          $('#leftpanel').toggleClass('closepanel');
+          $('#main').toggleClass('svg-leftpanel');
+      }
+  };
+  function closeRightPanel() {
+      $('#subset, #setx').hide();
+      $('#rightpanel').removeClass('expandpanel');
       $('#rightpanel').toggleClass('closepanel');
       $('#main').toggleClass('svg-rightpanel');
-  });
-    
+  };
+
   var myurl=window.location.toString();
   var fileid="";
   var cindex=0;

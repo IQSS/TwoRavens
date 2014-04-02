@@ -36,13 +36,13 @@ var xPos = 250;
 var yPos = 50;
 
 // position the subset and setx divs
-d3.select("#subset")
-.style("right", xPos + "px")
-.style("top", yPos + "px")
+//d3.select("#subset")
+//.style("right", xPos + "px")
+//.style("top", yPos + "px")
 
-d3.select("#setx")
-.style("right", xPos + "px")
-.style("top", yPos + "px")
+//d3.select("#setx")
+//.style("right", xPos + "px")
+//.style("top", yPos + "px")
 
 
 var forcetoggle=true;
@@ -155,17 +155,17 @@ var nodes = [];
 // the sample data set on dvn-build, until more "real" data become
 // available:
 if (!hostname) {
-        hostname="localhost:8080";
+        hostname="dvn-build.hmdc.harvard.edu";
 }
 var metadataurl="http://"+hostname+"/api/meta/datafile/";
 if (!fileid) {
-        fileid=2429360;
+        fileid=22;
 }
 metadataurl=metadataurl+fileid;
 console.log("metadata url: "+metadataurl);
 //d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
-d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/15", "application/xml", function(xml) {
-//d3.xml(metadataurl, "application/xml", function(xml) {
+//d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/25", "application/xml", function(xml) {
+d3.xml(metadataurl, "application/xml", function(xml) {
         var vars = xml.documentElement.getElementsByTagName("var");
        var temp = xml.documentElement.getElementsByTagName("fileName");
        zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -563,19 +563,8 @@ function layout() {
                var myIndex = findNodeIndex(d.name);
                return (d.strokeWidth)
                })
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-position", "right auto")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics")
-        .attr("data-content", function(d) {
-              var onNode = findNodeIndex(d.name);
-              return popoverContent(onNode);
-              })
         .on('click',function() {
+            varSummary();
             d3.select(this)
             .style('fill', function(d) {
                    if(colorCS && d.strokeWidth!='4') {
@@ -1147,7 +1136,7 @@ function estimate(btn) {
             zfig.setAttribute("src", json.images[i]);
             zfig.setAttribute('width', 200);
             zfig.setAttribute('height', 200);
-            document.getElementById("rightpanel").appendChild(zfig);
+            document.getElementById("rightpanelcontent").appendChild(zfig);
             //            filelist.push(json[i]);
         }
         
@@ -1169,7 +1158,7 @@ function estimate(btn) {
         .data(rCall)
         .enter()
         .append("p")
-        .text(function(d){ return d; });
+        .text(function(d){ return d; }); // !! BROKEN RESULTS OUTPUT TEXT <-------------------------- FIX THIS !!
     }
     
     function estimateFail(btn) {
@@ -1296,6 +1285,27 @@ function tab(tab) {
     document.getElementById('btnPanel'+tab).setAttribute("class", "btn active");
 }
 
+function varSummary(d) {
+    //Create the tooltip label
+    d3.select("#tab3")
+    .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
+          
+          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>"
+          );
+    
+};
 
 function popupX(d) {
     //Create the tooltip label
@@ -1335,6 +1345,8 @@ function subset() {
         subsetdiv = false;
         d3.select("#subset")
         .style("display", "none");
+        d3.select("#rightpanel")
+        .attr("class", "container");
         return;
     }
     
@@ -1348,6 +1360,9 @@ function subset() {
 
     d3.select("#subset")
     .style("display", "inline");
+    
+    d3.select("#rightpanel")
+    .attr("class", "container expandpanel");
 
     
     // build arrays from nodes in main
@@ -1395,6 +1410,9 @@ function subset() {
             .remove();
         }
         
+      // Panels
+      //subsetPanel();
+        
     }
     
     function brushed() {
@@ -1419,6 +1437,8 @@ function setx() {
         setxdiv = false;
         d3.select("#setx")
         .style("display", "none");
+        d3.select("#rightpanel")
+        .attr("class", "container");
         return;
     }
     
@@ -1431,6 +1451,8 @@ function setx() {
     
     d3.select("#setx")
     .style("display", "inline");
+    d3.select("#rightpanel")
+    .attr("class", "container expandpanel");
 
     // build arrays from nodes in main
     var dataArray = [];
@@ -1466,6 +1488,9 @@ function setx() {
         }
         
     }
+    
+    // Panels
+    //setxPanel();
 
 }
 

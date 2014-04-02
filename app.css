@@ -9,34 +9,36 @@ svg {
 }
 
 #subset {
-  position: absolute;
-  width: 33.3%;
-  height: 100%;
+  /*position: absolute;*/
+  float:left;margin-right:.5em;
+  width: 260px;
+  height: 531px;
   padding: 10px;
   overflow:scroll;
   background-color: white;
-  -webkit-border-radius: 10px;
+  /*-webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
   -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
   pointer-events: none;
 }
 			
 #setx {
-  position: absolute;
-  width: 33.3%;
-  height: 100%;
+  /*position: absolute;*/
+  float:left;margin-right:.5em;
+  width: 260px;
+  height: 531px;
   padding: 10px;
   overflow:scroll;
   background-color: white;
-  -webkit-border-radius: 10px;
+  /*-webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
   -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
   pointer-events: none;
 }
 			
@@ -135,6 +137,7 @@ div.popover.variables div.popover-content.form-horizontal {
 #leftpanel #Content_Area div {display:none;}
 #leftpanel #Content_Area div.active {display:block;}
 #leftpanel.closepanel {width:1px;}
+#leftpanel.closepanel div.row-fluid.closepanel {display:none;}
 #leftpanel div#toggleLpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);left:298px;border:1px solid #FF0000;border-width-left:0;}
 #leftpanel.closepanel div#toggleLpanelicon {left:0px;}
 
@@ -148,7 +151,7 @@ div.popover.variables div.popover-content.form-horizontal {
 #rightpanel:hover {
     width:50%;
 }*/
-#rightpanel.closepanel {width:1px;}
+
 #rightpanel div#toggleRpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);right:298px;border:1px solid blue;border-width-left:0;
 }
 #rightpanel div#toggleRpanelicon span.glyphicon {
@@ -157,6 +160,11 @@ div.popover.variables div.popover-content.form-horizontal {
     transform: rotate(-180deg);
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
 }
+
+#rightpanel.expandpanel {width:600px;}
+#rightpanel.expandpanel div#toggleRpanelicon {right:598px;}
+
+#rightpanel.closepanel {width:1px;}
 #rightpanel.closepanel div#toggleRpanelicon {right:0px;}
 
 #main {
