@@ -52,12 +52,13 @@ var estimated=false;
 var colors = d3.scale.category20();
 
 var colorTime=false;
-var timeColor = d3.rgb("black");
+var timeColor = '#2d6ca2';
 
 var colorCS=false;
-var csColor = d3.rgb("white");
+var csColor = '#419641';
 
 var depVar=false;
+var dvColor = '#28A4C9';
 
 var subsetdiv=false;
 var setxdiv=false;
@@ -79,7 +80,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:"", zcross:"", zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
+var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
 
 
 // read in pre-processed data
@@ -177,7 +178,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        hold = [0, 0, 0, 0, 0, 0, 0];
        var myvalues = [0, 0, 0, 0, 0];
 
-       for (i=0;i<vars.length;i++) { //NOTE: this is hardcoded to 10 rather than vars.length
+       for (i=0;i<vars.length;i++) {
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -199,7 +200,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "nodeStroke":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "setxplot":false});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "setxplot":false});
        };
  
    //    console.log(allNodes);
@@ -557,59 +558,43 @@ function layout() {
                })
         .style('stroke', function(d){
                var myIndex = findNodeIndex(d.name);
-               return (d3.rgb(d.nodeStroke)); // IF d is equal to selected_node return brighter color ELSE return normal color
+               return (d3.rgb(d.strokeColor)); // IF d is equal to selected_node return brighter color ELSE return normal color
                })
         .style('stroke-width', function(d){
                var myIndex = findNodeIndex(d.name);
                return (d.strokeWidth)
                })
         .on('click',function() {
-            varSummary();
+          //  varSummary();  this is Mike's summary function
             d3.select(this)
-            .style('fill', function(d) {
-                   if(colorCS && d.strokeWidth!='4') {
-                    colorCS=false;
-                    d.nodeCol = d3.rgb(csColor);
-                    zparams.zcross = d.name;
-             //      console.log(d.id);  d.id is literally the id number  colors() is literally a scale declared at the top
-                    return (d3.rgb(csColor));
-                   // here you want to do: colors(d.id) = csColor
-                   }
-                   else if(colorTime && d.strokeWidth!='4'){
-                    colorTime=false;
-                    d.nodeCol = d3.rgb(timeColor);
-                   zparams.ztime = d.name;
-                    return (d3.rgb(timeColor));
-                   }
-                   else if(d === selected_node){
-                    return (d3.rgb(d.nodeCol).brighter());
-                   }
-                   else {
-                    return(d3.rgb(d.nodeCol));
-                   }
-        
-                   })
             .style('stroke-width', function(d) {
-                   if(depVar){
+                   if(!depVar & !colorTime & !colorCS) {
+                        return(d.strokeWidth);
+                   }
+                   else if(depVar){
                     depVar=false;
-                        if(d.strokeWidth=='4') {
-                            d.strokeWidth = '1';
-                            d.nodeStroke = 'black'; // BUG: MUST CLICK TWICE TO REMOVE
-                   var dvIndex = zparams.zdv.indexOf(d.name);
-                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                   //         zparams.zdv = "";
-                        }
-                        else {
-                            d.strokeWidth = '4';
-                            d.nodeStroke = '#28A4C9'; // BUG: MUST CLICK TWICE TO APPLY
-                            zparams.zdv.push(d.name);
-                        }
-                    return(d.strokeWidth);
+                    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+                    setStroke(d,dvColor);
+                   console.log(zparams);
                    }
-                   else {
-                    return d.strokeWidth;
+                   else if(colorCS){
+                    colorCS=false;
+                    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+                    setStroke(d,csColor);
+                   console.log(zparams);
                    }
+                   else if(colorTime){
+                    colorTime=false;
+                    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+                    setStroke(d,timeColor);
+                   console.log(zparams);
+                   }
+                   return(d.strokeWidth);
                    })
+            .style('stroke', function(d) {
+                   return(d.strokeColor);
+                   });
+            borderState();
             });
         
      /*
@@ -796,7 +781,7 @@ function layout() {
         //    .style(  fill: url(#fade); )
         .style('stroke', function(d) {
                var myIndex = findNodeIndex(d.name);
-               return d3.rgb(d.nodeStroke).toString(); })
+               return d3.rgb(d.strokeColor).toString(); })
         .classed('reflexive', function(d) { return d.reflexive; })
         .on('mouseover', function(d) {
             //console.log("this is where to add summary stats");
@@ -1237,15 +1222,42 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 
 
 function time() {
-    colorTime = true;
+    if(colorTime==true) {
+        colorTime=false;
+        $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+    }
+    else {
+        colorTime = true;
+        $('#timeButton').removeClass('btn-default').addClass('btn btn-primary active');
+    }
+    colorCS = false;
+    depVar = false;
 }
 
 function cs() {
-    colorCS = true;
+    if(colorCS==true) {
+        colorCS=false;
+        $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+    }
+    else {
+        colorCS=true;
+        $('#csButton').removeClass('btn-default').addClass('btn btn-success active');
+    }
+    colorTime = false;
+    depVar = false
 }
 
 function dv() {
-    depVar = true;
+    if(depVar==true) {
+        depVar=false;
+        $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+    }
+    else {
+        depVar=true;
+        $('#dvButton').removeClass('btn-default').addClass('btn btn-info active');
+    }
+    colorCS = false;
+    colorTime = false;
 }
 
 function reset() {
@@ -1493,5 +1505,72 @@ function setx() {
     //setxPanel();
 
 }
+
+
+
+
+// function takes a node name, and a color.  a little confusing but the logic is correct #ccc
+function setStroke (n, c) {
+    if(n.strokeWidth=='1') { // adding time, cs, dv to a node with no stroke
+        n.strokeWidth = '4';
+        n.strokeColor = c;
+        if(dvColor==c) {zparams.zdv.push(n.name);}
+        else if(csColor==c) {
+            zparams.zcross.push(n.name);
+            $('#csButton').css('border-color', c);
+        }
+        else if(timeColor==c) {
+            zparams.ztime.push(n.name);
+            $('#timeButton').css('border-color', c);
+        }
+    }
+    else if (n.strokeWidth=='4') {
+        if(c==n.strokeColor) { // deselecting time, cs, dv
+            n.strokeWidth = '1';
+            n.strokeColor = 'black';
+            if(dvColor==c) {
+                var dvIndex = zparams.zdv.indexOf(n.name);
+                if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+            }
+            else if(csColor==c) {
+                var csIndex = zparams.zcross.indexOf(n.name);
+                if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
+            }
+            else if(timeColor==c) {
+                var timeIndex = zparams.ztime.indexOf(n.name);
+                if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
+            }
+        }
+        else { // deselecting time, cs, dv AND changing it to time, cs, dv
+            if(dvColor==n.strokeColor) {
+                var dvIndex = zparams.zdv.indexOf(n.name);
+                if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+            }
+            else if(csColor==n.strokeColor) {
+                var csIndex = zparams.zcross.indexOf(n.name);
+                if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
+            }
+            else if(timeColor==n.strokeColor) {
+                var timeIndex = zparams.ztime.indexOf(n.name);
+                if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
+            }
+            n.strokeColor = c;
+            if(dvColor==c) {zparams.zdv.push(n.name);}
+            else if(csColor==c) {zparams.zcross.push(n.name);}
+            else if(timeColor==c) {zparams.ztime.push(n.name);}
+        }
+    }
+}
+
+
+function borderState () {
+    if(zparams.zdv.length>0) {$('#dvButton').css('border-color', dvColor);}
+    else {$('#dvButton').css('border-color', '#ccc');}
+    if(zparams.zcross.length>0) {$('#csButton').css('border-color', csColor);}
+    else {$('#csButton').css('border-color', '#ccc');}
+    if(zparams.ztime.length>0) {$('#timeButton').css('border-color', timeColor);}
+    else {$('#timeButton').css('border-color', '#ccc');}
+}
+
 
 
