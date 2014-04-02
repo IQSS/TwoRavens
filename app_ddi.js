@@ -1232,6 +1232,8 @@ function time() {
     }
     colorCS = false;
     depVar = false;
+    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
 }
 
 function cs() {
@@ -1244,7 +1246,9 @@ function cs() {
         $('#csButton').removeClass('btn-default').addClass('btn btn-success active');
     }
     colorTime = false;
-    depVar = false
+    depVar = false;
+    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
 }
 
 function dv() {
@@ -1258,6 +1262,8 @@ function dv() {
     }
     colorCS = false;
     colorTime = false;
+    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
 }
 
 function reset() {
@@ -1515,14 +1521,8 @@ function setStroke (n, c) {
         n.strokeWidth = '4';
         n.strokeColor = c;
         if(dvColor==c) {zparams.zdv.push(n.name);}
-        else if(csColor==c) {
-            zparams.zcross.push(n.name);
-            $('#csButton').css('border-color', c);
-        }
-        else if(timeColor==c) {
-            zparams.ztime.push(n.name);
-            $('#timeButton').css('border-color', c);
-        }
+        else if(csColor==c) {zparams.zcross.push(n.name);}
+        else if(timeColor==c) {zparams.ztime.push(n.name);}
     }
     else if (n.strokeWidth=='4') {
         if(c==n.strokeColor) { // deselecting time, cs, dv
