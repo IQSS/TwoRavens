@@ -65,6 +65,7 @@ var setxdiv=false;
 
 var varColor = d3.rgb("aliceblue");
 var selVarColor = d3.rgb("salmon");
+var taggedColor = d3.rgb("whitesmoke");
 
 // Zelig models, eventually this could be a separate xml file that is imported
 //var zmods = ["OLS", "Logit"];
@@ -83,9 +84,9 @@ var zmods = mods;
 var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
 
 
-// read in pre-processed data
+// read in pre-processed data from dvn
 var preprocess = new Object;
-d3.json("data/preprocess2429360.txt", function(error, json) {
+d3.json("data/preprocessFileID22.json", function(error, json) {
         if (error) return console.warn(error);
         var jsondata = json;
         
@@ -95,7 +96,7 @@ d3.json("data/preprocess2429360.txt", function(error, json) {
         }
         });
 
-  // Radius of circle
+// Radius of circle
 var allR = 40;
 
   //Width and height for histgrams
@@ -574,26 +575,30 @@ function layout() {
                    else if(depVar){
                     depVar=false;
                     $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
-                    setStroke(d,dvColor);
-                   console.log(zparams);
+                    setColors(d,dvColor);
                    }
                    else if(colorCS){
                     colorCS=false;
                     $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
-                    setStroke(d,csColor);
-                   console.log(zparams);
+                    setColors(d,csColor);
                    }
                    else if(colorTime){
                     colorTime=false;
                     $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
-                    setStroke(d,timeColor);
-                   console.log(zparams);
+                    setColors(d,timeColor);
                    }
                    return(d.strokeWidth);
                    })
             .style('stroke', function(d) {
                    return(d.strokeColor);
-                   });
+                   })
+            .style('fill', function(d) {
+                   if(!depVar & !colorTime & !colorCS) {
+                    var myIndex = findNodeIndex(d.name);
+                    return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol);
+                   }
+                   else {return(d.nodeCol);}
+            });
             borderState();
             });
         
@@ -1125,20 +1130,9 @@ function estimate(btn) {
             //            filelist.push(json[i]);
         }
         
-  /*  this is the d3 code for adding images to the rightpanel div.  this *should* work, or some variant of it should, but it does not.  so, the images are piped in using straight javascript as above.
-      //  resultspanel.selectAll("image")
-        d3.select("#rightpanel").selectAll("image")
-        .data(filelist)
-        .enter()
-        .append("image")
-        .attr('xlink:href', function(d){
-              return d;
-              })
-        .attr('width', 200)
-        .attr('height', 200); */
-        
         var rCall = [];
         rCall[0] = json.call;
+        console.log(rCall[0]);
         d3.select("#main.left").selectAll("p")
         .data(rCall)
         .enter()
@@ -1396,34 +1390,13 @@ function subset() {
         if (j > -1) {
             if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
-            
-                // maybe a better way to get this plot info?
-                var plotinfo = density(dataArray[j]);
-                var x = plotinfo[0];
-                var y = plotinfo[1]; // not used
-                var plotsvg = plotinfo[2];
-                var width = plotinfo[3];
-                var height = plotinfo[4]; // not used
-            
-                var brush = d3.svg.brush()
-                .x(x)
-                .on("brush", function() {
-                    brushed;
-             //   writebrush();
-                    });
-            
-                plotsvg.append("g")
-                .attr("class", "x brush")
-                .call(brush)
-                .selectAll("rect")
-                .attr("height", height);
-            
+                density(dataArray[j]);
             }
         }
         
         else {
             allNodes[i].subsetplot=false;
-            var temp = "#".concat(allNodes[i].name,".subset");
+            var temp = "svg#".concat(allNodes[i].name,"subset");
             d3.select(temp)
             .remove();
         }
@@ -1433,20 +1406,6 @@ function subset() {
         
     }
     
-    function brushed() {
-        x.domain(brush.empty() ? x.domain() : brush.extent());
-    }
-    
-    function writebrush() {
-        d3.select("#subset").select("svg").append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("")
-        .text(brush.extent());
-//        console.log(brush.extent());
-    }
 }
 
 function setx() {
@@ -1516,10 +1475,11 @@ function setx() {
 
 
 // function takes a node name, and a color.  a little confusing but the logic is correct #ccc
-function setStroke (n, c) {
+function setColors (n, c) {
     if(n.strokeWidth=='1') { // adding time, cs, dv to a node with no stroke
         n.strokeWidth = '4';
         n.strokeColor = c;
+        n.nodeCol = taggedColor;
         if(dvColor==c) {zparams.zdv.push(n.name);}
         else if(csColor==c) {zparams.zcross.push(n.name);}
         else if(timeColor==c) {zparams.ztime.push(n.name);}
@@ -1528,6 +1488,7 @@ function setStroke (n, c) {
         if(c==n.strokeColor) { // deselecting time, cs, dv
             n.strokeWidth = '1';
             n.strokeColor = 'black';
+            n.nodeCol=colors(n.id);
             if(dvColor==c) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
                 if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
