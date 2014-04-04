@@ -81,7 +81,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"" };
+var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[] };
 
 
 // read in pre-processed data from dvn
@@ -202,7 +202,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "setxplot":false});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":[sumStats.min,sumStats.max],"setxplot":false, "setxval":sumStats.mean});
        };
  
    //    console.log(allNodes);
@@ -1097,6 +1097,9 @@ function estimate(btn) {
     
     for(var j =0; j < nodes.length; j++ ) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
+        var temp = findNodeIndex(nodes[j].name);
+        zparams.zsetx[j] = allNodes[temp].setxval;
+        zparams.zsubset[j] = allNodes[temp].subsetrange;
     }
 
     for(var j =0; j < links.length; j++ ) { //populate zedges array

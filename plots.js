@@ -189,6 +189,11 @@ function density(data, node) {
               if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
               else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
               });
+        
+            if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
+                node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
+            }
+            else {node.subsetrange=[d3.min(xVals), d3.max(xVals)];}
         }
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];
@@ -197,13 +202,14 @@ function density(data, node) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush.extent([value, value]);
             }
-         
+                         
             if(brush.extent()[0] > d3.max(xVals)) {
                 handle.attr("cx", x(d3.max(xVals)));
                 plotsvg.select("text#range")
                 .text(function() {
                       return("setx: ".concat(Math.round(d3.max(xVals))));
                       });
+                node.setxval=Math.round(d3.max(xVals));
             }
             else if(brush.extent()[0] < d3.min(xVals)) {
                 handle.attr("cx", x(d3.min(xVals)));
@@ -211,6 +217,7 @@ function density(data, node) {
                 .text(function() {
                       return("setx: ".concat(Math.round(d3.min(xVals))));
                       });
+                node.setxval=Math.round(d3.min(xVals));
             }
             else {
                 handle.attr("cx", x(value));
@@ -218,6 +225,7 @@ function density(data, node) {
                 .text(function() {
                       return("setx: ".concat(Math.round(value)));
                       });
+                node.setxval=Math.round(value);
             }
             
         }
