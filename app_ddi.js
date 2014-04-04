@@ -1426,10 +1426,13 @@ function setx() {
     }
     setxdiv = true;
     
+    
     d3.select("#setx")
     .style("display", "inline");
+    
     d3.select("#rightpanel")
     .attr("class", "container expandpanel");
+    
 
     // build arrays from nodes in main
     var dataArray = [];
@@ -1444,30 +1447,21 @@ function setx() {
         if (j > -1) {
             if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
                 allNodes[i].setxplot=true;
-                
-                // maybe a better way to get this plot info?
-                var plotinfo = density(dataArray[j]);
-                var x = plotinfo[0];
-                var y = plotinfo[1]; // not used
-                var plotsvg = plotinfo[2];
-                var width = plotinfo[3];
-                var height = plotinfo[4]; // not used
-                
-            // add sliders
+                density(dataArray[j]);
             }
         }
         
         else {
             allNodes[i].setxplot=false;
-            var temp = "#".concat(allNodes[i].name,".setx");
+            var temp = "svg#".concat(allNodes[i].name,"setx");
             d3.select(temp)
             .remove();
         }
         
+        // Panels
+        //subsetPanel();
+        
     }
-    
-    // Panels
-    //setxPanel();
 
 }
 

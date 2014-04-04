@@ -113,27 +113,26 @@ function density(data) {
     }
     
     function brushed() {
-     //   x.domain(brush.empty() ? x.domain() : brush.extent()); idiot, Vito, idiot. this is changing the domain for the focus plot.  that's why you don't just copy examples from the Web. moron.
         plotsvg.select("text#range")
         .text(function() {
               if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
               else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
               });
-        console.log(brush.extent());
     }
     
-    function writebrush() {
-       
-        console.log(brush.extent());
-        /*d3.select("#subset").select("svg").append("text")
-        .attr("x", 25)
-        .attr("y", h+55)
-        //.text(function(){
-        //         return("From ".concat(h, " to ", h));
-        //       });
-        .text(brush.extent());
-        //        console.log(brush.extent());   */
+    // add z lines if setx
+    if(mydiv=="#setx") {
+        plotsvg.append("svg:line")
+        .attr({
+             x1: width/2, // x() is your scaling function, 10 is the value where you want a line to be placed
+             y1: 0, // height of your chart
+             x2: width/2, // same as x1 for a horizontal line
+             y2: height // height of your chart
+             })
+        .attr("stroke-width", 3)
+        .attr("stroke", "red");
     }
+
 
 }
 
