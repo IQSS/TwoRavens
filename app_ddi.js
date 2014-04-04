@@ -87,7 +87,8 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 // read in pre-processed data from dvn
 var preprocess = new Object;
 d3.json("data/preprocessFileID22.json", function(error, json) {
-        if (error) return console.warn(error);
+//d3.json("data/preprocess2429360.txt", function(error, json) {
+    if (error) return console.warn(error);
         var jsondata = json;
         
         //copying the object
@@ -1390,7 +1391,7 @@ function subset() {
         if (j > -1) {
             if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
-                density(dataArray[j]);
+                density(dataArray[j], allNodes[i]);
             }
         }
         
@@ -1447,7 +1448,7 @@ function setx() {
         if (j > -1) {
             if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
                 allNodes[i].setxplot=true;
-                density(dataArray[j]);
+                density(dataArray[j], allNodes[i]);
             }
         }
         

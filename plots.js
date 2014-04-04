@@ -1,6 +1,6 @@
 // function to use d3 to graph density plots with preprocessed data
 
-function density(data) {
+function density(data, node) {
     
     var mydiv;
     if(arguments.callee.caller.name=="subset") {
@@ -47,10 +47,6 @@ function density(data) {
     .domain([d3.min(yVals), d3.max(yVals)])
     .range([height, 0]);
     
-    var brush = d3.svg.brush()
-    .x(x)
-    .on("brush", brushed);
-    
     var xAxis = d3.svg.axis()
     .scale(x)
     .ticks(5)
@@ -59,6 +55,10 @@ function density(data) {
     var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
+    
+    var brush = d3.svg.brush()
+    .x(x)
+    .on("brush", brushed);
     
     var area = d3.svg.area()
     .interpolate("monotone")
@@ -95,16 +95,18 @@ function density(data) {
     .style("font-size", "12px")
     .text(data.varname);
     
-    plotsvg.append("text")
-    .attr("id", "range")
-    .attr("x", 25)
-    .attr("y", height+40)
-    .text(function() {
-          return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
-          });
     
     // add brush if subset
     if(mydiv=="#subset") {
+        
+        plotsvg.append("text")
+        .attr("id", "range")
+        .attr("x", 25)
+        .attr("y", height+40)
+        .text(function() {
+              return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
+              });
+        
         plotsvg.append("g")
         .attr("class", "x brush")
         .call(brush)
@@ -112,28 +114,115 @@ function density(data) {
         .attr("height", height);
     }
     
+    // add z lines if setx
+    if(mydiv=="#setx") {
+        
+        plotsvg.append("text")
+        .attr("id", "range")
+        .attr("x", 25)
+        .attr("y", height+40)
+        .text(function() {
+              return("setx: ".concat(Math.round(node.mean)));
+              });
+        
+        var lineData = [ { "x": x(+node.mean),   "y": height*.65},  { "x": x(+node.mean),  "y": height*.95},
+                         { "x": x(+node.mean + +node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + +node.standardDeviation),  "y": height*.9},
+                         { "x": x(+node.mean - +node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - +node.standardDeviation), "y": height*.9}];
+        
+        var lineFunction = d3.svg.line()
+                            .x(function(d) { return d.x; })
+                            .y(function(d) { return d.y; })
+                            .interpolate("linear");
+  
+        plotsvg.append("path")
+            .attr("d", lineFunction([lineData[0],lineData[1]]))
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        
+        plotsvg.append("path")
+            .attr("d", lineFunction([lineData[2],lineData[3]]))
+            .attr("stroke", "orange")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        
+        plotsvg.append("path")
+            .attr("d", lineFunction([lineData[4],lineData[5]]))
+            .attr("stroke", "orange")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        
+        var slideBox = plotsvg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height*.8 + ")")
+        .call(d3.svg.axis()
+              .scale(x)
+              .ticks(0)
+              .orient("bottom"))
+        .select(".domain")
+        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); });
+        
+        var slider = plotsvg.append("g")
+        .attr("class", "slider")
+        .call(brush);
+      
+        slider.selectAll(".extent,.resize")
+        .remove();
+      
+        slider.select(".background")
+        .attr("height", height);
+
+        var handle = slider.append("circle")
+        .attr("class", "handle")
+        .attr("transform", "translate(0," + height*.8 + ")")
+        .attr("cx", x(node.mean))
+        .attr("r", 7);
+      
+        
+    }
+
+    // brushing functions
     function brushed() {
+        if(mydiv=="#subset") {
         plotsvg.select("text#range")
         .text(function() {
               if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
               else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
               });
+        }
+        else if(mydiv=="#setx") {
+            var value = brush.extent()[0];
+            
+            if (d3.event.sourceEvent) { // not a programmatic event
+                value = x.invert(d3.mouse(this)[0]);
+                brush.extent([value, value]);
+            }
+         
+            if(brush.extent()[0] > d3.max(xVals)) {
+                handle.attr("cx", x(d3.max(xVals)));
+                plotsvg.select("text#range")
+                .text(function() {
+                      return("setx: ".concat(Math.round(d3.max(xVals))));
+                      });
+            }
+            else if(brush.extent()[0] < d3.min(xVals)) {
+                handle.attr("cx", x(d3.min(xVals)));
+                plotsvg.select("text#range")
+                .text(function() {
+                      return("setx: ".concat(Math.round(d3.min(xVals))));
+                      });
+            }
+            else {
+                handle.attr("cx", x(value));
+                plotsvg.select("text#range")
+                .text(function() {
+                      return("setx: ".concat(Math.round(value)));
+                      });
+            }
+            
+        }
     }
     
-    // add z lines if setx
-    if(mydiv=="#setx") {
-        plotsvg.append("svg:line")
-        .attr({
-             x1: width/2, // x() is your scaling function, 10 is the value where you want a line to be placed
-             y1: 0, // height of your chart
-             x2: width/2, // same as x1 for a horizontal line
-             y2: height // height of your chart
-             })
-        .attr("stroke-width", 3)
-        .attr("stroke", "red");
-    }
-
-
 }
 
 
