@@ -211,6 +211,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        .data(valueKey)
        .enter()
        .append("p")
+       .attr("id",function(d){return d;})
        .text(function(d){return d;})
        .style('background-color',function(d) {
               if(findNodeIndex(d) > 2) {return varColor;}
@@ -1481,12 +1482,18 @@ function setColors (n, c) {
         if(dvColor==c) {zparams.zdv.push(n.name);}
         else if(csColor==c) {zparams.zcross.push(n.name);}
         else if(timeColor==c) {zparams.ztime.push(n.name);}
+        
+        d3.select("#tab1").select("p#".concat(n.name))
+        .style('background-color', c);
     }
     else if (n.strokeWidth=='4') {
         if(c==n.strokeColor) { // deselecting time, cs, dv
             n.strokeWidth = '1';
             n.strokeColor = 'black';
             n.nodeCol=colors(n.id);
+            d3.select("#tab1").select("p#".concat(n.name))
+            .style('background-color', selVarColor);
+            
             if(dvColor==c) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
                 if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
@@ -1514,6 +1521,9 @@ function setColors (n, c) {
                 if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
             }
             n.strokeColor = c;
+            d3.select("#tab1").select("p#".concat(n.name))
+            .style('background-color', c);
+            
             if(dvColor==c) {zparams.zdv.push(n.name);}
             else if(csColor==c) {zparams.zcross.push(n.name);}
             else if(timeColor==c) {zparams.ztime.push(n.name);}
