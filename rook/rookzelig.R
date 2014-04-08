@@ -74,6 +74,12 @@ zelig.app <- function(env){
 			result<-list(warning="No model selected.")
 		}
 	}
+    
+    if(!warning){
+		mysetx <- everything$zsetx
+        myvars <- everything$zvars
+        setxCall <- buildSetx(mysetx, myvars)
+	}
 
 	if(!warning){
 		myedges<-edgeReformat(everything$zedges)
@@ -84,8 +90,8 @@ zelig.app <- function(env){
 	}
 
 	if(!warning){ 
-        #		mydata <- read.delim("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/data/session_affinity_scores_un_67_02132013-cow.tab")
-        mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        		mydata <- read.delim("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/data/session_affinity_scores_un_67_02132013-cow.tab")
+        #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 		if(is.null(mydata)){
 			warning <- TRUE
 			result<-list(warning="Dataset not loadable from Dataverse")
@@ -103,6 +109,7 @@ zelig.app <- function(env){
 	if(!warning){
 		print(names(mydata))
 		print(myformula)
+        print(setxCall)
 	
 
   		assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
@@ -111,7 +118,7 @@ zelig.app <- function(env){
 
 		print(summary(z.out))
 		assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
-		x.out <- setx(z.out)
+        x.out <- setx(z.out)
 		assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
 		s.out <- sim(z.out, x=x.out)
 		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
@@ -173,6 +180,31 @@ edgeReformat<-function(edges){
 		new[i,2]<-edges[[i]][2]
 	}
     return(new)
+}
+
+buildSetx <- function(setx, varnames) {
+    outeq <- NULL
+    alteq <- NULL
+    j<-1
+    k<-1
+    
+    for(i in 1:length(varnames)){
+        t <- unlist(setx[i])
+        if(t[1]=="" & t[2]=="") {next}
+        if(t[1]!="") {
+            outeq[j] <- paste(varnames[i],"=",t[1])
+            j<-j+1
+        }
+        if(t[2]!="") {
+            alteq[k] <- paste(varnames[i],"=",t[2])
+            k<-k+1
+        }
+    }
+    
+    outeq <- paste(outeq, collapse=",")
+    alteq <- paste(alteq, collapse=",")
+    call <- c(paste("setx(z.out,",outeq,")"), paste("z.out,",alteq))
+    return(call)
 }
 
 buildFormula<-function(dv, linkagelist, varnames=NULL){
