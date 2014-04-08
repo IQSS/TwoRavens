@@ -179,7 +179,7 @@ function density(data, node) {
 
         var handle = slider.append("circle")
         .attr("class", "handle")
-        .attr("transform", "translate(0," + height*.9 + ")")
+        .attr("transform", "translate(0," + height*.7 + ")")
         .attr("cx", x(node.mean))
         .attr("r", 7);
         
@@ -189,7 +189,7 @@ function density(data, node) {
         
         var handle2 = slider2.append("circle")
         .attr("class", "handle")
-        .attr("transform", "translate(0," + height*.7 + ")")
+        .attr("transform", "translate(0," + height*.9 + ")")
         .attr("cx", x(node.mean))
         .attr("r", 7);
       
@@ -235,18 +235,48 @@ function density(data, node) {
                 node.setxvals[0]=Math.round(d3.min(xVals));
             }
             else {
-                handle.attr("cx", x(value));
-                plotsvg.select("text#range")
-                .text(function() {
-                      return("x: ".concat(Math.round(value)));
-                      });
-                node.setxvals[0]=Math.round(value);
+                var near = .075* +node.standardDeviation;
+                var m = +node.mean;
+                var sd = +node.standardDeviation;
+                
+                if(value<(m + near) & value>(m - near)) { // snap to mean
+                    handle.attr("cx", x(m));
+                    plotsvg.select("text#range")
+                    .text(function() {
+                          return("x: ".concat(Math.round(m)));
+                          });
+                    node.setxvals[0]=Math.round(m);
+                }
+                else if(value<(m - sd + near) & value>(m - sd - near)) { // snap to mean - sd
+                    handle.attr("cx", x(m - sd));
+                    plotsvg.select("text#range")
+                    .text(function() {
+                          return("x: ".concat(Math.round(m-sd)));
+                          });
+                    node.setxvals[0]=Math.round(m-sd);
+                }
+                else if(value<(m + sd + near) & value>(m + sd - near)) { // snap to mean + sd
+                    handle.attr("cx", x(m+sd));
+                    plotsvg.select("text#range")
+                    .text(function() {
+                          return("x: ".concat(Math.round(m+sd)));
+                          });
+                    node.setxvals[0]=Math.round(m+sd);
+                }
+                else {
+                    handle.attr("cx", x(value));
+                    plotsvg.select("text#range")
+                    .text(function() {
+                          return("x: ".concat(Math.round(value)));
+                          });
+                    node.setxvals[0]=Math.round(value);
+                }
             }
             
         }
     }
     
-    function brushed2() {   // certainly a more clever way to do this, but it appears fine
+    function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
             var value = brush2.extent()[0];
             
             if (d3.event.sourceEvent) {
@@ -254,7 +284,7 @@ function density(data, node) {
                 brush2.extent([value, value]);
             }
             
-            if(brush2.extent()[0] > d3.max(xVals)) {
+            if(brush2.extent()[0] > d3.max(xVals)) { // dragged past max
                 handle2.attr("cx", x(d3.max(xVals)));
                 plotsvg.select("text#range2")
                 .text(function() {
@@ -262,7 +292,7 @@ function density(data, node) {
                       });
                 node.setxvals[1]=Math.round(d3.max(xVals));
             }
-            else if(brush2.extent()[0] < d3.min(xVals)) {
+            else if(brush2.extent()[0] < d3.min(xVals)) { // dragged past min
                 handle2.attr("cx", x(d3.min(xVals)));
                 plotsvg.select("text#range2")
                 .text(function() {
@@ -271,12 +301,42 @@ function density(data, node) {
                 node.setxvals[1]=Math.round(d3.min(xVals));
             }
             else {
-                handle2.attr("cx", x(value));
-                plotsvg.select("text#range2")
-                .text(function() {
-                      return("x1: ".concat(Math.round(value)));
-                      });
-                node.setxvals[1]=Math.round(value);
+                var near = .075* +node.standardDeviation;
+                var m = +node.mean;
+                var sd = +node.standardDeviation;
+                
+                if(value<(m + near) & value>(m - near)) { // snap to mean
+                    handle2.attr("cx", x(m));
+                    plotsvg.select("text#range2")
+                    .text(function() {
+                          return("x1: ".concat(Math.round(m)));
+                          });
+                    node.setxvals[1]=Math.round(m);
+                }
+                else if(value<(m - sd + near) & value>(m - sd - near)) { // snap to mean - sd
+                    handle2.attr("cx", x(m - sd));
+                    plotsvg.select("text#range2")
+                    .text(function() {
+                          return("x1: ".concat(Math.round(m-sd)));
+                          });
+                    node.setxvals[1]=Math.round(m-sd);
+                }
+                else if(value<(m + sd + near) & value>(m + sd - near)) { // snap to mean + sd
+                    handle2.attr("cx", x(m+sd));
+                    plotsvg.select("text#range2")
+                    .text(function() {
+                          return("x1: ".concat(Math.round(m+sd)));
+                          });
+                    node.setxvals[1]=Math.round(m+sd);
+                }
+                else {
+                    handle2.attr("cx", x(value));
+                    plotsvg.select("text#range2")
+                    .text(function() {
+                          return("x1: ".concat(Math.round(value)));
+                          });
+                    node.setxvals[1]=Math.round(value);
+                }
             }
         
     }
