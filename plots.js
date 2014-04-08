@@ -59,6 +59,10 @@ function density(data, node) {
     var brush = d3.svg.brush()
     .x(x)
     .on("brush", brushed);
+
+    var brush2 = d3.svg.brush()
+    .x(x)
+    .on("brush", brushed2);
     
     var area = d3.svg.area()
     .interpolate("monotone")
@@ -114,7 +118,7 @@ function density(data, node) {
         .attr("height", height);
     }
     
-    // add z lines if setx
+    // add z lines and sliders setx
     if(mydiv=="#setx") {
         
         plotsvg.append("text")
@@ -122,8 +126,17 @@ function density(data, node) {
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              return("setx: ".concat(Math.round(node.mean)));
+              return("x: ".concat(Math.round(node.mean)));
               });
+        
+        plotsvg.append("text")
+        .attr("id", "range2")
+        .attr("x", 25)
+        .attr("y", height+50)
+        .text(function() {
+              return("x1: ".concat(Math.round(node.mean)));
+              });
+
         
         var lineData = [ { "x": x(+node.mean),   "y": height*.65},  { "x": x(+node.mean),  "y": height*.95},
                          { "x": x(+node.mean + +node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + +node.standardDeviation),  "y": height*.9},
@@ -159,22 +172,24 @@ function density(data, node) {
               .scale(x)
               .ticks(0)
               .orient("bottom"))
-        .select(".domain")
-        .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); });
         
         var slider = plotsvg.append("g")
         .attr("class", "slider")
         .call(brush);
-      
-        slider.selectAll(".extent,.resize")
-        .remove();
-      
-        slider.select(".background")
-        .attr("height", height);
 
         var handle = slider.append("circle")
         .attr("class", "handle")
-        .attr("transform", "translate(0," + height*.8 + ")")
+        .attr("transform", "translate(0," + height*.9 + ")")
+        .attr("cx", x(node.mean))
+        .attr("r", 7);
+        
+        var slider2 = plotsvg.append("g")
+        .attr("class", "slider")
+        .call(brush2);
+        
+        var handle2 = slider2.append("circle")
+        .attr("class", "handle")
+        .attr("transform", "translate(0," + height*.7 + ")")
         .attr("cx", x(node.mean))
         .attr("r", 7);
       
@@ -198,7 +213,7 @@ function density(data, node) {
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];
             
-            if (d3.event.sourceEvent) { // not a programmatic event
+            if (d3.event.sourceEvent) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush.extent([value, value]);
             }
@@ -207,7 +222,7 @@ function density(data, node) {
                 handle.attr("cx", x(d3.max(xVals)));
                 plotsvg.select("text#range")
                 .text(function() {
-                      return("setx: ".concat(Math.round(d3.max(xVals))));
+                      return("x: ".concat(Math.round(d3.max(xVals))));
                       });
                 node.setxval=Math.round(d3.max(xVals));
             }
@@ -215,7 +230,7 @@ function density(data, node) {
                 handle.attr("cx", x(d3.min(xVals)));
                 plotsvg.select("text#range")
                 .text(function() {
-                      return("setx: ".concat(Math.round(d3.min(xVals))));
+                      return("x: ".concat(Math.round(d3.min(xVals))));
                       });
                 node.setxval=Math.round(d3.min(xVals));
             }
@@ -223,12 +238,47 @@ function density(data, node) {
                 handle.attr("cx", x(value));
                 plotsvg.select("text#range")
                 .text(function() {
-                      return("setx: ".concat(Math.round(value)));
+                      return("x: ".concat(Math.round(value)));
                       });
                 node.setxval=Math.round(value);
             }
             
         }
+    }
+    
+    function brushed2() {   // certainly a more clever way to do this, but it appears fine
+            var value = brush2.extent()[0];
+            
+            if (d3.event.sourceEvent) {
+                value = x.invert(d3.mouse(this)[0]);
+                brush2.extent([value, value]);
+            }
+            
+            if(brush2.extent()[0] > d3.max(xVals)) {
+                handle2.attr("cx", x(d3.max(xVals)));
+                plotsvg.select("text#range2")
+                .text(function() {
+                      return("x1: ".concat(Math.round(d3.max(xVals))));
+                      });
+                node.setxval=Math.round(d3.max(xVals));
+            }
+            else if(brush2.extent()[0] < d3.min(xVals)) {
+                handle2.attr("cx", x(d3.min(xVals)));
+                plotsvg.select("text#range2")
+                .text(function() {
+                      return("x1: ".concat(Math.round(d3.min(xVals))));
+                      });
+                node.setxval=Math.round(d3.min(xVals));
+            }
+            else {
+                handle2.attr("cx", x(value));
+                plotsvg.select("text#range2")
+                .text(function() {
+                      return("x1: ".concat(Math.round(value)));
+                      });
+                node.setxval=Math.round(value);
+            }
+        
     }
     
 }
