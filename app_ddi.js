@@ -202,7 +202,7 @@ console.log("metadata url: "+metadataurl);
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
    //    console.log(allNodes);
@@ -279,56 +279,6 @@ function popoverContent(d) {
     "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>";
 }
 
- /*
-//  Original data load
-
-d3.tsv("data/use_ex1_short.tsv", function(data) {
-    dataset2=data;
-    valueKey = d3.keys(data[0]); // the variables names
-       for (var i = 0; i < valueKey.length; i++) {
-        myvalues=[];
-       for (var k =0; k<dataset2.length; k++){
-        myvalues.push(dataset2[k][valueKey[i]]);
-       }
-       
-       var datasetcount = d3.layout.histogram()
-       .bins(barnumber).frequency(false)
-       (myvalues);
-       //  console.log(datasetcount);
-       //record the histogram lengths and then normalize to max=1
-       
-       hold= [datasetcount[0].y];
-       var maxhold = datasetcount[0].y
-       var value = 0;
-       for (var j =1; j < datasetcount.length; j++ ){
-        value = datasetcount[j].y;
-        hold.push(datasetcount[j].y);
-        if (maxhold < value){
-            maxhold = value;
-        }
-       }
-       
-       for (var j =0; j < datasetcount.length; j++ ){
-        hold[j]=hold[j]/maxhold;
-       }
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i)});
-       
-       };
-       
-       d3.select("#leftpanel.left").selectAll("p")
-       .data(valueKey)
-       .enter()
-       .append("p")
-       .text(function(d){return d;})
-       .style('background-color',function(d) {
-              if(findNodeIndex(d) > 2) {return varColor;}
-              else {return selVarColor;}
-              });
-       
-       layout();
-       
-       });  // end data load
- */
 
 function layout() {
     var myValues=[];
@@ -444,8 +394,10 @@ function layout() {
         .style('background-color',function(d) {
                var myText = d3.select(this).text();
                var myColor = d3.select(this).style('background-color');
+               var mySC = allNodes[findNodeIndex(myText)].strokeColor;
+               
                zparams.zvars = []; //empty the zvars array
-               if(d3.rgb(myColor).toString() === varColor.toString()) {
+               if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
                 if(nodes.length==0) {
                     nodes.push(findNode(myText));
                     nodes[0].reflexive=true;
@@ -453,12 +405,20 @@ function layout() {
                 else {nodes.push(findNode(myText));}
                 return selVarColor;
                }
-               else {
-                nodes.splice(findNode(myText)["index"], 1);
-                spliceLinksForNode(findNode(myText));
+               else { // dropping a variable
+                    nodes.splice(findNode(myText)["index"], 1);
+                    spliceLinksForNode(findNode(myText));
+               
+                if(mySC==dvColor) {zparams.zdv="";}
+                else if(mySC==csColor) {zparams.zcross="";}
+                else if(mySC==timeColor) {zparams.ztime="";}
+
+                nodeReset(allNodes[findNodeIndex(myText)]);
+                borderState();
                 return varColor;
                }
                });
+        
         restart();
         });
         
@@ -1541,5 +1501,11 @@ function borderState () {
     else {$('#timeButton').css('border-color', '#ccc');}
 }
 
+// small appearance resets, but perhaps this will become a hard reset back to all original allNode values?
+function nodeReset (n) {
+    n.strokeColor="black";
+    n.strokeWidth="1";
+    n.nodeCol=n.baseCol;
+}
 
 
