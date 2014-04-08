@@ -86,8 +86,8 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 
 // read in pre-processed data from dvn
 var preprocess = new Object;
-d3.json("data/preprocessFileID22.json", function(error, json) {
-//d3.json("data/preprocess2429360.txt", function(error, json) {
+//d3.json("data/preprocessFileID22.json", function(error, json) {
+d3.json("data/preprocess2429360.txt", function(error, json) {
     if (error) return console.warn(error);
         var jsondata = json;
         
@@ -151,7 +151,7 @@ var nodes = [];
 //console.log(vars.length); // 109 of them
 
 // load data from DDI with d3
-//d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
+d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
 // pass the entire link bc the id might not be unique
 
 // temporary defaults for the fileid and hostname, pointing to 
@@ -168,7 +168,7 @@ metadataurl=metadataurl+fileid;
 console.log("metadata url: "+metadataurl);
 //d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
 //d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/25", "application/xml", function(xml) {
-d3.xml(metadataurl, "application/xml", function(xml) {
+//d3.xml(metadataurl, "application/xml", function(xml) {
         var vars = xml.documentElement.getElementsByTagName("var");
        var temp = xml.documentElement.getElementsByTagName("fileName");
        zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -202,7 +202,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":[sumStats.min,sumStats.max],"setxplot":false, "setxval":sumStats.mean});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
    //    console.log(allNodes);
@@ -1099,7 +1099,7 @@ function estimate(btn) {
     for(var j =0; j < nodes.length; j++ ) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
         var temp = findNodeIndex(nodes[j].name);
-        zparams.zsetx[j] = allNodes[temp].setxval;
+        zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
     }
 

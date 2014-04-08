@@ -224,7 +224,7 @@ function density(data, node) {
                 .text(function() {
                       return("x: ".concat(Math.round(d3.max(xVals))));
                       });
-                node.setxval=Math.round(d3.max(xVals));
+                node.setxvals[0]=Math.round(d3.max(xVals));
             }
             else if(brush.extent()[0] < d3.min(xVals)) {
                 handle.attr("cx", x(d3.min(xVals)));
@@ -232,7 +232,7 @@ function density(data, node) {
                 .text(function() {
                       return("x: ".concat(Math.round(d3.min(xVals))));
                       });
-                node.setxval=Math.round(d3.min(xVals));
+                node.setxvals[0]=Math.round(d3.min(xVals));
             }
             else {
                 handle.attr("cx", x(value));
@@ -240,7 +240,7 @@ function density(data, node) {
                 .text(function() {
                       return("x: ".concat(Math.round(value)));
                       });
-                node.setxval=Math.round(value);
+                node.setxvals[0]=Math.round(value);
             }
             
         }
@@ -260,7 +260,7 @@ function density(data, node) {
                 .text(function() {
                       return("x1: ".concat(Math.round(d3.max(xVals))));
                       });
-                node.setxval=Math.round(d3.max(xVals));
+                node.setxvals[1]=Math.round(d3.max(xVals));
             }
             else if(brush2.extent()[0] < d3.min(xVals)) {
                 handle2.attr("cx", x(d3.min(xVals)));
@@ -268,7 +268,7 @@ function density(data, node) {
                 .text(function() {
                       return("x1: ".concat(Math.round(d3.min(xVals))));
                       });
-                node.setxval=Math.round(d3.min(xVals));
+                node.setxvals[1]=Math.round(d3.min(xVals));
             }
             else {
                 handle2.attr("cx", x(value));
@@ -276,7 +276,7 @@ function density(data, node) {
                 .text(function() {
                       return("x1: ".concat(Math.round(value)));
                       });
-                node.setxval=Math.round(value);
+                node.setxvals[1]=Math.round(value);
             }
         
     }
