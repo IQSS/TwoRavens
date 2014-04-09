@@ -1254,12 +1254,33 @@ function loadXMLDoc(XMLname)
 
 
 function tab(tab) {
+    tabi = tab.substring(3);
+    myattr = document.getElementById('btnPanel'+tabi).getAttribute("class");
+    document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
+    
+    
+    if(tabi==1) {
+        document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
+        document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+    }
+    else if (tabi==2) {
+        document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
+        document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+    }
+    else {
+        document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
+        document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
+    }
+    
     document.getElementById('tab1').style.display = 'none';
     document.getElementById('tab2').style.display = 'none';
-    document.getElementById('btnPanel1').setAttribute("class", "btn");
-    document.getElementById('btnPanel2').setAttribute("class", "btn");
     document.getElementById(tab).style.display = 'block';
-    document.getElementById('btnPanel'+tab).setAttribute("class", "btn active");
+  //  document.getElementById('tab1').style.display = 'none';
+  //  document.getElementById('tab2').style.display = 'none';
+ //   document.getElementById('btnPanel1').setAttribute("class", "btn");
+  //  document.getElementById('btnPanel2').setAttribute("class", "btn");
+    
+  //  document.getElementById('btnPanel'+tab.substring(3)).setAttribute("class", "btn active");
 }
 
 function varSummary(d) {
