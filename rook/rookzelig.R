@@ -98,6 +98,15 @@ zelig.app <- function(env){
 		}
 	}
 
+    if(!warning){
+        mysubset <- everything$zsubset
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        if(is.null(mysubset)){
+            warning <- TRUE
+            result <- list(warning="Problem with subset.")
+        }
+    }
+
 	if(!warning){ 
 		myformula <- buildFormula(dv=mydv, linkagelist=myedges, varnames=NULL) #names(mydata))
 		if(is.null(myformula)){
@@ -110,9 +119,12 @@ zelig.app <- function(env){
 		print(names(mydata))
 		print(myformula)
         print(setxCall)
+        print(dim(usedata))
 
-  		assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
-		z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
+#    assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
+        assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
+        
+		z.out <- zelig(formula=myformula, model=mymodel, data=usedata)
 		almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
 
 		print(summary(z.out))
@@ -121,12 +133,12 @@ zelig.app <- function(env){
         eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
         assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
         
-        if(length(setxCall==2)) { #if exists: x.alt <- setx(z.out, covariates...)
+        if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
             eval(parse(text=setxCall[2]))
             assign("x.alt", x.alt, envir=globalenv())  # Zelig4 Error with Environments
         }
         
-		if(length(which(ls()=="x.alt"))==0) { # a way of saying if x.alt exists in ls()
+		if(length(setxCall)==1) { # there is no x.alt
             s.out <- sim(z.out, x=x.out)
         }
         else {
@@ -193,6 +205,32 @@ edgeReformat<-function(edges){
     return(new)
 }
 
+
+subsetData <- function(data, sub, varnames){
+    fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
+    fdata$flag <- 0
+    skip <- ""
+    for(i in 1:length(varnames)){
+        t <- unlist(sub[i])
+        if(t[1]=="" & t[2]=="") {next} #no subset region
+        else {
+            myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1")
+            eval(parse(text=myexpr))
+            
+            if(sum(fdata$flag)==nrow(fdata)) { # if this will remove all the data, skip this subset and warn the user
+                fdata$flag <- 0
+                skip <- c(skip, varnames[i]) ## eventually warn the user that skip[2:length(skip)] are variables that they have chosen to subset but have been skipped because if they were subsetted we would have no data left
+            }
+            else {
+                fdata <- fdata[which(fdata$flag==0),] # subsets are the overlap of all remaining selected regions.
+            }
+        }
+    }
+
+    return(fdata)
+}
+
+
 buildSetx <- function(setx, varnames) {
     outeq <- NULL
     alteq <- NULL
@@ -216,15 +254,13 @@ buildSetx <- function(setx, varnames) {
     if(!is.null(outeq)) { # x has been set by user
         outeq <- paste(outeq, collapse=",")
         call[1] <- paste("x.out <- setx(z.out,",outeq,")")
-    }
-    else { # x has not been set by user, use defaults
+    } else { # x has not been set by user, use defaults
         call[1] <- paste("x.out <- setx(z.out)")
     }
     if(!is.null(alteq)) { # x1 has been set by user
         alteq <- paste(alteq, collapse=",")
         call[2] <- paste("x.alt <- setx(z.out,",alteq,")")
-    }
-    else if(!is.null(outeq)) { # x1 has not been set by user, but x has been set, so use defaults
+    } else if(!is.null(outeq)) { # x1 has not been set by user, but x has been set, so use defaults
         call[2] <- paste("x.alt <- setx(z.out)")
     }
     # else user has not set any covariates, so x is default (above) and x1 is undefined
