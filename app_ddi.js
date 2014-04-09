@@ -422,7 +422,7 @@ function layout() {
         restart();
         });
         
-    d3.select("#tab2").selectAll("p")
+    d3.select("#tab2").selectAll("p") // models tab
     .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         })
@@ -528,7 +528,6 @@ function layout() {
                return (d.strokeWidth)
                })
         .on('click',function() {
-          //  varSummary();  this is Mike's summary function
             d3.select(this)
             .style('stroke-width', function(d) {
                    if(!depVar & !colorTime & !colorCS) {
@@ -840,9 +839,12 @@ function layout() {
         
         
         // show summary stats on mouseover
-        // SVG doesn't support text wrapping... overlay html div? yup
+        // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
         .on("mouseover", function(d) {
+                tab("tab3");
+                varSummary(d);
+                })
             // popup(d, xPos, yPos);
             /*
             //Create the tooltip label
@@ -854,12 +856,11 @@ function layout() {
             
             d3.select("#tooltip").style("display", "inline");
 */
-            })
         .on("mouseout", function() {
             
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
-            d3.select("#tooltip").style("display", "none");
+          //  d3.select("#tooltip").style("display", "none");
             
             });
         
@@ -1286,7 +1287,11 @@ function tab(tab) {
 
 function varSummary(d) {
     //Create the tooltip label
+    
     d3.select("#tab3")
+    .select("p")
+    .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);
+    /*
     .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
           
           "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
@@ -1303,8 +1308,8 @@ function varSummary(d) {
           
           "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>"
           );
-    
-};
+    */
+}
 
 function popupX(d) {
     //Create the tooltip label
