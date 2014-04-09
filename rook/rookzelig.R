@@ -110,7 +110,6 @@ zelig.app <- function(env){
 		print(names(mydata))
 		print(myformula)
         print(setxCall)
-	
 
   		assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
 		z.out <- zelig(formula=myformula, model=mymodel, data=mydata)
@@ -118,9 +117,21 @@ zelig.app <- function(env){
 
 		print(summary(z.out))
 		assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
-        x.out <- setx(z.out)
-		assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
-		s.out <- sim(z.out, x=x.out)
+        
+        eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
+        assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
+        
+        if(length(setxCall==2)) { #if exists: x.alt <- setx(z.out, covariates...)
+            eval(parse(text=setxCall[2]))
+            assign("x.alt", x.alt, envir=globalenv())  # Zelig4 Error with Environments
+        }
+        
+		if(length(which(ls()=="x.alt"))==0) { # a way of saying if x.alt exists in ls()
+            s.out <- sim(z.out, x=x.out)
+        }
+        else {
+            s.out <- sim(z.out, x=x.out, x1=x.alt)
+        }
 		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
     	qicount<-0
@@ -185,6 +196,7 @@ edgeReformat<-function(edges){
 buildSetx <- function(setx, varnames) {
     outeq <- NULL
     alteq <- NULL
+    call <- NULL
     j<-1
     k<-1
     
@@ -192,18 +204,31 @@ buildSetx <- function(setx, varnames) {
         t <- unlist(setx[i])
         if(t[1]=="" & t[2]=="") {next}
         if(t[1]!="") {
-            outeq[j] <- paste(varnames[i],"=",t[1])
+            outeq[j] <- paste(varnames[i],"=as.numeric(",t[1],")")
             j<-j+1
         }
         if(t[2]!="") {
-            alteq[k] <- paste(varnames[i],"=",t[2])
+            alteq[k] <- paste(varnames[i],"=as.numeric(",t[2],")")
             k<-k+1
         }
     }
     
-    outeq <- paste(outeq, collapse=",")
-    alteq <- paste(alteq, collapse=",")
-    call <- c(paste("setx(z.out,",outeq,")"), paste("z.out,",alteq))
+    if(!is.null(outeq)) { # x has been set by user
+        outeq <- paste(outeq, collapse=",")
+        call[1] <- paste("x.out <- setx(z.out,",outeq,")")
+    }
+    else { # x has not been set by user, use defaults
+        call[1] <- paste("x.out <- setx(z.out)")
+    }
+    if(!is.null(alteq)) { # x1 has been set by user
+        alteq <- paste(alteq, collapse=",")
+        call[2] <- paste("x.alt <- setx(z.out,",alteq,")")
+    }
+    else if(!is.null(outeq)) { # x1 has not been set by user, but x has been set, so use defaults
+        call[2] <- paste("x.alt <- setx(z.out)")
+    }
+    # else user has not set any covariates, so x is default (above) and x1 is undefined
+        
     return(call)
 }
 
