@@ -1274,6 +1274,7 @@ function tab(tab) {
     
     document.getElementById('tab1').style.display = 'none';
     document.getElementById('tab2').style.display = 'none';
+    document.getElementById('tab3').style.display = 'none';
     document.getElementById(tab).style.display = 'block';
   //  document.getElementById('tab1').style.display = 'none';
   //  document.getElementById('tab2').style.display = 'none';
