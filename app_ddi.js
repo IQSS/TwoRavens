@@ -88,17 +88,11 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 
 
 // read in pre-processed data from dvn
-var preprocess = new Object;
-//d3.json("data/preprocessFileID22.json", function(error, json) {
-d3.json("data/preprocess2429360.txt", function(error, json) {
-    if (error) return console.warn(error);
-        var jsondata = json;
-        
-        //copying the object
-        for(var key in jsondata) {
-            preprocess[key] = jsondata[key];
-        }
-        });
+var pURL = "data/preprocess2429360.txt";
+//var pURL="data/preprocessFileID22.json";
+
+var preprocess = readPreprocess(pURL);
+var cachePreprocess = new Object; // this will be used when toggling between subset and original
 
 // Radius of circle
 var allR = 40;
@@ -142,7 +136,7 @@ var dataset2 = [];
 var valueKey = [];
 var hold = [];
 var allNodes = [];
-var cacheNodes = allNodes; // this will toggle between subset and original
+var cacheNodes = allNodes; // this will be used when toggling between subset and original
 var links = [];
 var nodes = [];
 
@@ -1578,7 +1572,6 @@ function subsetSelect(btn) {
         var filelist = new Array;
         console.log(json);
         cacheNodes = allNodes;
-        console.log(json.varnames.length);
         for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
             var temp = findNodeIndex(json.varnames[j]);
             allNodes[temp].minimum=json.min[j];
@@ -1594,7 +1587,7 @@ function subsetSelect(btn) {
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
-    console.log(allNodes);
+        
     }
     
     
@@ -1608,8 +1601,18 @@ function subsetSelect(btn) {
     
 }
 
+function readPreprocess(url) {
 
-
-
-
+    var p = new Object;
+    d3.json(url, function(error, json) {
+            if (error) return console.warn(error);
+            var jsondata = json;
+            
+            //copying the object
+            for(var key in jsondata) {
+            p[key] = jsondata[key];
+            }
+            });
+    return p;
+}
 
