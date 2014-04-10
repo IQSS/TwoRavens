@@ -208,7 +208,7 @@ function density(data, node) {
             if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
                 node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
             }
-            else {node.subsetrange=[d3.min(xVals), d3.max(xVals)];}
+            else {node.subsetrange=["", ""];}
         }
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];

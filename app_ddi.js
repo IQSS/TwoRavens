@@ -1535,4 +1535,60 @@ function nodeReset (n) {
     n.nodeCol=n.baseCol;
 }
 
+function subsetSelect(btn) {
+    zparams.zvars = [];
+    var subsetEmpty = true;
+    
+    for(var j =0; j < nodes.length; j++ ) { //populate zvars and zsubset arrays
+        zparams.zvars.push(nodes[j].name);
+        var temp = findNodeIndex(nodes[j].name);
+        zparams.zsubset[j] = allNodes[temp].subsetrange;
+        console.log(zparams.zsubset[j]);
+        if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
+    }
+    
+    if(subsetEmpty==true) {
+        alert("Warning: No new subset selected.");
+        return;
+    }
+
+    //package the output as JSON
+    var subsetstuff = [zparams.zvars, zparams.zsubset, allNodes];
+    console.log(subsetstuff);
+  
+    var jsonout = JSON.stringify(zparams);
+    var base = "http://0.0.0.0:8000/custom/subsetapp?solaJSON="
+    
+    urlcall = base.concat(jsonout);
+    console.log(urlcall);
+
+    function subsetSelectSuccess(btn,json) {
+        var property=document.getElementById(btn);
+        estimated=true;
+        property.style.backgroundColor="#00CC33";
+        
+        // new allNodes is json. convert to same format as old allNodes.
+        var filelist = new Array;
+        for(var i in json) {
+            //...
+            //update zparams
+        }
+        
+    }
+    
+    function subsetSelectFail(btn) {
+        var property=document.getElementById(btn);
+        estimated=true;
+        property.style.backgroundColor="#CC3333";
+    }
+    
+    
+  //  makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
+    
+}
+
+
+
+
+
 
