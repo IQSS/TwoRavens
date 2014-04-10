@@ -205,7 +205,7 @@ console.log("metadata url: "+metadataurl);
        
   
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":"black", "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
    //    console.log(allNodes);
@@ -1479,7 +1479,7 @@ function setColors (n, c) {
     else if (n.strokeWidth=='4') {
         if(c==n.strokeColor) { // deselecting time, cs, dv
             n.strokeWidth = '1';
-            n.strokeColor = 'black';
+            n.strokeColor = selVarColor;
             n.nodeCol=colors(n.id);
             d3.select("#tab1").select("p#".concat(n.name))
             .style('background-color', selVarColor);
@@ -1533,7 +1533,7 @@ function borderState () {
 
 // small appearance resets, but perhaps this will become a hard reset back to all original allNode values?
 function nodeReset (n) {
-    n.strokeColor="black";
+    n.strokeColor=selVarColor;
     n.strokeWidth="1";
     n.nodeCol=n.baseCol;
 }
