@@ -47,6 +47,7 @@ var yPos = 50;
 
 var forcetoggle=true;
 var estimated=false;
+var subseted=false; //use this to tell users they have subseted the data
 
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
@@ -66,6 +67,8 @@ var setxdiv=false;
 var varColor = d3.rgb("aliceblue");
 var selVarColor = d3.rgb("salmon");
 var taggedColor = d3.rgb("whitesmoke");
+
+var lefttab = "tab1"; //global for current tab in left panel
 
 // Zelig models, eventually this could be a separate xml file that is imported
 //var zmods = ["OLS", "Logit"];
@@ -857,7 +860,7 @@ function layout() {
             d3.select("#tooltip").style("display", "inline");
 */
         .on("mouseout", function() {
-            
+            tab(lefttab);
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");
@@ -1553,10 +1556,10 @@ function subsetSelect(btn) {
     }
 
     //package the output as JSON
-    var subsetstuff = [zparams.zvars, zparams.zsubset, allNodes];
+    var subsetstuff = [zparams.zvars, zparams.zsubset];
     console.log(subsetstuff);
   
-    var jsonout = JSON.stringify(zparams);
+    var jsonout = JSON.stringify(subsetstuff);
     var base = "http://0.0.0.0:8000/custom/subsetapp?solaJSON="
     
     urlcall = base.concat(jsonout);
@@ -1564,7 +1567,7 @@ function subsetSelect(btn) {
 
     function subsetSelectSuccess(btn,json) {
         var property=document.getElementById(btn);
-        estimated=true;
+        subseted=true;
         property.style.backgroundColor="#00CC33";
         
         // new allNodes is json. convert to same format as old allNodes.
@@ -1578,12 +1581,12 @@ function subsetSelect(btn) {
     
     function subsetSelectFail(btn) {
         var property=document.getElementById(btn);
-        estimated=true;
+        subseted=true;
         property.style.backgroundColor="#CC3333";
     }
     
     
-  //  makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
+  makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
     
 }
 
