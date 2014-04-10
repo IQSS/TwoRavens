@@ -174,6 +174,7 @@ zelig.app <- function(env){
     #dev.off()
 
     #response$headers("localhost:8888")
+    print(result)
     result<- toJSON(result)
     print(result)
     response$write(result)
@@ -226,7 +227,7 @@ subsetData <- function(data, sub, varnames){
             }
         }
     }
-
+    fdata$flag<-NULL
     return(fdata)
 }
 
@@ -309,8 +310,93 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     return(formula)
 }
 
-R.server$add(app = zelig.app, name = "zeligapp")
+## VJD: note that this skips all factor and character classes
+calcSumStats <- function(data) {
 
+    medians <- sapply(data, function(x) {
+      if(is.factor(x) | is.character(x)) return(NA)
+      else return(median(x, na.rm=TRUE))
+    })
+    means <- sapply(data, function(x) {
+        if(is.factor(x) | is.character(x)) return(NA)
+        else return(mean(x, na.rm=TRUE))
+    })
+    modes <- sapply(data, function(x) {
+        if(is.factor(x) | is.character(x)) return(NA)
+        else return(Mode(x))
+    })
+    maxs <- sapply(data, function(x) {
+        if(is.factor(x) | is.character(x)) return(NA)
+        else return(max(x, na.rm=TRUE))
+    })
+    mins <- sapply(data, function(x) {
+        if(is.factor(x) | is.character(x)) return(NA)
+        else return(median(x, na.rm=TRUE))
+    })
+    sds <- sapply(data, function(x) {
+        if(is.factor(x) | is.character(x)) return(NA)
+        else return(sd(x, na.rm=TRUE))
+    })
+    
+    invalids <- apply(data, 2, function(x) length(which(is.na(x))))
+    valids <- nrow(data)-invalids
+    
+    out<-list(varnames=colnames(data), median=as.vector(medians), mean=as.vector(means), mode=as.vector(modes), max=as.vector(maxs), min=as.vector(mins), invalid=as.vector(invalids), valid=as.vector(valids), sd=as.vector(sds))
+    return(out)
+    
+}
+
+Mode <- function(x) {
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+}
+
+subset.app <- function(env){
+    request <- Request$new(env)
+    response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
+    
+    everything <- fromJSON(request$params()$solaJSON)
+    print(everything)
+    
+    warning<-FALSE
+    
+    if(!warning){
+        mydata <- read.delim("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/data/session_affinity_scores_un_67_02132013-cow.tab")
+        #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+		if(is.null(mydata)){
+			warning <- TRUE
+			result<-list(warning="Dataset not loadable from Dataverse")
+		}
+	}
+    
+    if(!warning){
+		myvars <- everything$zvars
+        if(is.null(myvars)){
+            warning<-TRUE
+            result<-list(warning="Problem with variables.")
+        }
+	}
+    
+    if(!warning){
+        mysubset <- everything$zsubset
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        if(is.null(mysubset)){
+            warning <- TRUE
+            result <- list(warning="Problem with subset.")
+        }
+    }
+    
+    print(dim(mydata))
+    print(dim(usedata))
+    sumstats <- calcSumStats(usedata)
+    result<- toJSON(sumstats)
+    print(result)
+    response$write(result)
+    response$finish()
+}
+
+R.server$add(app = zelig.app, name = "zeligapp")
+R.server$add(app = subset.app, name="subsetapp")
 print(R.server)
 
 #R.server$browse(zeligapp)

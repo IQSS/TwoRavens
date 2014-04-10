@@ -142,6 +142,7 @@ var dataset2 = [];
 var valueKey = [];
 var hold = [];
 var allNodes = [];
+var cacheNodes = allNodes; // this will toggle between subset and original
 var links = [];
 var nodes = [];
 
@@ -183,7 +184,7 @@ console.log("metadata url: "+metadataurl);
        hold = [0, 0, 0, 0, 0, 0, 0];
        var myvalues = [0, 0, 0, 0, 0];
 
-       for (i=0;i<vars.length;i++) {
+       for (i=0;i<14;i++) { //vars.length instead of 14.  make sure to put this back when developing with the corrupt ddi ends
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -1539,6 +1540,10 @@ function nodeReset (n) {
 }
 
 function subsetSelect(btn) {
+    
+    zparams.zhostname = hostname;
+    zparams.zfileid = fileid;
+    
     zparams.zvars = [];
     var subsetEmpty = true;
     
@@ -1554,9 +1559,9 @@ function subsetSelect(btn) {
         alert("Warning: No new subset selected.");
         return;
     }
-
+    
     //package the output as JSON
-    var subsetstuff = [zparams.zvars, zparams.zsubset];
+    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset};
     console.log(subsetstuff);
   
     var jsonout = JSON.stringify(subsetstuff);
@@ -1568,16 +1573,30 @@ function subsetSelect(btn) {
     function subsetSelectSuccess(btn,json) {
         var property=document.getElementById(btn);
         subseted=true;
-        property.style.backgroundColor="#00CC33";
+      //  property.style.backgroundColor="#00CC33";
         
-        // new allNodes is json. convert to same format as old allNodes.
         var filelist = new Array;
-        for(var i in json) {
-            //...
-            //update zparams
+        console.log(json);
+        cacheNodes = allNodes;
+        console.log(json.varnames.length);
+        for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
+            var temp = findNodeIndex(json.varnames[j]);
+            allNodes[temp].minimum=json.min[j];
+            allNodes[temp].median=json.median[j];
+            allNodes[temp].mode=json.mode[j];
+            allNodes[temp].mean=json.mean[j];
+            allNodes[temp].invalid=json.invalid[j];
+            allNodes[temp].valid=json.valid[j];
+            allNodes[temp].standardDeviation=json.sd[j];
+            allNodes[temp].maximum=json.max[j];
+            allNodes[temp].subsetplot=false;
+            allNodes[temp].subsetrange=["",""];
+            allNodes[temp].setxplot=false;
+            allNodes[temp].setxvals=["",""];
         }
-        
+    console.log(allNodes);
     }
+    
     
     function subsetSelectFail(btn) {
         var property=document.getElementById(btn);
@@ -1585,8 +1604,7 @@ function subsetSelect(btn) {
         property.style.backgroundColor="#CC3333";
     }
     
-    
-  makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
+    makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
     
 }
 
