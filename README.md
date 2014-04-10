@@ -3,13 +3,13 @@ ZeligGUI
 
 April: automated model selection
 
-March 28: dataset summaries and preprocessed figures---missingness map, scatterplot matrix
+April 11: dataset icon
 
-March 21: dataset icon
+April 3: dataset summaries and preprocessed figures---missingness map, scatterplot matrix
 
-March 21: setx interface
+March 28: **Done** *setx interface*
 
-March 21: subset data by observation values, regardless of whether or not the API yet supports this
+March 21: **Done** *subset data by observation values, regardless of whether or not the API yet supports this*
 
 March 14: **Done** *have separate preprocessed metadata that holds histograms (and other pre-processed summary data)*
 
