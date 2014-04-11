@@ -331,7 +331,7 @@ calcSumStats <- function(data) {
     })
     mins <- sapply(data, function(x) {
         if(is.factor(x) | is.character(x)) return(NA)
-        else return(median(x, na.rm=TRUE))
+        else return(min(x, na.rm=TRUE))
     })
     sds <- sapply(data, function(x) {
         if(is.factor(x) | is.character(x)) return(NA)
@@ -353,7 +353,7 @@ Mode <- function(x) {
 
 pCall <- function(data) {
     url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
-    pjson<-preprocess(data)
+    pjson<-preprocess(testdata=data)
     write(pjson,file=paste("../",url, sep=""))
     return(url)
 }
@@ -399,11 +399,11 @@ subset.app <- function(env){
     
     
     # send preprocess new usedata and receive url with location
-    #purl <- pCall(usedata)
+    purl <- pCall(data=usedata)
     #purl <- "test"
-    #result<- toJSON(c(sumstats,list(url=purl)))
+    result<- toJSON(c(sumstats,list(url=purl)))
     
-    result <- toJSON(sumstats)
+    #result <- toJSON(sumstats)
     print(result)
     response$write(result)
     response$finish()

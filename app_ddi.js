@@ -91,8 +91,9 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 var pURL = "data/preprocess2429360.txt";
 //var pURL="data/preprocessFileID22.json";
 
-var preprocess = readPreprocess(pURL);
-var cachePreprocess = new Object; // this will be used when toggling between subset and original
+var originalPreprocess = readPreprocess(pURL);
+var preprocess = originalPreprocess; // preprocess is always a reference to either original or subset
+var subsetPreprocess = new Object;
 
 // Radius of circle
 var allR = 40;
@@ -136,7 +137,8 @@ var dataset2 = [];
 var valueKey = [];
 var hold = [];
 var allNodes = [];
-var cacheNodes = allNodes; // this will be used when toggling between subset and original
+var originalNodes = []; // this will be used when toggling between subset and original
+var subsetNodes = [];
 var links = [];
 var nodes = [];
 
@@ -1285,7 +1287,7 @@ function tab(tab) {
 
 function varSummary(d) {
     //Create the tooltip label
-    
+    console.log(d);
     d3.select("#tab3")
     .select("p")
     .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);
@@ -1378,6 +1380,7 @@ function subset() {
     for (var i = 0; i < allNodes.length; i++) {
         var j = varArray.indexOf(allNodes[i].name);
         if (j > -1) {
+            console.log(allNodes[i]);
             if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
                 density(dataArray[j], allNodes[i]);
@@ -1535,17 +1538,21 @@ function nodeReset (n) {
 
 function subsetSelect(btn) {
     
+    if(document.getElementById('btnData1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
+        originalNodes=JSON.parse(JSON.stringify(allNodes));
+    }
+    
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
     
     zparams.zvars = [];
+    
     var subsetEmpty = true;
     
     for(var j =0; j < nodes.length; j++ ) { //populate zvars and zsubset arrays
         zparams.zvars.push(nodes[j].name);
         var temp = findNodeIndex(nodes[j].name);
         zparams.zsubset[j] = allNodes[temp].subsetrange;
-        console.log(zparams.zsubset[j]);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
     
@@ -1565,13 +1572,11 @@ function subsetSelect(btn) {
     console.log(urlcall);
 
     function subsetSelectSuccess(btn,json) {
-        var property=document.getElementById(btn);
         subseted=true;
-      //  property.style.backgroundColor="#00CC33";
+        document.getElementById(btn.id).style.background="#00CC33";
+        document.getElementById('btnData2').setAttribute("class", "btn active");
+        document.getElementById('btnData1').setAttribute("class", "btn btn-default");
         
-        var filelist = new Array;
-        console.log(json);
-        cacheNodes = allNodes;
         for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
             var temp = findNodeIndex(json.varnames[j]);
             allNodes[temp].minimum=json.min[j];
@@ -1587,14 +1592,15 @@ function subsetSelect(btn) {
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
-        
+
+        subsetNodes=JSON.parse(JSON.stringify(allNodes));
+        preprocess = readPreprocess(json.url);
+        subsetPreprocess=readPreprocess(json.url); // I can't copy preprocess for some reason, is doing it this way ignoring a larger problem?  as in, there's some reason I can't copy preprocess... but it seems to work fine...
     }
     
     
     function subsetSelectFail(btn) {
-        var property=document.getElementById(btn);
-        subseted=true;
-        property.style.backgroundColor="#CC3333";
+        document.getElementById(btn.id).style.background="#CC3333";
     }
     
     makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
@@ -1616,3 +1622,83 @@ function readPreprocess(url) {
     return p;
 }
 
+function toggleData(btnid) {
+    if(!subseted | document.getElementById(btnid).getAttribute('class')=="btn active") {return;}
+    if(btnid=="btnData1") {
+       // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
+        for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
+            allNodes[j].minimum=originalNodes[j].minimum;
+            allNodes[j].median=originalNodes[j].median;
+            allNodes[j].mode=originalNodes[j].mode;
+            allNodes[j].mean=originalNodes[j].mean;
+            allNodes[j].invalid=originalNodes[j].invalid;
+            allNodes[j].valid=originalNodes[j].valid;
+            allNodes[j].standardDeviation=originalNodes[j].standardDeviation;
+            allNodes[j].maximum=originalNodes[j].maximum;
+            allNodes[j].subsetplot=false;
+            allNodes[j].subsetrange=["",""];
+            allNodes[j].setxplot=false;
+            allNodes[j].setxvals=["",""];
+        }
+        preprocess=originalPreprocess;
+        console.log(preprocess);
+        
+        document.getElementById('btnData1').setAttribute("class", "btn active");
+        document.getElementById('btnData2').setAttribute("class", "btn btn-default");
+        
+        // collapse subset or setx divs and reset all plots
+        d3.select("#subset")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#setx")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#rightpanel")
+        .attr("class", "container");
+        
+    }
+
+    else {
+     //   allNodes=JSON.parse(JSON.stringify(subsetNodes));
+        for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
+            allNodes[j].minimum=subsetNodes[j].minimum;
+            allNodes[j].median=subsetNodes[j].median;
+            allNodes[j].mode=subsetNodes[j].mode;
+            allNodes[j].mean=subsetNodes[j].mean;
+            allNodes[j].invalid=subsetNodes[j].invalid;
+            allNodes[j].valid=subsetNodes[j].valid;
+            allNodes[j].standardDeviation=subsetNodes[j].standardDeviation;
+            allNodes[j].maximum=subsetNodes[j].maximum;
+            allNodes[j].subsetplot=false;
+            allNodes[j].subsetrange=["",""];
+            allNodes[j].setxplot=false;
+            allNodes[j].setxvals=["",""];
+        }
+        
+        preprocess=subsetPreprocess;
+        console.log(preprocess);
+        
+        document.getElementById('btnData2').setAttribute("class", "btn active");
+        document.getElementById('btnData1').setAttribute("class", "btn btn-default");
+        
+        // collapse subset or setx divs and reset all plots
+        d3.select("#subset")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#setx")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#rightpanel")
+        .attr("class", "container");
+
+    }
+
+}
