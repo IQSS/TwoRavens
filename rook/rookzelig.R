@@ -12,7 +12,7 @@ install.packages(c("Rook","rjson","Zelig"), repos = "http://watson.nci.nih.gov/c
 library(Rook)
 library(rjson)
 library(Zelig)
-
+source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 myPort <- "8000"
 myInterface <- "0.0.0.0"
@@ -90,7 +90,7 @@ zelig.app <- function(env){
 	}
 
 	if(!warning){ 
-        		mydata <- read.delim("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/data/session_affinity_scores_un_67_02132013-cow.tab")
+        		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
         #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 		if(is.null(mydata)){
 			warning <- TRUE
@@ -351,6 +351,13 @@ Mode <- function(x) {
     ux[which.max(tabulate(match(x, ux)))]
 }
 
+pCall <- function(data) {
+    url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
+    pjson<-preprocess(data)
+    write(pjson,file=paste("../",url, sep=""))
+    return(url)
+}
+
 subset.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
@@ -361,8 +368,8 @@ subset.app <- function(env){
     warning<-FALSE
     
     if(!warning){
-        mydata <- read.delim("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/data/session_affinity_scores_un_67_02132013-cow.tab")
-        #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+        # mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 		if(is.null(mydata)){
 			warning <- TRUE
 			result<-list(warning="Dataset not loadable from Dataverse")
@@ -389,7 +396,14 @@ subset.app <- function(env){
     print(dim(mydata))
     print(dim(usedata))
     sumstats <- calcSumStats(usedata)
-    result<- toJSON(sumstats)
+    
+    
+    # send preprocess new usedata and receive url with location
+    #purl <- pCall(usedata)
+    #purl <- "test"
+    #result<- toJSON(c(sumstats,list(url=purl)))
+    
+    result <- toJSON(sumstats)
     print(result)
     response$write(result)
     response$finish()
