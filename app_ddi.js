@@ -217,19 +217,20 @@ console.log("metadata url: "+metadataurl);
               if(findNodeIndex(d) > 2) {return varColor;}
               else {return selVarColor;}
               })
-       .attr("data-container", "body")
-       .attr("data-toggle", "popover")
-       .attr("data-trigger", "hover")
-       .attr("data-position", "right auto")
-       .attr("data-html", "true")
-       .attr("onmouseover", "$(this).popover('toggle');")
-       .attr("onmouseout", "$(this).popover('toggle');")
-       .attr("data-original-title", "Summary Statistics")
-       .attr("data-content", function(d) {
-             var onNode = findNode(d);
-             return popoverContent(onNode);
-             });
-   
+        .attr("data-container", "body")
+        .attr("data-toggle", "popover")
+        .attr("data-trigger", "hover")
+        .attr("data-position", "right auto")
+        .attr("data-html", "true")
+        .attr("onmouseover", "$(this).popover('toggle'); popoverContent(allNodes[findNodeIndex($(this).text())]);")
+        .attr("onmouseout", "$(this).popover('toggle');")
+        .attr("data-original-title", "Summary Statistics")
+        .attr("data-content", function(d) {
+                 var onNode = findNode(d);
+                 return popoverContent(onNode);
+                 });
+
+       
        d3.select("#tab2")
        .style('height', 2000)
        .style('overfill', 'scroll');
@@ -1287,7 +1288,6 @@ function tab(tab) {
 
 function varSummary(d) {
     //Create the tooltip label
-    console.log(d);
     d3.select("#tab3")
     .select("p")
     .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);
@@ -1380,7 +1380,6 @@ function subset() {
     for (var i = 0; i < allNodes.length; i++) {
         var j = varArray.indexOf(allNodes[i].name);
         if (j > -1) {
-            console.log(allNodes[i]);
             if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
                 density(dataArray[j], allNodes[i]);
@@ -1593,9 +1592,12 @@ function subsetSelect(btn) {
             allNodes[temp].setxvals=["",""];
         }
 
+        subsetPreprocess=readPreprocess(json.url);
+        preprocess=subsetPreprocess;
+        
         subsetNodes=JSON.parse(JSON.stringify(allNodes));
-        preprocess = readPreprocess(json.url);
-        subsetPreprocess=readPreprocess(json.url); // I can't copy preprocess for some reason, is doing it this way ignoring a larger problem?  as in, there's some reason I can't copy preprocess... but it seems to work fine...
+        
+        resetPlots();
     }
     
     
@@ -1641,24 +1643,11 @@ function toggleData(btnid) {
             allNodes[j].setxvals=["",""];
         }
         preprocess=originalPreprocess;
-        console.log(preprocess);
         
         document.getElementById('btnData1').setAttribute("class", "btn active");
         document.getElementById('btnData2').setAttribute("class", "btn btn-default");
         
-        // collapse subset or setx divs and reset all plots
-        d3.select("#subset")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#setx")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#rightpanel")
-        .attr("class", "container");
+        resetPlots();
         
     }
 
@@ -1680,25 +1669,28 @@ function toggleData(btnid) {
         }
         
         preprocess=subsetPreprocess;
-        console.log(preprocess);
         
         document.getElementById('btnData2').setAttribute("class", "btn active");
         document.getElementById('btnData1').setAttribute("class", "btn btn-default");
         
-        // collapse subset or setx divs and reset all plots
-        d3.select("#subset")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#setx")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#rightpanel")
-        .attr("class", "container");
+        resetPlots();
 
     }
 
+}
+
+function resetPlots() {
+    // collapse subset or setx divs and reset all plots
+    d3.select("#subset")
+    .style("display", "none")
+    .selectAll("svg")
+    .remove();
+    
+    d3.select("#setx")
+    .style("display", "none")
+    .selectAll("svg")
+    .remove();
+    
+    d3.select("#rightpanel")
+    .attr("class", "container");
 }
