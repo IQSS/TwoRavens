@@ -205,8 +205,7 @@ console.log("metadata url: "+metadataurl);
        allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
-   //    console.log(allNodes);
-    //   d3.select("#leftpanel.left").selectAll("p")
+       
        d3.select("#tab1").selectAll("p")
        .data(valueKey)
        .enter()
@@ -217,19 +216,17 @@ console.log("metadata url: "+metadataurl);
               if(findNodeIndex(d) > 2) {return varColor;}
               else {return selVarColor;}
               })
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-position", "right auto")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle'); popoverContent(allNodes[findNodeIndex($(this).text())]);")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics")
-        .attr("data-content", function(d) {
-                 var onNode = findNode(d);
-                 return popoverContent(onNode);
-                 });
-
+       .attr("data-container", "body")
+       .attr("data-toggle", "popover")
+       .attr("data-trigger", "hover")
+       .attr("data-position", "right auto")
+       .attr("data-html", "true")
+       .attr("onmouseover", "$(this).popover('toggle');")
+       .attr("onmouseout", "$(this).popover('toggle');")
+       .attr("data-original-title", "Summary Statistics");
+       
+       populatePopover(); // pipes in the summary stats
+       
        
        d3.select("#tab2")
        .style('height', 2000)
@@ -261,6 +258,16 @@ console.log("metadata url: "+metadataurl);
 
        
        });
+
+function populatePopover () {
+    
+    d3.select("#tab1").selectAll("p")
+    .attr("data-content", function(d) {
+          var onNode = findNodeIndex(d);
+          console.log(allNodes[onNode].maximum);
+          return popoverContent(allNodes[onNode]);
+          });
+}
 
 function popoverContent(d) {
     return "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
@@ -1598,6 +1605,7 @@ function subsetSelect(btn) {
         subsetNodes=JSON.parse(JSON.stringify(allNodes));
         
         resetPlots();
+        populatePopover();
     }
     
     
@@ -1626,6 +1634,7 @@ function readPreprocess(url) {
 
 function toggleData(btnid) {
     if(!subseted | document.getElementById(btnid).getAttribute('class')=="btn active") {return;}
+    
     if(btnid=="btnData1") {
        // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
@@ -1646,9 +1655,6 @@ function toggleData(btnid) {
         
         document.getElementById('btnData1').setAttribute("class", "btn active");
         document.getElementById('btnData2').setAttribute("class", "btn btn-default");
-        
-        resetPlots();
-        
     }
 
     else {
@@ -1672,11 +1678,10 @@ function toggleData(btnid) {
         
         document.getElementById('btnData2').setAttribute("class", "btn active");
         document.getElementById('btnData1').setAttribute("class", "btn btn-default");
-        
-        resetPlots();
-
     }
-
+    
+    resetPlots();
+    populatePopover();
 }
 
 function resetPlots() {
