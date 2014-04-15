@@ -264,7 +264,6 @@ function populatePopover () {
     d3.select("#tab1").selectAll("p")
     .attr("data-content", function(d) {
           var onNode = findNodeIndex(d);
-          console.log(allNodes[onNode].maximum);
           return popoverContent(allNodes[onNode]);
           });
 }
@@ -1292,6 +1291,59 @@ function tab(tab) {
     
   //  document.getElementById('btnPanel'+tab.substring(3)).setAttribute("class", "btn active");
 }
+
+
+function tabRight(tabid) {
+    if(document.getElementById(tabid).getAttribute('class')=="btn active" & tabid!="btnResults") {
+        document.getElementById(tabid).setAttribute("class", "btn btn-default");
+        document.getElementById('btnResults').setAttribute("class", "btn active");
+        document.getElementById('btnSelect').setAttribute("style", "display:none");
+        d3.select("#rightpanelcontent")
+        .style("display", "inline");
+        return;
+    }
+    
+    if(tabid=="btnResults") {
+        document.getElementById('btnSelect').setAttribute("style", "display:none");
+        d3.select("#subset")
+        .style("display", "none")
+        d3.select("#setx")
+        .style("display", "none")
+        d3.select("#rightpanel")
+        .attr("class", "container");
+        d3.select("#rightpanelcontent")
+        .style("display","inline");
+    }
+    
+    document.getElementById(tabid).setAttribute("class", "btn active");
+    
+    if(tabid=="btnSubset") {
+        document.getElementById('btnSelect').setAttribute("style", "display:inline");
+                document.getElementById('btnSelect').setAttribute("style", "float:right");
+        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+        
+        d3.select("#rightpanelcontent")
+        .style("display", "none");
+    }
+    else if (tabid=="btnSetx") {
+        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSelect').setAttribute("style", "display:none");
+        
+        d3.select("#rightpanelcontent")
+        .style("display", "none");
+    }
+    else {
+        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSelect').setAttribute("style", "display:none");
+        
+        d3.select("#rightpanelcontent")
+        .style("display", "inline");
+    }
+}
+
 
 function varSummary(d) {
     //Create the tooltip label
