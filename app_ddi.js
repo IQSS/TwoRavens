@@ -88,7 +88,8 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 
 
 // read in pre-processed data from dvn
-var pURL = "data/preprocess2429360.txt";
+//var pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
+var pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
 //var pURL="data/preprocessFileID22.json";
 
 var originalPreprocess = readPreprocess(pURL);
@@ -151,7 +152,9 @@ var nodes = [];
 //console.log(vars.length); // 109 of them
 
 // load data from DDI with d3
-d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {
+//d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {   // This is Strezhnev Voeten
+d3.xml("data/fearonLaitin.xml", "application/xml", function(xml) {              // This is Fearon Laitin
+
 // pass the entire link bc the id might not be unique
 
 // temporary defaults for the fileid and hostname, pointing to 
@@ -1443,6 +1446,10 @@ function subset() {
                 allNodes[i].subsetplot=true;
                 density(dataArray[j], allNodes[i]);
             }
+            else if (dataArray[j].properties.type === "bar" & allNodes[i].subsetplot==false) {
+                allNodes[i].subsetplot=true;
+                bars(dataArray[j], allNodes[i]);
+            }
         }
         
         else {
@@ -1499,6 +1506,10 @@ function setx() {
             if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
                 allNodes[i].setxplot=true;
                 density(dataArray[j], allNodes[i]);
+            }
+            else if (dataArray[j].properties.type === "bar" & allNodes[i].setxplot==false) {
+                allNodes[i].setxplot=true;
+                bars(dataArray[j], allNodes[i]);
             }
         }
         
