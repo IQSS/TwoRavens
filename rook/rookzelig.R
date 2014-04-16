@@ -89,8 +89,12 @@ zelig.app <- function(env){
 		}
 	}
 
-	if(!warning){ 
-        		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+	if(!warning){
+        # This is the Strezhnev Voeten data:
+        #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+        # This is the Fearon Laitin data:
+           		mydata <- read.delim("../data/fearonLaitin.tsv")
+        # This is the data declared by file id:
         #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 		if(is.null(mydata)){
 			warning <- TRUE

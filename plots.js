@@ -344,7 +344,129 @@ function density(data, node) {
 }
 
 
+function bars(data, node) {
 
-function bars() {
-    //...
+  //Width and height
+var barwidth = 40; 
+var barheight = 20; 
+var barPadding = 1;  
+var topScale =1.2;
+
+
+var keys = Object.keys(data.properties.values);
+
+var dataset = new Array;
+for (var i = 0; i < keys.length; i++) {
+    dataset[i] = data.properties.values[keys[i]];
 }
+
+console.log(dataset)
+
+var yVals = dataset;           // duplicate -- remove
+var maxY = d3.max(yVals);
+var xVals = d3.range(1, dataset.length, 1);  // need to convert from keys
+
+    var mydiv;
+    if(arguments.callee.caller.name=="subset") {
+        mydiv = "#subset";
+    }
+    else if(arguments.callee.caller.name=="setx") {
+        mydiv = "#setx";
+    }
+    else {
+        return (alert("Error: incorrect div selected for plots"));
+    }
+
+
+
+    var tempWidth = d3.select(mydiv).style("width")
+    var width = tempWidth.substring(0,(tempWidth.length-2));
+    
+    var tempHeight = d3.select(mydiv).style("height")
+    var height = tempHeight.substring(0,(tempHeight.length-2));
+    
+    
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 0.4 * (width - margin.left - margin.right),
+    height = 0.25 * (height - margin.top - margin.bottom);
+    
+    var x = d3.scale.linear()
+    .domain([ 1-0.5 , dataset.length+0.5])  // Note change to min from density function
+    .range([0, width]);
+    
+    var y = d3.scale.linear()
+    .domain([0, d3.max(yVals)])   // Note change to min from density function
+    .range([height, 0]);
+    
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .ticks(dataset.length)
+    .orient("bottom");
+    
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+/*  
+    var brush = d3.svg.brush()
+    .x(x)
+    .on("brush", brushed);
+
+    var brush2 = d3.svg.brush()
+    .x(x)
+    .on("brush", brushed2);
+  
+    var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x(d.x); })
+    .y0(height)
+    .y1(function(d) { return y(d.y); });
+*/    
+
+//Create SVG element
+var plotsvg = d3.select(mydiv) .append("svg")
+    .append("svg")
+    .attr("id", function(){
+       //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          return data.varname.toString().concat(mydiv.substr(1));
+          })
+    .attr("width", width + margin.left + margin.right) //setting height to the height of #main.left
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+plotsvg.selectAll("rect")
+       .data(dataset)
+       .enter()
+       .append("rect")
+       .attr("x", function(d, i) {
+        return i * (width / dataset.length);
+        })     
+       .attr("y", function(d) {
+        return height - d * height/(maxY*topScale); //Height minus data value
+        })
+       .attr("width", width / dataset.length - barPadding)
+       .attr("height", function(d) {
+        return d * height/(maxY*topScale); //Just the data value
+        })
+       .attr("fill", "#1f77b4")
+       ;
+
+    /*plotsvg.append("path")
+    .datum(data2)
+    .attr("class", "area")
+    .attr("d", area); */
+
+    plotsvg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+ 
+    plotsvg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0-(margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text(data.varname);
+
+}  
