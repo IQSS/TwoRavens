@@ -135,19 +135,22 @@
             
             <div id="innerright" style="height:576px;overflow:scroll;">
                 
+                
+                
                 <div style="padding:.5em 0;">
                     <!--<div class="form-group">
                         <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
                     </div>-->
-                    <input name="subset"
+                    <input name="subset" id="btnSubset"
                     type="button" class="btn btn-default"
                     value="Subset"
-                    onclick="subset();" style="margin-right:.5em;"/>
-                    <input name="setx"
+                    onclick="subset(); tabRight('btnSubset');" style="float:left;"/> <!--margin-right:.2em-->
+                    <input name="setx" id="btnSetx"
                     type="button" class="btn btn-default"
                     value="Set Covariates"
-                    onclick="setx();" />
-                    <input name="subsetSelect" id="btnSelect" type="button" class="btn btn-default" value="Select" onclick="subsetSelect(btnSelect);"/>
+                    onclick="setx(); tabRight('btnSetx');" />
+                    <input name="results" id="btnResults" type="button" class="btn active" value="Results" onclick="tabRight('btnResults');" />
+                    <input name="subsetSelect" id="btnSelect" type="button" class="btn btn-default" value="Select" onclick="subsetSelect(btnSelect);" style="float:right; display:none;"/>
                 </div>
                 
                 <div id="subset" style="display:none;"></div>
@@ -155,9 +158,9 @@
                 <div id="setx" style="display:none;"></div>
                 
                 <div style="float:left;">
-                    
+                    <!--
                     <div>RESULTS</div>
-                    
+                    -->
                     <div id="rightpanelcontent"></div>
                     
                 </div>
