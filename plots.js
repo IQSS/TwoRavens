@@ -212,11 +212,13 @@ function density(data, node) {
         .attr("class", "slider")
         .call(brush);
 
-        var handle = slider.append("circle")
+        var handle = slider.append("polygon")
         .attr("class", "handle")
         .attr("transform", "translate(0," + height*.7 + ")")
-        .attr("cx", x(node.mean) )
-        .attr("r", 7);
+        .attr("points", function(d){
+            var s=6;
+            var xnm=x(node.mean);
+            return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
 
 
         var slider2 = plotsvg.append("g")
@@ -249,146 +251,76 @@ function density(data, node) {
         }
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];
+            var s = 6;
             
             if (d3.event.sourceEvent) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush.extent([value, value]);
             }
-                         
-            if(brush.extent()[0] > d3.max(xVals)) {
-                handle.attr("cx", x(d3.max(xVals)));
-                plotsvg.select("text#range")
-                .text(function() {
-                      return("x: ".concat(Math.round(d3.max(xVals))));
-                      });
-                node.setxvals[0]=Math.round(d3.max(xVals));
+                                 
+            var xpos = x(value);
+            if(value > d3.max(xVals)) { // dragged past max
+                xpos = x(d3.max(xVals));
             }
-            else if(brush.extent()[0] < d3.min(xVals)) {
-                handle.attr("cx", x(d3.min(xVals)));
-                plotsvg.select("text#range")
-                .text(function() {
-                      return("x: ".concat(Math.round(d3.min(xVals))));
-                      });
-                node.setxvals[0]=Math.round(d3.min(xVals));
+            else if(value < d3.min(xVals)) { // dragged past min
+                xpos = x(d3.min(xVals));
             }
             else {
-                var near = .075* +node.standardDeviation;
                 var m = +node.mean;
                 var sd = +node.standardDeviation;
-                
-                if(value<(m + near) & value>(m - near)) { // snap to mean
-                    handle.attr("cx", x(m));
-                    plotsvg.select("text#range")
-                    .text(function() {
-                          return("x: ".concat(Math.round(m)));
-                          });
-                    node.setxvals[0]=Math.round(m);
+                var zScore = (value - m)/sd;          // z-score
+                var zRound = Math.round(zScore);      // nearest integer z-score
+                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                    xpos = x(m + (zRound * sd));      
                 }
-                else if(value<(m - sd + near) & value>(m - sd - near)) { // snap to mean - sd
-                    handle.attr("cx", x(m - sd));
-                    plotsvg.select("text#range")
-                    .text(function() {
-                          return("x: ".concat(Math.round(m-sd)));
-                          });
-                    node.setxvals[0]=Math.round(m-sd);
-                }
-                else if(value<(m + sd + near) & value>(m + sd - near)) { // snap to mean + sd
-                    handle.attr("cx", x(m+sd));
-                    plotsvg.select("text#range")
-                    .text(function() {
-                          return("x: ".concat(Math.round(m+sd)));
-                          });
-                    node.setxvals[0]=Math.round(m+sd);
-                }
-                else {
-                    handle.attr("cx", x(value));
-                    plotsvg.select("text#range")
-                    .text(function() {
-                          return("x: ".concat(Math.round(value)));
-                          });
-                    node.setxvals[0]=Math.round(value);
-                }
-            }
+            }      
+
+            handle.attr("points", function(d){
+                return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
+            plotsvg.select("text#range")
+            .text(function() {
+                return("x: ".concat(Math.round(xpos)));});
+            node.setxvals[1]=Math.round(xpos);                      
             
         }
     }
+
+
+
     
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
             var value = brush2.extent()[0];
+            var s = 6;                            // scaling for triangle shape
             
             if (d3.event.sourceEvent) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush2.extent([value, value]);
             }
             
-            if(brush2.extent()[0] > d3.max(xVals)) { // dragged past max
-                handle2.attr("cx", x(d3.max(xVals)));
-                plotsvg.select("text#range2")
-                .text(function() {
-                      return("x1: ".concat(Math.round(d3.max(xVals))));
-                      });
-                node.setxvals[1]=Math.round(d3.max(xVals));
+            var xpos = x(value);
+            if(value > d3.max(xVals)) { // dragged past max
+                xpos = x(d3.max(xVals));
             }
-            else if(brush2.extent()[0] < d3.min(xVals)) { // dragged past min
-                handle2.attr("cx", x(d3.min(xVals)));
-                plotsvg.select("text#range2")
-                .text(function() {
-                      return("x1: ".concat(Math.round(d3.min(xVals))));
-                      });
-                node.setxvals[1]=Math.round(d3.min(xVals));
+            else if(value < d3.min(xVals)) { // dragged past min
+                xpos = x(d3.min(xVals));
             }
             else {
-                var near = .075* +node.standardDeviation;
                 var m = +node.mean;
                 var sd = +node.standardDeviation;
-                if(value<(m + near) & value>(m - near)) { // snap to mean
-                    handle2.attr("points", function(d){
-                    var s=6;
-                    var xnm=x(m);
-                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-                    plotsvg.select("text#range2")
-                    .text(function() {
-                          return("x1: ".concat(Math.round(m)));
-                          });
-                    node.setxvals[1]=Math.round(m);
+                var zScore = (value - m)/sd;          // z-score
+                var zRound = Math.round(zScore);      // nearest integer z-score
+                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                    xpos = x(m + (zRound * sd));      
                 }
-                else if(value<(m - sd + near) & value>(m - sd - near)) { // snap to mean - sd
-                    handle2.attr("points", function(d){
-                    var s=6;
-                    var xnm=x(m - sd);
-                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-                    plotsvg.select("text#range2")
-                    .text(function() {
-                          return("x1: ".concat(Math.round(m-sd)));
-                          });
-                    node.setxvals[1]=Math.round(m-sd);
-                }
-                else if(value<(m + sd + near) & value>(m + sd - near)) { // snap to mean + sd
-                    handle2.attr("points", function(d){
-                    var s=6;
-                    var xnm=x(m + sd);
-                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-                    plotsvg.select("text#range2")
-                    .text(function() {
-                          return("x1: ".concat(Math.round(m+sd)));
-                          });
-                    node.setxvals[1]=Math.round(m+sd);
-                }
-                else {
-                    handle2.attr("points", function(d){
-                    var s=6;
-                    var xnm=x(value);
-                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-                    plotsvg.select("text#range2")
-                    .text(function() {
-                          return("x1: ".concat(Math.round(value)));
-                          });
-                    node.setxvals[1]=Math.round(value);
-                }
-            }
-        
+            }      
+
+            handle2.attr("points", function(d){
+                return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
+            plotsvg.select("text#range2")
+            .text(function() {
+                return("x1: ".concat(Math.round(xpos)));});
+            node.setxvals[1]=Math.round(xpos);                      
     }
-    
 }
 
 
