@@ -9,6 +9,9 @@ function density(data, node) {
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
     }
+    else if(arguments.callee.caller.name=="summary") {
+        mydiv = "#summary";
+    }
     else {
         return (alert("Error: incorrect div selected for plots"));
     }
@@ -137,14 +140,7 @@ function density(data, node) {
               return("x1: ".concat(Math.round(node.mean)));
               });
 
-        /*
-        var lineData = [ { "x": x(+node.mean),   "y": height*.7},  { "x": x(+node.mean),  "y": height*.9},
-                         { "x": x(+node.mean + +node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + +node.standardDeviation),  "y": height*.9},
-                         { "x": x(+node.mean - +node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - +node.standardDeviation), "y": height*.9},
-                         { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.9},
-                         { "x": x(+node.mean - 2*node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - 2*node.standardDeviation), "y": height*.9}];
-        */
-
+        // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
                             .x(function(d) { return d.x; })
                             .y(function(d) { return d.y; })
@@ -156,7 +152,6 @@ function density(data, node) {
         var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of lower bound
         var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of upper bound
 
-        // create tick marks at all zscores in the bounds of the data
         for (var i = 0; i < zUpper; i++) {
             lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
             plotsvg.append("path")
@@ -174,32 +169,8 @@ function density(data, node) {
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
         }
-/*        
-        plotsvg.append("path")
-            .attr("d", lineFunction([lineData[2],lineData[3]]))
-            .attr("stroke", "orange")
-            .attr("stroke-width", 1.5)
-            .attr("fill", "none");
-        
-        plotsvg.append("path")
-            .attr("d", lineFunction([lineData[4],lineData[5]]))
-            .attr("stroke", "orange")
-            .attr("stroke-width", 1.5)
-            .attr("fill", "none");
- 
-       plotsvg.append("path")
-            .attr("d", lineFunction([lineData[6],lineData[7]]))
-            .attr("stroke", "red")
-            .attr("stroke-width", 1.5)
-            .attr("fill", "none");
- 
-        plotsvg.append("path")
-            .attr("d", lineFunction([lineData[8],lineData[9]]))
-            .attr("stroke", "red")
-            .attr("stroke-width", 1.5)
-            .attr("fill", "none");
- */
 
+        // initialize slider components
         var slideBox = plotsvg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height*.8 + ")")
@@ -219,7 +190,6 @@ function density(data, node) {
             var s=6;
             var xnm=x(node.mean);
             return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
-
 
         var slider2 = plotsvg.append("g")
         .attr("class", "slider")
@@ -257,7 +227,8 @@ function density(data, node) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush.extent([value, value]);
             }
-                                 
+            
+            // set x position of slider center                     
             var xpos = x(value);
             if(value > d3.max(xVals)) { // dragged past max
                 xpos = x(d3.max(xVals));
@@ -275,6 +246,7 @@ function density(data, node) {
                 }
             }      
 
+            // create slider symbol and text
             handle.attr("points", function(d){
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
@@ -297,6 +269,7 @@ function density(data, node) {
                 brush2.extent([value, value]);
             }
             
+            // set x position of slider center 
             var xpos = x(value);
             if(value > d3.max(xVals)) { // dragged past max
                 xpos = x(d3.max(xVals));
@@ -314,6 +287,7 @@ function density(data, node) {
                 }
             }      
 
+            // create slider symbol and text
             handle2.attr("points", function(d){
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
@@ -346,6 +320,9 @@ function bars(data, node) {
     }
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
+    }
+    else if(arguments.callee.caller.name=="summary") {
+        mydiv = "#summary";
     }
     else {
         return (alert("Error: incorrect div selected for plots"));
