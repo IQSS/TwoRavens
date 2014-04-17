@@ -62,7 +62,7 @@ function density(data, node) {
 
     var brush2 = d3.svg.brush()
     .x(x)
-    .on("brush", brushed2);   //"brush" or "brush2" ??
+    .on("brush", brushed2);
     
     var area = d3.svg.area()
     .interpolate("monotone")
@@ -182,23 +182,6 @@ function density(data, node) {
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("cx", x(node.mean) )
         .attr("r", 7);
-        
-/*        
-svg.append('path')
-      .attr('d', function(d) { 
-        var x = 100, y = 100;
-        return 'M ' + x +' '+ y + ' l 4 4 l -8 0 z';
-      });
-*/
-
-/*
- var handle2 = slider2.append("circle")
-        .attr("class", "handle")
-        .attr("transform", "translate(0," + height*.9 + ")")
-        .attr("cx", function(d) { return x(node.mean); })
-        .attr("r", 7);
-*/
-
 
 
         var slider2 = plotsvg.append("g")
@@ -212,9 +195,6 @@ svg.append('path')
             var s=6;
             var xnm=x(node.mean);
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-
-
-
 
     }
 
