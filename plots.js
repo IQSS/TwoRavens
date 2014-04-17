@@ -138,9 +138,11 @@ function density(data, node) {
               });
 
         
-        var lineData = [ { "x": x(+node.mean),   "y": height*.65},  { "x": x(+node.mean),  "y": height*.95},
+        var lineData = [ { "x": x(+node.mean),   "y": height*.7},  { "x": x(+node.mean),  "y": height*.9},
                          { "x": x(+node.mean + +node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + +node.standardDeviation),  "y": height*.9},
-                         { "x": x(+node.mean - +node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - +node.standardDeviation), "y": height*.9}];
+                         { "x": x(+node.mean - +node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - +node.standardDeviation), "y": height*.9},
+                         { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.9},
+                         { "x": x(+node.mean - 2*node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - 2*node.standardDeviation), "y": height*.9}];
         
         var lineFunction = d3.svg.line()
                             .x(function(d) { return d.x; })
@@ -149,7 +151,7 @@ function density(data, node) {
   
         plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
-            .attr("stroke", "red")
+            .attr("stroke", "#A2CD5A")
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
         
@@ -164,7 +166,20 @@ function density(data, node) {
             .attr("stroke", "orange")
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
-        
+ 
+       plotsvg.append("path")
+            .attr("d", lineFunction([lineData[6],lineData[7]]))
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+ 
+        plotsvg.append("path")
+            .attr("d", lineFunction([lineData[8],lineData[9]]))
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+ 
+
         var slideBox = plotsvg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height*.8 + ")")
