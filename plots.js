@@ -137,24 +137,43 @@ function density(data, node) {
               return("x1: ".concat(Math.round(node.mean)));
               });
 
-        
+        /*
         var lineData = [ { "x": x(+node.mean),   "y": height*.7},  { "x": x(+node.mean),  "y": height*.9},
                          { "x": x(+node.mean + +node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + +node.standardDeviation),  "y": height*.9},
                          { "x": x(+node.mean - +node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - +node.standardDeviation), "y": height*.9},
                          { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.7}, { "x": x(+node.mean + 2*node.standardDeviation),  "y": height*.9},
                          { "x": x(+node.mean - 2*node.standardDeviation),  "y": height*.7},  { "x": x(+node.mean - 2*node.standardDeviation), "y": height*.9}];
-        
+        */
+
         var lineFunction = d3.svg.line()
                             .x(function(d) { return d.x; })
                             .y(function(d) { return d.y; })
                             .interpolate("linear");
   
-        plotsvg.append("path")
+        var colSeq = [ "#A2CD5A","orange","red"];
+        var lineData = new Array;
+
+        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;
+        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;
+
+        for (var i = 0; i < zUpper; i++) {
+            lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
+            plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
-            .attr("stroke", "#A2CD5A")
+            .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
-        
+        }
+
+        for (var i = 1; i < zLower; i++) {
+            lineData = [{ "x": x(+node.mean - i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean- i*node.standardDeviation),  "y": height*.9}];
+            plotsvg.append("path")
+            .attr("d", lineFunction([lineData[0],lineData[1]]))
+            .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        }
+/*        
         plotsvg.append("path")
             .attr("d", lineFunction([lineData[2],lineData[3]]))
             .attr("stroke", "orange")
@@ -178,7 +197,7 @@ function density(data, node) {
             .attr("stroke", "red")
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
- 
+ */
 
         var slideBox = plotsvg.append("g")
         .attr("class", "x axis")
