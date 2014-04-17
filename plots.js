@@ -62,7 +62,7 @@ function density(data, node) {
 
     var brush2 = d3.svg.brush()
     .x(x)
-    .on("brush", brushed2);
+    .on("brush", brushed2);   //"brush" or "brush2" ??
     
     var area = d3.svg.area()
     .interpolate("monotone")
@@ -180,20 +180,42 @@ function density(data, node) {
         var handle = slider.append("circle")
         .attr("class", "handle")
         .attr("transform", "translate(0," + height*.7 + ")")
-        .attr("cx", x(node.mean))
+        .attr("cx", x(node.mean) )
         .attr("r", 7);
         
+/*        
+svg.append('path')
+      .attr('d', function(d) { 
+        var x = 100, y = 100;
+        return 'M ' + x +' '+ y + ' l 4 4 l -8 0 z';
+      });
+*/
+
+/*
+ var handle2 = slider2.append("circle")
+        .attr("class", "handle")
+        .attr("transform", "translate(0," + height*.9 + ")")
+        .attr("cx", function(d) { return x(node.mean); })
+        .attr("r", 7);
+*/
+
+
+
         var slider2 = plotsvg.append("g")
         .attr("class", "slider")
         .call(brush2);
-        
-        var handle2 = slider2.append("circle")
+
+        var handle2 = slider2.append("polygon")
         .attr("class", "handle")
         .attr("transform", "translate(0," + height*.9 + ")")
-        .attr("cx", x(node.mean))
-        .attr("r", 7);
-      
-        
+        .attr("points", function(d){
+            var s=6;
+            var xnm=x(node.mean);
+            return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
+
+
+
+
     }
 
     // brushing functions
@@ -304,9 +326,11 @@ function density(data, node) {
                 var near = .075* +node.standardDeviation;
                 var m = +node.mean;
                 var sd = +node.standardDeviation;
-                
                 if(value<(m + near) & value>(m - near)) { // snap to mean
-                    handle2.attr("cx", x(m));
+                    handle2.attr("points", function(d){
+                    var s=6;
+                    var xnm=x(m);
+                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
                     plotsvg.select("text#range2")
                     .text(function() {
                           return("x1: ".concat(Math.round(m)));
@@ -314,7 +338,10 @@ function density(data, node) {
                     node.setxvals[1]=Math.round(m);
                 }
                 else if(value<(m - sd + near) & value>(m - sd - near)) { // snap to mean - sd
-                    handle2.attr("cx", x(m - sd));
+                    handle2.attr("points", function(d){
+                    var s=6;
+                    var xnm=x(m - sd);
+                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
                     plotsvg.select("text#range2")
                     .text(function() {
                           return("x1: ".concat(Math.round(m-sd)));
@@ -322,7 +349,10 @@ function density(data, node) {
                     node.setxvals[1]=Math.round(m-sd);
                 }
                 else if(value<(m + sd + near) & value>(m + sd - near)) { // snap to mean + sd
-                    handle2.attr("cx", x(m+sd));
+                    handle2.attr("points", function(d){
+                    var s=6;
+                    var xnm=x(m + sd);
+                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
                     plotsvg.select("text#range2")
                     .text(function() {
                           return("x1: ".concat(Math.round(m+sd)));
@@ -330,7 +360,10 @@ function density(data, node) {
                     node.setxvals[1]=Math.round(m+sd);
                 }
                 else {
-                    handle2.attr("cx", x(value));
+                    handle2.attr("points", function(d){
+                    var s=6;
+                    var xnm=x(value);
+                    return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
                     plotsvg.select("text#range2")
                     .text(function() {
                           return("x1: ".concat(Math.round(value)));
