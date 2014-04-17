@@ -150,12 +150,13 @@ function density(data, node) {
                             .y(function(d) { return d.y; })
                             .interpolate("linear");
   
-        var colSeq = [ "#A2CD5A","orange","red"];
+        var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
         var lineData = new Array;
 
-        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;
-        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;
+        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of upper bound
+        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of lower bound
 
+        // create tick marks at all zscores in the bounds of the data
         for (var i = 0; i < zUpper; i++) {
             lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
             plotsvg.append("path")
