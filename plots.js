@@ -35,8 +35,8 @@ function density(data, node) {
     var height = tempHeight.substring(0,(tempHeight.length-2));
     
     
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 0.4 * (width - margin.left - margin.right),
+    var margin = {top: 20, right: 20, bottom: 30, left: 30},
+    width = 0.35 * (width - margin.left - margin.right),
     height = 0.25 * (height - margin.top - margin.bottom);
     
     var x = d3.scale.linear()
