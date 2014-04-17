@@ -1352,7 +1352,29 @@ function varSummary(d) {
     //Create the tooltip label
     d3.select("#tab3")
     .select("p")
-    .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);
+    .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);// + "<img src=\"./data/gr1.jpeg \" alt=\"Image Not Found\">");
+ 
+    var dataArray = [];
+    dataArray.push({varname: d.name, properties: preprocess[d.name]});
+
+    var nameList = new Array;
+    for (var i = 0; i < allNodes.length; i++) {
+      nameList[i] = allNodes[i].name;
+    }
+    var i = nameList.indexOf(d.name);
+
+    console.log(i);
+    console.log(dataArray[0].properties.type);
+
+
+    if (dataArray[0].properties.type === "continuous") {
+      density(dataArray[0], allNodes[i]);
+    }
+    else if (dataArray[0].properties.type === "bar") {
+      bars(dataArray[0], allNodes[i]);
+    };
+
+
     /*
     .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
           
@@ -1456,7 +1478,7 @@ function subset() {
             allNodes[i].subsetplot=false;
             var temp = "svg#".concat(allNodes[i].name,"subset");
             d3.select(temp)
-            .remove();
+            .remove();     //// copy logic for histograms.
         }
         
       // Panels

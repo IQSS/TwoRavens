@@ -1,16 +1,18 @@
 // function to use d3 to graph density plots with preprocessed data
 
 function density(data, node) {
-    
     var mydiv;
+
+    console.log(arguments.callee.caller.name);
+
     if(arguments.callee.caller.name=="subset") {
         mydiv = "#subset";
     }
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
     }
-    else if(arguments.callee.caller.name=="summary") {
-        mydiv = "#summary";
+    else if(arguments.callee.caller.name=="varSummary") {
+        mydiv = "#tab3";
     }
     else {
         return (alert("Error: incorrect div selected for plots"));
@@ -18,14 +20,16 @@ function density(data, node) {
     
     var yVals = data.properties.y;
     var xVals = data.properties.x;
-    
+    console.log(yVals);
+    console.log(xVals);
+
+
     // an array of objects
     var data2 = [];
     for(var i = 0; i < data.properties.x.length; i++) {
         data2.push({x:data.properties.x[i], y:data.properties.y[i]});
     }
-   // console.log(data2);
-
+    
     data2.forEach(function(d) {
                   d.x = +d.x;
                   d.y = +d.y;
@@ -34,14 +38,19 @@ function density(data, node) {
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0,(tempWidth.length-2));
     
+
+
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
-    
-    
+
     var margin = {top: 20, right: 20, bottom: 30, left: 30},
     width = 0.35 * (width - margin.left - margin.right),
     height = 0.25 * (height - margin.top - margin.bottom);
     
+    console.log(width);
+    console.log(height);
+
+
     var x = d3.scale.linear()
     .domain([d3.min(xVals), d3.max(xVals)])
     .range([0, width]);
@@ -74,16 +83,38 @@ function density(data, node) {
     .y1(function(d) { return y(d.y); });
     
   //  var plotsvg = d3.select(mydiv)
+
+// This is cumbersome to treat "tab3" differently, but works for now.
+//  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
+if(mydiv=="#tab3"){
+    var plotsvg = d3.select(mydiv)
+    .selectAll("svg")
+    .remove();
+
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-       //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
-    .attr("width", width + margin.left + margin.right) //setting height to the height of #main.left
-    .attr("height", height + margin.top + margin.bottom)
+    .style("width", 300) //setting height to the height of #main.left
+    .style("height", 200)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+}else{
+    var plotsvg = d3.select(mydiv)
+    .append("svg")
+    .attr("id", function(){
+          console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          return data.varname.toString().concat(mydiv.substr(1));
+          })
+    .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+    .style("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+};
+
+
    
     plotsvg.append("path")
     .datum(data2)
@@ -102,7 +133,7 @@ function density(data, node) {
     .style("font-size", "12px")
     .text(data.varname);
     
-    
+    console.log("got here");
     // add brush if subset
     if(mydiv=="#subset") {
         
@@ -321,8 +352,8 @@ function bars(data, node) {
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
     }
-    else if(arguments.callee.caller.name=="summary") {
-        mydiv = "#summary";
+    else if(arguments.callee.caller.name=="varSummary") {
+        mydiv = "#tab3";
     }
     else {
         return (alert("Error: incorrect div selected for plots"));
@@ -371,17 +402,37 @@ function bars(data, node) {
 */    
 
 //Create SVG element
-var plotsvg = d3.select(mydiv) .append("svg")
+
+// This is cumbersome to treat "tab3" differently, but works for now.
+//  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
+if(mydiv=="#tab3"){              
+    var plotsvg = d3.select(mydiv)
+    .selectAll("svg")
+    .remove();
+
+    var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
        //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
-    .attr("width", width + margin.left + margin.right) //setting height to the height of #main.left
-    .attr("height", height + margin.top + margin.bottom)
+    .style("width", 300) //setting height to the height of #main.left
+    .style("height", 200)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+}
+else {
+var plotsvg = d3.select(mydiv)
+    .append("svg")
+    .attr("id", function(){
+       //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          return data.varname.toString().concat(mydiv.substr(1));
+          })
+    .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+    .style("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");    
+};
 
 plotsvg.selectAll("rect")
        .data(dataset)
