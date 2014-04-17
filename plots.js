@@ -153,8 +153,8 @@ function density(data, node) {
         var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
         var lineData = new Array;
 
-        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of upper bound
-        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of lower bound
+        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of lower bound
+        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of upper bound
 
         // create tick marks at all zscores in the bounds of the data
         for (var i = 0; i < zUpper; i++) {
