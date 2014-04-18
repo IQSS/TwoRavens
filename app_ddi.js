@@ -90,7 +90,8 @@ var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], z
 // read in pre-processed data from dvn
 //var pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
 var pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
-//var pURL="data/preprocessFileID22.json";
+
+
 
 var originalPreprocess = readPreprocess(pURL);
 var preprocess = originalPreprocess; // preprocess is always a reference to either original or subset
@@ -1403,6 +1404,11 @@ console.log(summarydata);
     }
     else if (dataArray[0].properties.type === "bar") {
       bars(dataArray[0], allNodes[i]);
+    }
+    else {
+      var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
+      .selectAll("svg")                     
+      .remove();
     };
 
 
