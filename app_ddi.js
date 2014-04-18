@@ -1370,7 +1370,7 @@ console.log(summarydata);
 
     d3.select("#tab3")
     .select("p")
-    .html("<center><b>" +d.name+ "</b><br>" +d.labl+ "</center>")
+    .html("<center><b>" +d.name+ "</b><br><i>" +d.labl+ "</i></center>")
     .append("table")
     .selectAll("tr")
     .data(summarydata)
