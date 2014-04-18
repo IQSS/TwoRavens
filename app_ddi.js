@@ -32,8 +32,8 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 //.attr('height', 2000);
 
 // location of Summary Statistics popup window
-var xPos = 250;
-var yPos = 50;
+//var xPos = 250;
+//var yPos = 50;
 
 // position the subset and setx divs
 //d3.select("#subset")
@@ -273,21 +273,25 @@ function populatePopover () {
 }
 
 function popoverContent(d) {
-    var tsf = d3.format(".4r");
+
+    function threeSF(x){
+      var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
+      return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
+    }
     var rint = d3.format("r");
     return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
 
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mean) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mean) + "</p></div></div>" +
  
-    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.median) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.median) + "</p></div></div>" +
  
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mode) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mode) + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.standardDeviation) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.standardDeviation) + "</p></div></div>" +
 
-    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.maximum) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.maximum) + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.minimum) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.minimum) + "</p></div></div>" +
         
     "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
     
@@ -1357,12 +1361,15 @@ function varSummary(d) {
     //Create the tooltip label
 
     // This is mirrored in popup -- should make reusable function
-    var tsf = d3.format(".4r");
+    function threeSF(x){
+      var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
+      return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
+    }
     var rint = d3.format("r");
 
     var summarydata = [],
     tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
-    t2 = [tsf(d.mean),tsf(d.median),tsf(d.mode),tsf(d.standardDeviation),tsf(d.minimum),tsf(d.maximum),rint(d.valid),rint(d.invalid)],
+    t2 = [threeSF(d.mean),threeSF(d.median),threeSF(d.mode),threeSF(d.standardDeviation),threeSF(d.minimum),threeSF(d.maximum),rint(d.valid),rint(d.invalid)],
     i, j;
 
     for (i = 0; i < t1.length; i++) {
