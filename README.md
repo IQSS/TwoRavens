@@ -1,11 +1,19 @@
 ZeligGUI
 ========
 
-April: automated model selection
+May: automated model selection
 
-April 11: dataset icon
+April 25: tables of parameter and first difference estimates
 
-April 3: dataset summaries and preprocessed figures---missingness map, scatterplot matrix
+April 25: dataset table browser
+
+April 18: dataset icon
+
+April 11: **Done** *subset of data with complete connection to Zelig and preprocessed statistics*
+
+April 11: **Done** *graphics in summary tab, histograms for discrete variables*
+
+April 3: dataset-level summaries and preprocessed figures---missingness map, scatterplot matrix
 
 March 28: **Done** *setx interface*
 
