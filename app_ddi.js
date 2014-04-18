@@ -136,6 +136,7 @@ var arc3 = d3.svg.arc()
 var lastNodeId = 0;  
 var dataset2 = [];
 var valueKey = [];
+var lablArray = [];
 var hold = [];
 var allNodes = [];
 var originalNodes = []; // this will be used when toggling between subset and original
@@ -183,17 +184,18 @@ console.log("metadata url: "+metadataurl);
        hold = [0, 0, 0, 0, 0, 0, 0];
        var myvalues = [0, 0, 0, 0, 0];
 
-       for (i=0;i<14;i++) { //vars.length instead of 14.  make sure to put this back when developing with the corrupt ddi ends
+       for (i=0;i<vars.length;i++) { 
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
+        lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
+
        
         var datasetcount = d3.layout.histogram()
         .bins(barnumber).frequency(false)
         (myvalues);
        
        varStats = vars[i].getElementsByTagName("sumStat");
-   //    console.log(varStats.length);
        for (j=0; j<varStats.length; j++) {
             var myType = "";
             myType = varStats[j].getAttribute("type");
@@ -201,11 +203,9 @@ console.log("metadata url: "+metadataurl);
             sumStats[myType] = varStats[j].childNodes[0].nodeValue;
        //console.log(varStats[j]);
        }
- //     console.log(sumStats);
        
-  
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
        
@@ -1370,7 +1370,7 @@ console.log(summarydata);
 
     d3.select("#tab3")
     .select("p")
-    .html("Summary Statistics")
+    .html("<center><b>" +d.name+ "</b><br>" +d.labl+ "</center>")
     .append("table")
     .selectAll("tr")
     .data(summarydata)
@@ -1394,6 +1394,7 @@ console.log(summarydata);
     var i = nameList.indexOf(d.name);
 
     console.log(i);
+    console.log(d);
     console.log(dataArray[0].properties.type);
 
 
@@ -1700,6 +1701,7 @@ function subsetSelect(btn) {
         
         for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
             var temp = findNodeIndex(json.varnames[j]);
+            allNodes[temp].labl=json.labl[j];
             allNodes[temp].minimum=json.min[j];
             allNodes[temp].median=json.median[j];
             allNodes[temp].mode=json.mode[j];
@@ -1753,6 +1755,7 @@ function toggleData(btnid) {
     if(btnid=="btnData1") {
        // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
+            allNodes[j].labl=originalNodes[j].labl;
             allNodes[j].minimum=originalNodes[j].minimum;
             allNodes[j].median=originalNodes[j].median;
             allNodes[j].mode=originalNodes[j].mode;
@@ -1775,6 +1778,7 @@ function toggleData(btnid) {
     else {
      //   allNodes=JSON.parse(JSON.stringify(subsetNodes));
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
+            allNodes[j].labl=subsetNodes[j].labl;
             allNodes[j].minimum=subsetNodes[j].minimum;
             allNodes[j].median=subsetNodes[j].median;
             allNodes[j].mode=subsetNodes[j].mode;

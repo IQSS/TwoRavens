@@ -3,7 +3,7 @@
 function density(data, node) {
     var mydiv;
 
-    console.log(arguments.callee.caller.name);
+    //console.log(arguments.callee.caller.name);
 
     if(arguments.callee.caller.name=="subset") {
         mydiv = "#subset";
@@ -20,9 +20,6 @@ function density(data, node) {
     
     var yVals = data.properties.y;
     var xVals = data.properties.x;
-    console.log(yVals);
-    console.log(xVals);
-
 
     // an array of objects
     var data2 = [];
@@ -43,12 +40,19 @@ function density(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 30},
-    width = 0.35 * (width - margin.left - margin.right),
-    height = 0.25 * (height - margin.top - margin.bottom);
-    
-    console.log(width);
-    console.log(height);
+    var margin = {top: 20, right: 20, bottom: 30, left: 30};
+
+    if(mydiv=="#tab3"){
+        width = 0.7 * (width - margin.left - margin.right),
+        height = 0.3 * (height - margin.top - margin.bottom);
+    }
+    else {
+        width = 0.35 * (width - margin.left - margin.right),
+        height = 0.25 * (height - margin.top - margin.bottom);
+    };
+
+    //console.log(width);
+    //console.log(height);
 
 
     var x = d3.scale.linear()
@@ -94,7 +98,7 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          //console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", 300) //setting height to the height of #main.left
@@ -105,7 +109,7 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          console.log(data.varname.toString().concat(".",mydiv.substr(1)));
+          //console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
@@ -133,7 +137,6 @@ if(mydiv=="#tab3"){
     .style("font-size", "12px")
     .text(data.varname);
     
-    console.log("got here");
     // add brush if subset
     if(mydiv=="#subset") {
         
@@ -365,9 +368,16 @@ function bars(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
       
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 0.4 * (width - margin.left - margin.right),
-    height = 0.25 * (height - margin.top - margin.bottom);
+    var margin = {top: 20, right: 20, bottom: 30, left: 50};
+
+    if(mydiv=="#tab3"){
+        width = 0.7 * (width - margin.left - margin.right),
+        height = 0.3 * (height - margin.top - margin.bottom);
+    }
+    else {
+        width = 0.35 * (width - margin.left - margin.right),
+        height = 0.25 * (height - margin.top - margin.bottom);
+    };
     
     var x = d3.scale.linear()
     .domain([ 1-0.5 , dataset.length+0.5])  // Note change from density function
