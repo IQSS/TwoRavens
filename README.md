@@ -1,6 +1,10 @@
 ZeligGUI
 ========
 
+July: accumulator
+
+June: differential privacy 
+
 May: automated model selection
 
 April 25: tables of parameter and first difference estimates
