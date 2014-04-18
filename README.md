@@ -1,10 +1,11 @@
 ZeligGUI
 ========
 
-*Longterm goals: *
+*Longterm goals:*
 **July:** accumulator  **June:** differential privacy **May:** automated model selection
 
 *Immediate goals:*
+
 April 25: tables of parameter and first difference estimates
 
 April 25: dataset table browser
