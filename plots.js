@@ -40,7 +40,7 @@ function density(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 30};
+    var margin = {top: 20, right: 20, bottom: 50, left: 30};
 
     if(mydiv=="#tab3"){
         width = 0.7 * (width - margin.left - margin.right),
@@ -139,7 +139,6 @@ if(mydiv=="#tab3"){
     
     // add brush if subset
     if(mydiv=="#subset") {
-        
         plotsvg.append("text")
         .attr("id", "range")
         .attr("x", 25)
@@ -153,11 +152,11 @@ if(mydiv=="#tab3"){
         .call(brush)
         .selectAll("rect")
         .attr("height", height);
+        console.log("got here1");
     }
     
     // add z lines and sliders setx
-    if(mydiv=="#setx") {
-        
+    if(mydiv=="#setx") {        
         plotsvg.append("text")
         .attr("id", "range")
         .attr("x", 25)
@@ -236,6 +235,8 @@ if(mydiv=="#tab3"){
             var s=6;
             var xnm=x(node.mean);
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
+
+        console.log("got here2");
 
     }
 
@@ -368,7 +369,7 @@ function bars(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
       
-    var margin = {top: 20, right: 20, bottom: 30, left: 50};
+    var margin = {top: 20, right: 20, bottom: 50, left: 50};
 
     if(mydiv=="#tab3"){
         width = 0.7 * (width - margin.left - margin.right),
