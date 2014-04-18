@@ -1378,7 +1378,9 @@ console.log(summarydata);
     .selectAll("td")
     .data(function(d){return d;})
     .enter().append("td")
-    .text(function(d){return d;});
+    .text(function(d){return d;})
+    .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
+    .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
 //    .style("font-size", "12px");
 
  
