@@ -206,3 +206,14 @@ path {
   stroke-width: 1.25px;
   pointer-events: fill;
 }
+
+
+table, th, td
+{
+border-collapse: collapse;text-align:right;
+}
+td
+{
+padding:5px;
+}
+

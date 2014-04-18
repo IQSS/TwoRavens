@@ -1350,9 +1350,37 @@ function tabRight(tabid) {
 
 function varSummary(d) {
     //Create the tooltip label
+
+    var tsf = d3.format(".4r");
+    var rint = d3.format("r");
+
+var summarydata = [],
+tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
+t2 = [tsf(d.mean),tsf(d.median),tsf(d.mode),tsf(d.standardDeviation),tsf(d.minimum),tsf(d.maximum),rint(d.valid),rint(d.invalid)],
+i, j;
+
+for (i = 0; i < t1.length; i++) {
+        tmpDataset=[];
+        tmpDataset.push(t1[i]);
+        tmpDataset.push(t2[i]);
+    summarydata.push(tmpDataset);
+};
+
+console.log(summarydata);
+
     d3.select("#tab3")
     .select("p")
-    .html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);// + "<img src=\"./data/gr1.jpeg \" alt=\"Image Not Found\">");
+    .html("Summary Statistics")
+    .append("table")
+    .selectAll("tr")
+    .data(summarydata)
+    .enter().append("tr")
+    .selectAll("td")
+    .data(function(d){return d;})
+    .enter().append("td")
+    .text(function(d){return d;});
+//    .style("font-size", "12px");
+
  
     var dataArray = [];
     dataArray.push({varname: d.name, properties: preprocess[d.name]});
