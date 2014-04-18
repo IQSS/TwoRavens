@@ -372,7 +372,8 @@ subset.app <- function(env){
     warning<-FALSE
     
     if(!warning){
-        mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+        #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+        mydata <- read.delim("../data/fearonLaitin.tsv")
         # mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
 		if(is.null(mydata)){
 			warning <- TRUE
