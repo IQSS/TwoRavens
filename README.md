@@ -2,6 +2,7 @@ ZeligGUI
 ========
 
 *Longterm goals:*
+
 **July:** accumulator  **June:** differential privacy **May:** automated model selection
 
 *Immediate goals:*
