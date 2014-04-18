@@ -273,21 +273,25 @@ function populatePopover () {
 }
 
 function popoverContent(d) {
-    return "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
+    var tsf = d3.format(".4r");
+    var rint = d3.format("r");
+    return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
+
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mean) + "</p></div></div>" +
+ 
+    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.median) + "</p></div></div>" +
+ 
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mode) + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.standardDeviation) + "</p></div></div>" +
+
+    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.maximum) + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.minimum) + "</p></div></div>" +
+        
+    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
-    
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
-    
-    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
-    
-    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
-    
-    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>";
+    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" ;
 }
 
 
@@ -1352,22 +1356,21 @@ function tabRight(tabid) {
 function varSummary(d) {
     //Create the tooltip label
 
+    // This is mirrored in popup -- should make reusable function
     var tsf = d3.format(".4r");
     var rint = d3.format("r");
 
-var summarydata = [],
-tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
-t2 = [tsf(d.mean),tsf(d.median),tsf(d.mode),tsf(d.standardDeviation),tsf(d.minimum),tsf(d.maximum),rint(d.valid),rint(d.invalid)],
-i, j;
+    var summarydata = [],
+    tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
+    t2 = [tsf(d.mean),tsf(d.median),tsf(d.mode),tsf(d.standardDeviation),tsf(d.minimum),tsf(d.maximum),rint(d.valid),rint(d.invalid)],
+    i, j;
 
-for (i = 0; i < t1.length; i++) {
+    for (i = 0; i < t1.length; i++) {
         tmpDataset=[];
         tmpDataset.push(t1[i]);
         tmpDataset.push(t2[i]);
-    summarydata.push(tmpDataset);
-};
-
-console.log(summarydata);
+        summarydata.push(tmpDataset);
+    };
 
     d3.select("#tab3")
     .select("p")
@@ -1393,11 +1396,6 @@ console.log(summarydata);
       nameList[i] = allNodes[i].name;
     }
     var i = nameList.indexOf(d.name);
-
-    console.log(i);
-    console.log(d);
-    console.log(dataArray[0].properties.type);
-
 
     if (dataArray[0].properties.type === "continuous") {
       density(dataArray[0], allNodes[i]);
@@ -1433,26 +1431,30 @@ console.log(summarydata);
 }
 
 function popupX(d) {
+
+    var tsf = d3.format(".4r");
+    var rint = d3.format("r");
+
     //Create the tooltip label
     d3.select("#tooltip")
     .style("left", tempX + "px")
     .style("top", tempY + "px")
     .select("#tooltiptext")
-    .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
+    .html("<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mean) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.median) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mode) + "</p></div></div>" +
+                  
+          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.standardDeviation) + "</p></div></div>" +
+  
+          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.maximum) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.minimum) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>"
+          "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" +
+
+          "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" 
           );
     
     /*.html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);*/
