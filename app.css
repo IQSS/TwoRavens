@@ -130,21 +130,25 @@ div.popover.variables div.popover-content.form-horizontal {
 
 #leftpanel {
     /*float:left;*/
-    border:1px solid red;
+    border:1px solid #ADADAD;
     width: 300px;
 }
 #leftpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
 #leftpanel #Content_Area div {display:none;}
 #leftpanel #Content_Area div.active {display:block;}
+
+#leftpanel.expandpanel {width:600px;}
+#leftpanel.expandpanel div#toggleLpanelicon {left:598px;}
+
 #leftpanel.closepanel {width:1px;}
 #leftpanel.closepanel div.row-fluid.closepanel {display:none;}
-#leftpanel div#toggleLpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);left:298px;border:1px solid #FF0000;border-width-left:0;}
+#leftpanel div#toggleLpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);left:298px;border:1px solid #ADADAD;border-width-left:0;}
 #leftpanel.closepanel div#toggleLpanelicon {left:0px;}
 
 #rightpanel {
     right:0;
-    position:absolute;
-    border:1px solid blue;
+    position:absolute; 
+    border:1px solid #ADADAD;
     width: 300px;
 }
 /*
@@ -152,8 +156,7 @@ div.popover.variables div.popover-content.form-horizontal {
     width:50%;
 }*/
 
-#rightpanel div#toggleRpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);right:298px;border:1px solid blue;border-width-left:0;
-}
+
 #rightpanel div#toggleRpanelicon span.glyphicon {
     -moz-transform: rotate(-180deg);
     -webkit-transform: rotate(-180deg);
@@ -161,10 +164,16 @@ div.popover.variables div.popover-content.form-horizontal {
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
 }
 
+#rightpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
+#rightpanel #Content_Area div {display:none;}
+#rightpanel #Content_Area div.active {display:block;}
+
 #rightpanel.expandpanel {width:600px;}
 #rightpanel.expandpanel div#toggleRpanelicon {right:598px;}
 
 #rightpanel.closepanel {width:1px;}
+#rightpanel.closepanel div.row-fluid.closepanel {display:none;}
+#rightpanel div#toggleRpanelicon {width:32px;height:30px;position:absolute;top:calc(50% - 15px);right:298px;border:1px solid #ADADAD;border-width-left:0;}
 #rightpanel.closepanel div#toggleRpanelicon {right:0px;}
 
 #main {
