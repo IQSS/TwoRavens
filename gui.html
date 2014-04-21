@@ -110,17 +110,15 @@
             </div>
             
             <div class="row-fluid">
-                <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="lefttab='tab1'; tab('tab1');">Variables</button></div>
-                <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; tab('tab2');">Models</button></div>
-                <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel3" onclick="lefttab='tab3'; tab('tab3');">Summary</button></div>
+                <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tab('tab1');">Variables</button></div>
+                <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tab('tab2');">Subset</button></div>
+                <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel3" onclick="lefttab='tab3'; subsetOff(); tab('tab3');">Summary</button></div>
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
                     <div id="Content_Area" style="overflow: scroll; height:528px;">
-                        <div id="tab1" class="btn active"> <!--class="btn active"-->
-                        </div>
-                        <div id="tab2">
-                        </div>
+                        <div id="tab1" class="btn active"></div>
+                        <div id="tab2" style="display:none;"></div>
                         <div id="tab3">
                             <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view it's summary statistics.</p>
                         </div>
@@ -129,49 +127,33 @@
             </div>
         </div>
         
-        <div id="rightpanel" class="container" style="height:578px;position:absolute;top:10px;right:10px;background:#F9F9F9;">
+        <div id="rightpanel" class="container" style="height:578px;position:absolute;top:10px;right:10px;background:#F9F9F9;padding-top:.5em;">
             
             <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:blue;" class="glyphicon glyphicon-play"></span></div>
             
-            <div id="innerright" style="height:576px;overflow:scroll;">
-                
-                
-                
-                <div style="padding:.5em 0;">
-                    <!--<div class="form-group">
-                        <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
-                    </div>-->
-                    <input name="subset" id="btnSubset"
-                    type="button" class="btn btn-default"
-                    value="Subset"
-                    onclick="subset(); tabRight('btnSubset');" style="float:left;"/> <!--margin-right:.2em-->
-                    <input name="setx" id="btnSetx"
-                    type="button" class="btn btn-default"
-                    value="Set Covariates"
-                    onclick="setx(); tabRight('btnSetx');" />
-                    <input name="results" id="btnResults" type="button" class="btn active" value="Results" onclick="tabRight('btnResults');" />
-                    <input name="subsetSelect" id="btnSelect" type="button" class="btn btn-default" value="Select" onclick="subsetSelect(btnSelect);" style="float:right; display:none;"/>
-                </div>
-                
-                <div id="subset" style="display:none;"></div>
-                
-                <div id="setx" style="display:none;"></div>
-                
-                <div style="float:left;">
-                    <!--
-                    <div>RESULTS</div>
-                    -->
-                    <div id="rightpanelcontent"></div>
-                    
-                </div>
-            
+            <div class="row-fluid">
+                 <div style="float:right;"><button class="btn btn-default" id="btnResults" onclick="righttab='results'; setxOff(); tabRight('btnResults');">Results</button></div>
+                <div style="float:right;margin-right:.5em;"><button class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button></div>
+                <div style="float:right;margin-right:.5em;"><button class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button></div>
             </div>
-            
+            <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
+                <div id="rightpanelcontent">
+                    <div id="Content_Area" style="overflow: scroll; height:528px;">
+                        <div id="results">
+                            <p style="padding:.5em 1em;">No results until a model is run.</p>
+                        </div>
+                        <div id="setx" style="display:none;"></div>
+                        <div id="models" class="btn active"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-    
-    </div>
-    
+
+
+
     <div style="clear:left;"></div>
+
+
 
     <!--<div id="tooltip" style="display: none;">
         <h3 class="popover-title">Summary Statistics</h3>
@@ -197,13 +179,15 @@
       if ($('#leftpanel').hasClass('forceclosepanel')) {
         // do nothing
       } else {
+          $('#subset').hide();
+          $('#leftpanel').removeClass('expandpanel');
           $('#leftpanel > div.row-fluid').toggleClass('closepanel');
           $('#leftpanel').toggleClass('closepanel');
           $('#main').toggleClass('svg-leftpanel');
       }
   };
   function closeRightPanel() {
-      $('#subset, #setx').hide();
+      $('#setx').hide();
       $('#rightpanel').removeClass('expandpanel');
       $('#rightpanel').toggleClass('closepanel');
       $('#main').toggleClass('svg-rightpanel');

@@ -232,13 +232,13 @@ console.log("metadata url: "+metadataurl);
        populatePopover(); // pipes in the summary stats
        
        
-       d3.select("#tab2")
+       d3.select("#models")
        .style('height', 2000)
        .style('overfill', 'scroll');
      
        var modellist = Object.keys(zmods);
        
-       d3.select("#tab2").selectAll("p")
+       d3.select("#models").selectAll("p")
        .data(modellist)
        .enter()
        .append("p")
@@ -441,7 +441,7 @@ function layout() {
         restart();
         });
         
-    d3.select("#tab2").selectAll("p") // models tab
+    d3.select("#models").selectAll("p") // models tab
     .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         })
@@ -452,7 +452,7 @@ function layout() {
         //  d3.select("#Display_content")
         .on("click", function(){
             var myColor = d3.select(this).style('background-color');
-            d3.select("#tab2").selectAll("p")
+            d3.select("#models").selectAll("p")
             .style('background-color',varColor);
             d3.select(this)
             .style('background-color',function(d) {
@@ -1305,7 +1305,44 @@ function tab(tab) {
 }
 
 
+
+
+
 function tabRight(tabid) {
+
+   // tabi = tab.substring(3);
+  // DO SOMETHING HERE  myattr = document.getElementById('btnPanel'+tabi).getAttribute("class");
+  // DO SOMETHING HERE  document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
+    
+    
+    if(tabid=="btnModels") {
+        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+    }
+    else if (tabid=="btnSetx") {
+        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+    }
+    else {
+        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+    }
+    
+    document.getElementById('models').style.display = 'none';
+    document.getElementById('setx').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById(tab).style.display = 'block';     //???????
+  //  document.getElementById('tab1').style.display = 'none';
+  //  document.getElementById('tab2').style.display = 'none';
+ //   document.getElementById('btnPanel1').setAttribute("class", "btn");
+  //  document.getElementById('btnPanel2').setAttribute("class", "btn");
+    
+  //  document.getElementById('btnPanel'+tab.substring(3)).setAttribute("class", "btn active");
+
+
+
+
+
     if(document.getElementById(tabid).getAttribute('class')=="btn active" & tabid!="btnResults") {
         document.getElementById(tabid).setAttribute("class", "btn btn-default");
         document.getElementById('btnResults').setAttribute("class", "btn active");
@@ -1329,30 +1366,27 @@ function tabRight(tabid) {
     
     document.getElementById(tabid).setAttribute("class", "btn active");
     
-    if(tabid=="btnSubset") {
-        document.getElementById('btnSelect').setAttribute("style", "display:inline");
-                document.getElementById('btnSelect').setAttribute("style", "float:right");
+    if(tabid=="btnModels") {
+//        document.getElementById('btnSelect').setAttribute("style", "display:inline");
+//        document.getElementById('btnSelect').setAttribute("style", "float:right");
         document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
         document.getElementById('btnResults').setAttribute("class", "btn btn-default");
         
-        d3.select("#rightpanelcontent")
-        .style("display", "none");
+        d3.select("#rightpanelcontent").style("display", "none");
     }
     else if (tabid=="btnSetx") {
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
         document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSelect').setAttribute("style", "display:none");
+ //       document.getElementById('btnSelect').setAttribute("style", "display:none");
         
-        d3.select("#rightpanelcontent")
-        .style("display", "none");
+        d3.select("#rightpanelcontent").style("display", "none");
     }
     else {
         document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSelect').setAttribute("style", "display:none");
+        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+ //       document.getElementById('btnSelect').setAttribute("style", "display:none");
         
-        d3.select("#rightpanelcontent")
-        .style("display", "inline");
+        d3.select("#rightpanelcontent").style("display", "inline");
     }
 }
 
@@ -1474,28 +1508,41 @@ function popupX(d) {
 }
 
 
+function subsetOff() {
+    if (subsetdiv==true) {
+        subsetdiv = false;
+        d3.select("#tab2")
+        .style("display", "none");
+        d3.select("#leftpanel")
+        .attr("class", "container");
+    };
+  };
+
+
 function subset() {
+    
     if (subsetdiv==true) {
         subsetdiv = false;
         d3.select("#subset")
         .style("display", "none");
-        d3.select("#rightpanel")
+        d3.select("#leftpanel")
         .attr("class", "container");
+      //subsetOff();
         return;
     }
     
-    if (setxdiv==true) {
+/*  if (setxdiv==true) {
         setxdiv = false;
         d3.select("#setx")
         .style("display", "none");
-    }
+    } */
 
     subsetdiv = true;
 
-    d3.select("#subset")
+    d3.select("#tab2")
     .style("display", "inline");
     
-    d3.select("#rightpanel")
+    d3.select("#leftpanel")
     .attr("class", "container expandpanel");
 
     
@@ -1534,6 +1581,19 @@ function subset() {
     
 }
 
+
+function setxOff() {
+    
+    if (setxdiv==true) {
+        setxdiv = false;
+        d3.select("#setx")
+        .style("display", "none");
+        d3.select("#rightpanel")
+        .attr("class", "container");
+        
+    };
+};
+
 function setx() {
     
     if (setxdiv==true) {
@@ -1545,11 +1605,11 @@ function setx() {
         return;
     }
     
-    if (subsetdiv==true) {
+  /*if (subsetdiv==true) {
         subsetdiv = false;
         d3.select("#subset")
         .style("display", "none");
-    }
+    }  */
     setxdiv = true;
     
     

@@ -6,7 +6,7 @@ function density(data, node) {
     //console.log(arguments.callee.caller.name);
 
     if(arguments.callee.caller.name=="subset") {
-        mydiv = "#subset";
+        mydiv = "#tab2";
     }
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
@@ -20,6 +20,10 @@ function density(data, node) {
     
     var yVals = data.properties.y;
     var xVals = data.properties.x;
+
+
+    console.log(yVals);
+    console.log(xVals);
 
     // an array of objects
     var data2 = [];
@@ -40,19 +44,35 @@ function density(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
 
+
+    console.log(tempWidth);
+    console.log(tempHeight);
+    console.log(width);
+    console.log(height);
+
+
     var margin = {top: 20, right: 20, bottom: 50, left: 30};
+
+    // Need to fix automatic width and height settings for leftpanel (#tab2, #tab3)
 
     if(mydiv=="#tab3"){
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else {
+    else if (mydiv="#tab2"){
+        width = 200;
+        height = 120;
+    }
+    else{
         width = 0.35 * (width - margin.left - margin.right),
         height = 0.25 * (height - margin.top - margin.bottom);
     };
 
-    //console.log(width);
-    //console.log(height);
+
+
+
+    console.log(width);
+    console.log(height);
 
 
     var x = d3.scale.linear()
@@ -138,7 +158,7 @@ if(mydiv=="#tab3"){
     .text(data.varname);
     
     // add brush if subset
-    if(mydiv=="#subset") {
+    if(mydiv=="#tab2") {
         plotsvg.append("text")
         .attr("id", "range")
         .attr("x", 25)
@@ -152,7 +172,6 @@ if(mydiv=="#tab3"){
         .call(brush)
         .selectAll("rect")
         .attr("height", height);
-        console.log("got here1");
     }
     
     // add z lines and sliders setx
@@ -235,9 +254,6 @@ if(mydiv=="#tab3"){
             var s=6;
             var xnm=x(node.mean);
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
-
-        console.log("got here2");
-
     }
 
     // brushing functions
@@ -287,8 +303,7 @@ if(mydiv=="#tab3"){
             plotsvg.select("text#range")
             .text(function() {
                 return("x: ".concat(Math.round(xpos)));});
-            node.setxvals[1]=Math.round(xpos);                      
-            
+            node.setxvals[1]=Math.round(xpos);                              
         }
     }
 
@@ -351,7 +366,7 @@ function bars(data, node) {
 
     var mydiv;
     if(arguments.callee.caller.name=="subset") {
-        mydiv = "#subset";
+        mydiv = "#tab2";
     }
     else if(arguments.callee.caller.name=="setx") {
         mydiv = "#setx";
@@ -371,11 +386,17 @@ function bars(data, node) {
       
     var margin = {top: 20, right: 20, bottom: 50, left: 50};
 
+    // Need to fix automatic width and height settings for leftpanel (#tab2, #tab3)
+
     if(mydiv=="#tab3"){
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else {
+    else if (mydiv="#tab2"){
+        width = 200;
+        height = 120;
+    }
+    else{
         width = 0.35 * (width - margin.left - margin.right),
         height = 0.25 * (height - margin.top - margin.bottom);
     };
