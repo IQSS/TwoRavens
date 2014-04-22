@@ -21,10 +21,6 @@ function density(data, node) {
     var yVals = data.properties.y;
     var xVals = data.properties.x;
 
-
-    console.log(yVals);
-    console.log(xVals);
-
     // an array of objects
     var data2 = [];
     for(var i = 0; i < data.properties.x.length; i++) {
@@ -52,7 +48,7 @@ function density(data, node) {
     console.log(mydiv);
 
 
-    var margin = {top: 20, right: 20, bottom: 50, left: 30};
+    var margin = {top: 20, right: 20, bottom: 53, left: 30};
 
     // Need to fix automatic width and height settings for leftpanel (#tab2, #tab3)
 
@@ -385,7 +381,7 @@ function bars(data, node) {
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
       
-    var margin = {top: 20, right: 20, bottom: 50, left: 50};
+    var margin = {top: 20, right: 20, bottom: 53, left: 50};
 
     // Need to fix automatic width and height settings for leftpanel (#tab2, #tab3)
 
