@@ -17,9 +17,6 @@ var width = tempWidth.substring(0,(tempWidth.length-2));
 var tempHeight = d3.select("#main.left").style("height")
 var height = tempHeight.substring(0,(tempHeight.length-2));
 
-//console.log(width)
-//console.log(height)
-
 //var resultspanel = d3.select("#rightpanel.left")
 //.append('svg');
 
@@ -178,8 +175,7 @@ console.log("metadata url: "+metadataurl);
        var temp = xml.documentElement.getElementsByTagName("fileName");
        zparams.zdata = temp[0].childNodes[0].nodeValue;
   //    console.log(temp[0].childNodes[0].nodeValue);
-
-   //    console.log(vars);
+  //    console.log(vars);
        
       // temporary values for hold that correspond to histogram bins
        hold = [0, 0, 0, 0, 0, 0, 0];
@@ -861,7 +857,7 @@ function layout() {
         // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
         .on("mouseover", function(d) {
-                tab("tab3");
+                tabLeft("tab3");
                 varSummary(d);
                 })
             // popup(d, xPos, yPos);
@@ -876,7 +872,7 @@ function layout() {
             d3.select("#tooltip").style("display", "inline");
 */
         .on("mouseout", function() {
-            tab(lefttab);
+            tabLeft(lefttab);
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");
@@ -1273,12 +1269,15 @@ function loadXMLDoc(XMLname)
 }
 
 
-function tab(tab) {
+function tabLeft(tab) {
     tabi = tab.substring(3);
-    myattr = document.getElementById('btnPanel'+tabi).getAttribute("class");   // what does this do?
+    //myattr = document.getElementById('btnPanel'+tabi).getAttribute("class");   // what does this do?
     document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
-    
-    
+
+    document.getElementById('tab1').style.display = 'none';
+    document.getElementById('tab2').style.display = 'none';
+    document.getElementById('tab3').style.display = 'none';
+
     if(tabi==1) {
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
         document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
@@ -1290,64 +1289,35 @@ function tab(tab) {
     else {
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
         document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
-    }
-    
-    document.getElementById('tab1').style.display = 'none';
-    document.getElementById('tab2').style.display = 'none';
-    document.getElementById('tab3').style.display = 'none';
+    } 
     document.getElementById(tab).style.display = 'block';
-  //  document.getElementById('tab1').style.display = 'none';
-  //  document.getElementById('tab2').style.display = 'none';
- //   document.getElementById('btnPanel1').setAttribute("class", "btn");
-  //  document.getElementById('btnPanel2').setAttribute("class", "btn");
-    
-  //  document.getElementById('btnPanel'+tab.substring(3)).setAttribute("class", "btn active");
 }
-
-
-
-
 
 function tabRight(tabid) {
 
-    console.log(tabid);
-    
-    if(tabid=="btnModels") {
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        document.getElementById('btnModels').setAttribute("class", "btn active");
-    }
-    else if (tabid=="btnSetx") {
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSetx').setAttribute("class", "btn active");
-    }
-    else {
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn active");
-    }
-    
     document.getElementById('models').style.display = 'none';
     document.getElementById('setx').style.display = 'none';
     document.getElementById('results').style.display = 'none';
-    if(tabid=="btnModels"){
-      document.getElementById('models').style.display = 'block';     //???????
-    }else if(tabid=="btnSetx"){
-      document.getElementById('setx').style.display = 'block';     //???????
-    }else{
-      document.getElementById('results').style.display = 'block';     //???????
-    }
-
-
-  //  document.getElementById('tab1').style.display = 'none';
-  //  document.getElementById('tab2').style.display = 'none';
- //   document.getElementById('btnPanel1').setAttribute("class", "btn");
-  //  document.getElementById('btnPanel2').setAttribute("class", "btn");
     
-  //  document.getElementById('btnPanel'+tab.substring(3)).setAttribute("class", "btn active");
-
-
+    if(tabid=="btnModels") {
+      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      document.getElementById('btnModels').setAttribute("class", "btn active");
+      document.getElementById('models').style.display = 'block';     
+    }
+    else if (tabid=="btnSetx") {
+      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      document.getElementById('btnSetx').setAttribute("class", "btn active");
+      document.getElementById('setx').style.display = 'block';     
+    }
+    else {
+      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn active");
+      document.getElementById('results').style.display = 'block';     
+    }
+    
 
 /*
 
@@ -1607,10 +1577,6 @@ function setxOff() {
 };
 
 function setx() {
-    
-
-    console.log("got here");
-    console.log(setxdiv);
 
     if (setxdiv==true) {
         setxdiv = false;
@@ -1626,8 +1592,7 @@ function setx() {
         d3.select("#subset")
         .style("display", "none");
     }  */
-    setxdiv = true; 
-    
+    setxdiv = true;  
     
     d3.select("#setx")
     .style("display", "inline");
@@ -1635,7 +1600,6 @@ function setx() {
     d3.select("#rightpanel")
     .attr("class", "container expandpanel");
     
-
     // build arrays from nodes in main
     var dataArray = [];
     var varArray = [];
@@ -1644,15 +1608,9 @@ function setx() {
         varArray.push(nodes[j].name);
     }
     
-
-    console.log(varArray);
-
     for (var i = 0; i < allNodes.length; i++) {
         var j = varArray.indexOf(allNodes[i].name);
-        console.log("j is " + j);
         if (j > -1) {
-          console.log(dataArray[j].properties.type);
-          console.log(allNodes[i].setxplot);
             if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
                 allNodes[i].setxplot=true;
                 density(dataArray[j], allNodes[i]);
@@ -1668,16 +1626,9 @@ function setx() {
             var temp = "svg#".concat(allNodes[i].name,"setx");
             d3.select(temp)
             .remove();
-        }
-        
-        // Panels
-        //subsetPanel();
-        
+        }        
     }
-
 }
-
-
 
 
 // function takes a node name, and a color.  a little confusing but the logic is correct #ccc
