@@ -49,6 +49,7 @@ function density(data, node) {
     console.log(tempHeight);
     console.log(width);
     console.log(height);
+    console.log(mydiv);
 
 
     var margin = {top: 20, right: 20, bottom: 50, left: 30};
@@ -59,7 +60,7 @@ function density(data, node) {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else if (mydiv="#tab2"){
+    else if (mydiv=="#tab2"){
         width = 200;
         height = 120;
     }
@@ -392,7 +393,7 @@ function bars(data, node) {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else if (mydiv="#tab2"){
+    else if (mydiv=="#tab2"){
         width = 200;
         height = 120;
     }

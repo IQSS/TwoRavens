@@ -116,11 +116,11 @@
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
-                    <div id="Content_Area" style="overflow: scroll; height:528px;">
+                    <div id="Left_Content_Area" style="overflow: scroll; height:528px;">
                         <div id="tab1" class="btn active"></div>
                         <div id="tab2" style="display:none;"></div>
                         <div id="tab3">
-                            <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view it's summary statistics.</p>
+                            <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view its summary statistics.</p>
                         </div>
                     </div>
                 </div>
@@ -136,9 +136,9 @@
                 <div style="float:right;margin-right:.5em;"><button class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button></div>
                 <div style="float:right;margin-right:.5em;"><button class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button></div>
             </div>
-            <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
+            <div class="row-fluid" style="clear:right;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="rightpanelcontent">
-                    <div id="Content_Area" style="overflow: scroll; height:528px;">
+                    <div id="Right_Content_Area" style="overflow: scroll; height:528px;">
                         <div id="results">
                             <p style="padding:.5em 1em;">No results until a model is run.</p>
                         </div>
@@ -187,10 +187,15 @@
       }
   };
   function closeRightPanel() {
+      if ($('#leftpanel').hasClass('forceclosepanel')) {
+        // do nothing
+      } else {
       $('#setx').hide();
       $('#rightpanel').removeClass('expandpanel');
       $('#rightpanel').toggleClass('closepanel');
       $('#main').toggleClass('svg-rightpanel');
+      }
+
   };
 
   var myurl=window.location.toString();

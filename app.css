@@ -134,8 +134,8 @@ div.popover.variables div.popover-content.form-horizontal {
     width: 300px;
 }
 #leftpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
-#leftpanel #Content_Area div {display:none;}
-#leftpanel #Content_Area div.active {display:block;}
+#leftpanel #Left_Content_Area div {display:none;}
+#leftpanel #Left_Content_Area div.active {display:block;}
 
 #leftpanel.expandpanel {width:600px;}
 #leftpanel.expandpanel div#toggleLpanelicon {left:598px;}
@@ -146,8 +146,8 @@ div.popover.variables div.popover-content.form-horizontal {
 #leftpanel.closepanel div#toggleLpanelicon {left:0px;}
 
 #rightpanel {
-    right:0;
-    position:absolute; 
+  /*  right:0;
+    position:absolute; */
     border:1px solid #ADADAD;
     width: 300px;
 }
@@ -165,8 +165,8 @@ div.popover.variables div.popover-content.form-horizontal {
 }
 
 #rightpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
-#rightpanel #Content_Area div {display:none;}
-#rightpanel #Content_Area div.active {display:block;}
+#rightpanel #Right_Content_Area div {display:none;}
+#rightpanel #Right_Content_Area div.active {display:block;}
 
 #rightpanel.expandpanel {width:600px;}
 #rightpanel.expandpanel div#toggleRpanelicon {right:598px;}
