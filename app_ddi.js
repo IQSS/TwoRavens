@@ -171,17 +171,26 @@ console.log("metadata url: "+metadataurl);
 //d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
 //d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/25", "application/xml", function(xml) {
 //d3.xml(metadataurl, "application/xml", function(xml) {
-        var vars = xml.documentElement.getElementsByTagName("var");
-       var temp = xml.documentElement.getElementsByTagName("fileName");
-       zparams.zdata = temp[0].childNodes[0].nodeValue;
+
+
+      var vars = xml.documentElement.getElementsByTagName("var");
+      var temp = xml.documentElement.getElementsByTagName("fileName");
+      zparams.zdata = temp[0].childNodes[0].nodeValue;
   //    console.log(temp[0].childNodes[0].nodeValue);
-  //    console.log(vars);
+      console.log(temp);
+      console.log(zparams.zdata);
+
+      d3.select("#datasetName").selectAll("p")
+      .html( zparams.zdata.replace( /\.(.*)/, "") );  // regular expression to drop any file extension
+
+
+
        
       // temporary values for hold that correspond to histogram bins
-       hold = [0, 0, 0, 0, 0, 0, 0];
-       var myvalues = [0, 0, 0, 0, 0];
+      hold = [0, 0, 0, 0, 0, 0, 0];
+      var myvalues = [0, 0, 0, 0, 0];
 
-       for (i=0;i<vars.length;i++) { 
+      for (i=0;i<vars.length;i++) { 
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -245,9 +254,10 @@ console.log("metadata url: "+metadataurl);
        .attr("data-container", "body")
        .attr("data-toggle", "popover")
        .attr("data-trigger", "hover")
-       .attr("data-position", "right auto")
+//       .attr("data-placement", "left")
+       .attr("data-position", "right auto") 
        .attr("data-html", "true")
-       .attr("onmouseover", "$(this).popover('toggle');")
+       .attr("onmouseover", "$(this).popover('toggle');")  // ({placement:'left','toggle'});") ,{placement: 'left'});")  
        .attr("onmouseout", "$(this).popover('toggle');")
        .attr("data-original-title", "Model Description")
        .attr("data-content", function(d){
