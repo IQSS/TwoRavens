@@ -227,8 +227,8 @@ console.log("metadata url: "+metadataurl);
               })
        .attr("data-container", "body")
        .attr("data-toggle", "popover")
-       .attr("data-trigger", "hover")
-       .attr("data-position", "right auto")
+       .attr("data-trigger", "click")
+       .attr("data-placement", "right")
        .attr("data-html", "true")
        .attr("onmouseover", "$(this).popover('toggle');")
        .attr("onmouseout", "$(this).popover('toggle');")
@@ -254,10 +254,9 @@ console.log("metadata url: "+metadataurl);
        .attr("data-container", "body")
        .attr("data-toggle", "popover")
        .attr("data-trigger", "hover")
-//       .attr("data-placement", "left")
-       .attr("data-position", "left auto") 
+       .attr("data-placement", "left")
        .attr("data-html", "true")
-       .attr("onmouseover", "$(this).popover('toggle');")  // ({placement:'left','toggle'});") ,{placement: 'left'});")  
+       .attr("onmouseover", "$(this).popover('toggle');")
        .attr("onmouseout", "$(this).popover('toggle');")
        .attr("data-original-title", "Model Description")
        .attr("data-content", function(d){
@@ -560,17 +559,17 @@ function layout() {
                    }
                    else if(depVar){
                     depVar=false;
-                    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+                    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
                     setColors(d,dvColor);
                    }
                    else if(colorCS){
                     colorCS=false;
-                    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+                    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
                     setColors(d,csColor);
                    }
                    else if(colorTime){
                     colorTime=false;
-                    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+                    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
                     setColors(d,timeColor);
                    }
                    return(d.strokeWidth);
@@ -1209,7 +1208,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 function time() {
     if(colorTime==true) {
         colorTime=false;
-        $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+        $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
     }
     else {
         colorTime = true;
@@ -1217,14 +1216,14 @@ function time() {
     }
     colorCS = false;
     depVar = false;
-    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
-    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
+    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
 }
 
 function cs() {
     if(colorCS==true) {
         colorCS=false;
-        $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
+        $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
     }
     else {
         colorCS=true;
@@ -1232,14 +1231,14 @@ function cs() {
     }
     colorTime = false;
     depVar = false;
-    $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
-    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
+    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
 }
 
 function dv() {
     if(depVar==true) {
         depVar=false;
-        $('#dvButton').removeClass('btn btn-info active').addClass('btn-default');
+        $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
     }
     else {
         depVar=true;
@@ -1247,8 +1246,8 @@ function dv() {
     }
     colorCS = false;
     colorTime = false;
-    $('#csButton').removeClass('btn btn-success active').addClass('btn-default');
-    $('#timeButton').removeClass('btn btn-primary active').addClass('btn-default');
+    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
+    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
 }
 
 function reset() {

@@ -127,6 +127,9 @@ div.popover.variables {
 div.popover.variables div.popover-content.form-horizontal {
     padding:0;
 }
+div.popover.variables div.popover-content.form-horizontal .form-group {
+    margin-bottom:0;
+}
 
 #leftpanel {
     /*float:left;*/
