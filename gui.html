@@ -55,6 +55,12 @@
                       id="btnEstimate"
                       value="Estimate"
                       onclick="estimate('btnEstimate')" style="margin-left:2em;"/>
+                 <!--     <input name="tableButton"
+                      type="button" class="btn btn-default"
+                      id="btnTable"
+                      value="Table"
+                      onclick="makeTable()" style="margin-left:2em;"/>
+                  -->
                   </div>
                   <!--<div class="navbar-form navbar-left" role="settings2">
                       <div class="form-group">
@@ -89,14 +95,37 @@
         <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em;">
             
             <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:red;" class="glyphicon glyphicon-play"></span></div>
-                        
-            <div id="datasetName"><p>Dataset Name</p></div>
 
-            <div class="row-fluid" style="margin-bottom:3em;">
+            <div id="datasetName" >
+                <p>Dataset Name</p>
+        <small>
+        <span class="btn-group" style="display:inline;">
+                <input name="tableButton"
+                  type="button" class="btn btn-default"
+                  id="btnD1"
+                  value="Full"
+                  onclick="makeTable()" style="margin-bottom:0.5em;"/>
+                <input name="tableButton"
+                  type="button" class="btn btn-default"
+                  id="btnD2"
+                  value="Subset"
+                  onclick="makeTable()" style="margin-bottom:0.5em;"/>
+        </span>
+                <input name="tableButton"
+                  type="button" class="btn btn-default"
+                  id="btnTable"
+                  value="Table"
+                  onclick="makeTable()" style="margin-left:1em; margin-bottom:0.5em;"/>          
+        </small>
+
+
+            </div>
+          
+
+          <!--  <div class="row-fluid" style="margin-bottom:3em;">
                 <div style="float:left;"><button class="btn active" id="btnData1" onclick="toggleData('btnData1');">Original Data</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnData2" onclick="toggleData('btnData2');">Subset Data</button></div>
-            </div>
-            
+            </div>  -->
             <div class="row-fluid">
                 <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button></div>

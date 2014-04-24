@@ -177,15 +177,15 @@ console.log("metadata url: "+metadataurl);
       var temp = xml.documentElement.getElementsByTagName("fileName");
       zparams.zdata = temp[0].childNodes[0].nodeValue;
   //    console.log(temp[0].childNodes[0].nodeValue);
-      console.log(temp);
-      console.log(zparams.zdata);
+  //    console.log(temp);
+  //    console.log(zparams.zdata);
 
+
+      // Put dataset name, from meta-data, into left panel
       d3.select("#datasetName").selectAll("p")
       .html( zparams.zdata.replace( /\.(.*)/, "") );  // regular expression to drop any file extension
 
 
-
-       
       // temporary values for hold that correspond to histogram bins
       hold = [0, 0, 0, 0, 0, 0, 0];
       var myvalues = [0, 0, 0, 0, 0];
@@ -255,7 +255,7 @@ console.log("metadata url: "+metadataurl);
        .attr("data-toggle", "popover")
        .attr("data-trigger", "hover")
 //       .attr("data-placement", "left")
-       .attr("data-position", "right auto") 
+       .attr("data-position", "left auto") 
        .attr("data-html", "true")
        .attr("onmouseover", "$(this).popover('toggle');")  // ({placement:'left','toggle'});") ,{placement: 'left'});")  
        .attr("onmouseout", "$(this).popover('toggle');")
@@ -1791,6 +1791,11 @@ function subsetSelect(btn) {
     makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
     
 }
+
+function makeTable(){
+
+}
+
 
 function readPreprocess(url) {
 
