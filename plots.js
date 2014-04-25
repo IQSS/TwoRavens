@@ -399,7 +399,7 @@ function bars(data, node) {
     };
     
     var x = d3.scale.linear()
-    .domain([ 1-0.5 , dataset.length+0.5])  // Note change from density function
+    .domain([ 0-0.5 , dataset.length-0.5])  // Note change from density function
     .range([0, width]);
     
     var y = d3.scale.linear()
@@ -414,7 +414,7 @@ function bars(data, node) {
     var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
-/*  
+  
     var brush = d3.svg.brush()
     .x(x)
     .on("brush", brushed);
@@ -422,7 +422,7 @@ function bars(data, node) {
     var brush2 = d3.svg.brush()
     .x(x)
     .on("brush", brushed2);
-  
+/*  
     var area = d3.svg.area()
     .interpolate("monotone")
     .x(function(d) { return x(d.x); })
@@ -496,5 +496,188 @@ plotsvg.selectAll("rect")
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .text(data.varname);
+
+
+
+if(mydiv=="#setx") {        
+        plotsvg.append("text")
+        .attr("id", "range")
+        .attr("x", 25)
+        .attr("y", height+40)
+        .text(function() {
+              return("x: ".concat(Math.round(node.mean)));
+              });
+        
+        plotsvg.append("text")
+        .attr("id", "range2")
+        .attr("x", 25)
+        .attr("y", height+50)
+        .text(function() {
+              return("x1: ".concat(Math.round(node.mean)));
+              });
+
+        // create tick marks at all zscores in the bounds of the data
+        var lineFunction = d3.svg.line()
+                            .x(function(d) { return d.x; })
+                            .y(function(d) { return d.y; })
+                            .interpolate("linear");
+  
+        var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
+        var lineData = new Array;
+
+        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of lower bound
+        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of upper bound
+
+        for (var i = 0; i < zUpper; i++) {
+            lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
+            plotsvg.append("path")
+            .attr("d", lineFunction([lineData[0],lineData[1]]))
+            .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        }
+
+        for (var i = 1; i < zLower; i++) {
+            lineData = [{ "x": x(+node.mean - i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean- i*node.standardDeviation),  "y": height*.9}];
+            plotsvg.append("path")
+            .attr("d", lineFunction([lineData[0],lineData[1]]))
+            .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+        }
+
+        // initialize slider components
+        var slideBox = plotsvg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height*.8 + ")")
+        .call(d3.svg.axis()
+              .scale(x)
+              .ticks(0)
+              .orient("bottom"))
+        
+        var slider = plotsvg.append("g")
+        .attr("class", "slider")
+        .call(brush);
+
+        var handle = slider.append("polygon")
+        .attr("class", "handle")
+        .attr("transform", "translate(0," + height*.7 + ")")
+        .attr("points", function(d){
+            var s=6;
+            var xnm=x(node.mean);
+            return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
+
+        var slider2 = plotsvg.append("g")
+        .attr("class", "slider")
+        .call(brush2);
+
+        var handle2 = slider2.append("polygon")
+        .attr("class", "handle")
+        .attr("transform", "translate(0," + height*.9 + ")")
+        .attr("points", function(d){
+            var s=6;
+            var xnm=x(node.mean);
+            return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
+    }
+
+
+
+
+
+
+
+    // brushing functions
+    function brushed() {
+        if(mydiv=="#subset") {
+        plotsvg.select("text#range")
+        .text(function() {
+              if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
+              else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
+              });
+        
+            if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
+                node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
+            }
+            else {node.subsetrange=["", ""];}
+        }
+        else if(mydiv=="#setx") {
+            var value = brush.extent()[0];
+            var s = 6;
+            
+            if (d3.event.sourceEvent) {
+                value = x.invert(d3.mouse(this)[0]);
+                brush.extent([value, value]);
+            }
+            
+            // set x position of slider center                     
+            var xpos = x(value);
+            if(value > d3.max(xVals)) { // dragged past max
+                xpos = x(d3.max(xVals));
+            }
+            else if(value < d3.min(xVals)) { // dragged past min
+                xpos = x(d3.min(xVals));
+            }
+            else {
+                var m = +node.mean;
+                var sd = +node.standardDeviation;
+                var zScore = (value - m)/sd;          // z-score
+                var zRound = Math.round(zScore);      // nearest integer z-score
+                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                    xpos = x(m + (zRound * sd));      
+                }
+            }      
+
+            // create slider symbol and text
+            handle.attr("points", function(d){
+                return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
+            plotsvg.select("text#range")
+            .text(function() {
+                return("x: ".concat(Math.round(xpos)));});
+            node.setxvals[1]=Math.round(xpos);                              
+        }
+    }
+
+
+
+    
+    function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
+            var value = brush2.extent()[0];
+            var s = 6;                            // scaling for triangle shape
+            
+            if (d3.event.sourceEvent) {
+                value = x.invert(d3.mouse(this)[0]);
+                brush2.extent([value, value]);
+            }
+            
+            // set x position of slider center 
+            var xpos = x(value);
+            if(value > d3.max(xVals)) { // dragged past max
+                xpos = x(d3.max(xVals));
+            }
+            else if(value < d3.min(xVals)) { // dragged past min
+                xpos = x(d3.min(xVals));
+            }
+            else {
+                var m = +node.mean;
+                var sd = +node.standardDeviation;
+                var zScore = (value - m)/sd;          // z-score
+                var zRound = Math.round(zScore);      // nearest integer z-score
+                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                    xpos = x(m + (zRound * sd));      
+                }
+            }      
+
+            // create slider symbol and text
+            handle2.attr("points", function(d){
+                return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
+            plotsvg.select("text#range2")
+            .text(function() {
+                return("x1: ".concat(Math.round(xpos)));});
+            node.setxvals[1]=Math.round(xpos);                      
+    }
+
+
+
+
 
 }  
