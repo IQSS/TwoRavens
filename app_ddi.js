@@ -227,7 +227,7 @@ console.log("metadata url: "+metadataurl);
               })
        .attr("data-container", "body")
        .attr("data-toggle", "popover")
-       .attr("data-trigger", "click")
+       .attr("data-trigger", "hover")
        .attr("data-placement", "right")
        .attr("data-html", "true")
        .attr("onmouseover", "$(this).popover('toggle');")
@@ -254,7 +254,7 @@ console.log("metadata url: "+metadataurl);
        .attr("data-container", "body")
        .attr("data-toggle", "popover")
        .attr("data-trigger", "hover")
-       .attr("data-placement", "left")
+       .attr("data-placement", "top")
        .attr("data-html", "true")
        .attr("onmouseover", "$(this).popover('toggle');")
        .attr("onmouseout", "$(this).popover('toggle');")
@@ -264,7 +264,6 @@ console.log("metadata url: "+metadataurl);
              });
      
        layout();
-
        
        });
 

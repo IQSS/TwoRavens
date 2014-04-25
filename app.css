@@ -196,9 +196,10 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 
 #main {
     /* float:left; */
-    border:1px solid green;
+    border:1px solid #ADADAD;
     /* width: 85%; */
     width: 100%;
+    margin-bottom:160px;
 }
 
 #sandbox {
