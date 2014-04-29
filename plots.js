@@ -138,9 +138,7 @@ if(mydiv=="#tab3"){
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 };
-
-
-   
+ 
     plotsvg.append("path")
     .datum(data2)
     .attr("class", "area")
@@ -259,7 +257,7 @@ if(mydiv=="#tab3"){
 
     // brushing functions
     function brushed() {
-        if(mydiv=="#subset") {
+        if(mydiv=="#tab2") {
         plotsvg.select("text#range")
         .text(function() {
               if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
@@ -431,13 +429,14 @@ function bars(data, node) {
     var brush2 = d3.svg.brush()
     .x(x)
     .on("brush", brushed2);
-/*  
+
+    /*
     var area = d3.svg.area()
     .interpolate("monotone")
     .x(function(d) { return x(d.x); })
     .y0(height)
     .y1(function(d) { return y(d.y); });
-*/    
+    */
 
 //Create SVG element
 
@@ -477,23 +476,17 @@ plotsvg.selectAll("rect")
        .enter()
        .append("rect")
        .attr("x", function(d, i) {
-        return x(i-0.5+barPadding);// in nontransformed coordinate sapce: i * (width / dataset.length);
+        return x(i-0.5+barPadding);  // in nontransformed coordinate space: i * (width / dataset.length);
         })     
        .attr("y", function(d) {
-        return y(maxY - d);// in nontransformed coordinate space: height - d * height/(maxY*topScale); //Height minus data value
+        return y(maxY - d);  // in nontransformed coordinate space: height - d * height/(maxY*topScale); //Height minus data value
         })
-       .attr("width", x(0.5-barPadding) )   // in nontransformed coordinate space: width / dataset.length - barPadding);
+       .attr("width", x(0.5-barPadding) )  // in nontransformed coordinate space: width / dataset.length - barPadding);
        .attr("height", function(d) {
-        //console.log(y(maxY));
-        return y(d);// in nontransformed coordinate space: d * height/(maxY*topScale); //Just the data value
+        return y(d);  // in nontransformed coordinate space: d * height/(maxY*topScale); //Just the data value
         })
        .attr("fill", "#1f77b4")
        ;
-
-    /*plotsvg.append("path")
-    .datum(data2)
-    .attr("class", "area")
-    .attr("d", area); */
 
     plotsvg.append("g")
     .attr("class", "x axis")
@@ -507,9 +500,7 @@ plotsvg.selectAll("rect")
     .style("font-size", "12px")
     .text(data.varname);
 
-
-
-if(mydiv=="#setx") {        
+    if(mydiv=="#setx") {        
         plotsvg.append("text")
         .attr("id", "range")
         .attr("x", 25)
@@ -600,13 +591,10 @@ if(mydiv=="#setx") {
     }
 
 
-
     function twoSF(x){
       var tsf = d3.format(".2r");                            // format to two significant figures after the decimal place
       return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
     }
-
-
 
 
     // brushing functions
@@ -614,7 +602,7 @@ if(mydiv=="#setx") {
         if(mydiv=="#subset") {
         plotsvg.select("text#range")
         .text(function() {
-              if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
+              if(brush.empty()) {return("Range: ".concat(d3.min(xVals), " to ", (d3.max(xVals))));}
               else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
               });
         
@@ -661,10 +649,7 @@ if(mydiv=="#setx") {
             node.setxvals[1]=twoSF(invx(xpos));                              
         }
     }
-
-
-
-    
+ 
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
             var value = brush2.extent()[0];
             var s = 6;                            // scaling for triangle shape
@@ -702,9 +687,5 @@ if(mydiv=="#setx") {
                 return("x1: ".concat(twoSF(invx(xpos))));});
             node.setxvals[1]=twoSF(invx(xpos));                      
     }
-
-
-
-
 
 }  
