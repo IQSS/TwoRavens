@@ -350,19 +350,27 @@ if(mydiv=="#tab3"){
 function bars(data, node) {
 
     // Histogram spacing
-    var barPadding = .02;  // Space between bars 
+    var barPadding = .015;  // Space between bars 
     var topScale =1.2;   // Multiplicative factor to assign space at top within graph
 
     // Data
     var keys = Object.keys(data.properties.values);
-    var dataset = new Array;
+    var yVals = new Array;
+    var xVals = new Array;
     for (var i = 0; i < keys.length; i++) {
-        dataset[i] = data.properties.values[keys[i]];
+        yVals[i] = data.properties.values[keys[i]];
+        xVals[i] = Number(keys[i]);
     }
-    var yVals = dataset;           // duplicate -- remove
+    console.log(keys);
+    console.log(xVals);
     console.log(yVals);
     var maxY = d3.max(yVals);
-    var xVals = d3.range(0, dataset.length, 1);  // need to convert from keys
+    var minX = d3.min(xVals);
+    var maxX = d3.max(xVals);
+    console.log(minX);
+    console.log(maxX);
+
+//    var xVals = d3.range(0, yVals.length, 1);  // need to convert from keys
 
     var mydiv;
     if(arguments.callee.caller.name=="subset") {
@@ -402,20 +410,20 @@ function bars(data, node) {
     };
     
     var x = d3.scale.linear()
-    .domain([ 0-0.5 , dataset.length-0.5])  // Note change from density function
+    .domain([ minX-0.5 , maxX+0.5])  // Note change from density function
     .range([0, width]);
 
     var invx = d3.scale.linear()
-    .range([ 0-0.5 , dataset.length-0.5])  
+    .range([ minX-0.5 , maxX+0.5])  
     .domain([0, width]);
     
     var y = d3.scale.linear()
-    .domain([0, d3.max(yVals)])   // Note change to min from density function
+    .domain([0, maxY])   // Note change to min from density function
     .range([0, height]);
     
     var xAxis = d3.svg.axis()
     .scale(x)
-    .ticks(dataset.length)
+    .ticks(yVals.length)
     .orient("bottom");
     
     var yAxis = d3.svg.axis()
@@ -472,18 +480,18 @@ var plotsvg = d3.select(mydiv)
 };
 
 plotsvg.selectAll("rect")
-       .data(dataset)
+       .data(yVals)
        .enter()
        .append("rect")
        .attr("x", function(d, i) {
-        return x(i-0.5+barPadding);  // in nontransformed coordinate space: i * (width / dataset.length);
+        return x(xVals[i]-0.5+barPadding);  
         })     
        .attr("y", function(d) {
-        return y(maxY - d);  // in nontransformed coordinate space: height - d * height/(maxY*topScale); //Height minus data value
+        return y(maxY - d);  
         })
-       .attr("width", x(0.5-barPadding) )  // in nontransformed coordinate space: width / dataset.length - barPadding);
+       .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
        .attr("height", function(d) {
-        return y(d);  // in nontransformed coordinate space: d * height/(maxY*topScale); //Just the data value
+        return y(d);  
         })
        .attr("fill", "#1f77b4")
        ;
@@ -499,6 +507,25 @@ plotsvg.selectAll("rect")
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .text(data.varname);
+
+
+    // add brush if subset
+    if(mydiv=="#tab2") {
+        plotsvg.append("text")
+        .attr("id", "range")
+        .attr("x", 25)
+        .attr("y", height+40)
+        .text(function() {
+              return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
+              });
+        
+/*        plotsvg.append("g")
+        .attr("class", "x brush")
+        .call(brush)
+        .selectAll("rect")
+        .attr("height", height);*/
+    }
+
 
     if(mydiv=="#setx") {        
         plotsvg.append("text")
@@ -526,8 +553,8 @@ plotsvg.selectAll("rect")
         var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
         var lineData = new Array;
 
-        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of lower bound
-        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of upper bound
+        var zLower = -1*(minX-node.mean)/node.standardDeviation;  // zscore of lower bound
+        var zUpper =(maxX-node.mean)/node.standardDeviation;      // zscore of upper bound
 
         for (var i = 0; i < zUpper; i++) {
             lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
