@@ -1110,6 +1110,11 @@ function estimate(btn) {
         
         var myparent = document.getElementById("results");
         myparent.removeChild(document.getElementById("resultsHolder"));
+        
+        // is this righttab necessary?  it's in the html when Results clicked...
+        //righttab='results';
+        setxOff();
+        tabRight('btnResults');
      
         // pipe in figures to right panel
         var filelist = new Array;
