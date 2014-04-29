@@ -76,6 +76,10 @@ function density(data, node) {
     .domain([d3.min(xVals), d3.max(xVals)])
     .range([0, width]);
     
+    var invx = d3.scale.linear()
+    .range([d3.min(xVals), d3.max(xVals)])
+    .domain([0, width]);
+
     var y = d3.scale.linear()
     .domain([d3.min(yVals), d3.max(yVals)])
     .range([height, 0]);
@@ -299,8 +303,8 @@ if(mydiv=="#tab3"){
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                return("x: ".concat(Math.round(xpos)));});
-            node.setxvals[1]=Math.round(xpos);                              
+                return("x: ".concat(Math.round(invx(xpos))));});
+            node.setxvals[1]=Math.round(invx(xpos));                              
         }
     }
 
@@ -339,8 +343,8 @@ if(mydiv=="#tab3"){
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                return("x1: ".concat(Math.round(xpos)));});
-            node.setxvals[1]=Math.round(xpos);                      
+                return("x1: ".concat(Math.round(invx(xpos))));});
+            node.setxvals[1]=Math.round(invx(xpos));                      
     }
 }
 
@@ -348,7 +352,7 @@ if(mydiv=="#tab3"){
 function bars(data, node) {
 
     // Histogram spacing
-    var barPadding = 1;  // Space between bars 
+    var barPadding = .02;  // Space between bars 
     var topScale =1.2;   // Multiplicative factor to assign space at top within graph
 
     // Data
@@ -358,8 +362,9 @@ function bars(data, node) {
         dataset[i] = data.properties.values[keys[i]];
     }
     var yVals = dataset;           // duplicate -- remove
+    console.log(yVals);
     var maxY = d3.max(yVals);
-    var xVals = d3.range(1, dataset.length, 1);  // need to convert from keys
+    var xVals = d3.range(0, dataset.length, 1);  // need to convert from keys
 
     var mydiv;
     if(arguments.callee.caller.name=="subset") {
@@ -401,10 +406,14 @@ function bars(data, node) {
     var x = d3.scale.linear()
     .domain([ 0-0.5 , dataset.length-0.5])  // Note change from density function
     .range([0, width]);
+
+    var invx = d3.scale.linear()
+    .range([ 0-0.5 , dataset.length-0.5])  
+    .domain([0, width]);
     
     var y = d3.scale.linear()
     .domain([0, d3.max(yVals)])   // Note change to min from density function
-    .range([height, 0]);
+    .range([0, height]);
     
     var xAxis = d3.svg.axis()
     .scale(x)
@@ -468,14 +477,15 @@ plotsvg.selectAll("rect")
        .enter()
        .append("rect")
        .attr("x", function(d, i) {
-        return i * (width / dataset.length);
+        return x(i-0.5+barPadding);// in nontransformed coordinate sapce: i * (width / dataset.length);
         })     
        .attr("y", function(d) {
-        return height - d * height/(maxY*topScale); //Height minus data value
+        return y(maxY - d);// in nontransformed coordinate space: height - d * height/(maxY*topScale); //Height minus data value
         })
-       .attr("width", width / dataset.length - barPadding)
+       .attr("width", x(0.5-barPadding) )   // in nontransformed coordinate space: width / dataset.length - barPadding);
        .attr("height", function(d) {
-        return d * height/(maxY*topScale); //Just the data value
+        //console.log(y(maxY));
+        return y(d);// in nontransformed coordinate space: d * height/(maxY*topScale); //Just the data value
         })
        .attr("fill", "#1f77b4")
        ;
@@ -582,6 +592,10 @@ if(mydiv=="#setx") {
 
 
 
+    function twoSF(x){
+      var tsf = d3.format(".2r");                            // format to two significant figures after the decimal place
+      return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
+    }
 
 
 
@@ -622,9 +636,11 @@ if(mydiv=="#setx") {
                 var sd = +node.standardDeviation;
                 var zScore = (value - m)/sd;          // z-score
                 var zRound = Math.round(zScore);      // nearest integer z-score
-                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                if (.1 > Math.abs( Math.round(value) - value)){ // snap to integer
+                    xpos = x(Math.round(value));
+                } else if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
                     xpos = x(m + (zRound * sd));      
-                }
+                } 
             }      
 
             // create slider symbol and text
@@ -632,8 +648,8 @@ if(mydiv=="#setx") {
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                return("x: ".concat(Math.round(xpos)));});
-            node.setxvals[1]=Math.round(xpos);                              
+                return("x: ".concat(twoSF(invx(xpos))));});
+            node.setxvals[1]=twoSF(invx(xpos));                              
         }
     }
 
@@ -662,7 +678,9 @@ if(mydiv=="#setx") {
                 var sd = +node.standardDeviation;
                 var zScore = (value - m)/sd;          // z-score
                 var zRound = Math.round(zScore);      // nearest integer z-score
-                if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                if (.1 > Math.abs( Math.round(value) - value)){ // snap to integer
+                    xpos = x(Math.round(value));
+                }else if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
                     xpos = x(m + (zRound * sd));      
                 }
             }      
@@ -672,8 +690,8 @@ if(mydiv=="#setx") {
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                return("x1: ".concat(Math.round(xpos)));});
-            node.setxvals[1]=Math.round(xpos);                      
+                return("x1: ".concat(twoSF(invx(xpos))));});
+            node.setxvals[1]=twoSF(invx(xpos));                      
     }
 
 
