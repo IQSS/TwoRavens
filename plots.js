@@ -556,6 +556,15 @@ if(mydiv=="#setx") {
             .attr("fill", "none");
         }
 
+        for (var i = d3.min(xVals); i <= d3.max(xVals); i++) {
+            lineData = [{ "x": x(i),   "y": height*.75},  { "x": x(i),  "y": height*.85}];
+            plotsvg.append("path")
+            .attr("d", lineFunction([lineData[0],lineData[1]]))
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            .attr("fill", "none");
+        }
+
         // initialize slider components
         var slideBox = plotsvg.append("g")
         .attr("class", "x axis")
