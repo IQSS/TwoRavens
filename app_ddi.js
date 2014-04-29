@@ -1107,6 +1107,9 @@ function estimate(btn) {
       var property=document.getElementById(btn);
       estimated=true;
       property.style.backgroundColor="#00CC33";
+        
+        var myparent = document.getElementById("results");
+        myparent.removeChild(document.getElementById("resultsHolder"));
      
         // pipe in figures to right panel
         var filelist = new Array;
@@ -1115,7 +1118,7 @@ function estimate(btn) {
             zfig.setAttribute("src", json.images[i]);
             zfig.setAttribute('width', 200);
             zfig.setAttribute('height', 200);
-            document.getElementById("rightpanelcontent").appendChild(zfig);
+            myparent.appendChild(zfig);
             //            filelist.push(json[i]);
         }
         
