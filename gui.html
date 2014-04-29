@@ -101,15 +101,15 @@
         <small>
         <span class="btn-group" style="display:inline;">
                 <input name="tableButton"
-                  type="button" class="btn btn-default"
+                  type="button" class="btn active"
                   id="btnD1"
                   value="Full"
-                  onclick="makeTable()" style="margin-bottom:0.5em;"/>
+                  onclick="toggleData('btnD1');" style="margin-bottom:0.5em;"/>
                 <input name="tableButton"
                   type="button" class="btn btn-default"
                   id="btnD2"
                   value="Subset"
-                  onclick="makeTable()" style="margin-bottom:0.5em;"/>
+                  onclick="toggleData('btnD2');" style="margin-bottom:0.5em;"/>
         </span>
                 <input name="tableButton"
                   type="button" class="btn btn-default"
@@ -130,6 +130,7 @@
                 <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel3" onclick="lefttab='tab3'; subsetOff(); tabLeft('tab3');">Summary</button></div>
+                <div style="float:right;margin-left:.5em;"><button class="btn btn-default" id="btnSelect" onclick="subsetSelect('btnSelect');" style="display:none;">Select</button></div>
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">

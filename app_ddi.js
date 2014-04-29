@@ -1513,6 +1513,8 @@ function subsetOff() {
         .style("display", "none");
         d3.select("#leftpanel")
         .attr("class", "container");
+        d3.select("#btnSelect")
+        .style("display", "none");
     };
   };
 
@@ -1525,6 +1527,8 @@ function subset() {
         .style("display", "none");
         d3.select("#leftpanel")
         .attr("class", "container");
+        d3.select("#btnSelect")
+        .style("display", "none");
       //subsetOff();
         return;
     }
@@ -1542,6 +1546,9 @@ function subset() {
     
     d3.select("#leftpanel")
     .attr("class", "container expandpanel");
+    
+    d3.select("#btnSelect")
+    .style("display", "inline");
 
     
     // build arrays from nodes in main
@@ -1723,8 +1730,7 @@ function nodeReset (n) {
 }
 
 function subsetSelect(btn) {
-    
-    if(document.getElementById('btnData1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
+    if(document.getElementById('btnD1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
         originalNodes=JSON.parse(JSON.stringify(allNodes));
     }
     
@@ -1758,14 +1764,15 @@ function subsetSelect(btn) {
     console.log(urlcall);
 
     function subsetSelectSuccess(btn,json) {
+        console.log(btn);
         subseted=true;
-        document.getElementById(btn.id).style.background="#00CC33";
-        document.getElementById('btnData2').setAttribute("class", "btn active");
-        document.getElementById('btnData1').setAttribute("class", "btn btn-default");
+        document.getElementById(btn).style.background="#00CC33";
+        document.getElementById('btnD2').setAttribute("class", "btn active");
+        document.getElementById('btnD1').setAttribute("class", "btn btn-default");
         
         for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
             var temp = findNodeIndex(json.varnames[j]);
-            allNodes[temp].labl=json.labl[j];
+            //allNodes[temp].labl=json.labl[j];  vjd: i don't think this changes between full and setset
             allNodes[temp].minimum=json.min[j];
             allNodes[temp].median=json.median[j];
             allNodes[temp].mode=json.mode[j];
@@ -1791,7 +1798,7 @@ function subsetSelect(btn) {
     
     
     function subsetSelectFail(btn) {
-        document.getElementById(btn.id).style.background="#CC3333";
+        document.getElementById(btn).style.background="#CC3333";
     }
     
     makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
@@ -1821,10 +1828,10 @@ function readPreprocess(url) {
 function toggleData(btnid) {
     if(!subseted | document.getElementById(btnid).getAttribute('class')=="btn active") {return;}
     
-    if(btnid=="btnData1") {
+    if(btnid=="btnD1") {
        // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
-            allNodes[j].labl=originalNodes[j].labl;
+           // allNodes[j].labl=originalNodes[j].labl;
             allNodes[j].minimum=originalNodes[j].minimum;
             allNodes[j].median=originalNodes[j].median;
             allNodes[j].mode=originalNodes[j].mode;
@@ -1840,14 +1847,14 @@ function toggleData(btnid) {
         }
         preprocess=originalPreprocess;
         
-        document.getElementById('btnData1').setAttribute("class", "btn active");
-        document.getElementById('btnData2').setAttribute("class", "btn btn-default");
+        document.getElementById('btnD1').setAttribute("class", "btn active");
+        document.getElementById('btnD2').setAttribute("class", "btn btn-default");
     }
 
     else {
      //   allNodes=JSON.parse(JSON.stringify(subsetNodes));
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
-            allNodes[j].labl=subsetNodes[j].labl;
+           // allNodes[j].labl=subsetNodes[j].labl;
             allNodes[j].minimum=subsetNodes[j].minimum;
             allNodes[j].median=subsetNodes[j].median;
             allNodes[j].mode=subsetNodes[j].mode;
@@ -1864,8 +1871,8 @@ function toggleData(btnid) {
         
         preprocess=subsetPreprocess;
         
-        document.getElementById('btnData2').setAttribute("class", "btn active");
-        document.getElementById('btnData1').setAttribute("class", "btn btn-default");
+        document.getElementById('btnD2').setAttribute("class", "btn active");
+        document.getElementById('btnD1').setAttribute("class", "btn btn-default");
     }
     
     resetPlots();
@@ -1874,7 +1881,7 @@ function toggleData(btnid) {
 
 function resetPlots() {
     // collapse subset or setx divs and reset all plots
-    d3.select("#subset")
+    d3.select("#tab2")
     .style("display", "none")
     .selectAll("svg")
     .remove();
@@ -1886,4 +1893,13 @@ function resetPlots() {
     
     d3.select("#rightpanel")
     .attr("class", "container");
+    
+    d3.select("#leftpanel")
+    .attr("class", "container");
+    
+    d3.select("#btnSelect")
+    .style("display", "none");
+    
+    lefttab="tab1";
+    tabLeft(lefttab);
 }
