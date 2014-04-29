@@ -432,9 +432,19 @@ function layout() {
                     nodes.splice(findNode(myText)["index"], 1);
                     spliceLinksForNode(findNode(myText));
                
-                if(mySC==dvColor) {zparams.zdv="";}
-                else if(mySC==csColor) {zparams.zcross="";}
-                else if(mySC==timeColor) {zparams.ztime="";}
+                if(mySC==dvColor) {
+                    var dvIndex = zparams.zdv.indexOf(myText);
+                    if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                    //zparams.zdv="";
+                }
+                else if(mySC==csColor) {
+                    var dvIndex = zparams.zcross.indexOf(myText);
+                    if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
+                }
+                else if(mySC==timeColor) {
+                    var dvIndex = zparams.ztime.indexOf(myText);
+                    if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                }
 
                 nodeReset(allNodes[findNodeIndex(myText)]);
                 borderState();
@@ -1660,9 +1670,20 @@ function setColors (n, c) {
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
-        if(dvColor==c) {zparams.zdv.push(n.name);}
-        else if(csColor==c) {zparams.zcross.push(n.name);}
-        else if(timeColor==c) {zparams.ztime.push(n.name);}
+        if(dvColor==c) {
+            // check if array, if not, make it an array
+          //  console.log(Object.prototype.toString.call(zparams.zdv));
+            zparams.zdv = Object.prototype.toString.call(zparams.zdv) == "[object Array]" ? zparams.zdv : [];
+            zparams.zdv.push(n.name);
+        }
+        else if(csColor==c) {
+            zparams.zcross = Object.prototype.toString.call(zparams.zcross) == "[object Array]" ? zparams.zcross : [];
+            zparams.zcross.push(n.name);
+        }
+        else if(timeColor==c) {
+            zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
+            zparams.ztime.push(n.name);
+        }
         
         d3.select("#tab1").select("p#".concat(n.name))
         .style('background-color', c);
