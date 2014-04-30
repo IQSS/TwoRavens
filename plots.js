@@ -519,11 +519,11 @@ plotsvg.selectAll("rect")
               return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
               });
         
-/*        plotsvg.append("g")
+        plotsvg.append("g")
         .attr("class", "x brush")
         .call(brush)
         .selectAll("rect")
-        .attr("height", height);*/
+        .attr("height", height);
     }
 
 
@@ -626,18 +626,27 @@ plotsvg.selectAll("rect")
 
     // brushing functions
     function brushed() {
-        if(mydiv=="#subset") {
-        plotsvg.select("text#range")
-        .text(function() {
-              if(brush.empty()) {return("Range: ".concat(d3.min(xVals), " to ", (d3.max(xVals))));}
-              else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
-              });
-        
-            if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
-                node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
-            }
-            else {node.subsetrange=["", ""];}
-        }
+        if(mydiv=="#tab2") {
+            var brushLow = new Number;
+            var brushHigh = new Number;
+
+            if(brush.empty()) {
+                node.subsetrange=["", ""]; 
+            } 
+            else { 
+                brushLow= Math.round(brush.extent()[0]);
+                brushHigh=Math.round(brush.extent()[1]);
+                if(brushHigh > maxX){
+                    brushHigh=maxX;
+                };    
+                node.subsetrange=[brushLow,brushHigh];
+            };
+            plotsvg.select("text#range")
+            .text(function() {
+                if(brush.empty()) {return("Range: ".concat(minX, " to ", maxX));}
+                else {return("Range: ".concat(brushLow, " to ", brushHigh));}
+                });
+        } 
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];
             var s = 6;
@@ -649,11 +658,11 @@ plotsvg.selectAll("rect")
             
             // set x position of slider center                     
             var xpos = x(value);
-            if(value > d3.max(xVals)) { // dragged past max
-                xpos = x(d3.max(xVals));
+            if(value > maxX){    //d3.max(xVals)) { // dragged past max
+                xpos = x(maxX);  //d3.max(xVals));
             }
-            else if(value < d3.min(xVals)) { // dragged past min
-                xpos = x(d3.min(xVals));
+            else if(value < minX){   //d3.min(xVals)) { // dragged past min
+                xpos = x(minX);      //d3.min(xVals));
             }
             else {
                 var m = +node.mean;
@@ -688,11 +697,11 @@ plotsvg.selectAll("rect")
             
             // set x position of slider center 
             var xpos = x(value);
-            if(value > d3.max(xVals)) { // dragged past max
-                xpos = x(d3.max(xVals));
+            if(value > maxX){              //d3.max(xVals)) { // dragged past max
+                xpos = x(maxX);            //d3.max(xVals));
             }
-            else if(value < d3.min(xVals)) { // dragged past min
-                xpos = x(d3.min(xVals));
+            else if(value < minX){         //d3.min(xVals)) { // dragged past min
+                xpos = x(minX);            //d3.min(xVals));
             }
             else {
                 var m = +node.mean;
