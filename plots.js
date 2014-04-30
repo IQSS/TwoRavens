@@ -3,8 +3,6 @@
 function density(data, node) {
     var mydiv;
 
-    //console.log(arguments.callee.caller.name);
-
     if(arguments.callee.caller.name=="subset") {
         mydiv = "#tab2";
     }
@@ -35,18 +33,8 @@ function density(data, node) {
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0,(tempWidth.length-2));
     
-
-
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0,(tempHeight.length-2));
-
-
-    console.log(tempWidth);
-    console.log(tempHeight);
-    console.log(width);
-    console.log(height);
-    console.log(mydiv);
-
 
     var margin = {top: 20, right: 20, bottom: 53, left: 30};
 
@@ -64,12 +52,6 @@ function density(data, node) {
         width = 0.35 * (width - margin.left - margin.right),
         height = 0.25 * (height - margin.top - margin.bottom);
     };
-
-
-
-
-    console.log(width);
-    console.log(height);
 
 
     var x = d3.scale.linear()
@@ -106,8 +88,7 @@ function density(data, node) {
     .x(function(d) { return x(d.x); })
     .y0(height)
     .y1(function(d) { return y(d.y); });
-    
-  //  var plotsvg = d3.select(mydiv)
+
 
 // This is cumbersome to treat "tab3" differently, but works for now.
 //  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
@@ -119,7 +100,6 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          //console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", 300) //setting height to the height of #main.left
@@ -130,7 +110,6 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          //console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
@@ -280,7 +259,7 @@ if(mydiv=="#tab3"){
             
             // set x position of slider center                     
             var xpos = x(value);
-            if(value > d3.max(xVals)) { // dragged past max
+            if(value > d3.max(xVals)) {      // dragged past max
                 xpos = x(d3.max(xVals));
             }
             else if(value < d3.min(xVals)) { // dragged past min
@@ -320,7 +299,7 @@ if(mydiv=="#tab3"){
             
             // set x position of slider center 
             var xpos = x(value);
-            if(value > d3.max(xVals)) { // dragged past max
+            if(value > d3.max(xVals)) {      // dragged past max
                 xpos = x(d3.max(xVals));
             }
             else if(value < d3.min(xVals)) { // dragged past min
@@ -351,7 +330,7 @@ function bars(data, node) {
 
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
-    var topScale =1.2;   // Multiplicative factor to assign space at top within graph
+    var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
 
     // Data
     var keys = Object.keys(data.properties.values);
@@ -361,16 +340,9 @@ function bars(data, node) {
         yVals[i] = data.properties.values[keys[i]];
         xVals[i] = Number(keys[i]);
     }
-    console.log(keys);
-    console.log(xVals);
-    console.log(yVals);
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
-    console.log(minX);
-    console.log(maxX);
-
-//    var xVals = d3.range(0, yVals.length, 1);  // need to convert from keys
 
     var mydiv;
     if(arguments.callee.caller.name=="subset") {
@@ -410,7 +382,7 @@ function bars(data, node) {
     };
     
     var x = d3.scale.linear()
-    .domain([ minX-0.5 , maxX+0.5])  // Note change from density function
+    .domain([ minX-0.5 , maxX+0.5])  
     .range([0, width]);
 
     var invx = d3.scale.linear()
@@ -418,7 +390,7 @@ function bars(data, node) {
     .domain([0, width]);
     
     var y = d3.scale.linear()
-    .domain([0, maxY])   // Note change to min from density function
+    .domain([0, maxY])   
     .range([0, height]);
     
     var xAxis = d3.svg.axis()
@@ -438,13 +410,6 @@ function bars(data, node) {
     .x(x)
     .on("brush", brushed2);
 
-    /*
-    var area = d3.svg.area()
-    .interpolate("monotone")
-    .x(function(d) { return x(d.x); })
-    .y0(height)
-    .y1(function(d) { return y(d.y); });
-    */
 
 //Create SVG element
 
@@ -458,7 +423,6 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-       //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", 300) //setting height to the height of #main.left
@@ -470,7 +434,6 @@ else {
 var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-       //   console.log(data.varname.toString().concat(".",mydiv.substr(1)));
           return data.varname.toString().concat(mydiv.substr(1));
           })
     .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
@@ -658,20 +621,20 @@ plotsvg.selectAll("rect")
             
             // set x position of slider center                     
             var xpos = x(value);
-            if(value > maxX){    //d3.max(xVals)) { // dragged past max
-                xpos = x(maxX);  //d3.max(xVals));
+            if(value > maxX){            // dragged past max
+                xpos = x(maxX);  
             }
-            else if(value < minX){   //d3.min(xVals)) { // dragged past min
-                xpos = x(minX);      //d3.min(xVals));
+            else if(value < minX){       // dragged past min
+                xpos = x(minX);      
             }
             else {
                 var m = +node.mean;
                 var sd = +node.standardDeviation;
-                var zScore = (value - m)/sd;          // z-score
-                var zRound = Math.round(zScore);      // nearest integer z-score
+                var zScore = (value - m)/sd;                    // z-score
+                var zRound = Math.round(zScore);                // nearest integer z-score
                 if (.1 > Math.abs( Math.round(value) - value)){ // snap to integer
                     xpos = x(Math.round(value));
-                } else if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                } else if( .1 > Math.abs(zRound - zScore)) {    // snap to integer z-score
                     xpos = x(m + (zRound * sd));      
                 } 
             }      
@@ -697,20 +660,20 @@ plotsvg.selectAll("rect")
             
             // set x position of slider center 
             var xpos = x(value);
-            if(value > maxX){              //d3.max(xVals)) { // dragged past max
-                xpos = x(maxX);            //d3.max(xVals));
+            if(value > maxX){              // dragged past max
+                xpos = x(maxX);            
             }
-            else if(value < minX){         //d3.min(xVals)) { // dragged past min
-                xpos = x(minX);            //d3.min(xVals));
+            else if(value < minX){         // dragged past min
+                xpos = x(minX);            
             }
             else {
                 var m = +node.mean;
                 var sd = +node.standardDeviation;
-                var zScore = (value - m)/sd;          // z-score
-                var zRound = Math.round(zScore);      // nearest integer z-score
-                if (.1 > Math.abs( Math.round(value) - value)){ // snap to integer
+                var zScore = (value - m)/sd;                     // z-score
+                var zRound = Math.round(zScore);                 // nearest integer z-score
+                if (.1 > Math.abs( Math.round(value) - value)){  // snap to integer
                     xpos = x(Math.round(value));
-                }else if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                }else if( .1 > Math.abs(zRound - zScore)) {      // snap to integer z-score
                     xpos = x(m + (zRound * sd));      
                 }
             }      
