@@ -4,7 +4,7 @@
 ##  25/2/14
 ##
 
-install.packages(c("Rook","rjson","Zelig"), repos = "http://watson.nci.nih.gov/cran_mirror/")
+install.packages(c("Rook","rjson","Zelig", "jsonlite"), repos = "http://watson.nci.nih.gov/cran_mirror/")
 ##setwd("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/rook")
 
 #!/usr/bin/env Rscript
@@ -12,6 +12,7 @@ install.packages(c("Rook","rjson","Zelig"), repos = "http://watson.nci.nih.gov/c
 library(Rook)
 library(rjson)
 library(Zelig)
+library(jsonlite)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 myPort <- "8000"
@@ -183,7 +184,7 @@ zelig.app <- function(env){
     # R can't construct an array of lists...
     # NOTE: this will likely change for Zelig 5
     
-    #     mydata <- read.delim("../data/fearonLaitin.tsv")
+    #         mydata <- read.delim("../data/fearonLaitin.tsv")
     #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
     #  imageVector <- "image"
     #  almostCall <- "call"
@@ -191,24 +192,26 @@ zelig.app <- function(env){
     print(z.out$call$formula)
 
     summaryMatrix <- summary(z.out)$coefficients
+    sumColName <- c(" ",colnames(summaryMatrix))
+    sumInfo <- list(colnames=sumColName)
+    
     sumRowName <- row.names(summaryMatrix)
     row.names(summaryMatrix) <- NULL # this makes remaining parsing cleaner
-    sumColName <- colnames(summaryMatrix)
-    sumCoef <- summaryMatrix[,1]
-    sumSE <- summaryMatrix[,2]
-    sumZ <- summaryMatrix[,3]
-    sumP <- summaryMatrix[,4]
+    colnames(summaryMatrix) <- NULL
     
-    sumMat <- list(sumInfo=list(rowname=sumRowName, colname=sumColName, coef=sumCoef, se=sumSE, z=sumZ, p=sumP))
+    for (i in 1:nrow(summaryMatrix)) {
+        assign(paste("row", i, sep = ""), c(sumRowName[i],summaryMatrix[i,]))
+        assign("sumInfo", c(sumInfo, list(eval(parse(text=paste("row",i,sep=""))))))
+    }
     
-    result <- c(result, sumMat)
-    #toJSON(result)
+    sumMat <- list(sumInfo=sumInfo)
     
     print(result)
-    result<- toJSON(result)
+    result<- jsonlite:::toJSON(c(result,sumMat))   # rjson does not format json correctly for a list of lists
     print(result)
     response$write(result)
     response$finish()
+    
 }
 
 # Attempt at a termination function so as to streamline code 

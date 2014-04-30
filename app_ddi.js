@@ -45,6 +45,7 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 var forcetoggle=true;
 var estimated=false;
 var subseted=false; //use this to tell users they have subseted the data
+var resultsViewer=false;
 
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
@@ -1114,6 +1115,7 @@ function estimate(btn) {
     
     
     function estimateSuccess(btn,json) {
+        console.log(json);
       var property=document.getElementById(btn);
       estimated=true;
       property.style.backgroundColor="#00CC33";
@@ -1145,6 +1147,54 @@ function estimate(btn) {
         .enter()
         .append("p")
         .text(function(d){ return d; }); // !! BROKEN RESULTS OUTPUT TEXT <-------------------------- FIX THIS !!
+        
+        // write the results table
+        
+        console.log(json.sumInfo);
+        var resultsArray = [];
+        for (var key in json.sumInfo) {
+            if(key=="colnames") {continue;}
+            
+            var obj = json.sumInfo[key];
+            console.log(obj);
+            console.log(key);
+            resultsArray.push(obj);
+            /* SO says this is important check, but I don't see how it helps here...
+            for (var prop in obj) {
+                // important check that this is objects own property
+                // not from prototype prop inherited
+                if(obj.hasOwnProperty(prop)){
+                    alert(prop + " = " + obj[prop]);
+                }
+            }  */
+        }
+        
+        console.log(resultsArray);
+        
+        var table = d3.select("#resultsView")
+        .append("p")
+        .html("<center><b>Results</b></center>")
+        .append("table");
+        
+        var thead = table.append("thead");
+        thead.append("tr")
+        .selectAll("th")
+        .data(json.sumInfo.colnames)
+        .enter()
+        .append("th")
+        .text(function(d) { return d;});
+        
+        var tbody = table.append("tbody");
+        tbody.selectAll("tr")
+        .data(resultsArray)
+        .enter().append("tr")
+        .selectAll("td")
+        .data(function(d){return d;})
+        .enter().append("td")
+        .text(function(d){return d;})
+        .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
+        .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
+
     }
     
     function estimateFail(btn) {
@@ -1421,6 +1471,7 @@ function varSummary(d) {
         summarydata.push(tmpDataset);
     };
 
+  //  console.log(summarydata);
     d3.select("#tab3")
     .select("p")
     .html("<center><b>" +d.name+ "</b><br><i>" +d.labl+ "</i></center>")
@@ -1899,6 +1950,31 @@ function toggleData(btnid) {
     resetPlots();
     populatePopover();
 }
+
+
+function resultsTable() {
+    //  if(estimated==false) {console.log("not estimated yet"); return;}
+    if(resultsViewer==true) {
+        resultsViewer=false;
+        
+        d3.select("#resultsView")
+        .style("display", "none");
+        
+        return;
+    }
+    
+   // console.log($('#btnResultsTable').position().left);
+    
+    resultsViewer=true;
+    d3.select("#resultsView")
+    .style("display", "inline");
+    
+    console.log("here");
+    return;
+}
+
+
+
 
 function resetPlots() {
     // collapse subset or setx divs and reset all plots

@@ -61,6 +61,7 @@
                       value="Table"
                       onclick="makeTable()" style="margin-left:2em;"/>
                   -->
+                 
                   </div>
                   <!--<div class="navbar-form navbar-left" role="settings2">
                       <div class="form-group">
@@ -91,6 +92,7 @@
   
  
     <div class="left svg-leftpanel svg-rightpanel" id="main" style="position:relative;">
+        
     
         <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em;">
             
@@ -149,6 +151,17 @@
             
             <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-right"></span></div>
             
+            <small>
+                
+            <input name="tableButton" style="margin-left:50%; margin-bottom:0.5em;"
+                type="button" class="btn btn-default"
+                id="btnResultsTable"
+                value="Results Table"
+                onclick="resultsTable();" />
+                
+            </small>
+
+            
             <div class="row-fluid">
                  <div style="float:right;"><button class="btn btn-default" id="btnResults" onclick="righttab='results'; setxOff(); tabRight('btnResults');">Results</button></div>
                 <div style="float:right;margin-right:.5em;"><button class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button></div>
@@ -157,6 +170,7 @@
             <div class="row-fluid" style="clear:right;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="rightpanelcontent">
                     <div id="Right_Content_Area" style="overflow: scroll; height:528px;">
+                        <div id="resultsView" style="position:absolute; height:100%; width:100%; background-color:white; z-index:10; display:none;"></div>
                         <div id="results">
                             <p id="resultsHolder" style="padding:.5em 1em;">No results available until a model is estimated.</p>
                         </div>
