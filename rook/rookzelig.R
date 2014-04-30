@@ -178,6 +178,32 @@ zelig.app <- function(env){
     #dev.off()
 
     #response$headers("localhost:8888")
+    
+    #add the summary table to the results
+    # R can't construct an array of lists...
+    # NOTE: this will likely change for Zelig 5
+    
+    #     mydata <- read.delim("../data/fearonLaitin.tsv")
+    #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
+    #  imageVector <- "image"
+    #  almostCall <- "call"
+    #  result<-list(images=imageVector, call=almostCall)
+    print(z.out$call$formula)
+
+    summaryMatrix <- summary(z.out)$coefficients
+    sumRowName <- row.names(summaryMatrix)
+    row.names(summaryMatrix) <- NULL # this makes remaining parsing cleaner
+    sumColName <- colnames(summaryMatrix)
+    sumCoef <- summaryMatrix[,1]
+    sumSE <- summaryMatrix[,2]
+    sumZ <- summaryMatrix[,3]
+    sumP <- summaryMatrix[,4]
+    
+    sumMat <- list(sumInfo=list(rowname=sumRowName, colname=sumColName, coef=sumCoef, se=sumSE, z=sumZ, p=sumP))
+    
+    result <- c(result, sumMat)
+    #toJSON(result)
+    
     print(result)
     result<- toJSON(result)
     print(result)
