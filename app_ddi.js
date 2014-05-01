@@ -49,6 +49,10 @@ var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 
+// text for the about box
+// note that .textContent is the new way to write text to a div
+document.getElementById('about').textContent = "This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
+
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
 
@@ -2015,7 +2019,13 @@ function resultsTable() {
 }
 
 
+function about() {
+    document.getElementById('about').style.display = 'inline';
+}
 
+function closeabout() {
+    document.getElementById('about').style.display = 'none';
+}
 
 function resetPlots() {
     // collapse subset or setx divs and reset all plots
