@@ -53,6 +53,20 @@ var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 // note that .textContent is the new way to write text to a div
 document.getElementById('about').textContent = "This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
+/*
+if (document.addEventListener) {
+    document.addEventListener('contextmenu', function(e) {
+                              alert("You've tried to open context menu"); //here you draw your own menu
+                              e.preventDefault();
+                              }, false);
+} else {
+    document.attachEvent('oncontextmenu', function() {
+                         alert("You've tried to open context menu");
+                         window.event.returnValue = false;
+                         });
+}
+*/
+
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
 
@@ -510,25 +524,25 @@ function layout() {
         }
 
        */
-        
+        circle.call(force.drag);
         if(forcetoggle)
         {
             force.gravity(0.1);
-            force.charge(-800)
-            force.resume();
+            force.charge(-800);
+          //  force.resume();
             
-            circle
-            .on('mousedown.drag', null)
-            .on('touchstart.drag', null);
+          //  circle
+          //  .on('mousedown.drag', null)
+          //  .on('touchstart.drag', null);
         }
         else
         {
             force.gravity(0);
-            force.charge(0)
-            force.stop();
-            
-            circle.call(force.drag);
+            force.charge(0);
+            //force.stop();
+          //  force.resume();
         }
+        force.resume();
         
         // path (link) group
         path = path.data(links);
@@ -820,9 +834,10 @@ function layout() {
             //tooltip.style("visibility", "hidden");
             d3.select(this).attr('transform', '');
             })
-        .on('mousedown', function(d) {
+        //.on('mousedown', function(d) {
+        .on('dblclick', function(d){
+      
             if(d3.event.ctrlKey) return;
-            if(forcetoggle==false) return;
             
             // select node
             mousedown_node = d;
@@ -927,7 +942,7 @@ function layout() {
         
         // set the graph in motion
         if(forcetoggle){
-            force.start();
+         //   force.start();
         
             force.gravity(0.1);
             force.charge(-800)
@@ -935,11 +950,13 @@ function layout() {
         }
         else
         {
+          //  force.start();
             force.gravity(0);
             force.charge(0)
-            force.stop();
+           // force.stop();
             
         }
+        force.start();
     }  //end restart function
     
     
