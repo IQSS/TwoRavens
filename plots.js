@@ -246,7 +246,10 @@ if(mydiv=="#tab3"){
             if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
                 node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
             }
-            else {node.subsetrange=["", ""];}
+            else {
+                if(!subseted) {node.subsetrange=["", ""];}
+                else {node.subsetrange=node.subsethold;}
+            }
         }
         else if(mydiv=="#setx") {
             var value = brush.extent()[0];

@@ -212,7 +212,7 @@ console.log("metadata url: "+metadataurl);
        }
        
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
        };
  
        
@@ -1854,7 +1854,8 @@ function subsetSelect(btn) {
             allNodes[temp].standardDeviation=json.sd[j];
             allNodes[temp].maximum=json.max[j];
             allNodes[temp].subsetplot=false;
-            allNodes[temp].subsetrange=["",""];
+            allNodes[temp].subsethold=allNodes[temp].subsetrange;
+            //allNodes[temp].subsetrange=["",""]; subsetrange stays as it was prior to subsetting
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
@@ -1900,7 +1901,7 @@ function readPreprocess(url) {
 function toggleData(btnid) {
     if(!subseted | document.getElementById(btnid).getAttribute('class')=="btn active") {return;}
     
-    if(btnid=="btnD1") {
+    if(btnid=="btnD1") { //full data
        // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
            // allNodes[j].labl=originalNodes[j].labl;
@@ -1923,7 +1924,7 @@ function toggleData(btnid) {
         document.getElementById('btnD2').setAttribute("class", "btn btn-default");
     }
 
-    else {
+    else {  //subset data
      //   allNodes=JSON.parse(JSON.stringify(subsetNodes));
         for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
            // allNodes[j].labl=subsetNodes[j].labl;
@@ -1936,7 +1937,7 @@ function toggleData(btnid) {
             allNodes[j].standardDeviation=subsetNodes[j].standardDeviation;
             allNodes[j].maximum=subsetNodes[j].maximum;
             allNodes[j].subsetplot=false;
-            allNodes[j].subsetrange=["",""];
+            allNodes[j].subsetrange=allNodes[j].subsethold;
             allNodes[j].setxplot=false;
             allNodes[j].setxvals=["",""];
         }
