@@ -46,6 +46,8 @@ var forcetoggle=true;
 var estimated=false;
 var subseted=false; //use this to tell users they have subseted the data
 var resultsViewer=false;
+var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
+var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
@@ -1108,8 +1110,10 @@ function forceSwitch() {
 function estimate(btn) {
     // write links to file & run R CMD
 
-    var property=document.getElementById(btn);
-    property.style.backgroundColor="#66CCFF";
+   // var property=document.getElementById(btn);
+  //  property.style.backgroundColor="#66CCFF";
+    
+    estimateLadda.start();  // start spinner
     
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
@@ -1141,9 +1145,11 @@ function estimate(btn) {
     
     
     function estimateSuccess(btn,json) {
+        estimateLadda.stop();  // stop spinner
         console.log(json);
       var property=document.getElementById(btn);
       estimated=true;
+      //  property.setAttribute("class", "progress progress-striped active");
       property.style.backgroundColor="#00CC33";
         
         var myparent = document.getElementById("results");
@@ -1224,9 +1230,10 @@ function estimate(btn) {
     }
     
     function estimateFail(btn) {
-      var property=document.getElementById(btn);
+        estimateLadda.stop();  // stop spinner
       estimated=true;
-      property.style.backgroundColor="#CC3333";
+        //var property=document.getElementById(btn);
+      //property.style.backgroundColor="#CC3333";
     }
 
 
@@ -1828,6 +1835,9 @@ function nodeReset (n) {
 }
 
 function subsetSelect(btn) {
+    
+    selectLadda.start(); //start button motion
+    
     if(document.getElementById('btnD1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
         originalNodes=JSON.parse(JSON.stringify(allNodes));
     }
@@ -1862,9 +1872,10 @@ function subsetSelect(btn) {
     console.log(urlcall);
 
     function subsetSelectSuccess(btn,json) {
-        console.log(btn);
+        
+        selectLadda.stop(); // stop motion
         subseted=true;
-        document.getElementById(btn).style.background="#00CC33";
+       // document.getElementById(btn).style.background="#00CC33";
         document.getElementById('btnD2').setAttribute("class", "btn active");
         document.getElementById('btnD1').setAttribute("class", "btn btn-default");
         
@@ -1897,7 +1908,8 @@ function subsetSelect(btn) {
     
     
     function subsetSelectFail(btn) {
-        document.getElementById(btn).style.background="#CC3333";
+        selectLadda.stop(); //stop motion
+        //document.getElementById(btn).style.background="#CC3333";
     }
     
     makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);

@@ -8,6 +8,10 @@
         <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
         
         <link rel="stylesheet" href="app.css">
+        <link rel="stylesheet" href="Ladda/dist/ladda-themeless.min.css">
+            
+        <script src="Ladda/dist/spin.min.js"></script>
+        <script src="Ladda/dist/ladda.min.js"></script>
         
         <script type="text/javascript" src="jquery/jquery.min.js"></script>
         <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
@@ -50,12 +54,16 @@
                       type="button" class="btn btn-default"
                       value="Dep Var"
                       onclick="dv(); "/>
+                      <button class="btn btn-default ladda-button" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
+                      <!--
                       <input name="estimateButton"
-                      type="button" class="btn btn-default"
+                      class="btn btn-default"
+                      type="button"
                       id="btnEstimate"
                       value="Estimate"
                       onclick="estimate('btnEstimate')" style="margin-left:2em;"/>
-                 <!--     <input name="tableButton"
+                      
+                      <!--     <input name="tableButton"
                       type="button" class="btn btn-default"
                       id="btnTable"
                       value="Table"
@@ -132,7 +140,11 @@
                 <div style="float:left;"><button class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button></div>
                 <div style="float:left;margin-left:.5em;"><button class="btn btn-default" id="btnPanel3" onclick="lefttab='tab3'; subsetOff(); tabLeft('tab3');">Summary</button></div>
-                <div style="float:right;margin-left:.5em;"><button class="btn btn-default" id="btnSelect" onclick="subsetSelect('btnSelect');" style="display:none;">Select</button></div>
+                <div style="float:right;margin-left:.5em;">
+                    <button class="btn btn-default ladda-button" id="btnSelect" style="display:none;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Select</span></button>
+                    <!--
+                    <button class="btn btn-default" id="btnSelect" onclick="subsetSelect('btnSelect');" style="display:none;">Select</button>    -->
+                </div>
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
