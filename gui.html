@@ -107,9 +107,24 @@
     
         <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em;">
             
-            <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-left"></span></div>
+          <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-left"></span></div>
 
-            <div id="datasetName" >
+          <div class="row">  
+            <div class="span2"> 
+              <div class="field" id="datasetName" style="margin-left:1em;margin-top:0.3em;">
+                <p style="display:inline;line-height:35px;">Dataset Name</p>
+
+                <button class="btn btn-default" id="makeTable" style="float:right;margin-right:1em;margin-bottom:0.5em;"><span style="font-size:1em;color:#818181;" class="glyphicon glyphicon-list-alt"></span></button> 
+
+                <span class="btn-group" style="float:right;margin-right:1em;"> 
+                  <button class="btn active" id="btnD1" onclick="toggleData('btnD1');"><span style="font-size:1em;color:#818181;" class="glyphicon glyphicon-tree-conifer"></span></button>  
+                  <button class="btn btn-default"  id="btnD2" onclick="toggleData('btnD2');"><span style="font-size:1em;color:#818181;" class="glyphicon glyphicon-tree-deciduous"></span></button>  
+                </span>   
+              </div>  
+            </div>  
+          </div> 
+
+        <!--    <div id="datasetName" >
                 <p>Dataset Name</p>
         <small>
         <span class="btn-group" style="display:inline;">
@@ -130,9 +145,7 @@
                   value="Table"
                   onclick="makeTable()" style="margin-left:1em; margin-bottom:0.5em;"/>          
         </small>
-
-
-            </div>
+            </div> -->
           
 
           <!--  <div class="row-fluid" style="margin-bottom:3em;">
