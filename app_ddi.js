@@ -494,17 +494,34 @@ function layout() {
      //   console.log(nodes);
         
 
+     /*
+        if(!forcetoggle) {
+            console.log(circle);
+            console.log(d);
+            circle.call(force.drag);
+            
+            return;
+        }
+
+       */
+        
         if(forcetoggle)
         {
             force.gravity(0.1);
             force.charge(-800)
             force.resume();
+            
+            circle
+            .on('mousedown.drag', null)
+            .on('touchstart.drag', null);
         }
         else
         {
             force.gravity(0);
             force.charge(0)
             force.stop();
+            
+            circle.call(force.drag);
         }
         
         // path (link) group
@@ -799,6 +816,7 @@ function layout() {
             })
         .on('mousedown', function(d) {
             if(d3.event.ctrlKey) return;
+            if(forcetoggle==false) return;
             
             // select node
             mousedown_node = d;
@@ -896,7 +914,7 @@ function layout() {
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");
             
-            });
+            })
         
         // remove old nodes
         circle.exit().remove();
@@ -904,10 +922,7 @@ function layout() {
         // set the graph in motion
         if(forcetoggle){
             force.start();
-        }
         
-        if(forcetoggle)
-        {
             force.gravity(0.1);
             force.charge(-800)
             force.resume();
@@ -917,6 +932,7 @@ function layout() {
             force.gravity(0);
             force.charge(0)
             force.stop();
+            
         }
     }  //end restart function
     
@@ -972,6 +988,8 @@ function layout() {
                      links.splice(links.indexOf(l), 1);
                      });
     }
+        
+    
     
     // only respond once per keydown
     var lastKeyDown = -1;
@@ -982,13 +1000,14 @@ function layout() {
         if(lastKeyDown !== -1) return;
         lastKeyDown = d3.event.keyCode;
         
-        // ctrl
+        /* ctrl
         if(d3.event.keyCode === 17) {
             if(forcetoggle){
+                console.log(circle);
                 circle.call(force.drag);
             }
             svg.classed('ctrl', true);
-        }
+        }  */
         
         if(!selected_node && !selected_link) return;
         switch(d3.event.keyCode) {
@@ -1038,13 +1057,14 @@ function layout() {
     function keyup() {
         lastKeyDown = -1;
         
-        // ctrl
-        if(d3.event.keyCode === 17) {  
+        /* ctrl
+        if(d3.event.keyCode === 17) {
+            console.log(circle);
             circle
             .on('mousedown.drag', null)
             .on('touchstart.drag', null);
             svg.classed('ctrl', false);
-        }
+        }   */
     }
     
     // app starts here
@@ -1077,6 +1097,12 @@ var findNode = function(nodeName) {
 // functions called by buttons
 function forceSwitch() {
     forcetoggle = !forcetoggle;
+    if(forcetoggle==false) {
+        document.getElementById('btnForce').setAttribute("class", "btn active");
+    }
+    else {
+        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+    }
 }
 
 function estimate(btn) {
