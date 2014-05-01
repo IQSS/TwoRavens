@@ -1174,11 +1174,13 @@ function estimate(btn) {
         var rCall = [];
         rCall[0] = json.call;
         console.log(rCall[0]);
-        d3.select("#main.left").selectAll("p")
+        
+        
+        d3.select("#ticker").selectAll("p")
         .data(rCall)
         .enter()
         .append("p")
-        .text(function(d){ return d; }); // !! BROKEN RESULTS OUTPUT TEXT <-------------------------- FIX THIS !!
+        .text(function(d){ console.log(d); return d; }); // !! BROKEN RESULTS OUTPUT TEXT <-------------------------- FIX THIS !!
         
         // write the results table
         
