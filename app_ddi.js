@@ -529,6 +529,7 @@ function layout() {
         {
             force.gravity(0.1);
             force.charge(-800);
+            force.linkStrength(1);
           //  force.resume();
             
           //  circle
@@ -539,6 +540,7 @@ function layout() {
         {
             force.gravity(0);
             force.charge(0);
+            force.linkStrength(0);
             //force.stop();
           //  force.resume();
         }
@@ -939,7 +941,7 @@ function layout() {
         
         // remove old nodes
         circle.exit().remove();
-        
+     /*
         // set the graph in motion
         if(forcetoggle){
          //   force.start();
@@ -955,7 +957,7 @@ function layout() {
             force.charge(0)
            // force.stop();
             
-        }
+        }  */
         force.start();
     }  //end restart function
     
