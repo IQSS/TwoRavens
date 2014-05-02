@@ -53,6 +53,7 @@ zelig.app <- function(env){
 
     everything <- fromJSON(request$params()$solaJSON)
     print(everything)
+    print("got here A")
 
     warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
 
@@ -83,11 +84,14 @@ zelig.app <- function(env){
 	}
 
 	if(!warning){
-		myedges<-edgeReformat(everything$zedges)
-		if(is.null(myedges)){
-			warning <- TRUE
-			result<-list(warning="Problem creating edges.")
-		}
+        myedges<-everything$zedges
+        print(myedges)
+        ## Format seems to have changed:
+        #		myedges<-edgeReformat(everything$zedges)
+		#if(is.null(myedges)){
+		#	warning <- TRUE
+		#	result<-list(warning="Problem creating edges.")
+		#}
 	}
 
 	if(!warning){
@@ -105,7 +109,7 @@ zelig.app <- function(env){
 
     if(!warning){
         mysubset <- everything$zsubset
-        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        f <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
@@ -120,11 +124,17 @@ zelig.app <- function(env){
 		}
 	}
 
+    if(warning){
+        print(warning)
+        print(result)
+    }
+
 	if(!warning){
 		print(names(mydata))
 		print(myformula)
         print(setxCall)
-        print(dim(usedata))
+        usedata <- f          # usedata does not seem to exist?
+        print(dim(usedata))   # usedata does not seem to exist?
 
 #    assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
         assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
@@ -174,9 +184,7 @@ zelig.app <- function(env){
     		result<-list(warning="There are no Zelig output graphs to show.")
 	    }
 	}
-    #png(file.path(getwd(), "james.png"))
-    #plot(runif(5),runif(5))
-    #dev.off()
+
 
     #response$headers("localhost:8888")
     
@@ -189,25 +197,33 @@ zelig.app <- function(env){
     #  imageVector <- "image"
     #  almostCall <- "call"
     #  result<-list(images=imageVector, call=almostCall)
-    print(z.out$call$formula)
 
-    summaryMatrix <- summary(z.out)$coefficients
-    sumColName <- c(" ",colnames(summaryMatrix))
-    sumInfo <- list(colnames=sumColName)
+    ##
+    ## NOTE: z.out not guaranteed to exist, if some warning is tripped above.
+    if(!warning){
+        
+        print(z.out$call$formula)
+        summaryMatrix <- summary(z.out)$coefficients
+        sumColName <- c(" ",colnames(summaryMatrix))
+        sumInfo <- list(colnames=sumColName)
     
-    sumRowName <- row.names(summaryMatrix)
-    row.names(summaryMatrix) <- NULL # this makes remaining parsing cleaner
-    colnames(summaryMatrix) <- NULL
+        sumRowName <- row.names(summaryMatrix)
+        row.names(summaryMatrix) <- NULL # this makes remaining parsing cleaner
+        colnames(summaryMatrix) <- NULL
     
-    for (i in 1:nrow(summaryMatrix)) {
-        assign(paste("row", i, sep = ""), c(sumRowName[i],summaryMatrix[i,]))
-        assign("sumInfo", c(sumInfo, list(eval(parse(text=paste("row",i,sep=""))))))
+        for (i in 1:nrow(summaryMatrix)) {
+            assign(paste("row", i, sep = ""), c(sumRowName[i],summaryMatrix[i,]))
+            assign("sumInfo", c(sumInfo, list(eval(parse(text=paste("row",i,sep=""))))))
+        }
+    
+        sumMat <- list(sumInfo=sumInfo)
+    
+        print(result)
+        result<- jsonlite:::toJSON(c(result,sumMat))   # rjson does not format json correctly for a list of lists
+    }else{
+        result<-jsonlite:::toJSON(result)
     }
     
-    sumMat <- list(sumInfo=sumInfo)
-    
-    print(result)
-    result<- jsonlite:::toJSON(c(result,sumMat))   # rjson does not format json correctly for a list of lists
     print(result)
     response$write(result)
     response$finish()
@@ -229,23 +245,32 @@ getDataverse<-function(hostname, fileid){
     return(mydata)
 }
 
-edgeReformat<-function(edges){
-	k<-length(edges)
-	new<-matrix(NA,nrow=k,ncol=2)
-	for(i in 1:k){
-		new[i,1]<-edges[[i]][1]
-		new[i,2]<-edges[[i]][2]
-	}
-    return(new)
-}
+
+# FORMAT SEEMS TO HAVE CHANGED
+#
+#edgeReformat<-function(edges){
+#	k<-length(edges)
+#	new<-matrix(NA,nrow=k,ncol=2)
+#	for(i in 1:k){
+#		new[i,1]<-edges[[i]][1]
+#		new[i,2]<-edges[[i]][2]
+#	}
+#    return(new)
+#}
 
 
 subsetData <- function(data, sub, varnames){
     fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
     fdata$flag <- 0
     skip <- ""
+    
+    print("sub")
+    print(sub)
     for(i in 1:length(varnames)){
-        t <- unlist(sub[i])
+        t <-  sub[i,]   # was: unlist(sub[i]) --giving t of length 1
+ 
+        print("t - of subsetData")
+        print(t)
         if(t[1]=="" & t[2]=="") {next} #no subset region
         else {
             myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1")
@@ -273,7 +298,11 @@ buildSetx <- function(setx, varnames) {
     k<-1
     
     for(i in 1:length(varnames)){
-        t <- unlist(setx[i])
+        print("setx")
+        print(setx)
+        t <- setx[i,]       # was: unlist(setx[i]) --giving t of length 1
+        print("t - of buildSetx")
+        print(t)
         if(t[1]=="" & t[2]=="") {next}
         if(t[1]!="") {
             outeq[j] <- paste(varnames[i],"=as.numeric(",t[1],")")
@@ -311,14 +340,21 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     k<-length(varnames)
     relmat<-matrix(0,nrow=k,ncol=k)
     
+    
     # define relationship matrix
     # relmat[i,j]==1 => "i caused by j"
+    
+    print(linkagelist)
+    print(nrow(linkagelist))
 
     for(i in 1:nrow(linkagelist)){
-        row.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )  # min() solves ties with shared variable names
-        col.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )   
+        row.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )  # min() solves ties with shared variable names
+        col.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )
         relmat[row.position,col.position]<-1
     }
+
+
+    print(relmat)
 
     # store matrix contains all backwards linked variables
     store<-relmat.n<-relmat
@@ -455,6 +491,7 @@ print(R.server)
 #R.server$browse("zeligapp")
 #R.server$stop()
 #R.server$remove(all=TRUE)
+#mydata<-read.delim("../data/fearonLaitin.tsv")
 #mydata<-getDataverse(hostname="dvn-build.hmdc.harvard.edu", fileid="2429360")
 #z.out<-zelig(cntryerb~cntryera + dyadidyr, model="ls", data=mydata)
 
