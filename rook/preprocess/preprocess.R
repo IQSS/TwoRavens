@@ -43,7 +43,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
         }
     }
     names(hold)<-varnames
-    jsonHold<-toJSON(hold)
+    jsonHold<-rjson:::toJSON(hold)
     
     return(jsonHold)
 }

@@ -6,8 +6,8 @@
 ##  10/3/14
 ##
 
-
-library(rjson)
+library(rjson)   # rjson currectly used for preprocess, jsonlite used for zelig.app
+#library(jsonlite)
 
 source(paste(getwd(),"/preprocess.R",sep=""))
 

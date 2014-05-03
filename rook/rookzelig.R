@@ -4,14 +4,14 @@
 ##  25/2/14
 ##
 
-install.packages(c("Rook","rjson","Zelig", "jsonlite"), repos = "http://watson.nci.nih.gov/cran_mirror/")
+install.packages(c("Rook","Zelig", "jsonlite"), repos = "http://watson.nci.nih.gov/cran_mirror/")
 ##setwd("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/rook")
 
 #!/usr/bin/env Rscript
 
 library(Rook)
-library(rjson)
 library(Zelig)
+library(rjson)
 library(jsonlite)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
@@ -51,9 +51,8 @@ zelig.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
 
-    everything <- fromJSON(request$params()$solaJSON)
+    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
     print(everything)
-    print("got here A")
 
     warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
 
@@ -109,7 +108,7 @@ zelig.app <- function(env){
 
     if(!warning){
         mysubset <- everything$zsubset
-        f <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
@@ -130,16 +129,21 @@ zelig.app <- function(env){
     }
 
 	if(!warning){
-		print(names(mydata))
 		print(myformula)
         print(setxCall)
-        usedata <- f          # usedata does not seem to exist?
-        print(dim(usedata))   # usedata does not seem to exist?
+      
+        # Here is present dealing with missing data
+        # listwise deletion on variables in the formula
+        usevars<-all.vars(myformula)
+        missmap<-!is.na(usedata[,usevars])
+        isobserved<-apply(missmap,1,all)
+        usedata<-usedata[isobserved,]
+        print(dim(usedata))
 
-#    assign("mydata", mydata, envir=globalenv())  # Zelig4 Error with Environments
+#       assign("mydata", mydata, envir=globalenv())   # Zelig4 Error with Environments
         assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
         
-		z.out <- zelig(formula=myformula, model=mymodel, data=usedata)
+		z.out <- zelig(formula=myformula, model=mymodel, data=usedata)   # maybe just pass variables being used?
 		almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
 
 		print(summary(z.out))
@@ -161,9 +165,8 @@ zelig.app <- function(env){
         }
 		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
-    	qicount<-0
+        qicount<-0
     	imageVector<-list()
-    	#result<-list()
     	for(i in 1:length(s.out$qi)){
     	  	if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
       			qicount<-qicount+1
@@ -171,7 +174,6 @@ zelig.app <- function(env){
     			Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
     			dev.off()
     			imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
-    			#result[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
     	  	}
     	}
 
@@ -198,7 +200,7 @@ zelig.app <- function(env){
     #  almostCall <- "call"
     #  result<-list(images=imageVector, call=almostCall)
 
-    ##
+
     ## NOTE: z.out not guaranteed to exist, if some warning is tripped above.
     if(!warning){
         
@@ -230,7 +232,7 @@ zelig.app <- function(env){
     
 }
 
-# Attempt at a termination function so as to streamline code 
+# Presently unused attempt at a termination function so as to streamline code for warnings
 terminate<-function(response,warning){
 	jsonWarning <- toJSON(list(warning=warning))
     print(jsonWarning)
@@ -246,7 +248,7 @@ getDataverse<-function(hostname, fileid){
 }
 
 
-# FORMAT SEEMS TO HAVE CHANGED
+# This utility function was necessary when using rjson, rather than jsonlite, to transform list-of-lists to matrix
 #
 #edgeReformat<-function(edges){
 #	k<-length(edges)
@@ -264,13 +266,8 @@ subsetData <- function(data, sub, varnames){
     fdata$flag <- 0
     skip <- ""
     
-    print("sub")
-    print(sub)
     for(i in 1:length(varnames)){
-        t <-  sub[i,]   # was: unlist(sub[i]) --giving t of length 1
- 
-        print("t - of subsetData")
-        print(t)
+        t <-  sub[i,]   # under rjson was: unlist(sub[i])
         if(t[1]=="" & t[2]=="") {next} #no subset region
         else {
             myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1")
@@ -298,11 +295,7 @@ buildSetx <- function(setx, varnames) {
     k<-1
     
     for(i in 1:length(varnames)){
-        print("setx")
-        print(setx)
-        t <- setx[i,]       # was: unlist(setx[i]) --giving t of length 1
-        print("t - of buildSetx")
-        print(t)
+        t <- setx[i,]       # under rjson was: unlist(setx[i])
         if(t[1]=="" & t[2]=="") {next}
         if(t[1]!="") {
             outeq[j] <- paste(varnames[i],"=as.numeric(",t[1],")")
@@ -336,6 +329,7 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     if(is.null(varnames)){
     	varnames<-unique(c(dv,linkagelist))
     }
+    print(varnames)
 
     k<-length(varnames)
     relmat<-matrix(0,nrow=k,ncol=k)
@@ -348,8 +342,8 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     print(nrow(linkagelist))
 
     for(i in 1:nrow(linkagelist)){
-        row.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )  # min() solves ties with shared variable names
-        col.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )
+        row.position<-min( (1:k)[varnames %in% linkagelist[i,2] ] )  # min() solves ties with shared variable names
+        col.position<-min( (1:k)[varnames %in% linkagelist[i,1] ] )
         relmat[row.position,col.position]<-1
     }
 
@@ -375,6 +369,8 @@ buildFormula<-function(dv, linkagelist, varnames=NULL){
     flag<-rhsIndicator==1    
     rhs.names<-varnames[flag]
     formula<-as.formula(paste(dv," ~ ", paste(rhs.names,collapse=" + ")))
+
+    print(formula)
 
     return(formula)
 }
@@ -431,7 +427,7 @@ subset.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- fromJSON(request$params()$solaJSON)
+    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
     print(everything)
     
     warning<-FALSE
@@ -467,11 +463,10 @@ subset.app <- function(env){
     print(dim(usedata))
     sumstats <- calcSumStats(usedata)
     
-    
     # send preprocess new usedata and receive url with location
     purl <- pCall(data=usedata)
     #purl <- "test"
-    result<- toJSON(c(sumstats,list(url=purl)))
+    result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
     
     #result <- toJSON(sumstats)
     print(result)
