@@ -2057,6 +2057,9 @@ function resultsTable() {
         d3.select("#resultsView")
         .style("display", "none");
         
+        d3.select("#rightpanel")
+        .attr("class", "container");
+        
         return;
     }
     
@@ -2065,6 +2068,9 @@ function resultsTable() {
     resultsViewer=true;
     d3.select("#resultsView")
     .style("display", "inline");
+    
+    d3.select("#rightpanel")
+    .attr("class", "container expandpanel");
     
     console.log("here");
     return;
