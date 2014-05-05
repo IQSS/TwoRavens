@@ -911,13 +911,10 @@ function layout() {
             direction = 'left';
             }
             
-           
-            
             var link;
             link = links.filter(function(l) {
                                 return (l.source === source && l.target === target);
                                 })[0];
-            
             if(link) {
             link[direction] = true;
             } else {
@@ -1185,7 +1182,14 @@ function estimate(btn) {
     }
 
     for(var j =0; j < links.length; j++ ) { //populate zedges array
-        var srctgt = [links[j].source.name, links[j].target.name]
+        var srctgt = [];
+        //correct the source target ordering for Zelig
+        if(links[j].left===false) {
+            srctgt = [links[j].source.name, links[j].target.name];
+        }
+        else {
+            srctgt = [links[j].target.name, links[j].source.name];
+        }
         zparams.zedges.push(srctgt);
     }
     console.log(zparams);
