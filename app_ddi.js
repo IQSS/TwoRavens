@@ -929,6 +929,7 @@ function layout() {
             // select new link
             selected_link = link;
             selected_node = null;
+            resetMouseVars();
             restart();
             });
         
