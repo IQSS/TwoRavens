@@ -48,6 +48,7 @@ var subseted=false; //use this to tell users they have subseted the data
 var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
+var rightClickLast = false;
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
@@ -812,6 +813,7 @@ function layout() {
         g.append('svg:circle')
         .attr('class', 'node')
         .attr('r', allR)
+        .style('pointer-events', 'inherit')
         .style('fill', function(d) {
   //             console.log(d);
                var myIndex = findNodeIndex(d.name);
@@ -838,7 +840,7 @@ function layout() {
             })
         //.on('mousedown', function(d) {
         .on('dblclick', function(d){
-      
+            d3.event.stopPropagation(); // stop click from bubbling
             if(d3.event.ctrlKey) return;
             
             // select node
@@ -855,7 +857,33 @@ function layout() {
             
             restart();
             })
+        .on('contextmenu', function(d) { // right click on node
+            d3.event.preventDefault();
+            console.log("right click fire");
+            d3.event.stopPropagation(); // stop right click from bubbling
+            rightClickLast=true;
+            
+            mousedown_node = d;
+            if(mousedown_node === selected_node) selected_node = null;
+            else selected_node = mousedown_node;
+            selected_link = null;
+            
+            // reposition drag line
+            drag_line
+            .style('marker-end', 'url(#end-arrow)')
+            .classed('hidden', false)
+            .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+            
+            restart();
+            })
         .on('mouseup', function(d) {
+            console.log("mouseup onnode fire");
+            d3.event.stopPropagation(); // stop mouseup from bubbling
+            
+            if(rightClickLast) {
+                rightClickLast=false;
+                return;
+            }
             if(!mousedown_node) return;
             
             // needed by FF
@@ -963,6 +991,7 @@ function layout() {
     
     
     function mousedown() {
+        console.log("mousedown function fire");
         // prevent I-bar on drag
         d3.event.preventDefault();
         
@@ -990,17 +1019,20 @@ function layout() {
         restart();
     }
     
+    // why not move all the code from pebble.on(mouseup) here?  it seems like we are doing the same thing in two places...
     function mouseup() {
+        console.log("mouseup function fire");
+        
         if(mousedown_node) {
             // hide drag line
             drag_line
             .classed('hidden', true)
             .style('marker-end', '');
         }
-        
+
         // because :active only works in WebKit?
         svg.classed('active', false);
-        
+    
         // clear mouse event vars
         resetMouseVars();
     }
