@@ -95,7 +95,7 @@ var mods = new Object;
 d3.json("data/zeligmodels2.json", function(error, json) {
         if (error) return console.warn(error);
         var jsondata = json;
-        console.log(jsondata);
+        console.log("json: ", jsondata);
         jsondata.zeligmodels.forEach(function(d) {
        // mods.push(d["-name"]);
         mods[d["-name"]] = d["description"];
@@ -513,20 +513,7 @@ function layout() {
     function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
-        // many changes have been made below from nodes.id to nodes.index.
-     //   console.log(nodes);
-        
-
-     /*
-        if(!forcetoggle) {
-            console.log(circle);
-            console.log(d);
-            circle.call(force.drag);
-            
-            return;
-        }
-
-       */
+      
         circle.call(force.drag);
         if(forcetoggle)
         {
@@ -705,15 +692,6 @@ function layout() {
             }
             }
             })
-    /*    .on('mousedown',function(d){
-            var test=0;
-            resultspanel.selectAll("image").data([0])
-            .enter()
-            .append("svg:image")
-            .attr("xlink:href", "data/gr1.jpeg")
-            .attr("width", 200)
-            .attr("height", 200);
-            })   */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()
@@ -737,15 +715,6 @@ function layout() {
             }
             }
             })
-     /*   .on('mousedown',function(d){
-            var test=0;
-            resultspanel.selectAll("image").data([0])
-            .enter()
-            .append("svg:image")
-            .attr("xlink:href", "data/gr7.jpeg")
-            .attr("width", 200)
-            .attr("height", 200);
-            })   */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()
@@ -768,15 +737,6 @@ function layout() {
             }
             }
             })
-    /*    .on('mousedown',function(d){
-            var test=0;
-            resultspanel.selectAll("image").data([0])
-            .enter()
-            .append("svg:image")
-            .attr("xlink:href", "data/gr8.jpeg")
-            .attr("width", 200)
-            .attr("height", 200);
-            }) */
         .on('mouseout', function(d){
             if(nodes[d.index].reflexive){
             d3.select(this).transition()  .attr("fill-opacity", 0)
@@ -809,7 +769,6 @@ function layout() {
             .attr("width", 200)
             .attr("height", 200);
             });
-        
         
         
         g.append('svg:circle')
@@ -967,23 +926,6 @@ function layout() {
         
         // remove old nodes
         circle.exit().remove();
-     /*
-        // set the graph in motion
-        if(forcetoggle){
-         //   force.start();
-        
-            force.gravity(0.1);
-            force.charge(-800)
-            force.resume();
-        }
-        else
-        {
-          //  force.start();
-            force.gravity(0);
-            force.charge(0)
-           // force.stop();
-            
-        }  */
         force.start();
     }  //end restart function
     
@@ -1052,15 +994,6 @@ function layout() {
         if(lastKeyDown !== -1) return;
         lastKeyDown = d3.event.keyCode;
         
-        /* ctrl
-        if(d3.event.keyCode === 17) {
-            if(forcetoggle){
-                console.log(circle);
-                circle.call(force.drag);
-            }
-            svg.classed('ctrl', true);
-        }  */
-        
         if(!selected_node && !selected_link) return;
         switch(d3.event.keyCode) {
             case 8: // backspace
@@ -1109,14 +1042,6 @@ function layout() {
     function keyup() {
         lastKeyDown = -1;
         
-        /* ctrl
-        if(d3.event.keyCode === 17) {
-            console.log(circle);
-            circle
-            .on('mousedown.drag', null)
-            .on('touchstart.drag', null);
-            svg.classed('ctrl', false);
-        }   */
     }
     
     // app starts here
@@ -1189,7 +1114,6 @@ function estimate(btn) {
         }
         zparams.zedges.push(srctgt);
     }
-    console.log(zparams);
     
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
@@ -1198,12 +1122,12 @@ function estimate(btn) {
     //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     //urlcall = base.concat(test);
     urlcall = base.concat(jsonout);
-    console.log(urlcall);
+    console.log("urlcall out: ", urlcall);
     
     
     function estimateSuccess(btn,json) {
         estimateLadda.stop();  // stop spinner
-        console.log(json);
+        console.log("json in: ", json);
       var property=document.getElementById(btn);
       estimated=true;
       //  property.setAttribute("class", "progress progress-striped active");
@@ -1230,25 +1154,20 @@ function estimate(btn) {
         
         var rCall = [];
         rCall[0] = json.call;
-        console.log(rCall[0]);
         
         
         d3.select("#ticker").selectAll("p")
         .data(rCall)
         .enter()
         .append("p")
-        .text(function(d){ console.log(d); return d; }); // !! BROKEN RESULTS OUTPUT TEXT <-------------------------- FIX THIS !!
+        .text(function(d){ console.log(d); return d; });
         
         // write the results table
-        
-        console.log(json.sumInfo);
         var resultsArray = [];
         for (var key in json.sumInfo) {
             if(key=="colnames") {continue;}
             
             var obj = json.sumInfo[key];
-            console.log(obj);
-            console.log(key);
             resultsArray.push(obj);
             /* SO says this is important check, but I don't see how it helps here...
             for (var prop in obj) {
@@ -1259,8 +1178,6 @@ function estimate(btn) {
                 }
             }  */
         }
-        
-        console.log(resultsArray);
         
         var table = d3.select("#resultsView")
         .append("p")
@@ -1280,7 +1197,7 @@ function estimate(btn) {
         .data(resultsArray)
         .enter().append("tr")
         .selectAll("td")
-        .data(function(d){console.log(d); return d;})
+        .data(function(d){return d;})
         .enter().append("td")
         .text(function(d){
               var myNum = Number(d);
@@ -1927,13 +1844,12 @@ function subsetSelect(btn) {
     
     //package the output as JSON
     var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset};
-    console.log(subsetstuff);
-  
+    
     var jsonout = JSON.stringify(subsetstuff);
     var base = "http://0.0.0.0:8000/custom/subsetapp?solaJSON="
     
     urlcall = base.concat(jsonout);
-    console.log(urlcall);
+    console.log("subset url: ",urlcall);
 
     function subsetSelectSuccess(btn,json) {
         
@@ -2056,7 +1972,7 @@ function toggleData(btnid) {
 
 
 function resultsTable() {
-    //  if(estimated==false) {console.log("not estimated yet"); return;}
+    if(estimated==false) {return;}
     if(resultsViewer==true) {
         resultsViewer=false;
         
@@ -2069,8 +1985,6 @@ function resultsTable() {
         return;
     }
     
-   // console.log($('#btnResultsTable').position().left);
-    
     resultsViewer=true;
     d3.select("#resultsView")
     .style("display", "inline");
@@ -2078,7 +1992,6 @@ function resultsTable() {
     d3.select("#rightpanel")
     .attr("class", "container expandpanel");
     
-    console.log("here");
     return;
 }
 
