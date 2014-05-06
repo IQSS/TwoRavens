@@ -451,6 +451,8 @@ function layout() {
                 return selVarColor;
                }
                else { // dropping a variable
+                if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
+               
                     nodes.splice(findNode(myText)["index"], 1);
                     spliceLinksForNode(findNode(myText));
                
@@ -859,7 +861,6 @@ function layout() {
             })
         .on('contextmenu', function(d) { // right click on node
             d3.event.preventDefault();
-            console.log("right click fire");
             d3.event.stopPropagation(); // stop right click from bubbling
             rightClickLast=true;
             
@@ -877,7 +878,6 @@ function layout() {
             restart();
             })
         .on('mouseup', function(d) {
-            console.log("mouseup onnode fire");
             d3.event.stopPropagation(); // stop mouseup from bubbling
             
             if(rightClickLast) {
@@ -989,7 +989,6 @@ function layout() {
     
     
     function mousedown() {
-        console.log("mousedown function fire");
         // prevent I-bar on drag
         d3.event.preventDefault();
         
@@ -1019,8 +1018,6 @@ function layout() {
     
     // why not move all the code from pebble.on(mouseup) here?  it seems like we are doing the same thing in two places...
     function mouseup() {
-        console.log("mouseup function fire");
-        
         if(mousedown_node) {
             // hide drag line
             drag_line
@@ -1963,7 +1960,7 @@ function subsetSelect(btn) {
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
-
+        
         subsetPreprocess=readPreprocess(json.url);
         preprocess=subsetPreprocess;
         
@@ -2118,5 +2115,6 @@ function resetPlots() {
     lefttab="tab1";
     tabLeft(lefttab);
 }
+
 
 
