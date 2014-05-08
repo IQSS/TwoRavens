@@ -177,7 +177,11 @@ var nodes = [];
 d3.xml("data/fearonLaitin.xml", "application/xml", function(xml) {              // This is Fearon Laitin
 //d3.xml("data/19.xml", "application/xml", function(xml) {              // Fearon from DVN Demo
 //d3.xml("data/76.xml", "application/xml", function(xml) {              // Collier from DVN Demo
-// pass the entire link bc the id might not be unique
+//d3.xml("data/79.xml", "application/xml", function(xml) {              // two vars from DVN Demo
+//d3.xml("data/000.xml", "application/xml", function(xml) {              // one var in metadata
+//d3.xml("data/0000.xml", "application/xml", function(xml) {              // zero vars in metadata
+
+       // pass the entire link bc the id might not be unique
 
 // temporary defaults for the fileid and hostname, pointing to 
 // the sample data set on dvn-build, until more "real" data become
@@ -330,17 +334,27 @@ function popoverContent(d) {
 function layout() {
     var myValues=[];
     
+    if(allNodes.length > 2) {
     nodes = [allNodes[0], allNodes[1], allNodes[2]];
     
-  //  var update = function () {
-  //      console.log(nodes);
-  //      if(nodes.length < 3) {return;}
-        
-        // these are the initial links (arrows drawn) among the nodes
+    // these are the initial links (arrows drawn) among the nodes
     links = [
                 {source: nodes[1], target: nodes[0], left: false, right: true },
                 {source: nodes[0], target: nodes[2], left: false, right: true }
                 ];
+    }
+    else if(allNodes.length === 2) {
+        nodes = [allNodes[0], allNodes[1]];
+        links = [{source: nodes[1], target: nodes[0], left: false, right: true }];
+    }
+    else if(allNodes.length === 1){
+        nodes = [allNodes[0]];
+    }
+    else {
+        alert("There are zero variables in the metadata.");
+        return;
+    }
+    
     
         // init D3 force layout
         var force = d3.layout.force()
