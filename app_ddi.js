@@ -1275,8 +1275,8 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
         callback(btn, json);
       }
     };
-     
     xhr.onerror = function() {
+        console.log(xhr);
       alert('Woops, there was an error making the request.');
     };
     
@@ -1817,7 +1817,6 @@ function nodeReset (n) {
 
 function subsetSelect(btn) {
     
-    selectLadda.start(); //start button motion
     
     if(document.getElementById('btnD1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
         originalNodes=JSON.parse(JSON.stringify(allNodes));
@@ -1892,6 +1891,7 @@ function subsetSelect(btn) {
         //document.getElementById(btn).style.background="#CC3333";
     }
     
+    selectLadda.start(); //start button motion
     makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
     
 }
