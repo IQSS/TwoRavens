@@ -1275,6 +1275,8 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
     };
     xhr.onerror = function() {
         console.log(xhr);
+        estimateLadda.stop();
+        selectLadda.stop();
       alert('Woops, there was an error making the request.');
     };
     
