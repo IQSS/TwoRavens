@@ -1088,8 +1088,6 @@ function estimate(btn) {
    // var property=document.getElementById(btn);
   //  property.style.backgroundColor="#66CCFF";
     
-    estimateLadda.start();  // start spinner
-    
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
     
@@ -1217,7 +1215,7 @@ function estimate(btn) {
       //property.style.backgroundColor="#CC3333";
     }
 
-
+    estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
 
     
