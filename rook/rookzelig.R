@@ -132,59 +132,69 @@ zelig.app <- function(env){
 		print(myformula)
         print(setxCall)
       
-        # Here is present dealing with missing data
-        # listwise deletion on variables in the formula
-        usevars<-all.vars(myformula)
-        missmap<-!is.na(usedata[,usevars])
-        isobserved<-apply(missmap,1,all)
-        usedata<-usedata[isobserved,]
-        print(dim(usedata))
+        tryCatch({
+          
+          # Here is present dealing with missing data
+          # listwise deletion on variables in the formula
+          usevars<-all.vars(myformula)
+          missmap<-!is.na(usedata[,usevars])
+          isobserved<-apply(missmap,1,all)
+          usedata<-usedata[isobserved,]
+          print(dim(usedata))
 
-#       assign("mydata", mydata, envir=globalenv())   # Zelig4 Error with Environments
-        assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
+    #       assign("mydata", mydata, envir=globalenv())   # Zelig4 Error with Environments
+            assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
         
-		z.out <- zelig(formula=myformula, model=mymodel, data=usedata)   # maybe just pass variables being used?
-		almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
+            z.out <- zelig(formula=myformula, model=mymodel, data=usedata)   # maybe just pass variables being used?
+            almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
 
-		print(summary(z.out))
-		assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
+            print(summary(z.out))
+            assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
         
-        eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
-        assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
+            eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
+            assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
         
-        if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
-            eval(parse(text=setxCall[2]))
-            assign("x.alt", x.alt, envir=globalenv())  # Zelig4 Error with Environments
-        }
+            if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
+                eval(parse(text=setxCall[2]))
+                assign("x.alt", x.alt, envir=globalenv())  # Zelig4 Error with Environments
+            }
         
-		if(length(setxCall)==1) { # there is no x.alt
-            s.out <- sim(z.out, x=x.out)
-        }
-        else {
-            s.out <- sim(z.out, x=x.out, x1=x.alt)
-        }
-		assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
+            if(length(setxCall)==1) { # there is no x.alt
+                s.out <- sim(z.out, x=x.out)
+            }
+            else {
+                s.out <- sim(z.out, x=x.out, x1=x.alt)
+            }
+            assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
 
-        qicount<-0
-    	imageVector<-list()
-    	for(i in 1:length(s.out$qi)){
-    	  	if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
-      			qicount<-qicount+1
-    			png(file.path(getwd(), paste("output",qicount,".png",sep="")))
-    			Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
-    			dev.off()
-    			imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
-    	  	}
-    	}
+            qicount<-0
+            imageVector<-list()
+            for(i in 1:length(s.out$qi)){
+                if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
+                    qicount<-qicount+1
+                    png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+                    Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
+                    dev.off()
+                    imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+                }
+            }
 
-    	if(qicount>0){
-    		names(imageVector)<-paste("output",1:length(imageVector),sep="")
-    		result<-list(images=imageVector, call=almostCall)
-    		#names(result)<-paste("output",1:length(result),sep="")
-    	}else{
-    		warning<-TRUE
-    		result<-list(warning="There are no Zelig output graphs to show.")
-	    }
+            if(qicount>0){
+                names(imageVector)<-paste("output",1:length(imageVector),sep="")
+                result<-list(images=imageVector, call=almostCall)
+                assign("result", result, envir=globalenv())
+                #names(result)<-paste("output",1:length(result),sep="")
+            }else{
+                warning<-TRUE
+                result<-list(warning="There are no Zelig output graphs to show.")
+                assign("result", result, envir=globalenv())
+            }
+        },
+        error=function(err){
+            warning <- TRUE
+            result <- list(warning=paste("Zelig error: ", err))
+            assign("result", result, envir=globalenv())
+        })
 	}
 
 
@@ -202,6 +212,7 @@ zelig.app <- function(env){
 
 
     ## NOTE: z.out not guaranteed to exist, if some warning is tripped above.
+    ## VJD: tryCatch() wraps Zelig code above.  If an error occurs, warning set to true and the error message is assigned to result.
     if(!warning){
         
         print(z.out$call$formula)
