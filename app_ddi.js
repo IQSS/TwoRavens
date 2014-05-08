@@ -175,7 +175,8 @@ var nodes = [];
 // load data from DDI with d3
 //d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {   // This is Strezhnev Voeten
 d3.xml("data/fearonLaitin.xml", "application/xml", function(xml) {              // This is Fearon Laitin
-
+//d3.xml("data/19.xml", "application/xml", function(xml) {              // Fearon from DVN Demo
+//d3.xml("data/76.xml", "application/xml", function(xml) {              // Collier from DVN Demo
 // pass the entire link bc the id might not be unique
 
 // temporary defaults for the fileid and hostname, pointing to 
@@ -216,8 +217,9 @@ console.log("metadata url: "+metadataurl);
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
-        lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
-
+       
+       if(vars[i].getElementsByTagName("labl").length === 0) {lablArray[i]="no label";}
+       else {lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;}
        
         var datasetcount = d3.layout.histogram()
         .bins(barnumber).frequency(false)
@@ -1511,7 +1513,12 @@ function varSummary(d) {
     }
     var i = nameList.indexOf(d.name);
 
-    if (dataArray[0].properties.type === "continuous") {
+     if(typeof dataArray[0].properties === "undefined") { // .properties is undefined for some vars
+        var plotsvg = d3.select("#tab3")
+        .selectAll("svg")
+        .remove();
+    }
+    else if (dataArray[0].properties.type === "continuous") {
       density(dataArray[0], allNodes[i]);
     }
     else if (dataArray[0].properties.type === "bar") {
