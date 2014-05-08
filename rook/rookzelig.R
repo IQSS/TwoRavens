@@ -463,21 +463,31 @@ subset.app <- function(env){
     
     if(!warning){
         mysubset <- everything$zsubset
-        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
         }
     }
     
-    print(dim(mydata))
-    print(dim(usedata))
-    sumstats <- calcSumStats(usedata)
+    #print(dim(mydata))
+    #print(dim(usedata))
     
-    # send preprocess new usedata and receive url with location
-    purl <- pCall(data=usedata)
-    #purl <- "test"
-    result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
+    # this tryCatch is not fully tested.
+    tryCatch(
+    {
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        sumstats <- calcSumStats(usedata)
+    
+        # send preprocess new usedata and receive url with location
+        purl <- pCall(data=usedata)
+        #purl <- "test"
+        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
+    },
+    error=function(err){
+        warning <- TRUE
+        result <- list(warning=paste("Subset error: ", err))
+        assign("result", result, envir=globalenv())
+    })
     
     #result <- toJSON(sumstats)
     print(result)
