@@ -204,12 +204,12 @@ if (fileid) {
     // no file id supplied; use one of the sample DDIs that come with 
     // the app, in the data directory: 
     metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
-    //metadataurl="data/strezhnev_voeten_2013.xml", "application/xml"   // This is Strezhnev Voeten
-    //metadataurl="data/19.xml", "application/xml"; // Fearon from DVN Demo
-    //metadataurl="data/76.xml", "application/xml"; // Collier from DVN Demo
-    //metadataurl="data/79.xml", "application/xml"; // two vars from DVN Demo
-    //metadataurl="data/000.xml", "application/xml"; // one var in metadata
-    //metadataurl="data/0000.xml", "application/xml"; // zero vars in metadata
+    //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
+    //metadataurl="data/19.xml"; // Fearon from DVN Demo
+    //metadataurl="data/76.xml"; // Collier from DVN Demo
+    //metadataurl="data/79.xml"; // two vars from DVN Demo
+    //metadataurl="data/000.xml"; // one var in metadata
+    //metadataurl="data/0000.xml"; // zero vars in metadata
 }
 
 d3.xml(metadataurl, "application/xml", function(xml) {
