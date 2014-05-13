@@ -6,6 +6,24 @@
 //var leftpanel = d3.select("body")
 //.append('svg');
 
+// hostname default - the app will use it to obtain the variable metadata
+// (ddi) and pre-processed data info if the file id is supplied as an 
+// argument (for ex., gui.html?dfId=17), but hostname isn't. 
+// Edit it to suit your installation. 
+// (NOTE that if the file id isn't supplied, the app will default to the 
+// local files specified below!)
+// Going forward, we probably shouldn't be relying on this default being
+// defined here; dataverse should always supply the hostname, when 
+// creating URLs for the app; like 
+// .../gui.html?dfId=17&hostname=dataverse-demo.hmdc.harvard.edu
+// -- L.A. 
+if (!hostname) {
+       hostname="localhost:8080";
+}
+
+// base URL for the R apps: 
+var rappURL = "http://0.0.0.0:8000/custom/";
+
 var svg = d3.select("#main.left")
 .append('svg');
 
@@ -105,12 +123,17 @@ var zmods = mods;
 
 var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[] };
 
-
-// read in pre-processed data from dvn
-//var pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
-var pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
-
-
+// Pre-processed data:
+var pURL = "";
+if (fileid) {
+    // file id supplied; read in pre-processed data from dvn
+    pURL = "http://"+hostname+"/api/access/datafile/"+fileid+"?format=prep";
+} else {
+    // no id supplied; use one of the sample data files distributed with the 
+    // app in the "data" directory:
+    //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
+    pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
+}
 
 var originalPreprocess = readPreprocess(pURL);
 var preprocess = originalPreprocess; // preprocess is always a reference to either original or subset
@@ -172,34 +195,24 @@ var nodes = [];
 //console.log(vars); // each variable in the data
 //console.log(vars.length); // 109 of them
 
-// load data from DDI with d3
-//d3.xml("data/strezhnev_voeten_2013.xml", "application/xml", function(xml) {   // This is Strezhnev Voeten
-d3.xml("data/fearonLaitin.xml", "application/xml", function(xml) {              // This is Fearon Laitin
-//d3.xml("data/19.xml", "application/xml", function(xml) {              // Fearon from DVN Demo
-//d3.xml("data/76.xml", "application/xml", function(xml) {              // Collier from DVN Demo
-//d3.xml("data/79.xml", "application/xml", function(xml) {              // two vars from DVN Demo
-//d3.xml("data/000.xml", "application/xml", function(xml) {              // one var in metadata
-//d3.xml("data/0000.xml", "application/xml", function(xml) {              // zero vars in metadata
-
-       // pass the entire link bc the id might not be unique
-
-// temporary defaults for the fileid and hostname, pointing to 
-// the sample data set on dvn-build, until more "real" data become
-// available:
-if (!hostname) {
-        hostname="dvn-build.hmdc.harvard.edu";
+// read DDI metadata with d3:
+var metadataurl = "";
+if (fileid) {
+    // file id supplied; read the DDI fragment from the DVN: 
+    metadataurl="http://"+hostname+"/api/meta/datafile/"+fileid;
+} else {
+    // no file id supplied; use one of the sample DDIs that come with 
+    // the app, in the data directory: 
+    metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+    //metadataurl="data/strezhnev_voeten_2013.xml", "application/xml"   // This is Strezhnev Voeten
+    //metadataurl="data/19.xml", "application/xml"; // Fearon from DVN Demo
+    //metadataurl="data/76.xml", "application/xml"; // Collier from DVN Demo
+    //metadataurl="data/79.xml", "application/xml"; // two vars from DVN Demo
+    //metadataurl="data/000.xml", "application/xml"; // one var in metadata
+    //metadataurl="data/0000.xml", "application/xml"; // zero vars in metadata
 }
-var metadataurl="http://"+hostname+"/api/meta/datafile/";
-if (!fileid) {
-        fileid=22;
-}
-metadataurl=metadataurl+fileid;
-console.log("metadata url: "+metadataurl);
-//d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/2429360", "application/xml", function(xml) {
-//d3.xml("http://dvn-build.hmdc.harvard.edu/api/meta/datafile/25", "application/xml", function(xml) {
-//d3.xml(metadataurl, "application/xml", function(xml) {
 
-
+d3.xml(metadataurl, "application/xml", function(xml) {
       var vars = xml.documentElement.getElementsByTagName("var");
       var temp = xml.documentElement.getElementsByTagName("fileName");
       zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -1131,7 +1144,7 @@ function estimate(btn) {
     
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
-    var base = "http://0.0.0.0:8000/custom/zeligapp?solaJSON="
+    var base = rappURL+"zeligapp?solaJSON="
 
     //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
     //urlcall = base.concat(test);
@@ -1866,7 +1879,7 @@ function subsetSelect(btn) {
     var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset};
     
     var jsonout = JSON.stringify(subsetstuff);
-    var base = "http://0.0.0.0:8000/custom/subsetapp?solaJSON="
+    var base = rappURL+"subsetapp?solaJSON="
     
     urlcall = base.concat(jsonout);
     console.log("subset url: ",urlcall);
