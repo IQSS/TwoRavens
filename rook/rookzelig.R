@@ -486,6 +486,61 @@ subset.app <- function(env){
     error=function(err){
         warning <- TRUE
         result <- list(warning=paste("Subset error: ", err))
+        result<-jsonlite:::toJSON(result)
+        assign("result", result, envir=globalenv())
+    })
+    
+    #result <- toJSON(sumstats)
+    print(result)
+    response$write(result)
+    response$finish()
+}
+
+transform.app <- function(env){
+    request <- Request$new(env)
+    response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
+    
+    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
+    print(everything)
+    
+    warning<-FALSE
+    
+    if(!warning){
+        #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+        mydata <- read.delim("../data/fearonLaitin.tsv")
+        # mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+		if(is.null(mydata)){
+			warning <- TRUE
+			result<-list(warning="Dataset not loadable from Dataverse")
+		}
+	}
+    
+    if(!warning){
+		myvars <- everything$zvars
+        if(is.null(myvars)){
+            warning<-TRUE
+            result<-list(warning="Problem with variables.")
+        }
+	}
+    
+    tryCatch(
+    {
+        print(myvars)
+        t <- which(colnames(mydata)==myvars)
+        tdata <- as.data.frame(mydata[,t])
+        colnames(tdata) <- myvars
+        sumstats <- calcSumStats(tdata)
+        
+        # how to preprocess just one variable...
+        # purl <- pCall(data=usedata)
+        #purl <- "test"
+        #        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
+        result<- jsonlite:::toJSON(c(sumstats))
+    },
+    error=function(err){
+        warning <- TRUE
+        result <- list(warning=paste("Transformation error: ", err))
+        result<-jsonlite:::toJSON(result)
         assign("result", result, envir=globalenv())
     })
     
@@ -497,6 +552,7 @@ subset.app <- function(env){
 
 R.server$add(app = zelig.app, name = "zeligapp")
 R.server$add(app = subset.app, name="subsetapp")
+R.server$add(app = transform.app, name="transformapp")
 print(R.server)
 
 #R.server$browse(zeligapp)

@@ -278,7 +278,6 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        function change() {
         var selectedIndex = select.property('selectedIndex');
        transformVar = valueKey[selectedIndex];
-       console.log(transformVar);
         //var data = options[selectedIndex].datum();
        }
        
@@ -1367,9 +1366,9 @@ function transform(n, t) {
     
     var btn = document.getElementById('btnEstimate');
     
-    var outArray = [n, t];
-    //package the zparams object as JSON
-    var jsonout = JSON.stringify(outArray);
+    //package the output as JSON
+    var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t};
+    var jsonout = JSON.stringify(transformstuff);
     var base = rappURL+"transformapp?solaJSON="
     
     //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
@@ -1406,7 +1405,7 @@ function transform(n, t) {
         var i = allNodes.length+1;
         allNodes.push({id:i, reflexive: false, "name": json.varnames[0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.min[0], "median":json.median[0], "standardDeviation":json.sd[0], "mode":json.mode[0], "valid":json.valid[0], "mean":json.mean[0], "maximum":json.max[0], "invalid":json.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
         
-        
+        console.log(allNodes);
     }
     
     function transformFail(btn) {
@@ -1414,8 +1413,8 @@ function transform(n, t) {
         estimateLadda.stop();
     }
     
-  //  estimateLadda.start();  // start spinner
- //   makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
+    estimateLadda.start();  // start spinner
+    makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
     
     
 }
@@ -1456,7 +1455,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
     // Response handlers for asynchronous load.  disabled for now
     xhr.onload = function() {
       var text = xhr.responseText;
-   //   console.log(text);
+      console.log(text);
    //   console.log(typeof text);
       var json = JSON.parse(text);   // should wrap in try / catch
       //var json = eval('(' + text + ')'); 
