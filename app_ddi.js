@@ -710,69 +710,134 @@ function layout() {
 // VJD: this is where the hardcoded images were initially piped into the rightpanel.  the mousedown portions have been commented out, but those blue arcs can probably be used for something so they have been left as is.
         g.append("path")
         .attr("d", arc1)
-        .style("fill", "steelblue")
+        .attr("id", function(d){
+              return "timeArc".concat(d.id);
+              })
+        .style("fill", timeColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            if(estimated){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()  .attr("fill-opacity", .9)
             .delay(0)
             .duration(100);   //.attr('transform', 'scale(2)');
-            }
-            }
+            d3.select("#timeText".concat(d.id)).transition()
+            .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
             })
         .on('mouseout', function(d){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()
             .attr("fill-opacity", 0)
             .delay(100)
-            .duration(500);   //.attr('transform', 'scale(2)');
-            }
+            .duration(500);
+            d3.select("#timeText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            })
+        .on('click', function(d){
+            setColors(d, timeColor);
+            restart();
             });
+        g.append("text")
+        .attr("id", function(d){
+              return "timeText".concat(d.id);
+              })
+        .attr("x", 6)
+        .attr("dy", 15)
+        .attr("fill-opacity", 0)
+        .append("textPath")
+        .attr("xlink:href", function(d){
+              return "#timeArc".concat(d.id);
+              })
+        .text("Time");
+        
+
         
         g.append("path")
+        .attr("id", function(d){
+              return "csArc".concat(d.id);
+              })
         .attr("d", arc2)
-        .style("fill", "steelblue")
+        .style("fill", csColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            if(estimated){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()
             .attr("fill-opacity", .9)
             .delay(0)
-            .duration(100);   //.attr('transform', 'scale(2)');
-            }
-            }
+            .duration(100);
+            d3.select("#csText".concat(d.id)).transition()
+            .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
             })
         .on('mouseout', function(d){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()
             .attr("fill-opacity", 0)
             .delay(100)
-            .duration(500);   //.attr('transform', 'scale(2)');
-            }
+            .duration(500);
+            d3.select("#csText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            })
+        .on('click', function(d){
+            setColors(d, csColor);
+            restart();
             });
+        g.append("text")
+        .attr("id", function(d){
+              return "csText".concat(d.id);
+              })
+        .attr("x", 6)
+        .attr("dy", 15)
+        .attr("fill-opacity", 0)
+        .append("textPath")
+        .attr("xlink:href", function(d){
+              return "#csArc".concat(d.id);
+              })
+        .text("Cross Sec");
+
         
         g.append("path")
+        .attr("id", function(d){
+              return "dvArc".concat(d.id);
+              })
         .attr("d", arc3)
-        .style("fill", "steelblue") //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+        .style("fill", dvColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            if(estimated){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()  .attr("fill-opacity", .9)
             .delay(0)
             .duration(100);
-            }
-            }
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
             })
         .on('mouseout', function(d){
-            if(nodes[d.index].reflexive){
             d3.select(this).transition()  .attr("fill-opacity", 0)
             .delay(100)
-            .duration(500);   //.attr('transform', 'scale(2)');
-            }
+            .duration(500);
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            })
+        .on('click', function(d){
+            setColors(d, dvColor);
+            restart();
             });
+        g.append("text")
+        .attr("id", function(d){
+              return "dvText".concat(d.id);
+              })
+        .attr("x", 6)
+        .attr("dy", 15)
+        .attr("fill-opacity", 0)
+        .append("textPath")
+        .attr("xlink:href", function(d){
+              return "#dvArc".concat(d.id);
+              })
+        .text("Dep Var");
+
         
         // allowing graphics to adjust for size
              d3.select("#rightpanel.left").selectAll("image")
@@ -933,6 +998,8 @@ function layout() {
         .on("mouseover", function(d) {
                 tabLeft("tab3");
                 varSummary(d);
+                // show blue arcs...
+            
                 })
             // popup(d, xPos, yPos);
             /*
@@ -1763,7 +1830,7 @@ function setx() {
 }
 
 
-// function takes a node name, and a color.  a little confusing but the logic is correct #ccc
+// function takes a node and a color.  sets zparams as well.  
 function setColors (n, c) {
     if(n.strokeWidth=='1') { // adding time, cs, dv to a node with no stroke
         n.strokeWidth = '4';
