@@ -1003,8 +1003,7 @@ function layout() {
         .on("mouseover", function(d) {
                 tabLeft("tab3");
                 varSummary(d);
-                // show blue arcs...
-            
+            document.getElementById('transformations').setAttribute("style", "display:block");
                 })
             // popup(d, xPos, yPos);
             /*
@@ -1019,6 +1018,7 @@ function layout() {
 */
         .on("mouseout", function() {
             tabLeft(lefttab);
+            document.getElementById('transformations').setAttribute("style", "display:none");
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");

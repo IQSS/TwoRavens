@@ -204,6 +204,17 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     margin-bottom:160px;
 }
 
+.transformTool {
+    height:40%; 
+    width:10%; 
+    left:20%; 
+    margin-left:10px; 
+    margin-top:10px; 
+    position:absolute; 
+    background:#F9F9F9;
+    border:1px solid #ADADAD;
+}
+
 #sandbox {
     width:500px;
     height:400px;
