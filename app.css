@@ -134,8 +134,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #leftpanel {
     /*float:left;*/
     border:1px solid #ADADAD;
-//    width: 300px;
-width: 20%;
+    width: 20%;
 }
 #leftpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
 #leftpanel #Left_Content_Area div {display:none;}
@@ -161,8 +160,7 @@ width: 20%;
   /*  right:0;
     position:absolute; */
     border:1px solid #ADADAD;
-  //  width: 300px;
-  width:20%
+    width:20%
 }
 /*
 #rightpanel:hover {
