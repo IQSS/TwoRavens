@@ -186,6 +186,11 @@ var originalNodes = []; // this will be used when toggling between subset and or
 var subsetNodes = [];
 var links = [];
 var nodes = [];
+var transformVar = "";
+
+// transformation toolbar options
+var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)"];
+
 
 // load data from DDI just javascript
 //var xmlDoc=loadXMLDoc("data/strezhnev_voeten_2013.xml"); // Path to the XML file;
@@ -260,6 +265,42 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
        };
  
+       
+       // drop down menu for tranformation toolbar
+       var select  = d3.select("#transformations").append("select").on("change", change);
+       var options = select.selectAll('option').data(valueKey); // Data join
+       
+       // Enter selection
+       options.enter()
+       .append("option")
+       .text(function(d) {return d; });
+    
+       function change() {
+        var selectedIndex = select.property('selectedIndex');
+       transformVar = valueKey[selectedIndex];
+       console.log(transformVar);
+        //var data = options[selectedIndex].datum();
+       }
+       
+       d3.select("#transformations").selectAll("p")
+       .data(transformList)
+       .enter()
+       .append("p")
+       .attr("id",function(d){return d;})
+       .text(function(d){return d;})
+       .style('background-color',varColor)
+       .on("click", function(){
+           d3.select(this)
+           .style('background-color',function() {
+                  var myText = d3.select(this).text();
+                  transform(transformVar, myText); // the function that calls R to transform
+                  var myColor = d3.select(this).style('background-color');
+                  if(d3.rgb(myColor).toString() === varColor.toString()) {return selVarColor;}
+                  else {return varColor;}
+                  })
+           });
+
+
        
        d3.select("#tab1").selectAll("p")
        .data(valueKey)
@@ -1319,6 +1360,63 @@ function estimate(btn) {
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
 
+    
+}
+
+function transform(n, t) {
+    
+    var btn = document.getElementById('btnEstimate');
+    
+    var outArray = [n, t];
+    //package the zparams object as JSON
+    var jsonout = JSON.stringify(outArray);
+    var base = rappURL+"transformapp?solaJSON="
+    
+    //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
+    //urlcall = base.concat(test);
+    urlcall = base.concat(jsonout);
+    console.log("urlcall out: ", urlcall);
+    
+    
+    function transformSuccess(btn, json) {
+        estimateLadda.stop();
+        console.log("json in: ", json);
+        
+        // pipe in figures to right panel
+        var filelist = new Array;
+        for(var i in json.images) {
+            var zfig = document.createElement("img");
+            zfig.setAttribute("src", json.images[i]);
+            zfig.setAttribute('width', 200);
+            zfig.setAttribute('height', 200);
+            myparent.appendChild(zfig);
+            //            filelist.push(json[i]);
+        }
+        
+        var rCall = [];
+        rCall[0] = json.call;
+        
+        
+        d3.select("#ticker").selectAll("p")
+        .data(rCall)
+        .enter()
+        .append("p")
+        .text(function(d){ console.log(d); return d; });
+        
+        var i = allNodes.length+1;
+        allNodes.push({id:i, reflexive: false, "name": json.varnames[0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.min[0], "median":json.median[0], "standardDeviation":json.sd[0], "mode":json.mode[0], "valid":json.valid[0], "mean":json.mean[0], "maximum":json.max[0], "invalid":json.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
+        
+        
+    }
+    
+    function transformFail(btn) {
+        console.log("transform fail");
+        estimateLadda.stop();
+    }
+    
+  //  estimateLadda.start();  // start spinner
+ //   makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
+    
     
 }
 
