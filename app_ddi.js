@@ -221,9 +221,14 @@ d3.xml(metadataurl, "application/xml", function(xml) {
   //    console.log(zparams.zdata);
 
 
+    // dataset name trimmed to 12 chars
+       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
+       if(dataname.length > 12) {
+        dataname = dataname.substring(0,12);
+       }
       // Put dataset name, from meta-data, into left panel
       d3.select("#datasetName").selectAll("p")
-      .html( zparams.zdata.replace( /\.(.*)/, "") );  // regular expression to drop any file extension
+      .html(dataname);
 
 
       // temporary values for hold that correspond to histogram bins
