@@ -523,26 +523,53 @@ transform.app <- function(env){
         }
 	}
     
-    tryCatch(
-    {
-        print(myvars)
-        t <- which(colnames(mydata)==myvars)
-        tdata <- as.data.frame(mydata[,t])
-        colnames(tdata) <- myvars
-        sumstats <- calcSumStats(tdata)
+    if(!warning){
+		myT <- everything$transform
+        if(is.null(myT)){
+            warning<-TRUE
+            result<-list(warning="Invalid transformation.")
+        }
+	}
+    
+    if(!warning) {
+        tryCatch(
+        {
+            print(myvars)
+            t <- which(colnames(mydata)==myvars)
+            tdata <- as.data.frame(mydata[,t])
+            colnames(tdata) <- myvars
+            
+            if(myT=="log(d)") {
+                tdata[,1] <- log(tdata[,1])
+            } else if(myT=="exp(d)") {
+                tdata[,1] <- exp(tdata[,1])
+            } else if(myT=="d^2") {
+                tdata[,1] <- tdata[,1]^2
+            } else if(myT=="sqrt(d)") {
+                tdata[,1] <- sqrt(tdata[,1])
+            }
+            
+            sumstats <- calcSumStats(tdata)
         
         # how to preprocess just one variable...
         # purl <- pCall(data=usedata)
         #purl <- "test"
         #        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
-        result<- jsonlite:::toJSON(c(sumstats))
-    },
-    error=function(err){
-        warning <- TRUE
-        result <- list(warning=paste("Transformation error: ", err))
-        result<-jsonlite:::toJSON(result)
-        assign("result", result, envir=globalenv())
-    })
+            result<- jsonlite:::toJSON(c(sumstats))
+        },
+        error=function(err){
+            warning <- TRUE
+            result <- list(warning=paste("Transformation error: ", err))
+            result<-jsonlite:::toJSON(result)
+            assign("result", result, envir=globalenv())
+        },
+        warning=function(err){ # for zelig.app, warnings are ignored.  here, factor^2 produces a warning, and we don't want to ignore that...
+            warning <- TRUE
+            result <- list(warning=paste("Transformation warning: ", err))
+            result<-jsonlite:::toJSON(result)
+            assign("result", result, envir=globalenv())
+        })
+    }
     
     #result <- toJSON(sumstats)
     print(result)
