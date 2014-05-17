@@ -296,7 +296,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
                   var myColor = d3.select(this).style('background-color');
                   if(d3.rgb(myColor).toString() === varColor.toString()) {return selVarColor;}
                   else {return varColor;}
-                  })
+                  });
            });
 
 
@@ -357,7 +357,9 @@ function populatePopover () {
     
     d3.select("#tab1").selectAll("p")
     .attr("data-content", function(d) {
+          console.log(d);
           var onNode = findNodeIndex(d);
+          console.log(onNode);
           return popoverContent(allNodes[onNode]);
           });
 }
@@ -1115,15 +1117,6 @@ function layout() {
         resetMouseVars();
     }
     
-    function spliceLinksForNode(node) {
-        var toSplice = links.filter(function(l) {
-                                    return (l.source === node || l.target === node);
-                                    });
-        toSplice.map(function(l) {
-                     links.splice(links.indexOf(l), 1);
-                     });
-    }
-        
     
     
     // only respond once per keydown
@@ -1222,6 +1215,16 @@ function forceSwitch() {
         document.getElementById('btnForce').setAttribute("class", "btn btn-default");
     }
 }
+
+function spliceLinksForNode(node) {
+    var toSplice = links.filter(function(l) {
+                                return (l.source === node || l.target === node);
+                                });
+    toSplice.map(function(l) {
+                 links.splice(links.indexOf(l), 1);
+                 });
+}
+
 
 function estimate(btn) {
     // write links to file & run R CMD
@@ -1400,12 +1403,76 @@ function transform(n, t) {
         .data(rCall)
         .enter()
         .append("p")
-        .text(function(d){ console.log(d); return d; });
+        .text(function(d){ return d; });
         
-        var i = allNodes.length+1;
-        allNodes.push({id:i, reflexive: false, "name": json.varnames[0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.min[0], "median":json.median[0], "standardDeviation":json.sd[0], "mode":json.mode[0], "valid":json.valid[0], "mean":json.mean[0], "maximum":json.max[0], "invalid":json.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
+        var i = allNodes.length;
+        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
         
-        console.log(allNodes);
+        valueKey.push(rCall[0][0]);
+        nodes.push(findNode(rCall[0][0]));
+        
+        
+        // this is mostly just replicated code, essentially we want to append a "p" to the leftpanel variable list with all the same stuff as the existing "p"s.  probably a cleaner way to do it...
+        d3.select("#tab1")
+        .data(rCall[0])
+        .append("p")
+        .attr("id",rCall[0][0])
+        .text(rCall[0][0])
+        .style('background-color',selVarColor)
+        .attr("data-container", "body")
+        .attr("data-toggle", "popover")
+        .attr("data-trigger", "hover")
+        .attr("data-placement", "right")
+        .attr("data-html", "true")
+        .attr("onmouseover", "$(this).popover('toggle');")
+        .attr("onmouseout", "$(this).popover('toggle');")
+        .attr("data-original-title", "Summary Statistics")
+        .on("click", function(){
+            d3.select(this)
+            .style('background-color',function(d) {
+                   var myText = d3.select(this).text();
+                   var myColor = d3.select(this).style('background-color');
+                   var mySC = allNodes[findNodeIndex(myText)].strokeColor;
+                   
+                   zparams.zvars = []; //empty the zvars array
+                   if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
+                   if(nodes.length==0) {
+                   nodes.push(findNode(myText));
+                   nodes[0].reflexive=true;
+                   }
+                   else {nodes.push(findNode(myText));}
+                   return selVarColor;
+                   }
+                   else { // dropping a variable
+                   if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
+                   
+                   nodes.splice(findNode(myText)["index"], 1);
+                   spliceLinksForNode(findNode(myText));
+                   
+                   if(mySC==dvColor) {
+                   var dvIndex = zparams.zdv.indexOf(myText);
+                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                   //zparams.zdv="";
+                   }
+                   else if(mySC==csColor) {
+                   var dvIndex = zparams.zcross.indexOf(myText);
+                   if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
+                   }
+                   else if(mySC==timeColor) {
+                   var dvIndex = zparams.ztime.indexOf(myText);
+                   if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                   }
+                   
+                   nodeReset(allNodes[findNodeIndex(myText)]);
+                   borderState();
+                   return varColor;
+                   }
+                   });
+            });
+            
+            populatePopover(); // pipes in the summary stats
+            
+        
     }
     
     function transformFail(btn) {
