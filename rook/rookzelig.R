@@ -534,6 +534,7 @@ transform.app <- function(env){
     if(!warning) {
         tryCatch(
         {
+            call <- "no transformation"
             print(myvars)
             t <- which(colnames(mydata)==myvars)
             tdata <- as.data.frame(mydata[,t])
@@ -541,12 +542,16 @@ transform.app <- function(env){
             
             if(myT=="log(d)") {
                 tdata[,1] <- log(tdata[,1])
+                call <- paste("log(", myvars,")", sep="")
             } else if(myT=="exp(d)") {
                 tdata[,1] <- exp(tdata[,1])
+                call <- paste("exp(", myvars,")", sep="")
             } else if(myT=="d^2") {
                 tdata[,1] <- tdata[,1]^2
+                call <- paste(myvars,"^2", sep="")
             } else if(myT=="sqrt(d)") {
                 tdata[,1] <- sqrt(tdata[,1])
+                call <- paste("sqrt(", myvars,")", sep="")
             }
             
             sumstats <- calcSumStats(tdata)
@@ -555,7 +560,7 @@ transform.app <- function(env){
         # purl <- pCall(data=usedata)
         #purl <- "test"
         #        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
-            result<- jsonlite:::toJSON(c(sumstats))
+            result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call))
         },
         error=function(err){
             warning <- TRUE
