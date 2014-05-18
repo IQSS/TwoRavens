@@ -67,6 +67,7 @@ var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
+var transformHold = false;
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
@@ -938,7 +939,11 @@ function layout() {
             //tooltip.style("visibility", "hidden");
             d3.select(this).attr('transform', '');
             })
-        //.on('mousedown', function(d) {
+        .on('mousedown', function(d) {
+            d3.event.stopPropagation();
+            transformHold=true;
+            document.getElementById('transformations').setAttribute("style", "display:block");
+            })
         .on('dblclick', function(d){
             d3.event.stopPropagation(); // stop click from bubbling
             if(d3.event.ctrlKey) return;
@@ -1058,12 +1063,14 @@ function layout() {
 */
         .on("mouseout", function() {
             tabLeft(lefttab);
+            if(transformHold===false) {
             document.getElementById('transformations').setAttribute("style", "display:none");
+            }
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");
             
-            })
+            });
         
         // remove old nodes
         circle.exit().remove();
@@ -1178,7 +1185,11 @@ function layout() {
     
     // app starts here
     
-    svg.on('mousedown', mousedown)
+    svg.on('mousedown', function() {
+           transformHold=false;
+           document.getElementById('transformations').setAttribute("style", "display:none");
+           mousedown();
+           })
     .attr("id", "whitespace")
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
