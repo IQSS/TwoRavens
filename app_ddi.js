@@ -939,13 +939,14 @@ function layout() {
             //tooltip.style("visibility", "hidden");
             d3.select(this).attr('transform', '');
             })
-        .on('mousedown', function(d) {
-            d3.event.stopPropagation();
-            transformHold=true;
-            document.getElementById('transformations').setAttribute("style", "display:block");
-            })
+ //       .on('mousedown', function(d) {
+  //          d3.event.stopPropagation();
+  //          })
         .on('dblclick', function(d){
             d3.event.stopPropagation(); // stop click from bubbling
+            transformHold=true;
+            document.getElementById('transformations').setAttribute("style", "display:block");
+/*
             if(d3.event.ctrlKey) return;
             
             // select node
@@ -961,6 +962,7 @@ function layout() {
             .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
             
             restart();
+ */
             })
         .on('contextmenu', function(d) { // right click on node
             d3.event.preventDefault();
