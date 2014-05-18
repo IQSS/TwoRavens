@@ -1199,6 +1199,7 @@ function layout() {
     .on('keydown', keydown)
     .on('keyup', keyup);
     restart(); // this is the call the restart that initializes the force.layout()
+    fakeClick();
     
    // } // end update
 
