@@ -357,9 +357,7 @@ function populatePopover () {
     
     d3.select("#tab1").selectAll("p")
     .attr("data-content", function(d) {
-          console.log(d);
           var onNode = findNodeIndex(d);
-          console.log(onNode);
           return popoverContent(allNodes[onNode]);
           });
 }
@@ -1181,6 +1179,7 @@ function layout() {
     // app starts here
     
     svg.on('mousedown', mousedown)
+    .attr("id", "whitespace")
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
     d3.select(window)
@@ -1468,11 +1467,11 @@ function transform(n, t) {
                    return varColor;
                    }
                    });
+            fakeClick();
             });
             
             populatePopover(); // pipes in the summary stats
-            
-        
+            fakeClick();
     }
     
     function transformFail(btn) {
@@ -1482,7 +1481,6 @@ function transform(n, t) {
     
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
-    
     
 }
 
@@ -2297,6 +2295,24 @@ function resetPlots() {
     
     lefttab="tab1";
     tabLeft(lefttab);
+}
+
+// acts as if the user clicked in whitespace. useful when restart() is outside of scope
+function fakeClick() {
+ 
+    // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
+    jQuery.fn.d3Click = function () {
+        this.each(function (i, e) {
+                  var evt = document.createEvent("MouseEvents");
+                  evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                  
+                  e.dispatchEvent(evt);
+                  });
+    };
+    $("#whitespace").d3Click();
+    
+    d3.select("#whitespace")
+    .classed('active', false); // remove active class
 }
 
 
