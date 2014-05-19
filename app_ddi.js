@@ -268,7 +268,10 @@ d3.xml(metadataurl, "application/xml", function(xml) {
  
        
        // drop down menu for tranformation toolbar
-       var select  = d3.select("#transformations").append("select").on("change", change);
+       var select  = d3.select("#transformations")
+       .append("select")
+       .on("change", change)
+       .attr("id", "transSel");
        var options = select.selectAll('option').data(valueKey); // Data join
        
        // Enter selection
@@ -278,8 +281,8 @@ d3.xml(metadataurl, "application/xml", function(xml) {
     
        function change() {
         var selectedIndex = select.property('selectedIndex');
-       transformVar = valueKey[selectedIndex];
-        //var data = options[selectedIndex].datum();
+        transformVar = valueKey[selectedIndex];
+       //var data = options[selectedIndex].datum();
        }
        
        d3.select("#transformations").selectAll("p")
@@ -1054,6 +1057,10 @@ function layout() {
                 tabLeft("tab3");
                 varSummary(d);
             document.getElementById('transformations').setAttribute("style", "display:block");
+            var select = document.getElementById("transSel");
+            select.selectedIndex = d.id;
+            transformVar = valueKey[d.id];
+          
             d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
             .delay(0)
             .duration(100);
