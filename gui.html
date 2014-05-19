@@ -45,18 +45,6 @@
                       <!--<div class="form-group">
                           <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 1</p>
                       </div>-->
-                      <input name="timeButton" id="timeButton"
-                      type="button" class="btn btn-default"
-                      value="Time"
-                      onclick="time();" />
-                      <input name="csButton" id="csButton"
-                      type="button" class="btn btn-default"
-                      value="Cross Section"
-                      onclick="cs()"/>
-                      <input name="dvButton" id="dvButton"
-                      type="button" class="btn btn-default"
-                      value="Dep Var"
-                      onclick="dv(); "/>
                       <button class="btn btn-default ladda-button" style="margin-left:2em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                       <!--
                       <input name="estimateButton"
@@ -142,6 +130,20 @@
         </div>
         
         <div id="transformations" class="transformTool" style="display:none;">
+        </div>
+        
+        <div id="legend" class="legendary">
+            <div class="btn-group btn-group-vertical">
+                <div class="btn-group">
+                    <button type="button" id="timeButton" style="display:none;" class="btn btn-default">Time</button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" id="csButton" style="display:none;" class="btn btn-default">Cross Sec</button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" id="dvButton" style="display:none;" class="btn btn-default">Dep Var</button>
+                </div>
+            </div>
         </div>
 
 

@@ -782,6 +782,7 @@ function layout() {
             })
         .on('click', function(d){
             setColors(d, timeColor);
+            legend(timeColor);
             restart();
             });
         g.append("text")
@@ -828,6 +829,7 @@ function layout() {
             })
         .on('click', function(d){
             setColors(d, csColor);
+            legend(csColor);
             restart();
             });
         g.append("text")
@@ -869,6 +871,7 @@ function layout() {
             })
         .on('click', function(d){
             setColors(d, dvColor);
+            legend(dvColor);
             restart();
             });
         g.append("text")
@@ -1561,8 +1564,30 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 }
 
 
+function legend(c) {
+    if(zparams.ztime.length==0) {
+        document.getElementById("timeButton").setAttribute("style", "display:none");
+    }
+    if(zparams.zcross.length==0) {
+        document.getElementById("csButton").setAttribute("style", "display:none");
+    }
+    if(zparams.zdv.length==0) {
+        document.getElementById("dvButton").setAttribute("style", "display:none");
+    }
 
+    if(c==timeColor & zparams.ztime.length!=0) {
+        document.getElementById("timeButton").setAttribute("style", "display:block");
+    }
+    else if(c==csColor & zparams.zcross.length!=0) {
+            document.getElementById("csButton").setAttribute("style", "display:block");
+    }
+    else if(c==dvColor & zparams.zdv.length!=0) {
+        document.getElementById("dvButton").setAttribute("style", "display:block");
+    }
+}
 
+// The three below functions are no longer used because the variable properties are not tagged with buttons, but with the arc around the variables. Eventually, this could just be removed from the code...
+/*
 function time() {
     if(colorTime==true) {
         colorTime=false;
@@ -1607,6 +1632,8 @@ function dv() {
     $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
     $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
 }
+ 
+ */
 
 function reset() {
     location.reload();

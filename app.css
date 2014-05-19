@@ -215,6 +215,16 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     border:1px solid #ADADAD;
 }
 
+.legendary {
+    height:40%; 
+    width:10%; 
+    right:20%;
+    margin-right:10px;
+    margin-top:10px; 
+    position:absolute; 
+}
+
+
 #sandbox {
     width:500px;
     height:400px;
