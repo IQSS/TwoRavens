@@ -665,7 +665,7 @@ function layout() {
                var myIndex = findNodeIndex(d.name);
                return (d.strokeWidth)
                })
-        .on('click',function() {
+        .on('click',function() { // VJD: is this necessary anymore?
             d3.select(this)
             .style('stroke-width', function(d) {
                    if(!depVar & !colorTime & !colorCS) {
@@ -1054,6 +1054,24 @@ function layout() {
                 tabLeft("tab3");
                 varSummary(d);
             document.getElementById('transformations').setAttribute("style", "display:block");
+            d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
                 })
             // popup(d, xPos, yPos);
             /*
@@ -1066,11 +1084,37 @@ function layout() {
             
             d3.select("#tooltip").style("display", "inline");
 */
-        .on("mouseout", function() {
+        .on("mouseout", function(d) {
             tabLeft(lefttab);
             if(transformHold===false) {
             document.getElementById('transformations').setAttribute("style", "display:none");
             }
+            d3.select("#csArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#csText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#timeArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#timeText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#dvArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#dvText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+
+
             //Remove the tooltip
           //  d3.select("#tooltip").remove();
           //  d3.select("#tooltip").style("display", "none");
