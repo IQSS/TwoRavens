@@ -138,7 +138,7 @@ if (fileid) {
 
 var originalPreprocess = readPreprocess(pURL);
 var preprocess = originalPreprocess; // preprocess is always a reference to either original or subset
-var subsetPreprocess = new Object;
+var subsetPreprocess = {};
 
 // Radius of circle
 var allR = 40;
@@ -267,66 +267,6 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        };
  
        
-       // drop down menu for tranformation toolbar
-       var select  = d3.select("#transformations")
-       .append("select")
-       .on("change", change)
-       .attr("id", "transSel");
-       var options = select.selectAll('option').data(valueKey); // Data join
-       
-       // Enter selection
-       options.enter()
-       .append("option")
-       .text(function(d) {return d; });
-    
-       function change() {
-        var selectedIndex = select.property('selectedIndex');
-        transformVar = valueKey[selectedIndex];
-       //var data = options[selectedIndex].datum();
-       }
-       
-       d3.select("#transformations").selectAll("p")
-       .data(transformList)
-       .enter()
-       .append("p")
-       .attr("id",function(d){return d;})
-       .text(function(d){return d;})
-       .style('background-color',varColor)
-       .on("click", function(){
-           d3.select(this)
-           .style('background-color',function() {
-                  var myText = d3.select(this).text();
-                  transform(transformVar, myText); // the function that calls R to transform
-                  var myColor = d3.select(this).style('background-color');
-                  if(d3.rgb(myColor).toString() === varColor.toString()) {return selVarColor;}
-                  else {return varColor;}
-                  });
-           });
-
-
-       
-       d3.select("#tab1").selectAll("p")
-       .data(valueKey)
-       .enter()
-       .append("p")
-       .attr("id",function(d){return d;})
-       .text(function(d){return d;})
-       .style('background-color',function(d) {
-              if(findNodeIndex(d) > 2) {return varColor;}
-              else {return selVarColor;}
-              })
-       .attr("data-container", "body")
-       .attr("data-toggle", "popover")
-       .attr("data-trigger", "hover")
-       .attr("data-placement", "right")
-       .attr("data-html", "true")
-       .attr("onmouseover", "$(this).popover('toggle');")
-       .attr("onmouseout", "$(this).popover('toggle');")
-       .attr("data-original-title", "Summary Statistics");
-       
-       populatePopover(); // pipes in the summary stats
-       
-       
        d3.select("#models")
        .style('height', 2000)
        .style('overfill', 'scroll');
@@ -353,43 +293,142 @@ d3.xml(metadataurl, "application/xml", function(xml) {
               return zmods[d];
              });
      
+       scaffolding();
        layout();
        
        });
 
-function populatePopover () {
+// to be called after valueKey (array of variable names) is updated or initialized
+function scaffolding(v) {
+
+    if(typeof v !== "undefined") {
+        d3.select("#tab1")
+        .data(v)
+        .append("p")
+        .attr("id",v[0])
+        .text(v[0])
+        .style('background-color',selVarColor)
+        .attr("data-container", "body")
+        .attr("data-toggle", "popover")
+        .attr("data-trigger", "hover")
+        .attr("data-placement", "right")
+        .attr("data-html", "true")
+        .attr("onmouseover", "$(this).popover('toggle');")
+        .attr("onmouseout", "$(this).popover('toggle');")
+        .attr("data-original-title", "Summary Statistics")
+        .on("click", function(){
+            d3.select(this)
+            .style('background-color',function(d) {
+                   var myText = d3.select(this).text();
+                   var myColor = d3.select(this).style('background-color');
+                   var mySC = allNodes[findNodeIndex(myText)].strokeColor;
+                   
+                   zparams.zvars = []; //empty the zvars array
+                   if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
+                   if(nodes.length==0) {
+                   nodes.push(findNode(myText));
+                   nodes[0].reflexive=true;
+                   }
+                   else {nodes.push(findNode(myText));}
+                   return selVarColor;
+                   }
+                   else { // dropping a variable
+                   if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
+                   
+                   nodes.splice(findNode(myText)["index"], 1);
+                   spliceLinksForNode(findNode(myText));
+                   
+                   if(mySC==dvColor) {
+                   var dvIndex = zparams.zdv.indexOf(myText);
+                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                   //zparams.zdv="";
+                   }
+                   else if(mySC==csColor) {
+                   var dvIndex = zparams.zcross.indexOf(myText);
+                   if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
+                   }
+                   else if(mySC==timeColor) {
+                   var dvIndex = zparams.ztime.indexOf(myText);
+                   if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                   }
+                   
+                   nodeReset(allNodes[findNodeIndex(myText)]);
+                   borderState();
+                   return varColor;
+                   }
+                   });
+            fakeClick();
+            });
+        populatePopover(); // pipes in the summary stats
+        
+        // drop down menu for tranformation toolbar
+        d3.select("#transSel")
+        .data(v)
+        .append("option")
+        .text(function(d) {return d; });
+        
+        return;
+    }
+ 
+    // drop down menu for tranformation toolbar
+    var select  = d3.select("#transformations")
+    .append("select")
+    .on("change", change)
+    .attr("id", "transSel");
+    var options = select.selectAll('option').data(valueKey); // Data join
+    
+    // Enter selection
+    options.enter()
+    .append("option")
+    .text(function(d) {return d; });
+    
+    function change() {
+        var selectedIndex = select.property('selectedIndex');
+        transformVar = valueKey[selectedIndex];
+        //var data = options[selectedIndex].datum();
+    }
+    
+    d3.select("#transformations").selectAll("p")
+    .data(transformList)
+    .enter()
+    .append("p")
+    .attr("id",function(d){return d;})
+    .text(function(d){return d;})
+    .style('background-color',varColor)
+    .on("click", function(){
+        d3.select(this)
+        .style('background-color',function() {
+               var myText = d3.select(this).text();
+               transform(transformVar, myText); // the function that calls R to transform
+               var myColor = d3.select(this).style('background-color');
+               if(d3.rgb(myColor).toString() === varColor.toString()) {return selVarColor;}
+               else {return varColor;}
+               });
+        });
+    
+    
     
     d3.select("#tab1").selectAll("p")
-    .attr("data-content", function(d) {
-          var onNode = findNodeIndex(d);
-          return popoverContent(allNodes[onNode]);
-          });
-}
-
-function popoverContent(d) {
-
-    function threeSF(x){
-      var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
-      return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
-    }
-    var rint = d3.format("r");
-    return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
-
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mean) + "</p></div></div>" +
- 
-    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.median) + "</p></div></div>" +
- 
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mode) + "</p></div></div>" +
+    .data(valueKey)
+    .enter()
+    .append("p")
+    .attr("id",function(d){return d;})
+    .text(function(d){return d;})
+    .style('background-color',function(d) {
+           if(findNodeIndex(d) > 2) {return varColor;}
+           else {return selVarColor;}
+           })
+    .attr("data-container", "body")
+    .attr("data-toggle", "popover")
+    .attr("data-trigger", "hover")
+    .attr("data-placement", "right")
+    .attr("data-html", "true")
+    .attr("onmouseover", "$(this).popover('toggle');")
+    .attr("onmouseout", "$(this).popover('toggle');")
+    .attr("data-original-title", "Summary Statistics");
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.standardDeviation) + "</p></div></div>" +
-
-    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.maximum) + "</p></div></div>" +
+    populatePopover(); // pipes in the summary stats
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.minimum) + "</p></div></div>" +
-        
-    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
-    
-    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" ;
 }
 
 
@@ -1464,7 +1503,7 @@ function transform(n, t) {
         
         var rCall = [];
         rCall[0] = json.call;
-        
+        var newVar = rCall[0][0];
         
         d3.select("#ticker").selectAll("p")
         .data(rCall)
@@ -1475,71 +1514,13 @@ function transform(n, t) {
         var i = allNodes.length;
         allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
         
-        valueKey.push(rCall[0][0]);
-        nodes.push(findNode(rCall[0][0]));
+        valueKey.push(newVar);
+        nodes.push(findNode(newVar));
         
+        scaffolding(rCall[0]);
+        readPreprocess(json.url, from="transform", v=newVar);
         
-        // this is mostly just replicated code, essentially we want to append a "p" to the leftpanel variable list with all the same stuff as the existing "p"s.  probably a cleaner way to do it...
-        d3.select("#tab1")
-        .data(rCall[0])
-        .append("p")
-        .attr("id",rCall[0][0])
-        .text(rCall[0][0])
-        .style('background-color',selVarColor)
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-placement", "right")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics")
-        .on("click", function(){
-            d3.select(this)
-            .style('background-color',function(d) {
-                   var myText = d3.select(this).text();
-                   var myColor = d3.select(this).style('background-color');
-                   var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-                   
-                   zparams.zvars = []; //empty the zvars array
-                   if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
-                   if(nodes.length==0) {
-                   nodes.push(findNode(myText));
-                   nodes[0].reflexive=true;
-                   }
-                   else {nodes.push(findNode(myText));}
-                   return selVarColor;
-                   }
-                   else { // dropping a variable
-                   if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
-                   
-                   nodes.splice(findNode(myText)["index"], 1);
-                   spliceLinksForNode(findNode(myText));
-                   
-                   if(mySC==dvColor) {
-                   var dvIndex = zparams.zdv.indexOf(myText);
-                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                   //zparams.zdv="";
-                   }
-                   else if(mySC==csColor) {
-                   var dvIndex = zparams.zcross.indexOf(myText);
-                   if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
-                   }
-                   else if(mySC==timeColor) {
-                   var dvIndex = zparams.ztime.indexOf(myText);
-                   if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
-                   }
-                   
-                   nodeReset(allNodes[findNodeIndex(myText)]);
-                   borderState();
-                   return varColor;
-                   }
-                   });
-            fakeClick();
-            });
-            
-            populatePopover(); // pipes in the summary stats
-            fakeClick();
+        fakeClick();
     }
     
     function transformFail(btn) {
@@ -1904,6 +1885,41 @@ function varSummary(d) {
     */
 }
 
+function populatePopover () {
+    
+    d3.select("#tab1").selectAll("p")
+    .attr("data-content", function(d) {
+          var onNode = findNodeIndex(d);
+          return popoverContent(allNodes[onNode]);
+          });
+}
+
+function popoverContent(d) {
+    
+    function threeSF(x){
+        var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
+        return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
+    }
+    var rint = d3.format("r");
+    return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mean) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.median) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mode) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.standardDeviation) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.maximum) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.minimum) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
+    
+    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" ;
+}
+
 function popupX(d) {
 
     var tsf = d3.format(".4r");
@@ -2256,22 +2272,21 @@ function subsetSelect(btn) {
     
 }
 
-function makeTable(){
-
-}
-
-
-function readPreprocess(url) {
-
-    var p = new Object;
+function readPreprocess(url, from, v) {
+    var p = {};
     d3.json(url, function(error, json) {
             if (error) return console.warn(error);
             var jsondata = json;
             
             //copying the object
             for(var key in jsondata) {
-            p[key] = jsondata[key];
+                p[key] = jsondata[key];
             }
+            if(from==="transform") {
+                preprocess[v]=p[v];
+                return;
+            }
+
             });
     return p;
 }

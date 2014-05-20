@@ -542,25 +542,24 @@ transform.app <- function(env){
             
             if(myT=="log(d)") {
                 tdata[,1] <- log(tdata[,1])
-                call <- paste("log(", myvars,")", sep="")
+                call <- paste("log_", myvars, sep="")
             } else if(myT=="exp(d)") {
                 tdata[,1] <- exp(tdata[,1])
-                call <- paste("exp(", myvars,")", sep="")
+                call <- paste("exp_", myvars, sep="")
             } else if(myT=="d^2") {
                 tdata[,1] <- tdata[,1]^2
                 call <- paste(myvars,"^2", sep="")
             } else if(myT=="sqrt(d)") {
                 tdata[,1] <- sqrt(tdata[,1])
-                call <- paste("sqrt(", myvars,")", sep="")
+                call <- paste("sqrt_", myvars, sep="")
             }
             
             sumstats <- calcSumStats(tdata)
         
-        # how to preprocess just one variable...
-        # purl <- pCall(data=usedata)
-        #purl <- "test"
-        #        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
-            result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call))
+        # preprocess just one variable
+        colnames(tdata) <- call
+        purl <- pCall(data=tdata)
+        result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl))
         },
         error=function(err){
             warning <- TRUE
