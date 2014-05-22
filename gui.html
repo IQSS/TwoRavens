@@ -33,15 +33,14 @@
       
       <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
-              <div class="navbar-header" onmouseover="about();" onmouseout="closeabout();">
-                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:1em">
-                  <div id="about" style="position:absolute;height:170px;width:25%;background-color:white; border:1px solid red; display:none; z-index:10;left-margin:0.5em;">
-                      
-                      </div>
+              <div class="navbar-header" onmouseover="about();" onmouseout="closeabout();" >
+                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em">
+                  <div id="about" style="position:absolute;height:170px;width:380px;background-color:white; border:1px solid red; display:none; z-index:10;">        
+                  </div>
               </div>
               
-              <div>      
-                <div class="field" id="datasetName" style="text-align:center;">
+                 
+              <div class="field" id="datasetName" style="text-align:center;margin-top:0.5em">
                   <h4 style="display:inline;">Dataset Name</h4>
 
                   <button class="btn btn-default" id="makeTable" style="margin-left:1em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-list-alt"></span></button>
@@ -51,45 +50,11 @@
                     <button class="btn btn-default"  id="btnD2" onclick="toggleData('btnD2');"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-tree-deciduous"></span></button>
                   </span>
               
-                  <div class="navbar-form navbar-right" role="settings1">
-                      <!--<div class="form-group">
-                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 1</p>
-                      </div>-->
-                      <button class="btn btn-default ladda-button" style="margin-left:2em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
-                      <!--
-                      <input name="estimateButton"
-                      class="btn btn-default"
-                      type="button"
-                      id="btnEstimate"
-                      value="Estimate"
-                      onclick="estimate('btnEstimate')" style="margin-left:2em;"/>
-	                  -->           
-                  </div>
-                  
-                  <!--<div class="navbar-form navbar-left" role="settings2">
-                      <div class="form-group">
-                          <p class="navbar-text" style="margin-top:0;margin-bottom:0;">Group 2</p>
-                      </div>
-                      <input name="subset"
-                      type="button" class="btn btn-default"
-                      value="Subset"
-                      onclick="subset()" />
-                      <input name="setx"
-                      type="button" class="btn btn-default"
-                      value="setx"
-                      onclick="setx()" />
-                  </div>-->
-                  <div class="navbar-form navbar-right" role="settings4">
-                      <input name="forceButton" id="btnForce"
-                      type="button" class="btn btn-default"
-                      value="Force"
-                      onclick="forceSwitch()" />
-                      <input name="reset"
-                      type="button" class="btn btn-default"
-                      value="Reset"
-                      onclick="reset()" />
-                  </div>
-                </div>
+
+                  <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
+                  <button class="btn btn-default navbar-right" id="makeTable" style="margin-left:1em;" onclick="forceSwitch()"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-pushpin"></span></button>
+                  <button class="btn btn-default navbar-right" id="makeTable" style="margin-left:1em;" onclick="reset()"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
+                 
               </div>  
           </div>
       </nav>
