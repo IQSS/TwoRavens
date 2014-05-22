@@ -233,7 +233,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
         dataname = dataname.substring(0,12);
        }
       // Put dataset name, from meta-data, into left panel
-      d3.select("#datasetName").selectAll("p")
+      d3.select("#datasetName").selectAll("h4")
       .html(dataname);
 
 
