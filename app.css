@@ -142,7 +142,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 
 //#leftpanel.expandpanel {width:600px;}
 #leftpanel.expandpanel {width:40%;}
-#leftpanel.expandpanel div#toggleLpanelicon {left:598px;}
+#leftpanel.expandpanel div#toggleLpanelicon {left:calc(100% - 28px);}
 
 #leftpanel.closepanel {width:1px;}
 /*#leftpanel.closepanel div.btn-group.closepanel {display:none;}*/
@@ -183,7 +183,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 
 //#rightpanel.expandpanel {width:600px;}
 #rightpanel.expandpanel {width:40%;}
-#rightpanel.expandpanel div#toggleRpanelicon {right:598px;}
+#rightpanel.expandpanel div#toggleRpanelicon {right:calc(100% - 29px);}
 
 #rightpanel.closepanel {width:1px;}
 #rightpanel.closepanel div.row-fluid.closepanel {display:none;}
