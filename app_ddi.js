@@ -168,13 +168,13 @@ var arc2 = d3.svg.arc()
     .innerRadius(allR + 5)
     .outerRadius(allR + 20)
     .startAngle(1.1)
-    .endAngle(2.1);
+    .endAngle(2.2);
 
 var arc3 = d3.svg.arc()
     .innerRadius(allR + 5)
     .outerRadius(allR + 20)
-    .startAngle(2.2)
-    .endAngle(3.2);
+    .startAngle(2.3)
+    .endAngle(3.3);
 
 var arc4 = d3.svg.arc()
     .innerRadius(allR + 5)
@@ -840,7 +840,7 @@ function layout() {
               return "timeText".concat(d.id);
               })
         .attr("x", 6)
-        .attr("dy", 15)
+        .attr("dy", 11.5)
         .attr("fill-opacity", 0)
         .append("textPath")
         .attr("xlink:href", function(d){
@@ -887,7 +887,7 @@ function layout() {
               return "csText".concat(d.id);
               })
         .attr("x", 6)
-        .attr("dy", 15)
+        .attr("dy", 11.5)
         .attr("fill-opacity", 0)
         .append("textPath")
         .attr("xlink:href", function(d){
@@ -929,7 +929,7 @@ function layout() {
               return "dvText".concat(d.id);
               })
         .attr("x", 6)
-        .attr("dy", 15)
+        .attr("dy", 11.5)
         .attr("fill-opacity", 0)
         .append("textPath")
         .attr("xlink:href", function(d){
@@ -970,7 +970,7 @@ function layout() {
               return "nomText".concat(d.id);
               })
         .attr("x", 6)
-        .attr("dy", 15)
+        .attr("dy", 11.5)
         .attr("fill-opacity", 0)
         .append("textPath")
         .attr("xlink:href", function(d){
