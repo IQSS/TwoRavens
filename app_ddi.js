@@ -99,6 +99,8 @@ var csColor = '#419641';
 var depVar=false;
 var dvColor = '#28A4C9';
 
+var nomColor = '#FF6600';
+
 var subsetdiv=false;
 var setxdiv=false;
 
@@ -173,6 +175,12 @@ var arc3 = d3.svg.arc()
     .outerRadius(allR + 20)
     .startAngle(2.2)
     .endAngle(3.2);
+
+var arc4 = d3.svg.arc()
+    .innerRadius(allR + 5)
+    .outerRadius(allR + 20)
+    .startAngle(4.3)
+    .endAngle(5.3);
 
 
 
@@ -929,6 +937,47 @@ function layout() {
               })
         .text("Dep Var");
 
+       g.append("path")
+        .attr("id", function(d){
+              return "nomArc".concat(d.id);
+              })
+        .attr("d", arc4)
+        .style("fill", nomColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+        .attr("fill-opacity", 0)
+        .on('mouseover', function(d){
+            d3.select(this).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            .delay(0)
+            .duration(100);
+            })
+        .on('mouseout', function(d){
+            d3.select(this).transition()  .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            })
+        .on('click', function(d){
+            setColors(d, nomColor);
+            legend(nomColor);
+            restart();
+            });
+        g.append("text")
+        .attr("id", function(d){
+              return "nomText".concat(d.id);
+              })
+        .attr("x", 6)
+        .attr("dy", 15)
+        .attr("fill-opacity", 0)
+        .append("textPath")
+        .attr("xlink:href", function(d){
+              return "#nomArc".concat(d.id);
+              })
+        .text("Nominal");
+
         
         // allowing graphics to adjust for size
              d3.select("#rightpanel.left").selectAll("image")
@@ -1100,22 +1149,28 @@ function layout() {
             select.selectedIndex = d.id;
             transformVar = valueKey[d.id];
           
-            d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .9)
+            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
                 })
@@ -1156,6 +1211,14 @@ function layout() {
             .delay(100)
             .duration(500);
             d3.select("#dvText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#nomArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#nomText".concat(d.id)).transition()
             .attr("fill-opacity", 0)
             .delay(100)
             .duration(500);
