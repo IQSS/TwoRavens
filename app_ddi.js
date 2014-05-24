@@ -1378,10 +1378,11 @@ var findNode = function(nodeName) {
 function forceSwitch() {
     forcetoggle = !forcetoggle;
     if(forcetoggle==false) {
-        document.getElementById('btnForce').setAttribute("class", "btn active");
+        document.getElementById('btnForce').setAttribute("class", "btn active navbar-right");
     }
     else {
-        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+        document.getElementById('btnForce').setAttribute("class", "btn btn-default navbar-right");
+        fakeClick();
     }
 }
 
