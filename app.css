@@ -215,9 +215,19 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     border:1px solid #ADADAD;
 }
 
+.spaceTool {
+    height:40px;
+    width:10%; 
+    right:20%;
+    margin-right:10px; 
+    margin-top:10px; 
+    position:absolute;
+}
+
 .legendary {
     height:40%; 
-    width:10%; 
+    width:10%;
+    top:40px; 
     right:20%;
     margin-right:10px;
     margin-top:10px; 
