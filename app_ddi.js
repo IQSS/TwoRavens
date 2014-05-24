@@ -237,10 +237,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
 
     // dataset name trimmed to 12 chars
        var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
-       if(dataname.length > 12) {
-        dataname = dataname.substring(0,12);
-       }
-      // Put dataset name, from meta-data, into left panel
+      // Put dataset name, from meta-data, into top panel
       d3.select("#datasetName").selectAll("h4")
       .html(dataname);
 
