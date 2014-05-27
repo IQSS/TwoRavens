@@ -4,8 +4,21 @@
 ##  25/2/14
 ##
 
-install.packages(c("Rook","Zelig", "jsonlite"), repos = "http://watson.nci.nih.gov/cran_mirror/")
-##setwd("/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/rook")
+
+
+production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+
+
+packageList<-c("Rook","Zelig","jsonlite","rjson")
+
+## install missing packages, and update if newer version available
+for(i in 1:length(packageList)){
+    if (!require(packageList[i],character.only = TRUE)){
+        install.packages(packageList[i], repos="http://lib.stat.cmu.edu/R/CRAN/")
+    }
+}
+update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
+
 
 #!/usr/bin/env Rscript
 
@@ -15,39 +28,49 @@ library(rjson)
 library(jsonlite)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
-myPort <- "8000"
-myInterface <- "0.0.0.0"
-#myInterface <- "127.0.0.1"
-#myInterface <- "140.247.0.42"
-status <- -1
-
-status<-.Call(tools:::startHTTPD, myInterface, myPort)
-
-if( status!=0 ){
-    print("WARNING: Error setting interface or port")
-    stop()
-} #else{
-#    unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
-#    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
-#}
-
-## maybe something like this gets around the access-control limits of CRAN?
-#R.server$add(name = "solafide", app = "/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/app_ddi.js") ...but not an app...
-
-R.server <- Rhttpd$new()
+if(!production){
+    myPort <- "8000"
+    myInterface <- "0.0.0.0"
+    #myInterface <- "127.0.0.1"
+    #myInterface <- "140.247.0.42"
+    status <- -1
+    status<-.Call(tools:::startHTTPD, myInterface, myPort)
 
 
-cat("Type:", typeof(R.server), "Class:", class(R.server))
-R.server$add(app = File$new(getwd()), name = "pic_dir")
-print(R.server)
+    if( status!=0 ){
+        print("WARNING: Error setting interface or port")
+        stop()
+    }   #else{
+    #    unlockBinding("httpdPort", environment(tools:::startDynamicHelp))
+    #    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
+    #}
 
-# vjd: added port=myPort
-R.server$start(listen=myInterface, port=myPort)
-R.server$listenAddr <- myInterface
-R.server$listenPort <- myPort
+    ## maybe something like this gets around the access-control limits of CRAN?
+    #R.server$add(name = "solafide", app = "/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/app_ddi.js") ...but not an app...
 
+    R.server <- Rhttpd$new()
+
+
+    cat("Type:", typeof(R.server), "Class:", class(R.server))
+    R.server$add(app = File$new(getwd()), name = "pic_dir")
+    print(R.server)
+
+    # vjd: added port=myPort
+    R.server$start(listen=myInterface, port=myPort)
+    R.server$listenAddr <- myInterface
+    R.server$listenPort <- myPort
+
+}
 
 zelig.app <- function(env){
+    
+    production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+    
+    
+    if(production){
+        sink(file = stderr(), type = "output")
+    }
+    
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
 
@@ -94,12 +117,14 @@ zelig.app <- function(env){
 	}
 
 	if(!warning){
-        # This is the Strezhnev Voeten data:
-        #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
-        # This is the Fearon Laitin data:
-           		mydata <- read.delim("../data/fearonLaitin.tsv")
-        # This is the data declared by file id:
-        #      mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        if(production){
+            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        }else{
+            # This is the Strezhnev Voeten data:
+            #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+            # This is the Fearon Laitin data:
+            mydata <- read.delim("../data/fearonLaitin.tsv")
+        }
 		if(is.null(mydata)){
 			warning <- TRUE
 			result<-list(warning="Dataset not loadable from Dataverse")
@@ -172,10 +197,19 @@ zelig.app <- function(env){
             for(i in 1:length(s.out$qi)){
                 if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
                     qicount<-qicount+1
-                    png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+                    if(production){
+                        mypath<-"/var/www/html/custom/pic_dir"
+                        png(file.path(mypath, paste("output",qicount,".png",sep="")))
+                    }else{
+                        png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+                    }
                     Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
                     dev.off()
-                    imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+                    if(production){
+                        imageVector[[qicount]]<-paste("http://dataverse-demo.hmdc.harvard.edu:8008/custom/pic_dir", "/output",qicount,".png", sep = "")
+                    }else{
+                        imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+                    }
                 }
             }
 
@@ -238,6 +272,9 @@ zelig.app <- function(env){
     }
     
     print(result)
+    if(production){
+        sink()
+    }
     response$write(result)
     response$finish()
     
@@ -427,14 +464,25 @@ Mode <- function(x) {
     ux[which.max(tabulate(match(x, ux)))]
 }
 
-pCall <- function(data) {
-    url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
+pCall <- function(data,production) {
     pjson<-preprocess(testdata=data)
-    write(pjson,file=paste("../",url, sep=""))
+    if(production){
+        url <- "/var/www/html/rookzelig/data/preprocessSubset.txt"
+        write(pjson,file=url)
+    }else{
+        url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
+        write(pjson,file=paste("../",url, sep=""))
+    }
     return(url)
 }
 
 subset.app <- function(env){
+    
+    production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+    
+    if(production){
+        sink(file = stderr(), type = "output")
+    }
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
@@ -444,9 +492,12 @@ subset.app <- function(env){
     warning<-FALSE
     
     if(!warning){
-        #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
-        mydata <- read.delim("../data/fearonLaitin.tsv")
-        # mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        if(production){
+            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        }else{
+            #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+            mydata <- read.delim("../data/fearonLaitin.tsv")
+        }
 		if(is.null(mydata)){
 			warning <- TRUE
 			result<-list(warning="Dataset not loadable from Dataverse")
@@ -479,7 +530,7 @@ subset.app <- function(env){
         sumstats <- calcSumStats(usedata)
     
         # send preprocess new usedata and receive url with location
-        purl <- pCall(data=usedata)
+        purl <- pCall(data=usedata, production)
         #purl <- "test"
         result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
     },
@@ -492,11 +543,21 @@ subset.app <- function(env){
     
     #result <- toJSON(sumstats)
     print(result)
+    if(production){
+        sink()
+    }
     response$write(result)
     response$finish()
 }
 
 transform.app <- function(env){
+
+    production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+
+    if(production){
+        sink(file = stderr(), type = "output")
+    }
+
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
@@ -506,9 +567,12 @@ transform.app <- function(env){
     warning<-FALSE
     
     if(!warning){
-        #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
-        mydata <- read.delim("../data/fearonLaitin.tsv")
-        # mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        if(production){
+            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+        }else{
+            #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
+            mydata <- read.delim("../data/fearonLaitin.tsv")
+        }
 		if(is.null(mydata)){
 			warning <- TRUE
 			result<-list(warning="Dataset not loadable from Dataverse")
@@ -558,7 +622,7 @@ transform.app <- function(env){
         
         # preprocess just one variable
         colnames(tdata) <- call
-        purl <- pCall(data=tdata)
+        purl <- pCall(data=tdata, production)
         result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl))
         },
         error=function(err){
@@ -575,20 +639,27 @@ transform.app <- function(env){
         })
     }
     
-    #result <- toJSON(sumstats)
     print(result)
+    if(production){
+        sink()
+    }
     response$write(result)
     response$finish()
 }
 
-R.server$add(app = zelig.app, name = "zeligapp")
-R.server$add(app = subset.app, name="subsetapp")
-R.server$add(app = transform.app, name="transformapp")
-print(R.server)
 
-#R.server$browse(zeligapp)
-#http://127.0.0.1:8000/custom/zeligapp?solaJSON={"x":[1,2,4,7],"y":[3,5,7,9]}
-#http://0.0.0.0:8000/custom/pic_dir/james.png
+
+
+
+
+
+if(!production){
+    R.server$add(app = zelig.app, name = "zeligapp")
+    R.server$add(app = subset.app, name="subsetapp")
+    R.server$add(app = transform.app, name="transformapp")
+    print(R.server)
+}
+
 
 
 #R.server$browse("zeligapp")
