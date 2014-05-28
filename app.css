@@ -208,6 +208,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     height:40%; 
     width:10%; 
     left:20%; 
+    top: 0;
     margin-left:10px; 
     margin-top:10px; 
     position:absolute; 
@@ -234,14 +235,12 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     position:absolute; 
 }
 
-
 #sandbox {
     width:500px;
     height:400px;
 }
 
 /* p { padding-left: 15px; } */
-
 
 path { 
     fill: steelblue;
@@ -268,13 +267,22 @@ path {
   pointer-events: fill;
 }
 
-
-table, th, td
-{
-border-collapse: collapse;text-align:right;
+table, th, td {
+    border-collapse: collapse;text-align:right;
 }
-td
-{
-padding:4px;
+td {
+    padding:4px;
 }
 
+/* Carousel */
+
+.carousel-linked-nav,
+.item img {
+  display: block; 
+  margin: 0 auto;
+}
+
+.carousel-linked-nav {
+  width: 120px;
+  margin: 10px auto;   
+}

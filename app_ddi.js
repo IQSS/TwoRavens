@@ -24,8 +24,8 @@ if (!hostname) {
 // base URL for the R apps: 
 var rappURL = "http://0.0.0.0:8000/custom/";
 
-var svg = d3.select("#main.left")
-.append('svg');
+var svg = d3.select("#main.left div.carousel-inner")
+.append('div').attr('class', 'item active').append('svg');
 
 //.attr('width', width)
 //.attr('height', height);
