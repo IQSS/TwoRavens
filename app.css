@@ -137,8 +137,8 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     width: 20%;
 }
 #leftpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
-#leftpanel #Left_Content_Area div {display:none;}
-#leftpanel #Left_Content_Area div.active {display:block;}
+#leftpanel #leftContentArea div {display:none;}
+#leftpanel #leftContentArea div.active {display:block;}
 
 //#leftpanel.expandpanel {width:600px;}
 #leftpanel.expandpanel {width:40%;}
@@ -178,8 +178,8 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 */
 
 #rightpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
-#rightpanel #Right_Content_Area div {display:none;}
-#rightpanel #Right_Content_Area div.active {display:block;}
+#rightpanel #rightContentArea div {display:none;}
+#rightpanel #rightContentArea div.active {display:block;}
 
 //#rightpanel.expandpanel {width:600px;}
 #rightpanel.expandpanel {width:40%;}
@@ -283,6 +283,13 @@ td {
 }
 
 .carousel-linked-nav {
-  width: 120px;
+  width: 400px;
   margin: 10px auto;   
+}
+
+.pagination .carousel-control {
+  font-size: inherit;
+  width: auto;
+  opacity: 1;
+  text-shadow: none;
 }

@@ -58,13 +58,13 @@
     <div class="left svg-leftpanel svg-rightpanel carousel slide" id="main" style="position:relative;">
         
         <!-- LINKED CAROUSEL NAV -->
-        <ol class="carousel-linked-nav pagination">
-            <!--<li><a href="#" class="carousel-control" data-slide="prev">&laquo;</a></li>-->
+        <ol class="carousel-linked-nav pagination clearfix">
+            <li><a href="#" class="carousel-control" data-slide="prev">&laquo;</a></li>
             <li class="active"><a href="#1">1</a></li>
             <!--<li><a href="#2">2</a></li>
              <li><a href="#3">3</a></li>-->
             <li><a href="#create"><span class="glyphicon glyphicon-plus"></span></a></li>
-            <!--<li><a href="#" class="carousel-control" data-slide="next">&raquo;</a></li>-->
+            <li><a href="#" class="carousel-control" data-slide="next">&raquo;</a></li>
         </ol>
         
         <!-- Carousel items -->
@@ -96,7 +96,7 @@
             </div>
             <div class="row-fluid" style="clear:left;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="leftpanelcontent">
-                    <div id="Left_Content_Area" style="overflow: scroll; height:460px;">
+                    <div id="leftContentArea" style="overflow: scroll; height:488px;">
                         <div id="tab1" style="display:block;padding:6px 12px;text-align:center"></div>
                         <div id="tab2" style="display:none;"></div>
                         <div id="tab3">
@@ -110,7 +110,7 @@
         <div id="transformations" class="transformTool" style="display:none;">
         </div>
         
-        <div id="spacetools" class="spaceTool" style="position:absolute;top:0px;right:260px;">
+        <div id="spacetools" class="spaceTool" style="position:absolute;top:0px;right:320px;">
             <button class="btn btn-default navbar-right" id="makeTable" title="Reset" onclick="reset()" style="margin-right:1.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
             <button class="btn btn-default navbar-right" id="btnForce" title="Force" style="margin-right:0.5em;" onclick="forceSwitch()"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-pushpin"></span></button>
         </div>
@@ -149,8 +149,8 @@
             </div>
             <div class="row-fluid" style="clear:right;margin-top:.5em;border-top:1px solid #ADADAD;">
                 <div id="rightpanelcontent">
-                    <div id="Right_Content_Area" style="overflow: scroll; height:528px;">
-                        <div id="resultsView" style="position:absolute; height:100%; width:100%; background-color:white; z-index:10; display:none;"></div>
+                    <div id="rightContentArea" style="overflow:scroll; height:488px;">
+                        <div id="resultsView" style="width:100%; background-color:white; display:none;"></div>
                         <div id="results">
                             <p id="resultsHolder" style="padding:.5em 1em;">No results available until a model is estimated.</p>
                         </div>

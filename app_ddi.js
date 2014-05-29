@@ -2423,7 +2423,7 @@ function resultsTable() {
     
     resultsViewer=true;
     d3.select("#resultsView")
-    .style("display", "inline");
+    .style("display", "block");
     
     d3.select("#rightpanel")
     .attr("class", "container expandpanel");
