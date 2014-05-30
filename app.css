@@ -212,9 +212,12 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     margin-left:10px; 
     margin-top:10px; 
     position:absolute; 
-    background:#F9F9F9;
-    border:1px solid #ADADAD;
+/*    background:#F9F9F9;
+    border:1px solid #ADADAD;  */
 }
+
+#transSel li:hover { background-color:#FA8072; cursor:pointer;}
+#transList li:hover { background-color:#FA8072; cursor:pointer;}
 
 .spaceTool {
     height:40px;

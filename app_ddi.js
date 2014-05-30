@@ -25,7 +25,8 @@ if (!hostname) {
 var rappURL = "http://0.0.0.0:8000/custom/";
 
 var svg = d3.select("#main.left div.carousel-inner")
-.append('div').attr('class', 'item active').append('svg');
+.append('div').attr('class', 'item active').attr('id', 'm1').append('svg').attr('id', 'm2');
+
 
 //.attr('width', width)
 //.attr('height', height);
@@ -104,9 +105,9 @@ var nomColor = '#FF6600';
 var subsetdiv=false;
 var setxdiv=false;
 
-var varColor = d3.rgb("aliceblue");
-var selVarColor = d3.rgb("salmon");
-var taggedColor = d3.rgb("whitesmoke");
+var varColor = d3.rgb("aliceblue"); //#F0F8FF
+var selVarColor = d3.rgb("salmon"); //#FA8072
+var taggedColor = d3.rgb("whitesmoke"); //f5f5f5
 
 var lefttab = "tab1"; //global for current tab in left panel
 
@@ -374,7 +375,7 @@ function scaffolding(v) {
         
         return;
     }
- 
+ /*
     // drop down menu for tranformation toolbar
     var select  = d3.select("#transformations")
     .append("select")
@@ -410,9 +411,65 @@ function scaffolding(v) {
                else {return varColor;}
                });
         });
+  
+    */
+    d3.select("#transformations")
+    .append("input")
+    .attr("id", "tInput")
+    .attr("type", "text")
+    .attr("value", "R call: func(var)");
     
+    d3.select("#transformations")
+    .append("ul")
+    .attr("id", "transSel")
+    .style("display", "none")
+    .style("background-color", varColor)
+    .selectAll('li')
+    .data(["a", "b"]) //set to variables in model space as they're added
+    .enter()
+    .append("li")
+    .text(function(d) {return d; });
     
+    d3.select("#transformations")
+    .append("ul")
+    .attr("id", "transList")
+    .style("display", "none")
+    .style("background-color", varColor)
+    .selectAll('li')
+    .data(transformList)
+    .enter()
+    .append("li")
+    .text(function(d) {return d; });
     
+    //jquery does this well
+    $('#tInput').click(function() {
+        var t = document.getElementById('transSel').style.display;
+        if(t !== "none") {
+            $('#transSel').fadeOut(100);
+            return false;
+        }
+        var t1 = document.getElementById('transList').style.display;
+        if(t1 !== "none") {
+            $('#transList').fadeOut(100);
+            return false;
+        }
+                       
+        var pos = $('#tInput').offset();
+        pos.top += $('#tInput').width();
+        $('#transSel').fadeIn(100);
+        return false;
+        });
+    
+    $('#transList li').click(function(event) {
+                             var tvar =  $('#tInput').val();
+                            var tfunc = $(this).text();
+                             var tcall = tfunc.replace("d", tvar);
+                             $('#tInput').val(tcall);
+                            $(this).parent().fadeOut(100);
+                             event.stopPropagation();
+                             });
+                            
+  
     d3.select("#tab1").selectAll("p")
     .data(valueKey)
     .enter()
@@ -470,7 +527,7 @@ function layout() {
         .linkDistance(150)
         .charge(-800)
         .on('tick',tick);  // .start() is important to initialize the layout
-        
+  
         // define arrow markers for graph links
         svg.append('svg:defs').append('svg:marker')
         .attr('id', 'end-arrow')
@@ -502,7 +559,7 @@ function layout() {
         // handles to link and node element groups
         var path = svg.append('svg:g').selectAll('path'),
         circle = svg.append('svg:g').selectAll('g');
-        
+   
         // mouse event vars
         var selected_node = null,
         selected_link = null,
@@ -635,7 +692,7 @@ function layout() {
     function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
-      
+    
         circle.call(force.drag);
         if(forcetoggle)
         {
@@ -1185,7 +1242,7 @@ function layout() {
         .on("mouseout", function(d) {
             tabLeft(lefttab);
             if(transformHold===false) {
-            document.getElementById('transformations').setAttribute("style", "display:none");
+          //  document.getElementById('transformations').setAttribute("style", "display:none");
             }
             d3.select("#csArc".concat(d.id)).transition()
             .attr("fill-opacity", 0)
@@ -1227,9 +1284,36 @@ function layout() {
             
             });
         
+        // populating transformation dropdown
+        var t = [];
+        for(var j =0; j < nodes.length; j++ ) {
+            t.push(nodes[j].name);
+        }
+        
+        d3.select("#transSel")
+        .selectAll('li')
+        .remove();
+        
+        d3.select("#transSel")
+        .selectAll('li')
+        .data(t) //set to variables in model space as they're added
+        .enter()
+        .append("li")
+        .text(function(d) {return d; });
+        
+        $('#transSel li').click(function(event) {
+                                $('#tInput').val($(this).text());
+                                $(this).parent().fadeOut(100);
+                                
+                                $('#transList').fadeIn(100);
+                                event.stopPropagation();
+                                });
+
+        
         // remove old nodes
         circle.exit().remove();
         force.start();
+        
     }  //end restart function
     
     
@@ -1283,7 +1367,7 @@ function layout() {
     var lastKeyDown = -1;
     
     function keydown() {
-        d3.event.preventDefault();
+      //  d3.event.preventDefault();
         
         if(lastKeyDown !== -1) return;
         lastKeyDown = d3.event.keyCode;
@@ -1339,18 +1423,24 @@ function layout() {
     }
     
     // app starts here
-    
+   
     svg.on('mousedown', function() {
            transformHold=false;
-           document.getElementById('transformations').setAttribute("style", "display:none");
+       //    document.getElementById('transformations').setAttribute("style", "display:none");
            mousedown();
            })
     .attr("id", "whitespace")
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
+    
     d3.select(window)
     .on('keydown', keydown)
-    .on('keyup', keyup);
+    .on('keyup', keyup)
+    .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
+        $('#transList').fadeOut(100);
+        $('#transSel').fadeOut(100);
+        });
+    
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
     
