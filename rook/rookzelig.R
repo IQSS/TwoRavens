@@ -616,6 +616,13 @@ transform.app <- function(env){
             } else if(myT=="sqrt(d)") {
                 tdata[,1] <- sqrt(tdata[,1])
                 call <- paste("sqrt(", myvars, ")", sep="")
+            } else {
+                print(myT)
+                x <- gsub("20BarrySanders20", "tdata[,1]", myT)
+                x <- paste("tdata[,1] <- ", x)
+                print(x)
+                eval(parse(text=x))
+                call <- gsub("20BarrySanders20", myvars, myT)
             }
             
             sumstats <- calcSumStats(tdata)

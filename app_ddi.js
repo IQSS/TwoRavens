@@ -413,11 +413,13 @@ function scaffolding(v) {
         });
   
     */
+
     d3.select("#transformations")
     .append("input")
     .attr("id", "tInput")
     .attr("type", "text")
     .attr("value", "R call: func(var)");
+
     
     d3.select("#transformations")
     .append("ul")
@@ -459,6 +461,13 @@ function scaffolding(v) {
         $('#transSel').fadeIn(100);
         return false;
         });
+    
+    $('#tInput').keyup(function(event) {
+                       if(event.keyCode == 13){
+                            var n = $('#tInput').val();
+                       transform(n=n);
+                       }
+                       });
     
     $('#transList li').click(function(event) {
                              var tvar =  $('#tInput').val();
@@ -1626,6 +1635,20 @@ function estimate(btn) {
 function transform(n,t) {
     
     var btn = document.getElementById('btnEstimate');
+    if(typeof t === "undefined") { // here if user manually entered transformation
+        for(var i in valueKey) {
+            var m = n.match(valueKey[i]);
+            if(m !== null) {
+                var t = n.replace(m, "20BarrySanders20"); //something that'll never be a variable name
+                transform(n=m[0], t=t);
+                return;
+            }
+        }
+        if(m===null) {
+            alert("No variable name found. Perhaps check your spelling?");
+            return;
+        }
+    }
     
     //package the output as JSON
     var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t};
