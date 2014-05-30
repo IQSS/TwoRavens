@@ -606,16 +606,16 @@ transform.app <- function(env){
             
             if(myT=="log(d)") {
                 tdata[,1] <- log(tdata[,1])
-                call <- paste("log_", myvars, sep="")
+                call <- paste("log(", myvars,")", sep="")
             } else if(myT=="exp(d)") {
                 tdata[,1] <- exp(tdata[,1])
-                call <- paste("exp_", myvars, sep="")
+                call <- paste("exp(", myvars, ")", sep="")
             } else if(myT=="d^2") {
                 tdata[,1] <- tdata[,1]^2
                 call <- paste(myvars,"^2", sep="")
             } else if(myT=="sqrt(d)") {
                 tdata[,1] <- sqrt(tdata[,1])
-                call <- paste("sqrt_", myvars, sep="")
+                call <- paste("sqrt(", myvars, ")", sep="")
             }
             
             sumstats <- calcSumStats(tdata)

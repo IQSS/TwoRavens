@@ -467,6 +467,7 @@ function scaffolding(v) {
                              $('#tInput').val(tcall);
                             $(this).parent().fadeOut(100);
                              event.stopPropagation();
+                             transform(n=tvar, t=tfunc);
                              });
                             
   
@@ -1622,7 +1623,7 @@ function estimate(btn) {
     
 }
 
-function transform(n, t) {
+function transform(n,t) {
     
     var btn = document.getElementById('btnEstimate');
     
