@@ -130,6 +130,16 @@ zelig.app <- function(env){
 			result<-list(warning="Dataset not loadable from Dataverse")
 		}
 	}
+    
+    if(!warning) {
+        if(any(everything$ztransformed)){
+            t <- myvars[which(everything$ztransformed)]
+            from <- everything$ztransFrom[which(everything$ztransformed)]
+            for(i in length(t)){
+                # myV <- gsub("(", "_")
+            }
+        }
+    }
 
     if(!warning){
         mysubset <- everything$zsubset
@@ -630,7 +640,7 @@ transform.app <- function(env){
         # preprocess just one variable
         colnames(tdata) <- call
         purl <- pCall(data=tdata, production)
-        result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl))
+        result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl, trans=c(myvars,myT)))
         },
         error=function(err){
             warning <- TRUE
