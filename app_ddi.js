@@ -125,7 +125,8 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[] };
+var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[] };
+
 
 // Pre-processed data:
 var pURL = "";
@@ -269,7 +270,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        }
        
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":false});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":false, "transFrom":"", "transFunc":""});
        };
  
        
@@ -463,16 +464,17 @@ function scaffolding(v) {
         });
     
     $('#tInput').keyup(function(event) {
-                       if(event.keyCode == 13){
+                       if(event.keyCode == 13){ // keyup on "Enter"
                             var n = $('#tInput').val();
-                       transform(n=n);
+                            var t = transParse(n=n);
+                            transform(n=t[0], t=t[1]);
                        }
-                       });
+                    });
     
     $('#transList li').click(function(event) {
                              var tvar =  $('#tInput').val();
-                            var tfunc = $(this).text();
-                             var tcall = tfunc.replace("d", tvar);
+                            var tfunc = $(this).text().replace("d", "20BarrySanders20");
+                             var tcall = $(this).text().replace("d", tvar);
                              $('#tInput').val(tcall);
                             $(this).parent().fadeOut(100);
                              event.stopPropagation();
@@ -1511,6 +1513,8 @@ function estimate(btn) {
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
         zparams.ztransformed[j] = allNodes[temp].transformed;
+        zparams.ztransFrom[j] = allNodes[temp].transFrom;
+        zparams.ztransFunc[j] = allNodes[temp].transFunc;
     }
 
     for(var j =0; j < links.length; j++ ) { //populate zedges array
@@ -1633,23 +1637,24 @@ function estimate(btn) {
     
 }
 
+function transParse(n) {
+    for(var i in valueKey) {
+        var m = n.match(valueKey[i]);
+        if(m !== null) {
+            var t = n.replace(m, "20BarrySanders20"); //something that'll never be a variable name
+            //transform(n=m[0], t=t);
+            return [n=m[0], t=t];
+        }
+    }
+    if(m===null) {
+        alert("No variable name found. Perhaps check your spelling?");
+        return;
+    }
+}
+
 function transform(n,t) {
     
     var btn = document.getElementById('btnEstimate');
-    if(typeof t === "undefined") { // here if user manually entered transformation
-        for(var i in valueKey) {
-            var m = n.match(valueKey[i]);
-            if(m !== null) {
-                var t = n.replace(m, "20BarrySanders20"); //something that'll never be a variable name
-                transform(n=m[0], t=t);
-                return;
-            }
-        }
-        if(m===null) {
-            alert("No variable name found. Perhaps check your spelling?");
-            return;
-        }
-    }
     
     //package the output as JSON
     var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t};
@@ -1688,7 +1693,7 @@ function transform(n,t) {
         .text(function(d){ return d; });
         
         var i = allNodes.length;
-        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true});
+        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
         
         valueKey.push(newVar);
         nodes.push(findNode(newVar));
