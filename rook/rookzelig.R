@@ -560,6 +560,15 @@ subset.app <- function(env){
     response$finish()
 }
 
+transform <- function(data, func) {
+    x <- gsub("20BarrySanders20", "data[,1]", func)
+    x <- paste("data[,1] <- ", x)
+    print(x)
+    eval(parse(text=x))
+    return(data)
+}
+
+
 transform.app <- function(env){
 
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
@@ -614,26 +623,9 @@ transform.app <- function(env){
             tdata <- as.data.frame(mydata[,t])
             colnames(tdata) <- myvars
             
-            if(myT=="log(d)") {
-                tdata[,1] <- log(tdata[,1])
-                call <- paste("log(", myvars,")", sep="")
-            } else if(myT=="exp(d)") {
-                tdata[,1] <- exp(tdata[,1])
-                call <- paste("exp(", myvars, ")", sep="")
-            } else if(myT=="d^2") {
-                tdata[,1] <- tdata[,1]^2
-                call <- paste(myvars,"^2", sep="")
-            } else if(myT=="sqrt(d)") {
-                tdata[,1] <- sqrt(tdata[,1])
-                call <- paste("sqrt(", myvars, ")", sep="")
-            } else {
-                print(myT)
-                x <- gsub("20BarrySanders20", "tdata[,1]", myT)
-                x <- paste("tdata[,1] <- ", x)
-                print(x)
-                eval(parse(text=x))
-                call <- gsub("20BarrySanders20", myvars, myT)
-            }
+            tdata <- transform(data=tdata, func=myT)
+            call <- gsub("20BarrySanders20", myvars, myT)
+            colnames(tdata) <- call
             
             sumstats <- calcSumStats(tdata)
         
