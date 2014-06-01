@@ -131,14 +131,34 @@ zelig.app <- function(env){
 		}
 	}
     
+    ## NOTE: variables are transformed then data is subsetted
     if(!warning) {
+        tryCatch({
         if(any(everything$ztransformed)){
-            t <- myvars[which(everything$ztransformed)]
-            from <- everything$ztransFrom[which(everything$ztransformed)]
+            # tDV <- FALSE
+            t <- which(everything$ztransformed)
+            # if(mydv %in% myvars[t]) {tDV <- which(mydv==myvars)}
+            myT <- everything$ztransFunc[which(everything$ztransformed)]
             for(i in length(t)){
-                # myV <- gsub("(", "_")
+                v <- everything$ztransFrom[t[i]]
+                tdata <- as.data.frame(mydata[,v])
+                newcol <- transform(data=tdata, func=myT)
+                newname <- gsub("20BarrySanders20", colnames(mydata)[t[i]], myT)
+                newname <- gsub("\\W+", "_" ,newname)
+                evalstr <- paste("mydata$", newname, "<-newcol[,1]", sep="")
+                eval(parse(text=evalstr))
+                myedges[which(myedges==myvars[t[i]])] <- newname
+                myvars[t[i]] <- newname
             }
+            #if(tDV != FALSE) {mydv <- myvars[tDV]}
+            # print(mydv)
         }
+        },
+        error=function(err){
+            warning <- TRUE
+            result <- list(warning=paste("Transformed variable error: ", err))
+            assign("result", result, envir=globalenv())
+        })
     }
 
     if(!warning){
