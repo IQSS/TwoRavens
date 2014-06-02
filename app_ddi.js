@@ -248,7 +248,8 @@ d3.xml(metadataurl, "application/xml", function(xml) {
       hold = [0, 0, 0, 0, 0, 0, 0];
       var myvalues = [0, 0, 0, 0, 0];
 
-      for (i=0;i<vars.length;i++) { 
+    for (i=0;i<vars.length;i++) {
+       
         var sumStats = new Object;
         var varStats = [];
         valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -1782,6 +1783,32 @@ function legend(c) {
 
 function reset() {
     location.reload();
+}
+
+// programmatically deselecting every selected variable...
+function erase() {
+    subsetOff();
+    setxOff();
+    
+    lefttab='tab1';
+    tabLeft('tab1');
+    
+    jQuery.fn.d3Click = function () {
+        this.children().each(function (i, e) {
+                    var mycol = d3.rgb(this.style.backgroundColor);
+                    if(mycol.toString()===varColor.toString()) {return;}
+                  var evt = document.createEvent("MouseEvents");
+                  evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                  
+                  e.dispatchEvent(evt);
+                  });
+    };
+    $("#tab1").d3Click();
+}
+
+
+function deselect(d) {
+    console.log(d);
 }
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
