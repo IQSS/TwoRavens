@@ -178,6 +178,31 @@ zelig.app <- function(env){
 		}
 	}
 
+    if(!warning){
+        nomvars <- everything$znom
+        print(length(nomvars))
+        if(length(nomvars) != 0) {
+            for(i in 1:length(nomvars)) {
+                mylist <- parseNom(nomvars[i], data=usedata)
+                usedata <- mylist$data
+                assign("usedata", usedata, envir=globalenv())
+                v <- mylist$vars
+                evalstr <- paste("myformula <- update.formula(myformula, ~.-",nomvars[i],")", sep="")
+                eval(parse(text=evalstr))
+                eval2 <- paste("myformula <- update.formula(myformula, ~.+",v, ")", sep="")
+                for(j in 1:length(eval2)) {
+                    eval(parse(text=eval2[j]))
+                }
+                print(myformula)
+            }
+        
+            if(is.null(myformula)){
+                warning <- TRUE
+                result<-list(warning="Problem parsing nominal variable.")
+            }
+        }
+    }
+
     if(warning){
         print(warning)
         print(result)
@@ -309,6 +334,23 @@ zelig.app <- function(env){
     response$finish()
     
 }
+
+parseNom <- function(var, data) {
+    u <- unique(as.character(data[,var]))
+    vars <- NULL
+    for(i in 2:length(u)) { ## NOTE: mutually exclusive and exhaustive, so first dummy is dropped and will be picked up by the intercept
+        newvar <- paste(var, "_", u[i], sep="")
+        newvar <- gsub("\\W+", "_" ,newvar)
+        eval(parse(text=(paste("data$",newvar,"<-0", sep=""))))
+        evalstr <- paste("data[which(data[,var]==u[i]),newvar] <- 1", sep="")
+        eval(parse(text=evalstr))
+        vars <- c(vars, newvar)
+    }
+    out <- list(vars=vars, data=data)
+    return(out)
+}
+
+
 
 # Presently unused attempt at a termination function so as to streamline code for warnings
 terminate<-function(response,warning){
