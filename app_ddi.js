@@ -125,7 +125,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[] };
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[] };
 
 
 // Pre-processed data:
@@ -351,12 +351,16 @@ function scaffolding(v) {
                    //zparams.zdv="";
                    }
                    else if(mySC==csColor) {
-                   var dvIndex = zparams.zcross.indexOf(myText);
-                   if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
+                   var csIndex = zparams.zcross.indexOf(myText);
+                   if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
                    }
                    else if(mySC==timeColor) {
-                   var dvIndex = zparams.ztime.indexOf(myText);
-                   if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                   var timeIndex = zparams.ztime.indexOf(myText);
+                   if (timeIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                   }
+                   else if(mySC==nomColor) {
+                   var nomIndex = zparams.znom.indexOf(myText);
+                   if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
                    }
                    
                    nodeReset(allNodes[findNodeIndex(myText)]);
@@ -653,13 +657,17 @@ function layout() {
                     //zparams.zdv="";
                 }
                 else if(mySC==csColor) {
-                    var dvIndex = zparams.zcross.indexOf(myText);
-                    if (dvIndex > -1) { zparams.zcross.splice(dvIndex, 1); }
+                    var csIndex = zparams.zcross.indexOf(myText);
+                    if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
                 }
                 else if(mySC==timeColor) {
-                    var dvIndex = zparams.ztime.indexOf(myText);
-                    if (dvIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                    var timeIndex = zparams.ztime.indexOf(myText);
+                    if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
                 }
+               else if(mySC==nomColor) {
+                    var nomIndex = zparams.znom.indexOf(myText);
+                    if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
+               }
 
                 nodeReset(allNodes[findNodeIndex(myText)]);
                 borderState();
@@ -780,42 +788,7 @@ function layout() {
         .style('stroke-width', function(d){
                var myIndex = findNodeIndex(d.name);
                return (d.strokeWidth)
-               })
-        .on('click',function() { // VJD: is this necessary anymore?
-            d3.select(this)
-            .style('stroke-width', function(d) {
-                   if(!depVar & !colorTime & !colorCS) {
-                        return(d.strokeWidth);
-                   }
-                   else if(depVar){
-                    depVar=false;
-                    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
-                    setColors(d,dvColor);
-                   }
-                   else if(colorCS){
-                    colorCS=false;
-                    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
-                    setColors(d,csColor);
-                   }
-                   else if(colorTime){
-                    colorTime=false;
-                    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
-                    setColors(d,timeColor);
-                   }
-                   return(d.strokeWidth);
-                   })
-            .style('stroke', function(d) {
-                   return(d.strokeColor);
-                   })
-            .style('fill', function(d) {
-                   if(!depVar & !colorTime & !colorCS) {
-                    var myIndex = findNodeIndex(d.name);
-                    return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol);
-                   }
-                   else {return(d.nodeCol);}
-            });
-            borderState();
-            });
+               });
         
      /*
         var tooltip = d3.select("#main.left").selectAll("svg")
@@ -1787,6 +1760,9 @@ function legend(c) {
     if(zparams.zdv.length==0) {
         document.getElementById("dvButton").setAttribute("style", "display:none");
     }
+    if(zparams.znom.length==0) {
+        document.getElementById("nomButton").setAttribute("style", "display:none");
+    }
 
     if(c==timeColor & zparams.ztime.length!=0) {
         document.getElementById("timeButton").setAttribute("style", "display:block");
@@ -1797,56 +1773,12 @@ function legend(c) {
     else if(c==dvColor & zparams.zdv.length!=0) {
         document.getElementById("dvButton").setAttribute("style", "display:block");
     }
+    else if(c==nomColor & zparams.znom.length!=0) {
+        document.getElementById("nomButton").setAttribute("style", "display:block");
+    }
+    borderState();
 }
 
-// The three below functions are no longer used because the variable properties are not tagged with buttons, but with the arc around the variables. Eventually, this could just be removed from the code...
-/*
-function time() {
-    if(colorTime==true) {
-        colorTime=false;
-        $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
-    }
-    else {
-        colorTime = true;
-        $('#timeButton').removeClass('btn-default').addClass('btn btn-primary active');
-    }
-    colorCS = false;
-    depVar = false;
-    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
-    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
-}
-
-function cs() {
-    if(colorCS==true) {
-        colorCS=false;
-        $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
-    }
-    else {
-        colorCS=true;
-        $('#csButton').removeClass('btn-default').addClass('btn btn-success active');
-    }
-    colorTime = false;
-    depVar = false;
-    $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
-    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
-}
-
-function dv() {
-    if(depVar==true) {
-        depVar=false;
-        $('#dvButton').removeClass('btn btn-info active').addClass('btn btn-default');
-    }
-    else {
-        depVar=true;
-        $('#dvButton').removeClass('btn-default').addClass('btn btn-info active');
-    }
-    colorCS = false;
-    colorTime = false;
-    $('#csButton').removeClass('btn btn-success active').addClass('btn btn-default');
-    $('#timeButton').removeClass('btn btn-primary active').addClass('btn btn-default');
-}
- 
- */
 
 function reset() {
     location.reload();
@@ -2288,7 +2220,7 @@ function setx() {
 
 // function takes a node and a color.  sets zparams as well.  
 function setColors (n, c) {
-    if(n.strokeWidth=='1') { // adding time, cs, dv to a node with no stroke
+    if(n.strokeWidth=='1') { // adding time, cs, dv, nom to a node with no stroke
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
@@ -2306,12 +2238,16 @@ function setColors (n, c) {
             zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
             zparams.ztime.push(n.name);
         }
+        else if(nomColor==c) {
+            zparams.znom = Object.prototype.toString.call(zparams.znom) == "[object Array]" ? zparams.znom : [];
+            zparams.znom.push(n.name);
+        }
         
         d3.select("#tab1").select("p#".concat(n.name))
         .style('background-color', c);
     }
     else if (n.strokeWidth=='4') {
-        if(c==n.strokeColor) { // deselecting time, cs, dv
+        if(c==n.strokeColor) { // deselecting time, cs, dv, nom
             n.strokeWidth = '1';
             n.strokeColor = selVarColor;
             n.nodeCol=colors(n.id);
@@ -2330,8 +2266,12 @@ function setColors (n, c) {
                 var timeIndex = zparams.ztime.indexOf(n.name);
                 if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
             }
+            else if(nomColor==c) {
+                var nomIndex = zparams.znom.indexOf(n.name);
+                if (nomIndex > -1) { zparams.znom.splice(nomIndex, 1); }
+            }
         }
-        else { // deselecting time, cs, dv AND changing it to time, cs, dv
+        else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
             if(dvColor==n.strokeColor) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
                 if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
@@ -2344,6 +2284,10 @@ function setColors (n, c) {
                 var timeIndex = zparams.ztime.indexOf(n.name);
                 if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
             }
+            else if(nomColor==n.strokeColor) {
+                var nomIndex = zparams.znom.indexOf(n.name);
+                if (nomIndex > -1) { zparams.znom.splice(nomIndex, 1); }
+            }
             n.strokeColor = c;
             d3.select("#tab1").select("p#".concat(n.name))
             .style('background-color', c);
@@ -2351,6 +2295,7 @@ function setColors (n, c) {
             if(dvColor==c) {zparams.zdv.push(n.name);}
             else if(csColor==c) {zparams.zcross.push(n.name);}
             else if(timeColor==c) {zparams.ztime.push(n.name);}
+            else if(nomColor==c) {zparams.znom.push(n.name);}
         }
     }
 }
@@ -2363,6 +2308,8 @@ function borderState () {
     else {$('#csButton').css('border-color', '#ccc');}
     if(zparams.ztime.length>0) {$('#timeButton').css('border-color', timeColor);}
     else {$('#timeButton').css('border-color', '#ccc');}
+    if(zparams.znom.length>0) {$('#nomButton').css('border-color', nomColor);}
+    else {$('#nomButton').css('border-color', '#ccc');}
 }
 
 // small appearance resets, but perhaps this will become a hard reset back to all original allNode values?
