@@ -1526,8 +1526,8 @@ function estimate(btn) {
         
         // is this righttab necessary?  it's in the html when Results clicked...
         //righttab='results';
-        setxOff();
-        tabRight('btnResults');
+        //setxOff();
+        //tabRight('btnResults');
      
         // pipe in figures to right panel
         var filelist = new Array;
@@ -1567,7 +1567,7 @@ function estimate(btn) {
             }  */
         }
         
-        var table = d3.select("#resultsView")
+        var table = d3.select("#results")
         .append("p")
         .html("<center><b>Results</b></center>")
         .append("table");
@@ -2501,13 +2501,15 @@ function toggleData(btnid) {
 }
 
 
-function resultsTable() {
-    if(estimated==false) {return;}
+function resultsView() {
+    if(estimated==false) {
+        righttab='results';
+        tabRight('btnResults');
+        return;
+    }
+    
     if(resultsViewer==true) {
         resultsViewer=false;
-        
-        d3.select("#resultsView")
-        .style("display", "none");
         
         d3.select("#rightpanel")
         .attr("class", "container");
@@ -2515,8 +2517,11 @@ function resultsTable() {
         return;
     }
     
+    righttab='results';
+    tabRight('btnResults');
+    
     resultsViewer=true;
-    d3.select("#resultsView")
+    d3.select("#results")
     .style("display", "block");
     
     d3.select("#rightpanel")

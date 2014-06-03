@@ -138,16 +138,7 @@
             <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-right"></span></div>
             
             <div class="row-fluid">
-                <small>
-                    <input name="tableButton" style="margin-left:50%; margin-bottom:0.5em;"
-                        type="button" class="btn btn-default"
-                        id="btnResultsTable"
-                        value="Results Table"
-                        onclick="resultsTable();" />
-                </small>
-            </div>
-            <div class="row-fluid">
-                 <div style="float:right;"><button class="btn btn-default" id="btnResults" onclick="righttab='results'; setxOff(); tabRight('btnResults');">Results</button></div>
+                 <div style="float:right;"><button class="btn btn-default" id="btnResults" onclick="resultsView();">Results</button></div>
                 <div style="float:right;margin-right:.5em;"><button class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button></div>
                 <div style="float:right;margin-right:.5em;"><button class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button></div>
             </div>
