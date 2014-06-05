@@ -1867,21 +1867,21 @@ function tabRight(tabid) {
     document.getElementById('results').style.display = 'none';
     
     if(tabid=="btnModels") {
-      document.getElementById('btnSetx').parentNode.setAttribute("class", "default");
-      document.getElementById('btnResults').parentNode.setAttribute("class", "default");
-      document.getElementById('btnModels').parentNode.setAttribute("class", "active");
+      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      document.getElementById('btnModels').setAttribute("class", "btn active");
       document.getElementById('models').style.display = 'block';     
     }
     else if (tabid=="btnSetx") {
-      document.getElementById('btnModels').parentNode.setAttribute("class", "default");
-      document.getElementById('btnResults').parentNode.setAttribute("class", "default");
-      document.getElementById('btnSetx').parentNode.setAttribute("class", "active");
+      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      document.getElementById('btnSetx').setAttribute("class", "btn active");
       document.getElementById('setx').style.display = 'block';     
     }
     else {
-      document.getElementById('btnModels').parentNode.setAttribute("class", "default");
-      document.getElementById('btnSetx').parentNode.setAttribute("class", "default");
-      document.getElementById('btnResults').parentNode.setAttribute("class", "active");
+      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      document.getElementById('btnResults').setAttribute("class", "btn active");
       document.getElementById('results').style.display = 'block';     
     }
     

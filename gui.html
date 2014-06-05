@@ -43,12 +43,12 @@
                   <h4 style="display:inline;">Dataset Name</h4>
 
                   <button class="btn btn-default" id="makeTable" title="Make Table" style="margin-left:1em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-list-alt"></span></button>
-
+<!--
                   <span class="btn-group" style="margin-left:0.3em;">
                     <button class="btn active" id="btnD1" title="Conifer" onclick="toggleData('btnD1');"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-tree-conifer"></span></button>
                     <button class="btn btn-default" id="btnD2" title="Deciduous" onclick="toggleData('btnD2');"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-tree-deciduous"></span></button>
                   </span>
-
+-->
                   <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                   <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-right:1.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
                 <!--  previous location of Force and Reset icons  -->
@@ -85,10 +85,10 @@
             </div>-->
         </div>
         
-        <div id="transformations" class="transformTool" style="display:block;">
+        <div id="transformations" class="transformTool" style="display:block; z-index:17;">
         </div>
         
-        <div id="spacetools" class="spaceTool">
+        <div id="spacetools" class="spaceTool" style="z-index:16;">
             <button class="btn btn-default" id="btnForce" title="Force" onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
             <button class="btn btn-default" id="btnEraser" title="Erase" onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
         </div>
@@ -120,23 +120,24 @@
          <div id="tooltiptext" class="popover-content form-horizontal"></div>
          </div>-->
         
-        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em;">
+        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em; z-index:25;">
             
             <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-left"></span></div>
             
-            <div class="btn-toolbar" role="toolbar" style="margin-left:0;">
+            <div class="btn-toolbar" role="toolbar" style="margin-left:10px;">
                 <div class="btn-group" style="margin-left:0;">
                     <button type="button" class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button>
                     <button type="button" class="btn btn-default" id="btnPanel3" onclick="lefttab='tab3'; subsetOff(); tabLeft('tab3');">Sum.</button>
-                    <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Select</span></button>
                 </div>
             </div>
             <div class="row-fluid">
                 <div id="leftpanelcontent">
                     <div id="leftContentArea" style="overflow: scroll; height:488px;">
                         <div id="tab1" style="display:block;padding:6px 12px;text-align:center"></div>
-                        <div id="tab2" style="display:none;"></div>
+                        <div id="tab2" style="display:none;">
+                            <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Select</span></button>
+                        </div>
                         <div id="tab3">
                             <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view its summary statistics.</p>
                         </div>
@@ -145,15 +146,25 @@
             </div>
         </div>
 
-        <div id="rightpanel" class="container" style="height:578px; position:absolute;top:10px;right:10px;background:#F9F9F9;padding-top:.5em;">
+        <div id="rightpanel" class="container" style="height:578px; position:absolute;top:10px;right:10px;background:#F9F9F9;padding-top:.5em; z-index:25;">
             
             <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-right"></span></div>
-            
-            <ul class="nav nav-tabs nav-justified">
+         
+         <div class="btn-toolbar" role="toolbar" style="margin-left:0;">
+             <div class="btn-group" style="margin-left:0;">
+                 <button type="button" class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button>
+                 <button type="button" class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button>
+                 <button type="button" class="btn btn-default" id="btnResults" onclick="resultsView();">Results</button>
+             </div>
+         </div>
+         
+         
+        <!--    <ul class="nav nav-tabs nav-justified">
                 <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
                 <li><a id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</a></li>
                 <li><a id="btnResults" onclick="resultsView();">Results</a></li>
             </ul>
+         -->
             <div class="row-fluid">
                 <div id="rightpanelcontent">
                     <div id="rightContentArea" style="overflow:scroll; height:488px;">

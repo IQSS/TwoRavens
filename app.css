@@ -178,7 +178,6 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 }
 */
 
-#rightpanel button {border:1px solid #ADADAD; border-bottom-width:0; border-radius:0;}
 #rightpanel #rightContentArea div {display:none;}
 #rightpanel #rightContentArea div.active {display:block;}
 
@@ -255,10 +254,10 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 .legendary {
     width:10%;
     position:absolute;
-    top:40px; 
+    bottom:0;
     right:21%;
     margin-right:10px;
-    margin-top:16px;
+    margin-bottom:10px;
 }
 .legendary .clearfix {
     margin-bottom:4px;
