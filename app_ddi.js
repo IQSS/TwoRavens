@@ -423,6 +423,7 @@ function scaffolding(v) {
     d3.select("#transformations")
     .append("input")
     .attr("id", "tInput")
+    .attr("class", "form-control")
     .attr("type", "text")
     .attr("value", "R call: func(var)");
 
@@ -1451,10 +1452,10 @@ var findNode = function(nodeName) {
 function forceSwitch() {
     forcetoggle = !forcetoggle;
     if(forcetoggle==false) {
-        document.getElementById('btnForce').setAttribute("class", "btn active navbar-right");
+        document.getElementById('btnForce').setAttribute("class", "btn active");
     }
     else {
-        document.getElementById('btnForce').setAttribute("class", "btn btn-default navbar-right");
+        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
         fakeClick();
     }
 }
@@ -1753,29 +1754,29 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 
 function legend(c) {
     if(zparams.ztime.length==0) {
-        document.getElementById("timeButton").setAttribute("style", "display:none");
+        document.getElementById("timeButton").setAttribute("class", "clearfix hide");
     }
     if(zparams.zcross.length==0) {
-        document.getElementById("csButton").setAttribute("style", "display:none");
+        document.getElementById("csButton").setAttribute("class", "clearfix hide");
     }
     if(zparams.zdv.length==0) {
-        document.getElementById("dvButton").setAttribute("style", "display:none");
+        document.getElementById("dvButton").setAttribute("class", "clearfix hide");
     }
     if(zparams.znom.length==0) {
-        document.getElementById("nomButton").setAttribute("style", "display:none");
+        document.getElementById("nomButton").setAttribute("class", "clearfix hide");
     }
 
     if(c==timeColor & zparams.ztime.length!=0) {
-        document.getElementById("timeButton").setAttribute("style", "display:block");
+        document.getElementById("timeButton").setAttribute("class", "clearfix show");
     }
     else if(c==csColor & zparams.zcross.length!=0) {
-            document.getElementById("csButton").setAttribute("style", "display:block");
+            document.getElementById("csButton").setAttribute("class", "clearfix show");
     }
     else if(c==dvColor & zparams.zdv.length!=0) {
-        document.getElementById("dvButton").setAttribute("style", "display:block");
+        document.getElementById("dvButton").setAttribute("class", "clearfix show");
     }
     else if(c==nomColor & zparams.znom.length!=0) {
-        document.getElementById("nomButton").setAttribute("style", "display:block");
+        document.getElementById("nomButton").setAttribute("class", "clearfix show");
     }
     borderState();
 }
@@ -1866,21 +1867,21 @@ function tabRight(tabid) {
     document.getElementById('results').style.display = 'none';
     
     if(tabid=="btnModels") {
-      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-      document.getElementById('btnModels').setAttribute("class", "btn active");
+      document.getElementById('btnSetx').parentNode.setAttribute("class", "default");
+      document.getElementById('btnResults').parentNode.setAttribute("class", "default");
+      document.getElementById('btnModels').parentNode.setAttribute("class", "active");
       document.getElementById('models').style.display = 'block';     
     }
     else if (tabid=="btnSetx") {
-      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-      document.getElementById('btnSetx').setAttribute("class", "btn active");
+      document.getElementById('btnModels').parentNode.setAttribute("class", "default");
+      document.getElementById('btnResults').parentNode.setAttribute("class", "default");
+      document.getElementById('btnSetx').parentNode.setAttribute("class", "active");
       document.getElementById('setx').style.display = 'block';     
     }
     else {
-      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn active");
+      document.getElementById('btnModels').parentNode.setAttribute("class", "default");
+      document.getElementById('btnSetx').parentNode.setAttribute("class", "default");
+      document.getElementById('btnResults').parentNode.setAttribute("class", "active");
       document.getElementById('results').style.display = 'block';     
     }
     
@@ -2244,8 +2245,19 @@ function setx() {
     }
 }
 
+// function to convert color codes
+function hexToRgb(hex) {
+    var h=hex.replace('#', '');
+    
+    var bigint = parseInt(h, 16);
+    var r = (bigint >> 16) & 255;
+    var g = (bigint >> 8) & 255;
+    var b = bigint & 255;
+    
+    return r + "," + g + "," + b;
+}
 
-// function takes a node and a color.  sets zparams as well.  
+// function takes a node and a color.  sets zparams as well.
 function setColors (n, c) {
     if(n.strokeWidth=='1') { // adding time, cs, dv, nom to a node with no stroke
         n.strokeWidth = '4';
@@ -2270,8 +2282,10 @@ function setColors (n, c) {
             zparams.znom.push(n.name);
         }
         
+        var cRgba = 'rgba(' + hexToRgb(c) + ', 0.5)';
+        
         d3.select("#tab1").select("p#".concat(n.name))
-        .style('background-color', c);
+        .style('background-color', cRgba);
     }
     else if (n.strokeWidth=='4') {
         if(c==n.strokeColor) { // deselecting time, cs, dv, nom
@@ -2329,13 +2343,13 @@ function setColors (n, c) {
 
 
 function borderState () {
-    if(zparams.zdv.length>0) {$('#dvButton').css('border-color', dvColor);}
+    if(zparams.zdv.length>0) {$('#dvButton .rectColor').css('background-color', dvColor);}
     else {$('#dvButton').css('border-color', '#ccc');}
-    if(zparams.zcross.length>0) {$('#csButton').css('border-color', csColor);}
+    if(zparams.zcross.length>0) {$('#csButton .rectColor').css('background-color', csColor);}
     else {$('#csButton').css('border-color', '#ccc');}
-    if(zparams.ztime.length>0) {$('#timeButton').css('border-color', timeColor);}
+    if(zparams.ztime.length>0) {$('#timeButton .rectColor').css('background-color', timeColor);}
     else {$('#timeButton').css('border-color', '#ccc');}
-    if(zparams.znom.length>0) {$('#nomButton').css('border-color', nomColor);}
+    if(zparams.znom.length>0) {$('#nomButton .rectColor').css('background-color', nomColor);}
     else {$('#nomButton').css('border-color', '#ccc');}
 }
 
