@@ -2570,6 +2570,50 @@ function addSpace() {
     layout(v=true);
 }
 
+function left() {
+    if(myspace===0) {return;}
+    
+    zPop();
+    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myParams = jQuery.extend(true, {}, zparams);
+    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    
+    var selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item');
+    
+    myspace = myspace-1;
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item active');
+
+    allNodes = jQuery.extend(true, {}, spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    
+    selectMe = "whitespace".concat(myspace);
+    svg = d3.select(selectMe);
+}
+
+function right() {
+    if(myspace===spaces.length) {return;}
+    
+    zPop();
+    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myParams = jQuery.extend(true, {}, zparams);
+    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    
+    var selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item');
+    
+    myspace = myspace+1;
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item active');
+    
+    allNodes = jQuery.extend(true, {}, spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    
+    selectMe = "whitespace".concat(myspace);
+    svg = d3.select(selectMe);
+}
+
 
 function resultsView() {
     if(estimated==false) {
