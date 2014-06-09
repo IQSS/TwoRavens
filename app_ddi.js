@@ -24,10 +24,11 @@ if (!hostname) {
 // base URL for the R apps: 
 var rappURL = "http://0.0.0.0:8000/custom/";
 
-var svg = d3.select("#main.left div.carousel-inner")
-.append('div').attr('class', 'item active').attr('id', 'm1').append('svg').attr('id', 'm2');
-
-
+// space index
+var myspace = 0;
+var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
+.append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
+           
 //.attr('width', width)
 //.attr('height', height);
 var tempWidth = d3.select("#main.left").style("width")
@@ -202,6 +203,9 @@ var transformVar = "";
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)"];
 
+// arry of objects containing allNode and zparams information
+var spaces = [];
+
 
 // load data from DDI just javascript
 //var xmlDoc=loadXMLDoc("data/strezhnev_voeten_2013.xml"); // Path to the XML file;
@@ -269,7 +273,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
             sumStats[myType] = varStats[j].childNodes[0].nodeValue;
        //console.log(varStats[j]);
        }
-       
+
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
        allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":false, "transFrom":"", "transFunc":""});
        };
@@ -512,30 +516,46 @@ function scaffolding(v) {
 }
 
 
-function layout() {
+function layout(v) {
     var myValues=[];
+    nodes = [];
+    links = [];
     
-    if(allNodes.length > 2) {
-    nodes = [allNodes[0], allNodes[1], allNodes[2]];
-    
-    // these are the initial links (arrows drawn) among the nodes
-    links = [
+    if(v === true) {
+        for(var j =0; j < zparams.zvars.length; j++ ) {
+            nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
+        }
+  
+        for(var j=0; j < zparams.zedges.length; j++) {
+            var mysrc = nodeIndex(zparams.zedges[j][0]);
+            var mytgt = nodeIndex(zparams.zedges[j][1]);
+            links.push({source:nodes[mysrc], target:nodes[mytgt], left:false, right:true});
+        }
+        console.log(links);
+        
+    }
+    else {
+        if(allNodes.length > 2) {
+            nodes = [allNodes[0], allNodes[1], allNodes[2]];
+            // these are the initial links (arrows drawn) among the nodes
+            links = [
                 {source: nodes[1], target: nodes[0], left: false, right: true },
                 {source: nodes[0], target: nodes[2], left: false, right: true }
                 ];
+        }
+        else if(allNodes.length === 2) {
+            nodes = [allNodes[0], allNodes[1]];
+            links = [{source: nodes[1], target: nodes[0], left: false, right: true }];
+        }
+        else if(allNodes.length === 1){
+            nodes = [allNodes[0]];
+        }
+        else {
+            alert("There are zero variables in the metadata.");
+            return;
+        }
+        console.log(links);
     }
-    else if(allNodes.length === 2) {
-        nodes = [allNodes[0], allNodes[1]];
-        links = [{source: nodes[1], target: nodes[0], left: false, right: true }];
-    }
-    else if(allNodes.length === 1){
-        nodes = [allNodes[0]];
-    }
-    else {
-        alert("There are zero variables in the metadata.");
-        return;
-    }
-    
     
         // init D3 force layout
         var force = d3.layout.force()
@@ -1416,7 +1436,9 @@ function layout() {
        //    document.getElementById('transformations').setAttribute("style", "display:none");
            mousedown();
            })
-    .attr("id", "whitespace")
+    .attr('id', function(){
+          return "whitespace".concat(myspace);
+          })
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
     
@@ -1441,6 +1463,12 @@ var findNodeIndex = function(nodeName) {
     for (var i in allNodes) {
         if(allNodes[i]["name"] === nodeName) {return allNodes[i]["id"];}
     };
+}
+
+var nodeIndex = function(nodeName) {
+    for (var i in nodes) {
+        if(nodes[i]["name"] === nodeName) {return i;}
+    }
 }
 
 var findNode = function(nodeName) {
@@ -1469,13 +1497,7 @@ function spliceLinksForNode(node) {
                  });
 }
 
-
-function estimate(btn) {
-    // write links to file & run R CMD
-
-   // var property=document.getElementById(btn);
-  //  property.style.backgroundColor="#66CCFF";
-    
+function zPop() {
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
     
@@ -1491,7 +1513,7 @@ function estimate(btn) {
         zparams.ztransFrom[j] = allNodes[temp].transFrom;
         zparams.ztransFunc[j] = allNodes[temp].transFunc;
     }
-
+    
     for(var j =0; j < links.length; j++ ) { //populate zedges array
         var srctgt = [];
         //correct the source target ordering for Zelig
@@ -1503,6 +1525,15 @@ function estimate(btn) {
         }
         zparams.zedges.push(srctgt);
     }
+}
+
+function estimate(btn) {
+    zPop();
+    // write links to file & run R CMD
+
+   // var property=document.getElementById(btn);
+  //  property.style.backgroundColor="#66CCFF";
+    
     
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
@@ -2514,6 +2545,31 @@ function toggleData(btnid) {
     populatePopover();
 }
 
+function addSpace() {
+    zPop();
+    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myParams = jQuery.extend(true, {}, zparams);
+    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    
+    var selectMe = "#m".concat(myspace);
+    myspace = spaces.length;
+    
+    d3.select(selectMe)
+    .attr('class', 'item');
+    
+    d3.select("#innercarousel")
+    .append('div')
+    .attr('class', 'item active')
+    .attr('id', function(){
+          return "m".concat(myspace.toString());
+          })
+    .append('svg')
+    .attr('id', 'whitespace');
+    svg = d3.select("#whitespace");
+    
+    layout(v=true);
+}
+
 
 function resultsView() {
     if(estimated==false) {
@@ -2580,7 +2636,7 @@ function resetPlots() {
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
- 
+    var myws = "#whitespace".concat(myspace);
     // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
     jQuery.fn.d3Click = function () {
         this.each(function (i, e) {
@@ -2590,9 +2646,9 @@ function fakeClick() {
                   e.dispatchEvent(evt);
                   });
     };
-    $("#whitespace").d3Click();
+    $(myws).d3Click();
     
-    d3.select("#whitespace")
+    d3.select(myws)
     .classed('active', false); // remove active class
 }
 
