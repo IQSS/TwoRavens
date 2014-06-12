@@ -486,7 +486,6 @@ function layout(v) {
     
     
     if(v === "add" | v === "move") {
-        console.log(d3.select("#tab1"));
         d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
             nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
@@ -2529,7 +2528,21 @@ function addSpace() {
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
     
+    selectMe = "navdot".concat(myspace);
+    var mynavdot = document.getElementById(selectMe);
+    mynavdot.setAttribute("class", "");
+    
     myspace = spaces.length;
+    
+    selectMe = "navdot".concat(myspace-1);
+    mynavdot = document.getElementById(selectMe);
+    
+    var newnavdot = document.createElement("li");
+    newnavdot.setAttribute("class", "active");
+    selectMe = "navdot".concat(myspace);
+    newnavdot.setAttribute("id", selectMe);
+    mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+
     
     d3.select("#innercarousel")
     .append('div')
@@ -2542,6 +2555,8 @@ function addSpace() {
     svg = d3.select("#whitespace");
 
     layout(v="add");
+    
+
 
 }
 
@@ -2566,7 +2581,16 @@ function left() {
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
     
+    selectMe = "navdot".concat(myspace);
+    var mynavdot = document.getElementById(selectMe);
+    mynavdot.setAttribute("class", "");
+    
     myspace = myspace-1;
+    
+    selectMe = "navdot".concat(myspace);
+    newnavdot = document.getElementById(selectMe);
+    newnavdot.setAttribute("class", "active");
+    
     selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item active')
     .append('svg').attr('id', function(){
@@ -2601,7 +2625,16 @@ function right() {
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
     
+    selectMe = "navdot".concat(myspace);
+    var mynavdot = document.getElementById(selectMe);
+    mynavdot.setAttribute("class", "");
+    
     myspace = myspace+1;
+    
+    selectMe = "navdot".concat(myspace);
+    newnavdot = document.getElementById(selectMe);
+    newnavdot.setAttribute("class", "active");
+    
     selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item active')
     .append('svg').attr('id', function(){
@@ -2617,7 +2650,6 @@ function right() {
     
     layout(v="move");
 }
-
 
 function resultsView() {
     if(estimated==false) {
