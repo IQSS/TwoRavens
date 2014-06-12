@@ -203,8 +203,9 @@ var transformVar = "";
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)"];
 
-// arry of objects containing allNode and zparams information
+// arry of objects containing allNode, zparams, transform vars
 var spaces = [];
+var trans = []; //var list for each space contain variables in original data plus trans in that space
 
 
 // load data from DDI just javascript
@@ -385,45 +386,7 @@ function scaffolding(v) {
         
         return;
     }
- /*
-    // drop down menu for tranformation toolbar
-    var select  = d3.select("#transformations")
-    .append("select")
-    .on("change", change)
-    .attr("id", "transSel");
-    var options = select.selectAll('option').data(valueKey); // Data join
-    
-    // Enter selection
-    options.enter()
-    .append("option")
-    .text(function(d) {return d; });
-    
-    function change() {
-        var selectedIndex = select.property('selectedIndex');
-        transformVar = valueKey[selectedIndex];
-        //var data = options[selectedIndex].datum();
-    }
-    
-    d3.select("#transformations").selectAll("p")
-    .data(transformList)
-    .enter()
-    .append("p")
-    .attr("id",function(d){return d;})
-    .text(function(d){return d;})
-    .style('background-color',varColor)
-    .on("click", function(){
-        d3.select(this)
-        .style('background-color',function() {
-               var myText = d3.select(this).text();
-               transform(transformVar, myText); // the function that calls R to transform
-               var myColor = d3.select(this).style('background-color');
-               if(d3.rgb(myColor).toString() === varColor.toString()) {return selVarColor;}
-               else {return varColor;}
-               });
-        });
-  
-    */
-
+ 
     d3.select("#transformations")
     .append("input")
     .attr("id", "tInput")
@@ -496,7 +459,7 @@ function scaffolding(v) {
     .data(valueKey)
     .enter()
     .append("p")
-    .attr("id",function(d){return d;})
+    .attr("id",function(d){return d;}) // perhapse make this id a bit more unique, add '_' to the front maybe to avoid potential duplicate ids with others that exist
     .text(function(d){return d;})
     .style('background-color',function(d) {
            if(findNodeIndex(d) > 2) {return varColor;}
@@ -521,9 +484,14 @@ function layout(v) {
     nodes = [];
     links = [];
     
-    if(v === true) {
+    
+    if(v === "add" | v === "move") {
+        console.log(d3.select("#tab1"));
+        d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
             nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
+            var selectMe = "#".concat(zparams.zvars[j]);
+            d3.select(selectMe).style('background-color',selVarColor);
         }
   
         for(var j=0; j < zparams.zedges.length; j++) {
@@ -531,7 +499,7 @@ function layout(v) {
             var mytgt = nodeIndex(zparams.zedges[j][1]);
             links.push({source:nodes[mysrc], target:nodes[mytgt], left:false, right:true});
         }
-        console.log(links);
+    //    if(v === "move") {restart(); return}; // only updating nodes and links, both of whom live inside layout
         
     }
     else {
@@ -556,8 +524,8 @@ function layout(v) {
         }
         console.log(links);
     }
-    
-        // init D3 force layout
+   
+    // init D3 force layout
         var force = d3.layout.force()
         .nodes(nodes)
         .links(links)
@@ -1507,6 +1475,7 @@ function zPop() {
     for(var j =0; j < nodes.length; j++ ) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
         var temp = findNodeIndex(nodes[j].name);
+        
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
         zparams.ztransformed[j] = allNodes[temp].transformed;
@@ -1691,6 +1660,7 @@ function transform(n,t) {
         var rCall = [];
         rCall[0] = json.call;
         var newVar = rCall[0][0];
+        trans.push(newVar);
         
         d3.select("#ticker").selectAll("p")
         .data(rCall)
@@ -2545,17 +2515,21 @@ function toggleData(btnid) {
     populatePopover();
 }
 
+// for the following three functions, the general idea is to store the new information for the current space, and then move myspace according (right: +1, left: -1, addSpace: spaces.length)
 function addSpace() {
+
     zPop();
-    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
-    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    var myTrans = jQuery.extend(true, [], trans);
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
     
     var selectMe = "#m".concat(myspace);
-    myspace = spaces.length;
+    d3.select(selectMe).attr('class', 'item');
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
     
-    d3.select(selectMe)
-    .attr('class', 'item');
+    myspace = spaces.length;
     
     d3.select("#innercarousel")
     .append('div')
@@ -2566,52 +2540,82 @@ function addSpace() {
     .append('svg')
     .attr('id', 'whitespace');
     svg = d3.select("#whitespace");
-    
-    layout(v=true);
+
+    layout(v="add");
+
 }
 
 function left() {
-    if(myspace===0) {return;}
-    
+    if(myspace===0) {return;} // can't move left when at 0
+   
+
     zPop();
-    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
-    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    var myTrans = jQuery.extend(true, [], trans);
+    
+    if(typeof spaces[myspace] === "undefined") {
+        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans});
+    }
+    else {
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
+    }
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
     
     myspace = myspace-1;
     selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item active');
-
-    allNodes = jQuery.extend(true, {}, spaces[myspace].allNodes);
-    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    d3.select(selectMe).attr('class', 'item active')
+    .append('svg').attr('id', function(){
+                        return "whitespace".concat(myspace);
+                        });
     
-    selectMe = "whitespace".concat(myspace);
+    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    trans = jQuery.extend(true, [], spaces[myspace].trans);
+  
+    selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
+    
+    layout(v="move");
+
 }
 
 function right() {
-    if(myspace===spaces.length) {return;}
     
+    if(myspace >= spaces.length-1) {return;} // can't move right past right most space
+
     zPop();
-    var myNodes = jQuery.extend(true, {}, allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
-    spaces.push({"allNodes":myNodes, "zparams":myParams});
+    var myTrans = jQuery.extend(true, [], trans);
+    
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
+    
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
     
     myspace = myspace+1;
     selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item active');
+    d3.select(selectMe).attr('class', 'item active')
+    .append('svg').attr('id', function(){
+                        return "whitespace".concat(myspace);
+                        });
     
-    allNodes = jQuery.extend(true, {}, spaces[myspace].allNodes);
+    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    trans = jQuery.extend(true, [], spaces[myspace].trans);
     
-    selectMe = "whitespace".concat(myspace);
+    selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
+    
+    layout(v="move");
 }
 
 
