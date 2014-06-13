@@ -315,10 +315,13 @@ d3.xml(metadataurl, "application/xml", function(xml) {
 function scaffolding(v) {
 
     if(typeof v !== "undefined") {
+        
         d3.select("#tab1")
         .data(v)
         .append("p")
-        .attr("id",v[0])
+        .attr("id",function(){
+              return v[0].replace(/\W/g, "_");
+              })
         .text(v[0])
         .style('background-color',selVarColor)
         .attr("data-container", "body")
@@ -459,7 +462,9 @@ function scaffolding(v) {
     .data(valueKey)
     .enter()
     .append("p")
-    .attr("id",function(d){return d;}) // perhapse make this id a bit more unique, add '_' to the front maybe to avoid potential duplicate ids with others that exist
+    .attr("id",function(d){
+          return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
+          }) // perhapse ensure this id is unique by adding '_' to the front?
     .text(function(d){return d;})
     .style('background-color',function(d) {
            if(findNodeIndex(d) > 2) {return varColor;}
@@ -489,7 +494,8 @@ function layout(v) {
         d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
             nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
-            var selectMe = "#".concat(zparams.zvars[j]);
+            var selectMe = zparams.zvars[j].replace(/\W/g, "_");
+            selectMe = "#".concat(selectMe);
             d3.select(selectMe).style('background-color',nodes[j].strokeColor);
         }
   
@@ -502,7 +508,6 @@ function layout(v) {
     else {
         if(allNodes.length > 2) {
             nodes = [allNodes[0], allNodes[1], allNodes[2]];
-            // these are the initial links (arrows drawn) among the nodes
             links = [
                 {source: nodes[1], target: nodes[0], left: false, right: true },
                 {source: nodes[0], target: nodes[2], left: false, right: true }
@@ -519,7 +524,6 @@ function layout(v) {
             alert("There are zero variables in the metadata.");
             return;
         }
-        console.log(links);
     }
    
     // init D3 force layout
