@@ -490,7 +490,7 @@ function layout(v) {
         for(var j =0; j < zparams.zvars.length; j++ ) {
             nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
             var selectMe = "#".concat(zparams.zvars[j]);
-            d3.select(selectMe).style('background-color',selVarColor);
+            d3.select(selectMe).style('background-color',nodes[j].strokeColor);
         }
   
         for(var j=0; j < zparams.zedges.length; j++) {
@@ -498,8 +498,6 @@ function layout(v) {
             var mytgt = nodeIndex(zparams.zedges[j][1]);
             links.push({source:nodes[mysrc], target:nodes[mytgt], left:false, right:true});
         }
-    //    if(v === "move") {restart(); return}; // only updating nodes and links, both of whom live inside layout
-        
     }
     else {
         if(allNodes.length > 2) {
