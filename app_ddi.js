@@ -69,7 +69,6 @@ var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
-var transformHold = false;
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
@@ -1068,7 +1067,6 @@ function layout(v) {
   //          })
         .on('dblclick', function(d){
             d3.event.stopPropagation(); // stop click from bubbling
-            transformHold=true;
             document.getElementById('transformations').setAttribute("style", "display:block");
 /*
             if(d3.event.ctrlKey) return;
@@ -1103,6 +1101,8 @@ function layout(v) {
             .style('marker-end', 'url(#end-arrow)')
             .classed('hidden', false)
             .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+            
+            svg.on('mousemove', mousemove);
             
             restart();
             })
@@ -1155,6 +1155,7 @@ function layout(v) {
             // select new link
             selected_link = link;
             selected_node = null;
+            svg.on('mousemove', null);
             resetMouseVars();
             restart();
             });
@@ -1217,9 +1218,7 @@ function layout(v) {
 */
         .on("mouseout", function(d) {
             tabLeft(lefttab);
-            if(transformHold===false) {
-          //  document.getElementById('transformations').setAttribute("style", "display:none");
-            }
+
             d3.select("#csArc".concat(d.id)).transition()
             .attr("fill-opacity", 0)
             .delay(100)
@@ -1302,13 +1301,6 @@ function layout(v) {
         
         if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
         
-        //  insert new node at point
-        //  var point = d3.mouse(this),
-        //      node = {id: ++lastNodeId, reflexive: false};
-        //  node.x = point[0];
-        //  node.y = point[1];
-        //  nodes.push(node);
-        
         restart();
     }
     
@@ -1317,8 +1309,6 @@ function layout(v) {
         
         // update drag line
         drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-        
-        restart();
     }
     
     // why not move all the code from pebble.on(mouseup) here?  it seems like we are doing the same thing in two places...
@@ -1337,83 +1327,17 @@ function layout(v) {
         resetMouseVars();
     }
     
-    
-    
-    // only respond once per keydown
-    var lastKeyDown = -1;
-    
-    function keydown() {
-      //  d3.event.preventDefault();
-        
-        if(lastKeyDown !== -1) return;
-        lastKeyDown = d3.event.keyCode;
-        
-        if(!selected_node && !selected_link) return;
-        switch(d3.event.keyCode) {
-            case 8: // backspace
-            case 46: // delete
-               /*  can no longer delete nodes, only links.  node deletion is handled in #leftpanel
-                if(selected_node) {
-                    nodes.splice(nodes.indexOf(selected_node), 1);
-                    spliceLinksForNode(selected_node);
-                } else if(selected_link) {   */
-                    links.splice(links.indexOf(selected_link), 1);
-                //}
-                selected_link = null;
-                selected_node = null;
-                restart();
-                break;
-            case 66: // B
-                if(selected_link) {
-                    // set link direction to both left and right
-                    selected_link.left = true;
-                    selected_link.right = true;
-                }
-                restart();
-                break;
-            case 76: // L
-                if(selected_link) {
-                    // set link direction to left only
-                    selected_link.left = true;
-                    selected_link.right = false;
-                }
-                restart();
-                break;
-            case 82: // R
-                if(selected_node) {
-                    // toggle node reflexivity
-                    selected_node.reflexive = !selected_node.reflexive;
-                } else if(selected_link) {
-                    // set link direction to right only
-                    selected_link.left = false;
-                    selected_link.right = true;
-                }
-                restart();
-                break;
-        }
-    }
-    
-    function keyup() {
-        lastKeyDown = -1;
-        
-    }
-    
     // app starts here
    
     svg.on('mousedown', function() {
-           transformHold=false;
-       //    document.getElementById('transformations').setAttribute("style", "display:none");
            mousedown();
            })
     .attr('id', function(){
           return "whitespace".concat(myspace);
           })
-    .on('mousemove', mousemove)
     .on('mouseup', mouseup);
     
     d3.select(window)
-    .on('keydown', keydown)
-    .on('keyup', keyup)
     .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
         $('#transList').fadeOut(100);
         $('#transSel').fadeOut(100);
@@ -2365,7 +2289,7 @@ function nodeReset (n) {
 function subsetSelect(btn) {
     
     
-    if(document.getElementById('btnD1').getAttribute('class')=="btn active") { // deep clone if Original Data button is active with this sweet hack from SO
+    if(document.getElementById('btnD1').getAttribute('class')=="btn active") {
         originalNodes=JSON.parse(JSON.stringify(allNodes));
     }
     
