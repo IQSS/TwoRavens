@@ -200,6 +200,7 @@ var subsetNodes = [];
 var links = [];
 var nodes = [];
 var transformVar = "";
+var summaryHold = false;
 
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)"];
@@ -1064,9 +1065,9 @@ function layout(v) {
             //tooltip.style("visibility", "hidden");
             d3.select(this).attr('transform', '');
             })
- //       .on('mousedown', function(d) {
-  //          d3.event.stopPropagation();
-  //          })
+        .on('mousedown', function(d) {
+            summaryHold = true;
+            })
         .on('dblclick', function(d){
             d3.event.stopPropagation(); // stop click from bubbling
             document.getElementById('transformations').setAttribute("style", "display:block");
@@ -1175,8 +1176,8 @@ function layout(v) {
         // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
         .on("mouseover", function(d) {
-                tabLeft("tab3");
-                varSummary(d);
+            tabLeft("tab3");
+            varSummary(d);
             document.getElementById('transformations').setAttribute("style", "display:block");
             var select = document.getElementById("transSel");
             select.selectedIndex = d.id;
@@ -1219,7 +1220,7 @@ function layout(v) {
             d3.select("#tooltip").style("display", "inline");
 */
         .on("mouseout", function(d) {
-            tabLeft(lefttab);
+            if(summaryHold===false) { tabLeft(lefttab); }
 
             d3.select("#csArc".concat(d.id)).transition()
             .attr("fill-opacity", 0)
@@ -1780,25 +1781,29 @@ function loadXMLDoc(XMLname)
 
 function tabLeft(tab) {
     tabi = tab.substring(3);
-    //myattr = document.getElementById('btnPanel'+tabi).getAttribute("class");   // what does this do?
-    document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
-
+    
+    if(tab != "tab3") {
+        document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
+    }
+    
     document.getElementById('tab1').style.display = 'none';
     document.getElementById('tab2').style.display = 'none';
     document.getElementById('tab3').style.display = 'none';
 
     if(tabi==1) {
+        summaryHold = false;
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
-        document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+     //   document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
     }
     else if (tabi==2) {
+        summaryHold = false;
         document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
-        document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+     //   document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
     }
     else {
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
         document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
-    } 
+    }
     document.getElementById(tab).style.display = 'block';
 }
 
@@ -1883,8 +1888,7 @@ function tabRight(tabid) {
 
 
 function varSummary(d) {
-    //Create the tooltip label
-
+  
     // This is mirrored in popup -- should make reusable function
     function threeSF(x){
       var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
@@ -1946,26 +1950,6 @@ function varSummary(d) {
       .selectAll("svg")                     
       .remove();
     };
-
-
-    /*
-    .html("<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + d.median + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + d.maximum + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + d.minimum + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + d.mean + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + d.invalid + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + d.valid + "</p></div></div>" +
-          
-          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + d.standardDeviation + "</p></div></div>"
-          );
-    */
 }
 
 function populatePopover () {
@@ -2547,8 +2531,6 @@ function addSpace() {
     svg = d3.select("#whitespace");
 
     layout(v="add");
-    
-
 
 }
 
