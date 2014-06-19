@@ -69,6 +69,8 @@ var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
+var mouseDrag = false;
+var mousePos = [];
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
@@ -1292,34 +1294,53 @@ function layout(v) {
     }  //end restart function
     
     
-    function mousedown() {
+    function mousedown(d) {
         // prevent I-bar on drag
         d3.event.preventDefault();
         
         // because :active only works in WebKit?
         svg.classed('active', true);
         
-        if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
+        if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
+            mouseDrag = true;
+            mousePos = d3.mouse(d);
+            console.log(mouseDrag);
+            console.log(mousePos);
+
+            return;
+        }
         
         restart();
     }
     
-    function mousemove() {
+    function mousemove(d) {
         if(!mousedown_node) return;
+        else if (mouseDrag) {
+            console.log("mousedrag");
+            var endDrag = d3.mouse(d);
+            console.log(endDrag);
+            /*
+             if(mousePos[0]+(.2*svg.getAttribute("width")) < ) {
+             left();
+             } else if () {
+             right();
+             }   */
+            mouseDrag = false;
+        }
+
         
         // update drag line
         drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
     }
     
     // why not move all the code from pebble.on(mouseup) here?  it seems like we are doing the same thing in two places...
-    function mouseup() {
+    function mouseup(d) {
         if(mousedown_node) {
             // hide drag line
             drag_line
             .classed('hidden', true)
             .style('marker-end', '');
         }
-
         // because :active only works in WebKit?
         svg.classed('active', false);
     
@@ -1329,13 +1350,15 @@ function layout(v) {
     
     // app starts here
    
-    svg.on('mousedown', function() {
-           mousedown();
+    svg.attr('id', function(){
+             return "whitespace".concat(myspace);
+             })
+    .on('mousedown', function() {
+           mousedown(this);
            })
-    .attr('id', function(){
-          return "whitespace".concat(myspace);
-          })
-    .on('mouseup', mouseup);
+    .on('mouseup', function() {
+        mouseup(this);
+        });
     
     d3.select(window)
     .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
@@ -1345,8 +1368,6 @@ function layout(v) {
     
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
-    
-   // } // end update
 
 } // end layout
 
@@ -1561,8 +1582,6 @@ function transform(n,t) {
     var jsonout = JSON.stringify(transformstuff);
     var base = rappURL+"transformapp?solaJSON="
     
-    //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
-    //urlcall = base.concat(test);
     urlcall = base.concat(jsonout);
     console.log("urlcall out: ", urlcall);
     
@@ -1570,17 +1589,6 @@ function transform(n,t) {
     function transformSuccess(btn, json) {
         estimateLadda.stop();
         console.log("json in: ", json);
-        
-        // pipe in figures to right panel
-        var filelist = new Array;
-        for(var i in json.images) {
-            var zfig = document.createElement("img");
-            zfig.setAttribute("src", json.images[i]);
-            zfig.setAttribute('width', 200);
-            zfig.setAttribute('height', 200);
-            myparent.appendChild(zfig);
-            //            filelist.push(json[i]);
-        }
         
         var rCall = [];
         rCall[0] = json.call;
@@ -1593,8 +1601,16 @@ function transform(n,t) {
         .append("p")
         .text(function(d){ return d; });
         
+        // add transformed variable to the current space
         var i = allNodes.length;
         allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
+        
+        // add transformed variable to all spaces
+        for(var j in spaces) {
+            var i = spaces[j].allNodes.length;
+
+            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
+        }
         
         valueKey.push(newVar);
         nodes.push(findNode(newVar));
@@ -2440,6 +2456,56 @@ function toggleData(btnid) {
     populatePopover();
 }
 
+
+function delSpace() {
+    console.log(myspace);
+    console.log(spaces.length);
+    if (spaces.length===0 | (spaces.length===1 & myspace===0)) {return;}
+    var lastSpace = false;
+    if(myspace >= spaces.length-1) { console.log("lastspace"); lastSpace=true; }
+    spaces.splice(myspace, 1);
+    
+    // remove current whitespace
+    var selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item');
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
+    
+    // remove last navdot
+    selectMe = "navdot".concat(spaces.length);
+    var mynavdot = document.getElementById(selectMe);
+    mynavdot.parentElement.removeChild(mynavdot); // remove from parent to remove the pointer to the child
+    
+    // remove last inner carousel m
+    selectMe = "m".concat(spaces.length);
+    var mynavdot = document.getElementById(selectMe);
+    mynavdot.parentElement.removeChild(mynavdot);
+    
+    if(lastSpace) { myspace = myspace-1; }
+    
+    selectMe = "navdot".concat(myspace);
+    newnavdot = document.getElementById(selectMe);
+    newnavdot.setAttribute("class", "active");
+    
+    // add whitespace back in to current inner carousel m
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe).attr('class', 'item active')
+    .append('svg').attr('id', function(){
+                        return "whitespace".concat(myspace);
+                        });
+    
+    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    trans = jQuery.extend(true, [], spaces[myspace].trans);
+    
+    selectMe = "#whitespace".concat(myspace);
+    svg = d3.select(selectMe);
+    
+    layout(v="move");
+    console.log(myspace);
+}
+
+
 // for the following three functions, the general idea is to store the new information for the current space, and then move myspace according (right: +1, left: -1, addSpace: spaces.length)
 function addSpace() {
 
@@ -2456,7 +2522,7 @@ function addSpace() {
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
-    mynavdot.setAttribute("class", "");
+    mynavdot.removeAttribute("class");
     
     myspace = spaces.length;
     
@@ -2509,7 +2575,7 @@ function left() {
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
-    mynavdot.setAttribute("class", "");
+    mynavdot.removeAttribute("class");
     
     myspace = myspace-1;
     
@@ -2553,7 +2619,7 @@ function right() {
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
-    mynavdot.setAttribute("class", "");
+    mynavdot.removeAttribute("class");
     
     myspace = myspace+1;
     
