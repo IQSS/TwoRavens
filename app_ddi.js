@@ -1699,6 +1699,13 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 
 
 function legend(c) {
+    if (zparams.ztime.length!=0 | zparams.zcross.length!=0 | zparams.zdv.length!=0 | zparams.znom.length!=0) {
+        document.getElementById("legend").setAttribute("style", "display:block");
+    }
+    else {
+        document.getElementById("legend").setAttribute("style", "display:none");
+    }
+    
     if(zparams.ztime.length==0) {
         document.getElementById("timeButton").setAttribute("class", "clearfix hide");
     }
