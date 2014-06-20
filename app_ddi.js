@@ -62,7 +62,7 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 //.style("top", yPos + "px")
 
 
-var forcetoggle=true;
+var forcetoggle=["true"];
 var estimated=false;
 var subseted=false; //use this to tell users they have subseted the data
 var resultsViewer=false;
@@ -707,7 +707,7 @@ function layout(v) {
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
     
         circle.call(force.drag);
-        if(forcetoggle)
+        if(forcetoggle[0]==="true")
         {
             force.gravity(0.1);
             force.charge(-800);
@@ -1065,12 +1065,12 @@ function layout(v) {
             //tooltip.style("visibility", "hidden");
             d3.select(this).attr('transform', '');
             })
-        .on('mousedown', function(d) {
-            summaryHold = true;
-            })
+  //      .on('mousedown', function(d) {
+   //         })
         .on('dblclick', function(d){
             d3.event.stopPropagation(); // stop click from bubbling
-            document.getElementById('transformations').setAttribute("style", "display:block");
+            summaryHold = true;
+//            document.getElementById('transformations').setAttribute("style", "display:block");
 /*
             if(d3.event.ctrlKey) return;
             
@@ -1391,10 +1391,12 @@ var findNode = function(nodeName) {
 }
 
 
-// functions called by buttons
+// function called by force button
 function forceSwitch() {
-    forcetoggle = !forcetoggle;
-    if(forcetoggle==false) {
+    if(forcetoggle[0]==="true") { forcetoggle = ["false"];}
+    else {forcetoggle = ["true"]}
+
+    if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
     }
     else {
@@ -1402,6 +1404,7 @@ function forceSwitch() {
         fakeClick();
     }
 }
+
 
 function spliceLinksForNode(node) {
     var toSplice = links.filter(function(l) {
@@ -2497,7 +2500,9 @@ function addSpace() {
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
+    var myForce = jQuery.extend(true, [], forcetoggle);
+  
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
@@ -2539,15 +2544,17 @@ function left() {
    
 
     zPop();
+    
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
+    var myForce = jQuery.extend(true, [], forcetoggle);
     
     if(typeof spaces[myspace] === "undefined") {
-        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans});
+        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce});
     }
     else {
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
     }
     
     var selectMe = "#m".concat(myspace);
@@ -2574,6 +2581,15 @@ function left() {
     allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
     trans = jQuery.extend(true, [], spaces[myspace].trans);
+    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    
+    if(forcetoggle[0]==="false") {
+        document.getElementById('btnForce').setAttribute("class", "btn active");
+    }
+    else {
+        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+    }
+
   
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2590,8 +2606,9 @@ function right() {
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
+    var myForce = jQuery.extend(true, [], forcetoggle);
     
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
     
     
     var selectMe = "#m".concat(myspace);
@@ -2618,6 +2635,16 @@ function right() {
     allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
     trans = jQuery.extend(true, [], spaces[myspace].trans);
+    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    
+    if(forcetoggle[0]==="false") {
+        document.getElementById('btnForce').setAttribute("class", "btn active");
+    }
+    else {
+        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+    }
+
+
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
