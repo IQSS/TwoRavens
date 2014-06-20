@@ -1743,6 +1743,7 @@ function reset() {
 function erase() {
     subsetOff();
     setxOff();
+    document.getElementById("legend").setAttribute("style", "display:none");
     
     lefttab='tab1';
     tabLeft('tab1');
