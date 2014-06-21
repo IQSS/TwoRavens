@@ -69,8 +69,6 @@ var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
-var mouseDrag = false;
-var mousePos = [];
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
@@ -292,6 +290,9 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        .data(modellist)
        .enter()
        .append("p")
+       .attr("id", function(d){
+           return "_model_".concat(d);
+           })
        .text(function(d){return d;})
        .style('background-color',function(d) {
               return varColor;
@@ -1106,7 +1107,6 @@ function layout(v) {
             .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
             
             svg.on('mousemove', mousemove);
-            
             restart();
             })
         .on('mouseup', function(d) {
@@ -1116,6 +1116,7 @@ function layout(v) {
                 rightClickLast=false;
                 return;
             }
+           
             if(!mousedown_node) return;
             
             // needed by FF
@@ -1303,11 +1304,6 @@ function layout(v) {
         svg.classed('active', true);
         
         if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
-            mouseDrag = true;
-            mousePos = d3.mouse(d);
-            console.log(mouseDrag);
-            console.log(mousePos);
-
             return;
         }
         
@@ -1316,19 +1312,6 @@ function layout(v) {
     
     function mousemove(d) {
         if(!mousedown_node) return;
-        else if (mouseDrag) {
-            console.log("mousedrag");
-            var endDrag = d3.mouse(d);
-            console.log(endDrag);
-            /*
-             if(mousePos[0]+(.2*svg.getAttribute("width")) < ) {
-             left();
-             } else if () {
-             right();
-             }   */
-            mouseDrag = false;
-        }
-
         
         // update drag line
         drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
@@ -1369,7 +1352,6 @@ function layout(v) {
     
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
-
 } // end layout
 
 
@@ -1698,7 +1680,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
 }
 
 
-function legend(c) {
+function legend(c) { // this could be made smarter
     if (zparams.ztime.length!=0 | zparams.zcross.length!=0 | zparams.zdv.length!=0 | zparams.znom.length!=0) {
         document.getElementById("legend").setAttribute("style", "display:block");
     }
@@ -1706,31 +1688,32 @@ function legend(c) {
         document.getElementById("legend").setAttribute("style", "display:none");
     }
     
+    
     if(zparams.ztime.length==0) {
         document.getElementById("timeButton").setAttribute("class", "clearfix hide");
+    }
+    else {
+        document.getElementById("timeButton").setAttribute("class", "clearfix show");
     }
     if(zparams.zcross.length==0) {
         document.getElementById("csButton").setAttribute("class", "clearfix hide");
     }
+    else {
+        document.getElementById("csButton").setAttribute("class", "clearfix show");
+    }
     if(zparams.zdv.length==0) {
         document.getElementById("dvButton").setAttribute("class", "clearfix hide");
+    }
+    else {
+        document.getElementById("dvButton").setAttribute("class", "clearfix show");
     }
     if(zparams.znom.length==0) {
         document.getElementById("nomButton").setAttribute("class", "clearfix hide");
     }
-
-    if(c==timeColor & zparams.ztime.length!=0) {
-        document.getElementById("timeButton").setAttribute("class", "clearfix show");
-    }
-    else if(c==csColor & zparams.zcross.length!=0) {
-            document.getElementById("csButton").setAttribute("class", "clearfix show");
-    }
-    else if(c==dvColor & zparams.zdv.length!=0) {
-        document.getElementById("dvButton").setAttribute("class", "clearfix show");
-    }
-    else if(c==nomColor & zparams.znom.length!=0) {
+    else {
         document.getElementById("nomButton").setAttribute("class", "clearfix show");
     }
+    
     borderState();
 }
 
@@ -2598,11 +2581,15 @@ function left() {
         document.getElementById('btnForce').setAttribute("class", "btn btn-default");
     }
 
-  
+    d3.select("#models").selectAll("p").style("background-color", varColor);
+    selectMe = "#_model_".concat(zparams.zmodel);
+    d3.select(selectMe).style("background-color", selVarColor);
+    
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     
     layout(v="move");
+    legend();
 
 }
 
@@ -2652,12 +2639,15 @@ function right() {
         document.getElementById('btnForce').setAttribute("class", "btn btn-default");
     }
 
-
+    d3.select("#models").selectAll("p").style("background-color", varColor);
+    selectMe = "#_model_".concat(zparams.zmodel);
+    d3.select(selectMe).style("background-color", selVarColor);
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     
     layout(v="move");
+    legend();
 }
 
 function resultsView() {
