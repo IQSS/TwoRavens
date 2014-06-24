@@ -446,7 +446,11 @@ function scaffolding(v) {
                        if(event.keyCode == 13){ // keyup on "Enter"
                             var n = $('#tInput').val();
                             var t = transParse(n=n);
-                            transform(n=t[0], t=t[1]);
+                            if(t === null) {return;}
+               //        console.log(t);
+                 //      console.log(t.slice(0, t.length-1));
+                   //    console.log(t[t.length-1]);
+                            transform(n=t.slice(0, t.length-1), t=t[t.length-1]);
                        }
                     });
     
@@ -1547,22 +1551,38 @@ function estimate(btn) {
 }
 
 function transParse(n) {
+    var out = [];
+    var t = n;
+    var k = 0;
+    var subMe = "_transvar".concat(k);
+    
     for(var i in valueKey) {
         var m = n.match(valueKey[i]);
         if(m !== null) {
-            var t = n.replace(m, "20BarrySanders20"); //something that'll never be a variable name
-            //transform(n=m[0], t=t);
-            return [n=m[0], t=t];
+            t = t.replace(m, subMe); //something that'll never be a variable name
+            k = k+1;
+            subMe = "_transvar".concat(k);
+            //return [n=m[0], t=t];
+            out.push(m[0]);
         }
     }
+    if(out.length > 0) {
+        out.push(t);
+        return(out);
+    }
+    
     if(m===null) {
         alert("No variable name found. Perhaps check your spelling?");
-        return;
+        return null;
     }
 }
 
 function transform(n,t) {
     t = t.replace("+", "_plus_"); // there is a bug in R's json parse
+    
+    console.log(n);
+    console.log(t);
+    
     var btn = document.getElementById('btnEstimate');
     
     //package the output as JSON

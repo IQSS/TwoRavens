@@ -584,7 +584,14 @@ subset.app <- function(env){
 }
 
 transform <- function(data, func) {
-    x <- gsub("20BarrySanders20", "data[,1]", func)
+    x <- gsub("_transvar0", "data[,1]", func)
+    if(ncol(data)>1) {
+        for(i in 2:ncol(data)) {
+            sub1 <- paste("_transvar", i-1, sep="")
+            sub2 <- paste("data[,", i, "]")
+            x <- gsub(sub1, sub2, x)
+        }
+    }
     x <- gsub("_plus_", "+", x)
     x <- paste("data[,1] <- ", x)
     print(x)
@@ -643,13 +650,22 @@ transform.app <- function(env){
         {
             call <- "no transformation"
             print(myvars)
-            t <- which(colnames(mydata)==myvars)
+            t <- which(colnames(mydata) %in% myvars)
             tdata <- as.data.frame(mydata[,t])
-            colnames(tdata) <- myvars
+            colnames(tdata) <- colnames(mydata)[t]
             
             tdata <- transform(data=tdata, func=myT)
+            tdata <- as.data.frame(tdata[,1])
+            
             call <- gsub("_plus_", "+", myT) # + operator disappears, probably a jsonlite parsing bug, so + operator is mapped to '_plus_' in the javascript, and remapped to + operator here
-            call <- gsub("20BarrySanders20", myvars, call)
+            call <- gsub("_transvar0", myvars[1], call)
+            if(length(myvars)>1) {
+                for(i in 2:length(myvars)) {
+                    sub1 <- paste("_transvar", i-1, sep="")
+                    sub2 <- myvars[i]
+                    call <- gsub(sub1, sub2, call)
+                }
+            }
             colnames(tdata) <- call
             
             sumstats <- calcSumStats(tdata)
