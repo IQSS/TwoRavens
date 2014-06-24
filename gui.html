@@ -35,7 +35,8 @@
           <div>
               <div class="navbar-header" onmouseover="about();" onmouseout="closeabout();" >
                   <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em">
-                  <div id="about" style="position:absolute;height:170px;width:380px;padding:2px;background-color:white; border:1px solid red; display:none; z-index:10;">        
+                  <div id="about" class="panel panel-default" style="position:absolute; left:140px; width:380px; display:none; z-index:50;">
+                    <div class="panel-body"> </div>
                   </div>
               </div>
                  
@@ -49,7 +50,7 @@
                     <button class="btn btn-default" id="btnD2" title="Deciduous" onclick="toggleData('btnD2');"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-tree-deciduous"></span></button>
                   </span>
 -->
-                  <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate!</span></button>
+                  <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                   <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-right:1.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
                 <!--  previous location of Force and Reset icons  -->
               </div>  
@@ -66,11 +67,11 @@
         </ol>-->
         <ol class="carousel-indicators">
             <button class="btn btn-default" id="TEMP" title="MOVE LEFT" style="margin-left:1em;" onclick="left();"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-arrow-left"></span></button>
-            <li id="delete"><a href="#delete"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
+            <li id="delete"><a href="#delete" title="Delete Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
             <li data-target="#carousel-example-generic" data-slide-to="0" class="active" id="navdot0"></li>
             <!--   <li data-target="#carousel-example-generic" data-slide-to="1"></li>
             <li data-target="#carousel-example-generic" data-slide-to="2"></li>   -->
-            <li id="create"><a href="#create"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
+            <li id="create"><a href="#create" title="Create Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
             <button class="btn btn-default" id="TEMP2" title="MOVE RIGHT" style="margin-left:1em;" onclick="right();"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-arrow-right"></span></button>
         </ol>
         
@@ -101,16 +102,32 @@
             </div>
             <div class="panel-body">
                 <div id="timeButton" class="clearfix hide">
-                    <div class="rectColor"></div> <div class="rectLabel">Time</div>
+                    <div class="rectColor">
+                      <svg style="width:20px;height:20px;">
+                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                      </svg>
+                    </div> <div class="rectLabel">Time</div>
                 </div>
                 <div id="csButton" class="clearfix hide">
-                    <div class="rectColor"></div> <div class="rectLabel">Cross Sec</div>
+                    <div class="rectColor">
+                      <svg style="width:20px;height:20px;">
+                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                      </svg>
+                    </div> <div class="rectLabel">Cross Sec</div>
                 </div>
                 <div id="dvButton" class="clearfix hide">
-                    <div class="rectColor"></div> <div class="rectLabel">Dep Var</div>
+                    <div class="rectColor">
+                      <svg style="width:20px;height:20px;">
+                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                      </svg>
+                    </div> <div class="rectLabel">Dep Var</div>
                 </div>
                 <div id="nomButton" class="clearfix hide">
-                    <div class="rectColor"></div> <div class="rectLabel">Nom Var</div>
+                    <div class="rectColor">
+                      <svg style="width:20px;height:20px;">
+                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                      </svg>
+                    </div> <div class="rectLabel">Nom Var</div>
                 </div>
             </div>
         </div>

@@ -72,7 +72,7 @@ var rightClickLast = false;
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
-document.getElementById('about').textContent = "The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were \"Thought\" and \"Memory\".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis."; //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
+$('#about div.panel-body').text('The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
 /*
 if (document.addEventListener) {
@@ -98,16 +98,16 @@ var colorCS=false;
 var csColor = '#419641';
 
 var depVar=false;
-var dvColor = '#28A4C9';
+var dvColor = '#28a4C9';
 
-var nomColor = '#FF6600';
+var nomColor = '#ff6600';
 
 var subsetdiv=false;
 var setxdiv=false;
 
-var varColor = d3.rgb("aliceblue"); //#F0F8FF
-var selVarColor = d3.rgb("salmon"); //#FA8072
-var taggedColor = d3.rgb("whitesmoke"); //f5f5f5
+var varColor = '#f0f8ff'; //d3.rgb("aliceblue")
+var selVarColor = '#fa8072'; //d3.rgb("salmon")
+var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke")
 
 var lefttab = "tab1"; //global for current tab in left panel
 
@@ -326,7 +326,7 @@ function scaffolding(v) {
               return v[0].replace(/\W/g, "_");
               })
         .text(v[0])
-        .style('background-color',selVarColor)
+        .style('background-color', hexToRgba(selVarColor))
         .attr("data-container", "body")
         .attr("data-toggle", "popover")
         .attr("data-trigger", "hover")
@@ -349,10 +349,10 @@ function scaffolding(v) {
                    nodes[0].reflexive=true;
                    }
                    else {nodes.push(findNode(myText));}
-                   return selVarColor;
+                   return hexToRgba(selVarColor);
                    }
                    else { // dropping a variable
-                   if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
+                   if(findNode(myText).subsethold[0] !== "") {return hexToRgba(selVarColor);} //can't drop one with subsethold[0] value
                    
                    nodes.splice(findNode(myText)["index"], 1);
                    spliceLinksForNode(findNode(myText));
@@ -471,7 +471,7 @@ function scaffolding(v) {
     .text(function(d){return d;})
     .style('background-color',function(d) {
            if(findNodeIndex(d) > 2) {return varColor;}
-           else {return selVarColor;}
+           else {return hexToRgba(selVarColor.toString());}
            })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
@@ -499,7 +499,9 @@ function layout(v) {
             nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
             var selectMe = zparams.zvars[j].replace(/\W/g, "_");
             selectMe = "#".concat(selectMe);
-            d3.select(selectMe).style('background-color',nodes[j].strokeColor);
+            d3.select(selectMe).style('background-color',function(){
+              return hexToRgba(nodes[j].strokeColor);
+            });
         }
   
         for(var j=0; j < zparams.zedges.length; j++) {
@@ -637,10 +639,10 @@ function layout(v) {
                     nodes[0].reflexive=true;
                 }
                 else {nodes.push(findNode(myText));}
-                return selVarColor;
+                return hexToRgba(selVarColor);
                }
                else { // dropping a variable
-                if(findNode(myText).subsethold[0] !== "") {return selVarColor;} //can't drop one with subsethold[0] value
+                if(findNode(myText).subsethold[0] !== "") {return hexToRgba(selVarColor);} //can't drop one with subsethold[0] value
                
                     nodes.splice(findNode(myText)["index"], 1);
                     spliceLinksForNode(findNode(myText));
@@ -689,7 +691,7 @@ function layout(v) {
             .style('background-color',function(d) {
                    if(d3.rgb(myColor).toString() === varColor.toString()) {
                     zparams.zmodel = d.toString();
-                    return selVarColor;
+                    return hexToRgba(selVarColor);
                    }
                    else {
                     zparams.zmodel = "";
@@ -845,7 +847,7 @@ function layout(v) {
         .style("fill", timeColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .9)
+            d3.select(this).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);   //.attr('transform', 'scale(2)');
             d3.select("#timeText".concat(d.id)).transition()
@@ -892,7 +894,7 @@ function layout(v) {
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
             d3.select(this).transition()
-            .attr("fill-opacity", .9)
+            .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#csText".concat(d.id)).transition()
@@ -937,7 +939,7 @@ function layout(v) {
         .style("fill", dvColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .9)
+            d3.select(this).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .9)
@@ -978,7 +980,7 @@ function layout(v) {
         .style("fill", nomColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .9)
+            d3.select(this).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .9)
@@ -2166,15 +2168,18 @@ function setx() {
 }
 
 // function to convert color codes
-function hexToRgb(hex) {
+function hexToRgba(hex) {
     var h=hex.replace('#', '');
     
     var bigint = parseInt(h, 16);
     var r = (bigint >> 16) & 255;
     var g = (bigint >> 8) & 255;
     var b = bigint & 255;
+    var a = '0.5';
     
-    return r + "," + g + "," + b;
+    //return r + "," + g + "," + b + "," + a;
+
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
 
 // function takes a node and a color.  sets zparams as well.
@@ -2202,10 +2207,8 @@ function setColors (n, c) {
             zparams.znom.push(n.name);
         }
         
-        var cRgba = 'rgba(' + hexToRgb(c) + ', 0.5)';
-        
         d3.select("#tab1").select("p#".concat(n.name))
-        .style('background-color', cRgba);
+        .style('background-color', hexToRgba(c));
     }
     else if (n.strokeWidth=='4') {
         if(c==n.strokeColor) { // deselecting time, cs, dv, nom
@@ -2213,7 +2216,7 @@ function setColors (n, c) {
             n.strokeColor = selVarColor;
             n.nodeCol=colors(n.id);
             d3.select("#tab1").select("p#".concat(n.name))
-            .style('background-color', selVarColor);
+            .style('background-color', hexToRgba(selVarColor));
             
             if(dvColor==c) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
@@ -2251,7 +2254,7 @@ function setColors (n, c) {
             }
             n.strokeColor = c;
             d3.select("#tab1").select("p#".concat(n.name))
-            .style('background-color', c);
+            .style('background-color', hexToRgba(c));
             
             if(dvColor==c) {zparams.zdv.push(n.name);}
             else if(csColor==c) {zparams.zcross.push(n.name);}
@@ -2263,13 +2266,13 @@ function setColors (n, c) {
 
 
 function borderState () {
-    if(zparams.zdv.length>0) {$('#dvButton .rectColor').css('background-color', dvColor);}
+    if(zparams.zdv.length>0) {$('#dvButton .rectColor svg circle').attr('stroke', dvColor);}
     else {$('#dvButton').css('border-color', '#ccc');}
-    if(zparams.zcross.length>0) {$('#csButton .rectColor').css('background-color', csColor);}
+    if(zparams.zcross.length>0) {$('#csButton .rectColor svg circle').attr('stroke', csColor);}
     else {$('#csButton').css('border-color', '#ccc');}
-    if(zparams.ztime.length>0) {$('#timeButton .rectColor').css('background-color', timeColor);}
+    if(zparams.ztime.length>0) {$('#timeButton .rectColor svg circle').attr('stroke', timeColor);}
     else {$('#timeButton').css('border-color', '#ccc');}
-    if(zparams.znom.length>0) {$('#nomButton .rectColor').css('background-color', nomColor);}
+    if(zparams.znom.length>0) {$('#nomButton .rectColor svg circle').attr('stroke', nomColor);}
     else {$('#nomButton').css('border-color', '#ccc');}
 }
 
@@ -2583,7 +2586,7 @@ function left() {
 
     d3.select("#models").selectAll("p").style("background-color", varColor);
     selectMe = "#_model_".concat(zparams.zmodel);
-    d3.select(selectMe).style("background-color", selVarColor);
+    d3.select(selectMe).style("background-color", hexToRgba(selVarColor));
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2641,7 +2644,7 @@ function right() {
 
     d3.select("#models").selectAll("p").style("background-color", varColor);
     selectMe = "#_model_".concat(zparams.zmodel);
-    d3.select(selectMe).style("background-color", selVarColor);
+    d3.select(selectMe).style("background-color", hexToRgba(selVarColor));
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2681,11 +2684,11 @@ function resultsView() {
 
 
 function about() {
-    document.getElementById('about').style.display = 'inline';
+    $('#about').show();
 }
 
 function closeabout() {
-    document.getElementById('about').style.display = 'none';
+    $('#about').hide();
 }
 
 function resetPlots() {
