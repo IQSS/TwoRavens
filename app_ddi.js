@@ -1562,7 +1562,7 @@ function transParse(n) {
 }
 
 function transform(n,t) {
-    
+    t = t.replace("+", "_plus_"); // there is a bug in R's json parse
     var btn = document.getElementById('btnEstimate');
     
     //package the output as JSON
