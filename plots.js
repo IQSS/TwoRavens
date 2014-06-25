@@ -142,7 +142,8 @@ if(mydiv=="#tab3"){
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
+              console.log(d3.min(xVals));
+              return("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
               });
         
         plotsvg.append("g")
@@ -159,15 +160,16 @@ if(mydiv=="#tab3"){
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              return("x: ".concat(Math.round(node.mean)));
-              });
+              console.log(+node.mean);
+              return("x: ".concat((+node.mean).toPrecision(4)));
+            });
         
         plotsvg.append("text")
         .attr("id", "range2")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-              return("x1: ".concat(Math.round(node.mean)));
+              return("x1: ".concat((+node.mean).toPrecision(4)));
               });
 
         // create tick marks at all zscores in the bounds of the data
@@ -239,12 +241,12 @@ if(mydiv=="#tab3"){
         if(mydiv=="#tab2") {
         plotsvg.select("text#range")
         .text(function() {
-              if(brush.empty()) {return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));}
-              else {return("Range: ".concat(Math.round(brush.extent()[0]), " to ", Math.round(brush.extent()[1])));}
+              if(brush.empty()) {return("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));}
+              else {return("Range: ".concat((brush.extent()[0]).toPrecision(4), " to ", (brush.extent()[1]).toPrecision(4)));}
               });
         
-            if(Math.round(brush.extent()[0]) != Math.round(brush.extent()[1])) {
-                node.subsetrange=[Math.round(brush.extent()[0]), Math.round(brush.extent()[1])];
+            if((brush.extent()[0]).toPrecision(4) != (brush.extent()[1]).toPrecision(4)) {
+                node.subsetrange=[(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)];
             }
             else {
                 if(!subseted) {node.subsetrange=["", ""];}
@@ -283,8 +285,8 @@ if(mydiv=="#tab3"){
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                return("x: ".concat(Math.round(invx(xpos))));});
-            node.setxvals[1]=Math.round(invx(xpos));                              
+                return("x: ".concat((invx(xpos)).toPrecision(4)));});
+            node.setxvals[1]=(invx(xpos)).toPrecision(4);
         }
     }
 
@@ -323,8 +325,8 @@ if(mydiv=="#tab3"){
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                return("x1: ".concat(Math.round(invx(xpos))));});
-            node.setxvals[1]=Math.round(invx(xpos));                      
+                return("x1: ".concat((invx(xpos)).toPrecision(4)));});
+            node.setxvals[1]=(invx(xpos)).toPrecision(4);
     }
 }
 

@@ -1907,7 +1907,7 @@ function varSummary(d) {
 
     var summarydata = [],
     tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
-    t2 = [threeSF(d.mean),threeSF(d.median),threeSF(d.mode),threeSF(d.standardDeviation),threeSF(d.minimum),threeSF(d.maximum),rint(d.valid),rint(d.invalid)],
+    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),(+d.mode).toPrecision(4).toString(),(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.valid),rint(d.invalid)],
     i, j;
 
     for (i = 0; i < t1.length; i++) {
@@ -1976,20 +1976,21 @@ function popoverContent(d) {
         var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
         return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
     }
+    
     var rint = d3.format("r");
     return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mean) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.median) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.mode) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mode).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.standardDeviation) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.standardDeviation).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.maximum) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.maximum).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + threeSF(d.minimum) + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.minimum).toPrecision(4).toString() + "</p></div></div>" +
     
     "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
     
