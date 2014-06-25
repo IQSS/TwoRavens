@@ -600,7 +600,7 @@ function layout(v) {
         // handles to link and node element groups
         var path = svg.append('svg:g').selectAll('path'),
         circle = svg.append('svg:g').selectAll('g');
-   
+    
         // mouse event vars
         var selected_node = null,
         selected_link = null,
@@ -775,23 +775,25 @@ function layout(v) {
         .classed('selected', function(d) { return d === selected_link; })
         .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
         .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
-        .on('mousedown', function(d) {
-            if(d3.event.ctrlKey) return;
+        .on('mousedown', function(d) { // do we ever need to select a link? make it delete..
+            var obj1 = JSON.stringify(d);
+            for(var j =0; j < links.length; j++) {
+                if(obj1 === JSON.stringify(links[j])) {
+                    links.splice(j,1);
+                }
+            }
+        /*    if(d3.event.ctrlKey) return;
             
             // select link
             mousedown_link = d;
             if(mousedown_link === selected_link) selected_link = null;
             else selected_link = mousedown_link;
             selected_node = null;
-            restart();
+            restart(); */
             });
         
         // remove old links
         path.exit().remove();
-        
-        
-        
-        
         
         // circle (node) group
         // NB: the function arg is crucial here! nodes are known by id, not by index!
@@ -1191,6 +1193,7 @@ function layout(v) {
             selected_link = link;
             selected_node = null;
             svg.on('mousemove', null);
+            
             resetMouseVars();
             restart();
             });
@@ -1332,7 +1335,6 @@ function layout(v) {
                                 event.stopPropagation();
                                 });
 
-        
         // remove old nodes
         circle.exit().remove();
         force.start();
@@ -1890,58 +1892,6 @@ function tabRight(tabid) {
       document.getElementById('btnResults').setAttribute("class", "btn active");
       document.getElementById('results').style.display = 'block';     
     }
-    
-
-/*
-
-    if(document.getElementById(tabid).getAttribute('class')=="btn active" & tabid!="btnResults") {
-        document.getElementById(tabid).setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn active");
-   //     document.getElementById('btnSelect').setAttribute("style", "display:none");
-        d3.select("#rightpanelcontent")
-        .style("display", "inline");
-        return;
-    }
-    
-    if(tabid=="btnResults") {
-    //    document.getElementById('btnSelect').setAttribute("style", "display:none");
-    //    d3.select("#subset")
-     //   .style("display", "none")
-        d3.select("#setx")
-        .style("display", "none")
-        d3.select("#rightpanel")
-        .attr("class", "container");
-        d3.select("#rightpanelcontent")
-        .style("display","inline");
-    }
-    
-    document.getElementById(tabid).setAttribute("class", "btn active");
-    
-    if(tabid=="btnModels") {
-//        document.getElementById('btnSelect').setAttribute("style", "display:inline");
-//        document.getElementById('btnSelect').setAttribute("style", "float:right");
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        
-        d3.select("#rightpanelcontent").style("display", "none");
-    }
-    else if (tabid=="btnSetx") {
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
- //       document.getElementById('btnSelect').setAttribute("style", "display:none");
-        
-        d3.select("#rightpanelcontent").style("display", "none");
-    }
-    else {  //Results
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
- //       document.getElementById('btnSelect').setAttribute("style", "display:none");
-        
-        d3.select("#rightpanelcontent").style("display", "inline");
-    }
-
-
-*/
 
 }
 
@@ -2822,6 +2772,7 @@ function resetPlots() {
     lefttab="tab1";
     tabLeft(lefttab);
 }
+
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
