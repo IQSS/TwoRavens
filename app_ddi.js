@@ -199,9 +199,10 @@ var links = [];
 var nodes = [];
 var transformVar = "";
 var summaryHold = false;
+var selInteract = false;
 
 // transformation toolbar options
-var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)"];
+var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
 
 // arry of objects containing allNode, zparams, transform vars
 var spaces = [];
@@ -400,7 +401,7 @@ function scaffolding(v) {
     .attr("type", "text")
     .attr("value", "R call: func(var)");
 
-    
+    // the variable dropdown
     d3.select("#transformations")
     .append("ul")
     .attr("id", "transSel")
@@ -412,6 +413,7 @@ function scaffolding(v) {
     .append("li")
     .text(function(d) {return d; });
     
+    // the function dropdown
     d3.select("#transformations")
     .append("ul")
     .attr("id", "transList")
@@ -426,15 +428,18 @@ function scaffolding(v) {
     //jquery does this well
     $('#tInput').click(function() {
         var t = document.getElementById('transSel').style.display;
-        if(t !== "none") {
+        if(t !== "none") { // if variable list is displayed when input is clicked...
             $('#transSel').fadeOut(100);
             return false;
         }
         var t1 = document.getElementById('transList').style.display;
-        if(t1 !== "none") {
+        if(t1 !== "none") { // if function list is displayed when input is clicked...
             $('#transList').fadeOut(100);
             return false;
         }
+        
+        // highlight the text
+        $(this).select();
                        
         var pos = $('#tInput').offset();
         pos.top += $('#tInput').width();
@@ -443,6 +448,15 @@ function scaffolding(v) {
         });
     
     $('#tInput').keyup(function(event) {
+                       var t = document.getElementById('transSel').style.display;
+                       var t1 = document.getElementById('transList').style.display;
+                       
+                       if(t !== "none") {
+                            $('#transSel').fadeOut(100);
+                       } else if(t1 !== "none") {
+                            $('#transList').fadeOut(100);
+                       }
+                       
                        if(event.keyCode == 13){ // keyup on "Enter"
                             var n = $('#tInput').val();
                             var t = transParse(n=n);
@@ -456,7 +470,18 @@ function scaffolding(v) {
     
     $('#transList li').click(function(event) {
                              var tvar =  $('#tInput').val();
-                            var tfunc = $(this).text().replace("d", "20BarrySanders20");
+                             
+                             // if interact is selected, show variable list again
+                             if($(this).text() === "interact(d,e)") {
+                                $('#tInput').val(tvar.concat('*'));
+                                selInteract = true;
+                                $(this).parent().fadeOut(100);
+                                $('#transSel').fadeIn(100);
+                                event.stopPropagation();
+                                return;
+                             }
+                             
+                            var tfunc = $(this).text().replace("d", "_transvar0");
                              var tcall = $(this).text().replace("d", tvar);
                              $('#tInput').val(tcall);
                             $(this).parent().fadeOut(100);
@@ -1275,6 +1300,7 @@ function layout(v) {
             t.push(nodes[j].name);
         }
         
+        // the transformation variable list is silently updated as pebbles are added/removed
         d3.select("#transSel")
         .selectAll('li')
         .remove();
@@ -1287,9 +1313,21 @@ function layout(v) {
         .text(function(d) {return d; });
         
         $('#transSel li').click(function(event) {
+                                
+                                // if 'interaction' is the selected function, don't show the function list again
+                                if(selInteract === true) {
+                                    var n = $('#tInput').val().concat($(this).text());
+                                    $('#tInput').val(n);
+                                    event.stopPropagation();
+                                    var t = transParse(n=n);
+                                    if(t === null) {return;}
+                                    $(this).parent().fadeOut(100);
+                                    transform(n=t.slice(0, t.length-1), t=t[t.length-1]);
+                                    return;
+                                }
+
                                 $('#tInput').val($(this).text());
                                 $(this).parent().fadeOut(100);
-                                
                                 $('#transList').fadeIn(100);
                                 event.stopPropagation();
                                 });
