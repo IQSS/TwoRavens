@@ -140,9 +140,7 @@ if (fileid) {
     pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
 }
 
-var originalPreprocess = readPreprocess(pURL);
-var preprocess = originalPreprocess; // preprocess is always a reference to either original or subset
-var subsetPreprocess = {};
+var preprocess = readPreprocess(pURL);
 
 // Radius of circle
 var allR = 40;
@@ -2348,8 +2346,9 @@ function subsetSelect(btn) {
         var myParams = jQuery.extend(true, {}, zparams);
         var myTrans = jQuery.extend(true, [], trans);
         var myForce = jQuery.extend(true, [], forcetoggle);
+        var myPreprocess = jQuery.extend(true, {}, preprocess);
         
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
         
         // remove pre-subset svg
         var selectMe = "#m".concat(myspace);
@@ -2401,12 +2400,9 @@ function subsetSelect(btn) {
         svg = d3.select("#whitespace");
         
         layout(v="add");
-        /*
-        subsetPreprocess=readPreprocess(json.url);
-        preprocess=subsetPreprocess;
         
-        subsetNodes=JSON.parse(JSON.stringify(allNodes));
-        */
+        preprocess=readPreprocess(json.url);
+        
         resetPlots();
         populatePopover();
     }
@@ -2441,64 +2437,8 @@ function readPreprocess(url, from, v) {
     return p;
 }
 
-function toggleData(btnid) {
-    if(!subseted | document.getElementById(btnid).getAttribute('class')=="btn active") {return;}
-    
-    if(btnid=="btnD1") { //full data
-       // allNodes=JSON.parse(JSON.stringify(originalNodes)); //cloning doesn't work, so doing this instead...
-        for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
-           // allNodes[j].labl=originalNodes[j].labl;
-            allNodes[j].minimum=originalNodes[j].minimum;
-            allNodes[j].median=originalNodes[j].median;
-            allNodes[j].mode=originalNodes[j].mode;
-            allNodes[j].mean=originalNodes[j].mean;
-            allNodes[j].invalid=originalNodes[j].invalid;
-            allNodes[j].valid=originalNodes[j].valid;
-            allNodes[j].standardDeviation=originalNodes[j].standardDeviation;
-            allNodes[j].maximum=originalNodes[j].maximum;
-            allNodes[j].subsetplot=false;
-            allNodes[j].subsetrange=["",""];
-            allNodes[j].setxplot=false;
-            allNodes[j].setxvals=["",""];
-        }
-        preprocess=originalPreprocess;
-        
-        document.getElementById('btnD1').setAttribute("class", "btn active");
-        document.getElementById('btnD2').setAttribute("class", "btn btn-default");
-    }
-
-    else {  //subset data
-     //   allNodes=JSON.parse(JSON.stringify(subsetNodes));
-        for(var j=0; j<allNodes.length; j++) { //eventually these loops might catch up with us
-           // allNodes[j].labl=subsetNodes[j].labl;
-            allNodes[j].minimum=subsetNodes[j].minimum;
-            allNodes[j].median=subsetNodes[j].median;
-            allNodes[j].mode=subsetNodes[j].mode;
-            allNodes[j].mean=subsetNodes[j].mean;
-            allNodes[j].invalid=subsetNodes[j].invalid;
-            allNodes[j].valid=subsetNodes[j].valid;
-            allNodes[j].standardDeviation=subsetNodes[j].standardDeviation;
-            allNodes[j].maximum=subsetNodes[j].maximum;
-            allNodes[j].subsetplot=false;
-            allNodes[j].subsetrange=allNodes[j].subsethold;
-            allNodes[j].setxplot=false;
-            allNodes[j].setxvals=["",""];
-        }
-        
-        preprocess=subsetPreprocess;
-        
-        document.getElementById('btnD2').setAttribute("class", "btn active");
-        document.getElementById('btnD1').setAttribute("class", "btn btn-default");
-    }
-    
-    resetPlots();
-    populatePopover();
-}
-
 
 function delSpace() {
-    console.log(myspace);
-    console.log(spaces.length);
     if (spaces.length===0 | (spaces.length===1 & myspace===0)) {return;}
     var lastSpace = false;
     if(myspace >= spaces.length-1) { console.log("lastspace"); lastSpace=true; }
@@ -2536,12 +2476,13 @@ function delSpace() {
     allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
     trans = jQuery.extend(true, [], spaces[myspace].trans);
+    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     
     layout(v="move");
-    console.log(myspace);
 }
 
 
@@ -2553,8 +2494,9 @@ function addSpace() {
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
+    var myPreprocess = jQuery.extend(true, {}, preprocess);
   
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
@@ -2601,12 +2543,13 @@ function left() {
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
+    var myPreprocess = jQuery.extend(true, {}, preprocess);
     
     if(typeof spaces[myspace] === "undefined") {
-        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce});
+        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess});
     }
     else {
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
     }
     
     var selectMe = "#m".concat(myspace);
@@ -2634,6 +2577,7 @@ function left() {
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
     trans = jQuery.extend(true, [], spaces[myspace].trans);
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
     
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
@@ -2663,8 +2607,9 @@ function right() {
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
+    var myPreprocess = jQuery.extend(true, {}, preprocess);
     
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
     
     
     var selectMe = "#m".concat(myspace);
@@ -2692,6 +2637,7 @@ function right() {
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
     trans = jQuery.extend(true, [], spaces[myspace].trans);
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
     
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
