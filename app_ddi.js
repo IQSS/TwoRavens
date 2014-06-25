@@ -1521,11 +1521,14 @@ function estimate(btn) {
         rCall[0] = json.call;
         
         
-        d3.select("#ticker").selectAll("p")
+        d3.select("#logbody")
         .data(rCall)
-        .enter()
         .append("p")
-        .text(function(d){ console.log(d); return d; });
+        .text(function(d){
+              console.log(d);
+              var t = "estimate: ".concat(d);
+              return t;
+              });
         
         // write the results table
         var resultsArray = [];
@@ -1641,11 +1644,13 @@ function transform(n,t) {
         var newVar = rCall[0][0];
         trans.push(newVar);
         
-        d3.select("#ticker").selectAll("p")
+        d3.select("#logbody")
         .data(rCall)
-        .enter()
         .append("p")
-        .text(function(d){ return d; });
+        .text(function(d){
+              var t = "transform: ".concat(d);
+              return t;
+              });
         
         // add transformed variable to the current space
         var i = allNodes.length;

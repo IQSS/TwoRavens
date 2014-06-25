@@ -273,6 +273,28 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     float:left;
 }
 
+.logbox {
+    width:15%;
+    position:absolute;
+    bottom:0;
+    left:21%;
+    margin-left:10px;
+    margin-bottom:10px;
+}
+.logbox .clearfix {
+    margin-bottom:4px;
+}
+.logbox .rectColor {
+    float:left;
+    width:20px;
+    height:20px;
+    margin-left:4px;
+    opacity: 0.5;
+}
+.logbox .rectLabel {
+    float:left;
+}
+
 #sandbox {
     width:500px;
     height:400px;
