@@ -142,7 +142,6 @@ if(mydiv=="#tab3"){
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              console.log(d3.min(xVals));
               return("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
               });
         
@@ -160,7 +159,6 @@ if(mydiv=="#tab3"){
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              console.log(+node.mean);
               return("x: ".concat((+node.mean).toPrecision(4)));
             });
         
