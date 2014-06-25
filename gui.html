@@ -57,35 +57,21 @@
           </div>
       </nav>
     
-    <div class="left svg-leftpanel svg-rightpanel carousel slide" id="main" style="position:relative;">
+    <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide" data-ride="carousel">
         
         <!-- LINKED CAROUSEL NAV -->
-        <!--<ol class="carousel-linked-nav pagination clearfix">
-            <li><a href="#remove"><span class="glyphicon glyphicon-minus"></span></a></li>
-            <li class="active"><a href="#1">&#9679;</a></li>
-            <li><a href="#create"><span class="glyphicon glyphicon-plus"></span></a></li>
-        </ol>-->
         <ol class="carousel-indicators">
-            <button class="btn btn-default" id="TEMP" title="MOVE LEFT" style="margin-left:1em;" onclick="left();"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-arrow-left"></span></button>
             <li id="delete"><a href="#delete" title="Delete Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
-            <li data-target="#carousel-example-generic" data-slide-to="0" class="active" id="navdot0"></li>
-            <!--   <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-            <li data-target="#carousel-example-generic" data-slide-to="2"></li>   -->
+            <li data-target="#main" data-slide-to="m0" class="active" id="navdot0"></li>
             <li id="create"><a href="#create" title="Create Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
-            <button class="btn btn-default" id="TEMP2" title="MOVE RIGHT" style="margin-left:1em;" onclick="right();"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-arrow-right"></span></button>
         </ol>
+
+        <a href="#main" id="carouselLeft" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
+
+        <a href="#main" id="carouselRight" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
         
         <!-- Carousel items -->
         <div class="carousel-inner">
-            <!--<div class="active item">
-                <img src="http://placehold.it/300x200/888&text=Item 1" />
-            </div>
-            <div class="item">
-                <img src="http://placehold.it/300x200/aaa&text=Item 2" />
-            </div>
-            <div class="item">
-                <img src="http://placehold.it/300x200/444&text=Item 3" />
-            </div>-->
         </div>
         
         <div id="transformations" class="transformTool" style="display:block; z-index:17;">
@@ -139,11 +125,11 @@
          <div id="tooltiptext" class="popover-content form-horizontal"></div>
          </div>-->
         
-        <div id="leftpanel" class="container" style="height:578px;position:absolute;top:10px;left:10px;background:#F9F9F9;padding-top:.5em; z-index:25;">
+        <div id="leftpanel" class="sidepanel container clearfix">
             
-            <div id="toggleLpanelicon"><span style="top:-1px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-left"></span></div>
+            <div id="toggleLpanelicon" class="panelbar"><span>&#9679;<br/>&#9679;<br/>&#9679;<br/>&#9679;</span></div>
             
-            <div class="btn-toolbar" role="toolbar" style="margin-left:10px;">
+            <div class="btn-toolbar" role="toolbar" style="margin-left:10px;margin-top:.5em;">
                 <div class="btn-group" style="margin-left:0;">
                     <button type="button" class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button>
@@ -164,12 +150,12 @@
             </div>
         </div>
 
-        <div id="rightpanel" class="container" style="height:578px; position:absolute;top:10px;right:10px;background:#F9F9F9;padding-top:.5em; z-index:25;">
+        <div id="rightpanel" class="sidepanel container clearfix">
             
-            <div id="toggleRpanelicon"><span style="top:2px;vertical-align:top;font-size:2em;color:#ADADAD;" class="glyphicon glyphicon-chevron-right"></span></div>
+            <div id="toggleRpanelicon" class="panelbar"><span>&#9679;<br/>&#9679;<br/>&#9679;<br/>&#9679;</span></div>
          
-         <div class="btn-toolbar" role="toolbar" style="margin-left:0;">
-             <div class="btn-group" style="margin-left:0;">
+         <div class="btn-toolbar" role="toolbar" style="margin-left:0;margin-top:.5em;">
+             <div class="btn-group" style="margin-right:0;">
                  <button type="button" class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button>
                  <button type="button" class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button>
                  <button type="button" class="btn btn-default" id="btnResults" onclick="resultsView();">Results</button>
@@ -210,6 +196,15 @@
     $('#main').carousel({
         interval: false /* AUTOPLAY REMOVED */
     });
+    // after carousel rotates, trigger left/right functions
+    $('#main').on('slid.bs.carousel', function () {
+      if($('#main').hasClass('leftCarousel')){
+        left();
+      }
+      else {
+        right();
+      }
+    });
   
     /* SLIDE ON CLICK */
   
@@ -231,10 +226,10 @@
      });
 
   // Open/Close Panels
-  $('#leftpanel span.glyphicon').click(function(){
+  $('#leftpanel span').click(function(){
       closeLeftPanel();
   });
-  $('#rightpanel span.glyphicon').click(function(){
+  $('#rightpanel span').click(function(){
       closeRightPanel();
   });
   

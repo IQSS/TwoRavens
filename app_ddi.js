@@ -2026,7 +2026,7 @@ function subsetOff() {
         d3.select("#tab2")
         .style("display", "none");
         d3.select("#leftpanel")
-        .attr("class", "container");
+        .attr("class", "sidepanel container clearfix");
         d3.select("#btnSelect")
         .style("display", "none");
     };
@@ -2040,7 +2040,7 @@ function subset() {
         d3.select("#subset")
         .style("display", "none");
         d3.select("#leftpanel")
-        .attr("class", "container");
+        .attr("class", "sidepanel container clearfix");
         d3.select("#btnSelect")
         .style("display", "none");
       //subsetOff();
@@ -2059,7 +2059,7 @@ function subset() {
     .style("display", "inline");
     
     d3.select("#leftpanel")
-    .attr("class", "container expandpanel");
+    .attr("class", "sidepanel container clearfix expandpanel");
     
     d3.select("#btnSelect")
     .style("display", "inline");
@@ -2108,7 +2108,7 @@ function setxOff() {
         d3.select("#setx")
         .style("display", "none");
         d3.select("#rightpanel")
-        .attr("class", "container");
+        .attr("class", "sidepanel container clearfix");
         
     };
 };
@@ -2120,7 +2120,7 @@ function setx() {
         d3.select("#setx")
         .style("display", "none");
         d3.select("#rightpanel")
-        .attr("class", "container");
+        .attr("class", "sidepanel container clearfix");
         return;
     }
     
@@ -2135,7 +2135,7 @@ function setx() {
     .style("display", "inline");
     
     d3.select("#rightpanel")
-    .attr("class", "container expandpanel");
+    .attr("class", "sidepanel container clearfix expandpanel");
     
     // build arrays from nodes in main
     var dataArray = [];
@@ -2551,10 +2551,29 @@ function left() {
         spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
     }
     
-    var selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item');
+
+    myspace = myspace-1;
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe)
+    .append('svg').attr('id', function(){
+                        return "whitespace".concat(myspace);
+                        });
+
+    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    trans = jQuery.extend(true, [], spaces[myspace].trans);
+    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+
     selectMe = "#whitespace".concat(myspace);
-    d3.select(selectMe).remove();
+    svg = d3.select(selectMe);
+    layout(v="move");
+
+    myspace = myspace+1;
+
+    // var selectMe = "#m".concat(myspace);
+    // d3.select(selectMe).attr('class', 'item active right');
+    //selectMe = "#whitespace".concat(myspace);
+    // d3.select(selectMe).remove();
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
@@ -2566,17 +2585,26 @@ function left() {
     newnavdot = document.getElementById(selectMe);
     newnavdot.setAttribute("class", "active");
     
+    // selectMe = "#m".concat(myspace);
+    // d3.select(selectMe).attr('class', 'item prev right');
+    //.append('svg').attr('id', function(){
+                 //       return "whitespace".concat(myspace);
+                  //      });
+    
+    //allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    //zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    //trans = jQuery.extend(true, [], spaces[myspace].trans);
+    //forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    
+    // d3.select(selectMe).attr('class', 'item active');
+    myspace = myspace+1;
     selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item active')
-    .append('svg').attr('id', function(){
-                        return "whitespace".concat(myspace);
-                        });
-    
-    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
-    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
-    trans = jQuery.extend(true, [], spaces[myspace].trans);
-    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
-    
+    // d3.select(selectMe).attr('class', 'item');
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
+
+    myspace = myspace-1;
+
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
     }
@@ -2591,8 +2619,10 @@ function left() {
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     
-    layout(v="move");
+    //layout(v="move");
     legend();
+
+    event.preventDefault();
 
 }
 
@@ -2608,11 +2638,26 @@ function right() {
     
     spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
     
-    
-    var selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item');
+    // from left...
+
+    myspace = myspace+1;
+
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe)
+    .append('svg').attr('id', function(){
+                        return "whitespace".concat(myspace);
+                        });
+
+    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    trans = jQuery.extend(true, [], spaces[myspace].trans);
+    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+
     selectMe = "#whitespace".concat(myspace);
-    d3.select(selectMe).remove();
+    svg = d3.select(selectMe);
+    layout(v="move");
+
+    myspace = myspace-1;
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
@@ -2623,18 +2668,14 @@ function right() {
     selectMe = "navdot".concat(myspace);
     newnavdot = document.getElementById(selectMe);
     newnavdot.setAttribute("class", "active");
-    
+
+    myspace = myspace-1;
     selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item active')
-    .append('svg').attr('id', function(){
-                        return "whitespace".concat(myspace);
-                        });
-    
-    allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
-    zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
-    trans = jQuery.extend(true, [], spaces[myspace].trans);
-    forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
-    
+    selectMe = "#whitespace".concat(myspace);
+    d3.select(selectMe).remove();
+
+    myspace = myspace+1;
+
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
     }
@@ -2649,8 +2690,52 @@ function right() {
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     
-    layout(v="move");
     legend();
+
+    event.preventDefault();
+
+    
+    // var selectMe = "#m".concat(myspace);
+    // d3.select(selectMe).attr('class', 'item');
+    // selectMe = "#whitespace".concat(myspace);
+    // d3.select(selectMe).remove();
+    
+    // selectMe = "navdot".concat(myspace);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.removeAttribute("class");
+    
+    // myspace = myspace+1;
+    
+    // selectMe = "navdot".concat(myspace);
+    // newnavdot = document.getElementById(selectMe);
+    // newnavdot.setAttribute("class", "active");
+    
+    // selectMe = "#m".concat(myspace);
+    // d3.select(selectMe).attr('class', 'item active')
+    // .append('svg').attr('id', function(){
+    //                     return "whitespace".concat(myspace);
+    //                     });
+    
+    // allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
+    // zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
+    // trans = jQuery.extend(true, [], spaces[myspace].trans);
+    // forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
+    
+    // if(forcetoggle[0]==="false") {
+    //     document.getElementById('btnForce').setAttribute("class", "btn active");
+    // }
+    // else {
+    //     document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+    // }
+
+    // d3.select("#models").selectAll("p").style("background-color", varColor);
+    // selectMe = "#_model_".concat(zparams.zmodel);
+    // d3.select(selectMe).style("background-color", hexToRgba(selVarColor));
+    
+    // selectMe = "#whitespace".concat(myspace);
+    // svg = d3.select(selectMe);
+    
+    // layout(v="move");
 }
 
 function resultsView() {
@@ -2664,7 +2749,7 @@ function resultsView() {
         resultsViewer=false;
         
         d3.select("#rightpanel")
-        .attr("class", "container");
+        .attr("class", "sidepanel container clearfix");
         
         return;
     }
@@ -2677,7 +2762,7 @@ function resultsView() {
     .style("display", "block");
     
     d3.select("#rightpanel")
-    .attr("class", "container expandpanel");
+    .attr("class", "sidepanel container clearfix expandpanel");
     
     return;
 }
@@ -2704,10 +2789,10 @@ function resetPlots() {
     .remove();
     
     d3.select("#rightpanel")
-    .attr("class", "container");
+    .attr("class", "sidepanel container clearfix");
     
     d3.select("#leftpanel")
-    .attr("class", "container");
+    .attr("class", "sidepanel container clearfix");
     
     d3.select("#btnSelect")
     .style("display", "none");
