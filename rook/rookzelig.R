@@ -561,11 +561,20 @@ subset.app <- function(env){
     {
         usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
         sumstats <- calcSumStats(usedata)
+        
+        call <- ""
+        for(i in 1:length(myvars)) {
+            if(mysubset[i,1]=="" & mysubset[i,2]=="") {next}
+            else {
+                if(call != "") {call <- paste(call, ", ", sep="")}
+                call <- paste(call, myvars[i], "[", mysubset[i,1], ":", mysubset[i,2], "]", sep="")
+            }
+        }
     
         # send preprocess new usedata and receive url with location
         purl <- pCall(data=usedata, production)
         #purl <- "test"
-        result<- jsonlite:::toJSON(c(sumstats,list(url=purl)))
+        result<- jsonlite:::toJSON(c(sumstats,list(url=purl, call=call)))
     },
     error=function(err){
         warning <- TRUE

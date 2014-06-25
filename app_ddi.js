@@ -2346,11 +2346,6 @@ function nodeReset (n) {
 
 function subsetSelect(btn) {
     
-    
-    if(document.getElementById('btnD1').getAttribute('class')=="btn active") {
-        originalNodes=JSON.parse(JSON.stringify(allNodes));
-    }
-    
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
     
@@ -2383,13 +2378,53 @@ function subsetSelect(btn) {
         
         selectLadda.stop(); // stop motion
         subseted=true;
-       // document.getElementById(btn).style.background="#00CC33";
-        document.getElementById('btnD2').setAttribute("class", "btn active");
-        document.getElementById('btnD1').setAttribute("class", "btn btn-default");
         
-        for(var j=0; j<json.varnames.length; j++) { //eventually these loops might catch up with us
+        var rCall = [];
+        rCall[0] = json.call;
+        
+        d3.select("#logbody")
+        .data(rCall)
+        .append("p")
+        .text(function(d){
+              var t = "subset: ".concat(d);
+              return t;
+              });
+
+
+        // store contents of the pre-subset space
+        zPop();
+        var myNodes = jQuery.extend(true, [], allNodes);
+        var myParams = jQuery.extend(true, {}, zparams);
+        var myTrans = jQuery.extend(true, [], trans);
+        var myForce = jQuery.extend(true, [], forcetoggle);
+        
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce};
+        
+        // remove pre-subset svg
+        var selectMe = "#m".concat(myspace);
+        d3.select(selectMe).attr('class', 'item');
+        selectMe = "#whitespace".concat(myspace);
+        d3.select(selectMe).remove();
+        
+        selectMe = "navdot".concat(myspace);
+        var mynavdot = document.getElementById(selectMe);
+        mynavdot.removeAttribute("class");
+        
+        myspace = spaces.length;
+        
+        selectMe = "navdot".concat(myspace-1);
+        mynavdot = document.getElementById(selectMe);
+        
+        var newnavdot = document.createElement("li");
+        newnavdot.setAttribute("class", "active");
+        selectMe = "navdot".concat(myspace);
+        newnavdot.setAttribute("id", selectMe);
+        mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+        
+        
+        // assign the post-subset allNodes
+        for(var j=0; j<json.varnames.length; j++) {
             var temp = findNodeIndex(json.varnames[j]);
-            //allNodes[temp].labl=json.labl[j];  vjd: i don't think this changes between full and setset
             allNodes[temp].minimum=json.min[j];
             allNodes[temp].median=json.median[j];
             allNodes[temp].mode=json.mode[j];
@@ -2400,16 +2435,27 @@ function subsetSelect(btn) {
             allNodes[temp].maximum=json.max[j];
             allNodes[temp].subsetplot=false;
             allNodes[temp].subsethold=allNodes[temp].subsetrange;
-            //allNodes[temp].subsetrange=["",""]; subsetrange stays as it was prior to subsetting
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
         
+        d3.select("#innercarousel")
+        .append('div')
+        .attr('class', 'item active')
+        .attr('id', function(){
+              return "m".concat(myspace.toString());
+              })
+        .append('svg')
+        .attr('id', 'whitespace');
+        svg = d3.select("#whitespace");
+        
+        layout(v="add");
+        /*
         subsetPreprocess=readPreprocess(json.url);
         preprocess=subsetPreprocess;
         
         subsetNodes=JSON.parse(JSON.stringify(allNodes));
-        
+        */
         resetPlots();
         populatePopover();
     }
