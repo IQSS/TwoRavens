@@ -695,6 +695,7 @@ function layout(v) {
 
                 nodeReset(allNodes[findNodeIndex(myText)]);
                 borderState();
+               legend();
                 return varColor;
                }
                });
@@ -2535,9 +2536,7 @@ function addSpace() {
 }
 
 function left() {
-    if(myspace===0) {return;} // can't move left when at 0
-   
-
+    
     zPop();
     
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
@@ -2553,8 +2552,13 @@ function left() {
         spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
     }
     
-
-    myspace = myspace-1;
+    if(myspace===0) {
+        myspace=spaces.length-1; // move to last when left is click at 0
+    }
+    else {
+        myspace = myspace-1;
+    }
+    
     selectMe = "#m".concat(myspace);
     d3.select(selectMe)
     .append('svg').attr('id', function(){
@@ -2567,12 +2571,21 @@ function left() {
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
     preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
 
-
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     layout(v="move");
 
-    myspace = myspace+1;
+    selectMe = "navdot".concat(myspace);
+    console.log(selectMe);
+    newnavdot = document.getElementById(selectMe);
+    newnavdot.setAttribute("class", "active");
+    
+    if(myspace===spaces.length-1) {
+        myspace=0;
+    }
+    else {
+        myspace = myspace+1;
+    }
 
     // var selectMe = "#m".concat(myspace);
     // d3.select(selectMe).attr('class', 'item active right');
@@ -2581,34 +2594,18 @@ function left() {
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
-    mynavdot.removeAttribute("class");
+    mynavdot.removeAttribute("class", "active");
     
-    myspace = myspace-1;
-    
-    selectMe = "navdot".concat(myspace);
-    newnavdot = document.getElementById(selectMe);
-    newnavdot.setAttribute("class", "active");
-    
-    // selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item prev right');
-    //.append('svg').attr('id', function(){
-                 //       return "whitespace".concat(myspace);
-                  //      });
-    
-    //allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
-    //zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
-    //trans = jQuery.extend(true, [], spaces[myspace].trans);
-    //forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
-    //preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
-    
-    // d3.select(selectMe).attr('class', 'item active');
-    myspace = myspace+1;
-    selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item');
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
 
-    myspace = myspace-1;
+    if(myspace===0) {
+        myspace=spaces.length-1; // move to last when left is click at 0
+    }
+    else {
+        myspace = myspace-1;
+    }
+
 
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
@@ -2627,13 +2624,13 @@ function left() {
     //layout(v="move");
     legend();
 
-    event.preventDefault();
+ //   event.preventDefault();
 
 }
 
 function right() {
     
-    if(myspace >= spaces.length-1) {return;} // can't move right past right most space
+  //  if(myspace >= spaces.length-1) {return;} // can't move right past right most space
 
     zPop();
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
@@ -2646,7 +2643,12 @@ function right() {
     
     // from left...
 
-    myspace = myspace+1;
+    if(myspace===spaces.length-1) {
+        myspace=0; // move to last when left is click at 0
+    }
+    else {
+        myspace = myspace+1;
+    }
 
     selectMe = "#m".concat(myspace);
     d3.select(selectMe)
@@ -2664,37 +2666,31 @@ function right() {
     svg = d3.select(selectMe);
     layout(v="move");
 
-    myspace = myspace-1;
+    if(myspace===0) {
+        myspace=spaces.length-1; // move to last when left is click at 0
+    }
+    else {
+        myspace = myspace-1;
+    }
     
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
-    mynavdot.removeAttribute("class");
-    
-    myspace = myspace+1;
-    
-    selectMe = "navdot".concat(myspace);
-    newnavdot = document.getElementById(selectMe);
-    newnavdot.setAttribute("class", "active");
-
-    myspace = myspace-1;
-    selectMe = "#m".concat(myspace);
-
-    // d3.select(selectMe).attr('class', 'item active')
-   // .append('svg').attr('id', function(){
-   //                     return "whitespace".concat(myspace);
-   //                     });
-    
-   // allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
-   // zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
-   // trans = jQuery.extend(true, [], spaces[myspace].trans);
-   // forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
-   // preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
+    mynavdot.removeAttribute("class", "active");
     
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
-
-    myspace = myspace+1;
-
+    
+    if(myspace===spaces.length-1) {
+        myspace=0; // move to last when left is click at 0
+    }
+    else {
+        myspace = myspace+1;
+    }
+    
+    selectMe = "navdot".concat(myspace);
+    var newnavdot = document.getElementById(selectMe);
+    newnavdot.setAttribute("class", "active");
+   
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
     }
@@ -2711,7 +2707,7 @@ function right() {
     
     legend();
 
-    event.preventDefault();
+  //  event.preventDefault();
 
     
     // var selectMe = "#m".concat(myspace);
