@@ -61,9 +61,9 @@
             <li id="create"><a href="#create" title="Create Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
         </ol>
 
-        <a href="#main" id="carouselLeft" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
+        <a href="#main" id="carouselLeft" style="z-index:7" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
 
-        <a href="#main" id="carouselRight" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
+        <a href="#main" id="carouselRight" style="z-index:7" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
         
         <!-- Carousel items -->
         <div class="carousel-inner">
@@ -113,13 +113,9 @@
             </div>
         </div>
         
-        <div id="log" class="logbox panel panel-default" style="display:block">
-            <div class="panel-heading">
-                <h3 class="panel-title">Log</h3>
-            </div>
-            <div id="logbody" class="panel-body">
-               
-            </div>
+        
+        <div id="log" class="logbox" style="display:block">
+            <button data-toggle="collapse" data-target="#collapseLog"><i id="logicon" class="glyphicon glyphicon-large glyphicon-folder-close"></i></button><div class="collapse" id="collapseLog"></div>
         </div>
 
         
@@ -143,7 +139,7 @@
                     <button type="button" class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button>
                 </div>
-                <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Select</span></button>
+                <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right; margin-right:10px;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Select</span></button>
             </div>
             <div class="row-fluid">
                 <div id="leftpanelcontent">

@@ -28,6 +28,16 @@ var rappURL = "http://0.0.0.0:8000/custom/";
 var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
+
+// collapsable user log
+$('#collapseLog').on('shown.bs.collapse', function () {
+                     $("#logicon").removeClass("glyphicon-folder-close").addClass("glyphicon-folder-open");
+                     });
+
+$('#collapseLog').on('hidden.bs.collapse', function () {
+                     $("#logicon").removeClass("glyphicon-folder-open").addClass("glyphicon-folder-close");
+                     });
+
            
 //.attr('width', width)
 //.attr('height', height);
@@ -878,7 +888,7 @@ function layout(v) {
         .style("fill", timeColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .5)
+            d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);   //.attr('transform', 'scale(2)');
             d3.select("#timeText".concat(d.id)).transition()
@@ -925,7 +935,7 @@ function layout(v) {
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
             d3.select(this).transition()
-            .attr("fill-opacity", .5)
+            .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);
             d3.select("#csText".concat(d.id)).transition()
@@ -970,7 +980,7 @@ function layout(v) {
         .style("fill", dvColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .5)
+            d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);
             d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .9)
@@ -1011,7 +1021,7 @@ function layout(v) {
         .style("fill", nomColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
-            d3.select(this).transition()  .attr("fill-opacity", .5)
+            d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);
             d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .9)
@@ -1221,25 +1231,25 @@ function layout(v) {
             d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
             d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
-            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
                 })
@@ -1523,7 +1533,7 @@ function estimate(btn) {
         rCall[0] = json.call;
         
         
-        d3.select("#logbody")
+        d3.select("#collapseLog")
         .data(rCall)
         .append("p")
         .text(function(d){
@@ -1646,7 +1656,7 @@ function transform(n,t) {
         var newVar = rCall[0][0];
         trans.push(newVar);
         
-        d3.select("#logbody")
+        d3.select("#collapseLog")
         .data(rCall)
         .append("p")
         .text(function(d){
@@ -2333,7 +2343,7 @@ function subsetSelect(btn) {
         var rCall = [];
         rCall[0] = json.call;
         
-        d3.select("#logbody")
+        d3.select("#collapseLog")
         .data(rCall)
         .append("p")
         .text(function(d){
@@ -2519,7 +2529,6 @@ function addSpace() {
     selectMe = "navdot".concat(myspace);
     newnavdot.setAttribute("id", selectMe);
     mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
-
     
     d3.select("#innercarousel")
     .append('div')
@@ -2574,12 +2583,11 @@ function left() {
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
     layout(v="move");
-
+    
     selectMe = "navdot".concat(myspace);
-    console.log(selectMe);
     newnavdot = document.getElementById(selectMe);
     newnavdot.setAttribute("class", "active");
-    
+  
     if(myspace===spaces.length-1) {
         myspace=0;
     }
@@ -2587,11 +2595,6 @@ function left() {
         myspace = myspace+1;
     }
 
-    // var selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item active right');
-    //selectMe = "#whitespace".concat(myspace);
-    // d3.select(selectMe).remove();
-    
     selectMe = "navdot".concat(myspace);
     var mynavdot = document.getElementById(selectMe);
     mynavdot.removeAttribute("class", "active");
@@ -2620,8 +2623,7 @@ function left() {
     
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
-    
-    //layout(v="move");
+
     legend();
 
  //   event.preventDefault();
@@ -2630,10 +2632,8 @@ function left() {
 
 function right() {
     
-  //  if(myspace >= spaces.length-1) {return;} // can't move right past right most space
-
     zPop();
-    var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
+    var myNodes = jQuery.extend(true, [], allNodes);
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
@@ -2641,8 +2641,7 @@ function right() {
     
     spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
     
-    // from left...
-
+  
     if(myspace===spaces.length-1) {
         myspace=0; // move to last when left is click at 0
     }
@@ -2667,7 +2666,7 @@ function right() {
     layout(v="move");
 
     if(myspace===0) {
-        myspace=spaces.length-1; // move to last when left is click at 0
+        myspace=spaces.length-1;
     }
     else {
         myspace = myspace-1;
@@ -2708,49 +2707,6 @@ function right() {
     legend();
 
   //  event.preventDefault();
-
-    
-    // var selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item');
-    // selectMe = "#whitespace".concat(myspace);
-    // d3.select(selectMe).remove();
-    
-    // selectMe = "navdot".concat(myspace);
-    // var mynavdot = document.getElementById(selectMe);
-    // mynavdot.removeAttribute("class");
-    
-    // myspace = myspace+1;
-    
-    // selectMe = "navdot".concat(myspace);
-    // newnavdot = document.getElementById(selectMe);
-    // newnavdot.setAttribute("class", "active");
-    
-    // selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item active')
-    // .append('svg').attr('id', function(){
-    //                     return "whitespace".concat(myspace);
-    //                     });
-    
-    // allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
-    // zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
-    // trans = jQuery.extend(true, [], spaces[myspace].trans);
-    // forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
-    
-    // if(forcetoggle[0]==="false") {
-    //     document.getElementById('btnForce').setAttribute("class", "btn active");
-    // }
-    // else {
-    //     document.getElementById('btnForce').setAttribute("class", "btn btn-default");
-    // }
-
-    // d3.select("#models").selectAll("p").style("background-color", varColor);
-    // selectMe = "#_model_".concat(zparams.zmodel);
-    // d3.select(selectMe).style("background-color", hexToRgba(selVarColor));
-    
-    // selectMe = "#whitespace".concat(myspace);
-    // svg = d3.select(selectMe);
-    
-    // layout(v="move");
 }
 
 function resultsView() {
