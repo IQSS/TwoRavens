@@ -31,12 +31,22 @@ var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 
 // collapsable user log
 $('#collapseLog').on('shown.bs.collapse', function () {
+                     d3.select("#collapseLog").selectAll("p")
+                     .data(logArray)
+                     .enter()
+                     .append("p")
+                     .text(function(d){
+                           return d;
+                           });
                      $("#logicon").removeClass("glyphicon-folder-close").addClass("glyphicon-folder-open");
                      });
 
 $('#collapseLog').on('hidden.bs.collapse', function () {
+                     d3.select("#collapseLog").selectAll("p")
+                     .remove();
                      $("#logicon").removeClass("glyphicon-folder-open").addClass("glyphicon-folder-close");
                      });
+var logArray = [];
 
            
 //.attr('width', width)
@@ -46,31 +56,6 @@ var width = tempWidth.substring(0,(tempWidth.length-2));
 
 var tempHeight = d3.select("#main.left").style("height")
 var height = tempHeight.substring(0,(tempHeight.length-2));
-
-//var resultspanel = d3.select("#rightpanel.left")
-//.append('svg');
-
-//      .attr('y',-1800)
-//.attr('width', 200)
-//.attr('height', 200);
-
-//var varpanel = d3.select("#leftpanel.left")
-//.append('svg')
-//.attr('height', 2000);
-
-// location of Summary Statistics popup window
-//var xPos = 250;
-//var yPos = 50;
-
-// position the subset and setx divs
-//d3.select("#subset")
-//.style("right", xPos + "px")
-//.style("top", yPos + "px")
-
-//d3.select("#setx")
-//.style("right", xPos + "px")
-//.style("top", yPos + "px")
-
 
 var forcetoggle=["true"];
 var estimated=false;
@@ -84,19 +69,7 @@ var rightClickLast = false;
 // note that .textContent is the new way to write text to a div
 $('#about div.panel-body').text('The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
-/*
-if (document.addEventListener) {
-    document.addEventListener('contextmenu', function(e) {
-                              alert("You've tried to open context menu"); //here you draw your own menu
-                              e.preventDefault();
-                              }, false);
-} else {
-    document.attachEvent('oncontextmenu', function() {
-                         alert("You've tried to open context menu");
-                         window.event.returnValue = false;
-                         });
-}
-*/
+
 
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
@@ -1531,17 +1504,10 @@ function estimate(btn) {
         
         var rCall = [];
         rCall[0] = json.call;
+        logArray.push("estimate: ".concat(rCall[0]));
+        showLog();
         
-        
-        d3.select("#collapseLog")
-        .data(rCall)
-        .append("p")
-        .text(function(d){
-              console.log(d);
-              var t = "estimate: ".concat(d);
-              return t;
-              });
-        
+         
         // write the results table
         var resultsArray = [];
         for (var key in json.sumInfo) {
@@ -1655,14 +1621,13 @@ function transform(n,t) {
         rCall[0] = json.call;
         var newVar = rCall[0][0];
         trans.push(newVar);
+        logArray.push("transform: ".concat(rCall[0]));
+        showLog();
         
-        d3.select("#collapseLog")
-        .data(rCall)
-        .append("p")
-        .text(function(d){
-              var t = "transform: ".concat(d);
-              return t;
-              });
+        // update the log for each space. note: if spaces is empty, this is not a problem.
+        for(var i = 0; i < spaces.length; i++) {
+            spaces[i].logArray.push("transform: ".concat(rCall[0]));
+        }
         
         // add transformed variable to the current space
         var i = allNodes.length;
@@ -2343,15 +2308,6 @@ function subsetSelect(btn) {
         var rCall = [];
         rCall[0] = json.call;
         
-        d3.select("#collapseLog")
-        .data(rCall)
-        .append("p")
-        .text(function(d){
-              var t = "subset: ".concat(d);
-              return t;
-              });
-
-
         // store contents of the pre-subset space
         zPop();
         var myNodes = jQuery.extend(true, [], allNodes);
@@ -2359,8 +2315,9 @@ function subsetSelect(btn) {
         var myTrans = jQuery.extend(true, [], trans);
         var myForce = jQuery.extend(true, [], forcetoggle);
         var myPreprocess = jQuery.extend(true, {}, preprocess);
+        var myLog = jQuery.extend(true, [], logArray);
         
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
         
         // remove pre-subset svg
         var selectMe = "#m".concat(myspace);
@@ -2400,6 +2357,10 @@ function subsetSelect(btn) {
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
         }
+        
+        logArray.push("subset: ".concat(rCall[0]));
+        showLog();
+        reWriteLog();
         
         d3.select("#innercarousel")
         .append('div')
@@ -2507,8 +2468,10 @@ function addSpace() {
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
+    var myLog = jQuery.extend(true, [], logArray);
+
   
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
@@ -2553,12 +2516,13 @@ function left() {
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
+    var myLog = jQuery.extend(true, [], logArray);
     
     if(typeof spaces[myspace] === "undefined") {
-        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess});
+        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog});
     }
     else {
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
     }
     
     if(myspace===0) {
@@ -2579,6 +2543,7 @@ function left() {
     trans = jQuery.extend(true, [], spaces[myspace].trans);
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
     preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
+    logArray = jQuery.extend(true, [], spaces[myspace].logArray);
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2625,7 +2590,9 @@ function left() {
     svg = d3.select(selectMe);
 
     legend();
-
+    showLog();
+    reWriteLog();
+    
  //   event.preventDefault();
 
 }
@@ -2638,8 +2605,9 @@ function right() {
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
+    var myLog = jQuery.extend(true, [], logArray);
     
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
     
   
     if(myspace===spaces.length-1) {
@@ -2660,6 +2628,7 @@ function right() {
     trans = jQuery.extend(true, [], spaces[myspace].trans);
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
     preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
+    logArray = jQuery.extend(true, [], spaces[myspace].logArray);
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2705,7 +2674,9 @@ function right() {
     svg = d3.select(selectMe);
     
     legend();
-
+    showLog();
+    reWriteLog();
+    
   //  event.preventDefault();
 }
 
@@ -2770,6 +2741,27 @@ function resetPlots() {
     
     lefttab="tab1";
     tabLeft(lefttab);
+}
+
+function showLog() {
+    if(logArray.length > 0) {
+        document.getElementById('logdiv').setAttribute("style", "display:block");
+    }
+    else {
+        document.getElementById('logdiv').setAttribute("style", "display:none");
+    }
+}
+
+function reWriteLog() {
+    d3.select("#collapseLog").selectAll("p")
+    .remove();
+    d3.select("#collapseLog").selectAll("p")
+    .data(logArray)
+    .enter()
+    .append("p")
+    .text(function(d){
+          return d;
+          });
 }
 
 
