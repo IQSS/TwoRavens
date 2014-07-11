@@ -23,11 +23,17 @@ td5<-rbinom(n=n, size=10, prob=0.2)
 testdata<-data.frame(td1,td2,td3,td4,td5)
 json<-preprocess(testdata=testdata)
 
-json2<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=2429360)
-json3<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=170)
-json4<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=171)
 
-write(json2,file="../data/preprocess2429360.txt")
-write(json3,file="../data/preprocess170.txt")
-write(json4,file="../data/preprocess171.txt")
+#json2<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=2429360)
+#json3<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=170)
+#json4<-preprocess(hostname="dvn-build.hmdc.harvard.edu", fileid=171)
+
+#write(json2,file="../../data/preprocess2429360.txt")
+#write(json3,file="../../data/preprocess170.txt")
+#write(json4,file="../../data/preprocess171.txt")
+
+library(foreign)
+pumsdata<-read.csv("../../data/PUMS5Extract.csv")
+json5<-preprocess(testdata=pumsdata)
+write(json5,file="../../data/preprocessPUMS5Extract.txt")
 
