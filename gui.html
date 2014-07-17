@@ -46,8 +46,10 @@
                   <button class="btn btn-default" id="makeTable" title="Make Table" style="margin-left:1em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-list-alt"></span></button>
 
                   <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
-                  <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-right:1.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
-                <!--  previous location of Force and Reset icons  -->
+                  <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-left:2.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
+
+                  <div id="transformations" class="transformTool">
+                  </div>
               </div>  
           </div>
       </nav>
@@ -69,58 +71,59 @@
         <div class="carousel-inner">
         </div>
         
-        <div id="transformations" class="transformTool" style="display:block; z-index:17;">
-        </div>
-        
         <div id="spacetools" class="spaceTool" style="z-index:16;">
             <button class="btn btn-default" id="btnForce" title="Force" onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
             <button class="btn btn-default" id="btnEraser" title="Erase" onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
         </div>
         
         <div id="legend" class="legendary panel panel-default" style="display:none">
-            <div class="panel-heading" data-toggle="collapse" data-target="#collapseLegend"
-                href="#collapseLegend">
-                <h3 class="panel-title">Legend</h3>
+            <div class="panel-heading">
+                <h3 class="panel-title">Legend  <span class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLegend"
+                href="#collapseLegend" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
             </div>
             <div id="collapseLegend" class="panel-collapse collapse in">
-            <div class="panel-body">
-                <div id="timeButton" class="clearfix hide">
-                    <div class="rectColor">
-                      <svg style="width:20px;height:20px;">
-                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
-                      </svg>
-                    </div> <div class="rectLabel">Time</div>
-                </div>
-                <div id="csButton" class="clearfix hide">
-                    <div class="rectColor">
-                      <svg style="width:20px;height:20px;">
-                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
-                      </svg>
-                    </div> <div class="rectLabel">Cross Sec</div>
-                </div>
-                <div id="dvButton" class="clearfix hide">
-                    <div class="rectColor">
-                      <svg style="width:20px;height:20px;">
-                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
-                      </svg>
-                    </div> <div class="rectLabel">Dep Var</div>
-                </div>
-                <div id="nomButton" class="clearfix hide">
-                    <div class="rectColor">
-                      <svg style="width:20px;height:20px;">
-                        <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
-                      </svg>
-                    </div> <div class="rectLabel">Nom Var</div>
-                </div>
-            </div>
+              <div class="panel-body">
+                  <div id="timeButton" class="clearfix hide">
+                      <div class="rectColor">
+                        <svg style="width:20px;height:20px;">
+                          <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                        </svg>
+                      </div> <div class="rectLabel">Time</div>
+                  </div>
+                  <div id="csButton" class="clearfix hide">
+                      <div class="rectColor">
+                        <svg style="width:20px;height:20px;">
+                          <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                        </svg>
+                      </div> <div class="rectLabel">Cross Sec</div>
+                  </div>
+                  <div id="dvButton" class="clearfix hide">
+                      <div class="rectColor">
+                        <svg style="width:20px;height:20px;">
+                          <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                        </svg>
+                      </div> <div class="rectLabel">Dep Var</div>
+                  </div>
+                  <div id="nomButton" class="clearfix hide">
+                      <div class="rectColor">
+                        <svg style="width:20px;height:20px;">
+                          <circle cx="10" cy="10" r="9" stroke="black" stroke-width="2" fill="white" />
+                        </svg>
+                      </div> <div class="rectLabel">Nom Var</div>
+                  </div>
+              </div>
             </div>
         </div>
         
-        
-        <div id="logdiv" class="logbox" style="display:none">
-            <button data-toggle="collapse" data-target="#collapseLog"><i id="logicon" class="glyphicon glyphicon-large glyphicon-folder-close"></i></button><div class="collapse" id="collapseLog"></div>
+        <div id="logdiv" class="logbox panel panel-default" style="display:none">
+            <div class="panel-heading">
+                <h3 class="panel-title">Log <span id="logicon" class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLog" href="#collapseLog" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
+            </div>
+            <div id="collapseLog" class="panel-collapse collapse in">
+              <div class="panel-body">
+              </div>
+            </div>
         </div>
-
         
         <div id="ticker" style="position:fixed;height:50px;width:100%;background:#F9F9F9;bottom:0;"></div>
         
@@ -128,7 +131,6 @@
          <h3 class="popover-title">Summary Statistics</h3>
          <div id="tooltiptext" class="popover-content form-horizontal"></div>
          </div>-->
-        
 
         <div id="leftpanel" class="sidepanel container clearfix">
             
@@ -158,14 +160,13 @@
             </div>
         </div>
 
-
         <div id="rightpanel" class="sidepanel container clearfix">
             
-            <div id="toggleRpanelicon" class="panelbar"><span>&#9679;<br/>&#9679;<br/>&#9679;<br/>&#9679;</span></div>
-            
-            <div class="panel-heading text-center" id="rightpaneltitle">
-                <h3 class="panel-title">Model Selection</h3>
-            </div>
+          <div id="toggleRpanelicon" class="panelbar"><span>&#9679;<br/>&#9679;<br/>&#9679;<br/>&#9679;</span></div>
+          
+          <div class="panel-heading text-center" id="rightpaneltitle">
+              <h3 class="panel-title">Model Selection</h3>
+          </div>
          
          <div class="btn-toolbar" role="toolbar" style="margin-left:0;margin-top:.5em;">
              <div class="btn-group" style="margin-right:0;">
@@ -175,13 +176,12 @@
              </div>
          </div>
          
-         
-        <!--    <ul class="nav nav-tabs nav-justified">
-                <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
-                <li><a id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</a></li>
-                <li><a id="btnResults" onclick="resultsView();">Results</a></li>
-            </ul>
-         -->
+          <!-- <ul class="nav nav-tabs nav-justified">
+              <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
+              <li><a id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</a></li>
+              <li><a id="btnResults" onclick="resultsView();">Results</a></li>
+          </ul> -->
+
             <div class="row-fluid">
                 <div id="rightpanelcontent">
                     <div id="rightContentArea" style="overflow:scroll; height:488px;">
