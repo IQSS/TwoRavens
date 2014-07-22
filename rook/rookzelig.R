@@ -99,6 +99,14 @@ zelig.app <- function(env){
 		}
 	}
     
+	if(!warning){
+		mymodelcount <- everything$zmodelcount
+		if(identical(mymodelcount,"")){
+			warning <- TRUE
+			result<-list(warning="No model count.")
+		}
+	}
+    
     if(!warning){
 		mysetx <- everything$zsetx
         myvars <- everything$zvars
@@ -230,16 +238,16 @@ zelig.app <- function(env){
                     qicount<-qicount+1
                     if(production){
                         mypath<-"/var/www/html/custom/pic_dir"
-                        png(file.path(mypath, paste("output",qicount,".png",sep="")))
+                        png(file.path(mypath, paste("output",mymodelcount,qicount,".png",sep="")))
                     }else{
-                        png(file.path(getwd(), paste("output",qicount,".png",sep="")))
+                        png(file.path(getwd(), paste("output",mymodelcount,qicount,".png",sep="")))
                     }
                     Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
                     dev.off()
                     if(production){
-                        imageVector[[qicount]]<-paste("http://dataverse-demo.hmdc.harvard.edu:8008/custom/pic_dir", "/output",qicount,".png", sep = "")
+                        imageVector[[qicount]]<-paste("http://dataverse-demo.hmdc.harvard.edu:8008/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
                     }else{
-                        imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",qicount,".png", sep = "")
+                        imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
                     }
                 }
             }

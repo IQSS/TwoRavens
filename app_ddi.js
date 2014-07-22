@@ -109,7 +109,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[] };
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[], zmodelcount:0};
 
 
 // Pre-processed data:
@@ -175,13 +175,14 @@ var valueKey = [];
 var lablArray = [];
 var hold = [];
 var allNodes = [];
-var originalNodes = []; // this will be used when toggling between subset and original
+var allResults = [];
 var subsetNodes = [];
 var links = [];
 var nodes = [];
 var transformVar = "";
 var summaryHold = false;
 var selInteract = false;
+var modelCount = 0;
 
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
@@ -1429,6 +1430,7 @@ function spliceLinksForNode(node) {
 function zPop() {
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
+    zparams.zmodelcount = modelCount;
     
     zparams.zedges = [];
     zparams.zvars = [];
@@ -1461,111 +1463,144 @@ function estimate(btn) {
     zPop();
     // write links to file & run R CMD
 
-   // var property=document.getElementById(btn);
-  //  property.style.backgroundColor="#66CCFF";
-    
-    
     //package the zparams object as JSON
     var jsonout = JSON.stringify(zparams);
     var base = rappURL+"zeligapp?solaJSON="
 
-    //var test = "{\"x\":[1,2,4,7],\"y\":[3,5,7,9]}";
-    //urlcall = base.concat(test);
     urlcall = base.concat(jsonout);
     console.log("urlcall out: ", urlcall);
     
     
     function estimateSuccess(btn,json) {
         estimateLadda.stop();  // stop spinner
+        allResults.push(json);
+        console.log(allResults);
         console.log("json in: ", json);
-      var property=document.getElementById(btn);
-      estimated=true;
-      //  property.setAttribute("class", "progress progress-striped active");
-      property.style.backgroundColor="#00CC33";
         
         var myparent = document.getElementById("results");
-        myparent.removeChild(document.getElementById("resultsHolder"));
-        
+        if(estimated==false) {
+            myparent.removeChild(document.getElementById("resultsHolder"));
+        }
+    
+        estimated=true;
         // is this righttab necessary?  it's in the html when Results clicked...
         //righttab='results';
         //setxOff();
         //tabRight('btnResults');
      
-        // pipe in figures to right panel
-        var filelist = new Array;
-        for(var i in json.images) {
-            var zfig = document.createElement("img");
-            zfig.setAttribute("src", json.images[i]);
-            zfig.setAttribute('width', 200);
-            zfig.setAttribute('height', 200);
-            myparent.appendChild(zfig);
-            //            filelist.push(json[i]);
+        modelCount = modelCount+1;
+        var model = "Model".concat(modelCount);
+        
+        function modCol() {
+            d3.select("#modelView")
+            .selectAll("p")
+            .style('background-color', hexToRgba(varColor));
         }
         
-        var rCall = [];
-        rCall[0] = json.call;
-        logArray.push("estimate: ".concat(rCall[0]));
-        showLog();
+        modCol();
         
-         
-        // write the results table
-        var resultsArray = [];
-        for (var key in json.sumInfo) {
-            if(key=="colnames") {continue;}
-            
-            var obj = json.sumInfo[key];
-            resultsArray.push(obj);
-            /* SO says this is important check, but I don't see how it helps here...
-            for (var prop in obj) {
-                // important check that this is objects own property
-                // not from prototype prop inherited
-                if(obj.hasOwnProperty(prop)){
-                    alert(prop + " = " + obj[prop]);
-                }
-            }  */
-        }
+        d3.select("#modelView")
+        .insert("p",":first-child") // top stack for results
+        .attr("id",model)
+        .text(model)
+        .style('background-color', hexToRgba(selVarColor))
+        .on("click", function(){
+            modCol();
+            d3.select(this)
+            .style('background-color', hexToRgba(selVarColor));
+            viz(this.id);
+            });
         
-        var table = d3.select("#results")
-        .append("p")
-        .html("<center><b>Results</b></center>")
-        .append("table");
-        
-        var thead = table.append("thead");
-        thead.append("tr")
-        .selectAll("th")
-        .data(json.sumInfo.colnames)
-        .enter()
-        .append("th")
-        .text(function(d) { return d;});
-        
-        var tbody = table.append("tbody");
-        tbody.selectAll("tr")
-        .data(resultsArray)
-        .enter().append("tr")
-        .selectAll("td")
-        .data(function(d){return d;})
-        .enter().append("td")
-        .text(function(d){
-              var myNum = Number(d);
-              if(isNaN(myNum)) { return d;}
-              return myNum.toPrecision(3);
-              })
-        .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
-        .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
-        
-
+        viz(model);
     }
     
     function estimateFail(btn) {
         estimateLadda.stop();  // stop spinner
       estimated=true;
-        //var property=document.getElementById(btn);
-      //property.style.backgroundColor="#CC3333";
     }
 
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
 
+    
+}
+
+function viz(m) {
+    var mym = +m.substr(5,5) - 1;
+    console.log(mym);
+    
+    var myparent = document.getElementById("resultsView");
+    while (myparent.firstChild) {
+        myparent.removeChild(myparent.firstChild);
+    }
+
+    var json = allResults[mym];
+
+    d3.select("#resultsView")
+    .append("p")
+    .text(json.call[0]);
+    
+    // pipe in figures to right panel
+    var filelist = new Array;
+    for(var i in json.images) {
+        var zfig = document.createElement("img");
+        zfig.setAttribute("src", json.images[i]);
+        zfig.setAttribute('width', 200);
+        zfig.setAttribute('height', 200);
+        document.getElementById("resultsView").appendChild(zfig);
+        //            filelist.push(json[i]);
+    }
+    
+    var rCall = [];
+    rCall[0] = json.call;
+    logArray.push("estimate: ".concat(rCall[0]));
+    showLog();
+    
+    
+    // write the results table
+    var resultsArray = [];
+    for (var key in json.sumInfo) {
+        if(key=="colnames") {continue;}
+        
+        var obj = json.sumInfo[key];
+        resultsArray.push(obj);
+        /* SO says this is important check, but I don't see how it helps here...
+         for (var prop in obj) {
+         // important check that this is objects own property
+         // not from prototype prop inherited
+         if(obj.hasOwnProperty(prop)){
+         alert(prop + " = " + obj[prop]);
+         }
+         }  */
+    }
+    
+    var table = d3.select("#resultsView")
+    .append("p")
+    .html("<center><b>Results</b></center>")
+    .append("table");
+    
+    var thead = table.append("thead");
+    thead.append("tr")
+    .selectAll("th")
+    .data(json.sumInfo.colnames)
+    .enter()
+    .append("th")
+    .text(function(d) { return d;});
+    
+    var tbody = table.append("tbody");
+    tbody.selectAll("tr")
+    .data(resultsArray)
+    .enter().append("tr")
+    .selectAll("td")
+    .data(function(d){return d;})
+    .enter().append("td")
+    .text(function(d){
+          var myNum = Number(d);
+          if(isNaN(myNum)) { return d;}
+          return myNum.toPrecision(3);
+          })
+    .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
+    .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
     
 }
 
@@ -2701,6 +2736,12 @@ function resultsView() {
     
     resultsViewer=true;
     d3.select("#results")
+    .style("display", "block");
+    
+    d3.select("#resultsView")
+    .style("display", "block");
+    
+    d3.select("#modelView")
     .style("display", "block");
     
     d3.select("#rightpanel")
