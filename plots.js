@@ -1,15 +1,15 @@
 // function to use d3 to graph density plots with preprocessed data
 
-function density(data, node) {
+function density(data, node, div) {
     var mydiv;
 
-    if(arguments.callee.caller.name=="subset") {
+    if(div=="subset") {
         mydiv = "#tab2";
     }
-    else if(arguments.callee.caller.name=="setx") {
+    else if(div=="setx") {
         mydiv = "#setx";
     }
-    else if(arguments.callee.caller.name=="varSummary") {
+    else if(div=="varSummary") {
         mydiv = "#tab3";
     }
     else {
@@ -44,7 +44,7 @@ function density(data, node) {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else if (mydiv=="#tab2"){
+    else if (mydiv=="#tab2" | mydiv=="#setx"){
         width = 200;
         height = 120;
     }
@@ -77,6 +77,7 @@ function density(data, node) {
     
     var brush = d3.svg.brush()
     .x(x)
+    .extent(node.subsetrange)
     .on("brush", brushed);
 
     var brush2 = d3.svg.brush()
@@ -218,7 +219,8 @@ if(mydiv=="#tab3"){
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-            var xnm=x(node.mean);
+              if(node.setxvals[0]=="") {var xnm=x(node.mean);}
+              else {var xnm=x(node.setxvals[0])};
             return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
 
         var slider2 = plotsvg.append("g")
@@ -230,7 +232,8 @@ if(mydiv=="#tab3"){
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-            var xnm=x(node.mean);
+              if(node.setxvals[1]=="") {var xnm=x(node.mean);}
+              else {var xnm=x(node.setxvals[1])};
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
     }
 
@@ -329,7 +332,7 @@ if(mydiv=="#tab3"){
 }
 
 
-function bars(data, node) {
+function bars(data, node, div) {
 
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
@@ -348,13 +351,13 @@ function bars(data, node) {
     var maxX = d3.max(xVals);
 
     var mydiv;
-    if(arguments.callee.caller.name=="subset") {
+    if(div=="subset") {
         mydiv = "#tab2";
     }
-    else if(arguments.callee.caller.name=="setx") {
+    else if(div=="setx") {
         mydiv = "#setx";
     }
-    else if(arguments.callee.caller.name=="varSummary") {
+    else if(div=="varSummary") {
         mydiv = "#tab3";
     }
     else {
@@ -375,7 +378,7 @@ function bars(data, node) {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else if (mydiv=="#tab2"){
+    else if (mydiv=="#tab2" | mydiv=="#setx"){
         width = 200;
         height = 120;
     }
@@ -407,6 +410,7 @@ function bars(data, node) {
   
     var brush = d3.svg.brush()
     .x(x)
+    .extent(node.subsetrange)
     .on("brush", brushed);
 
     var brush2 = d3.svg.brush()
@@ -567,7 +571,8 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-            var xnm=x(node.mean);
+              if(node.setxvals[0]=="") {var xnm=x(node.mean);}
+              else {var xnm=x(node.setxvals[0])};
             return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
 
         var slider2 = plotsvg.append("g")
@@ -579,7 +584,8 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-            var xnm=x(node.mean);
+              if(node.setxvals[1]=="") {var xnm=x(node.mean);}
+              else {var xnm=x(node.setxvals[1])};
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
     }
 

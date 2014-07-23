@@ -365,6 +365,7 @@ function scaffolding(v) {
                    }
                    });
             fakeClick();
+            panelPlots();
             });
         populatePopover(); // pipes in the summary stats
         
@@ -542,7 +543,8 @@ function layout(v) {
             return;
         }
     }
-   
+    panelPlots(); // after nodes is populated, add subset and setx panels
+    
     // init D3 force layout
         var force = d3.layout.force()
         .nodes(nodes)
@@ -683,7 +685,7 @@ function layout(v) {
                 return varColor;
                }
                });
-        
+        panelPlots();
         restart();
         });
         
@@ -1529,10 +1531,14 @@ function viz(m) {
     var mym = +m.substr(5,5) - 1;
     console.log(mym);
     
-    var myparent = document.getElementById("resultsView");
-    while (myparent.firstChild) {
-        myparent.removeChild(myparent.firstChild);
+    function removeKids(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
     }
+    
+    var myparent = document.getElementById("resultsView");
+    removeKids(myparent);
 
     var json = allResults[mym];
 
@@ -1908,11 +1914,6 @@ function tabRight(tabid) {
 
 function varSummary(d) {
   
-    // This is mirrored in popup -- should make reusable function
-    function threeSF(x){
-      var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
-      return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
-    }
     var rint = d3.format("r");
 
     var summarydata = [],
@@ -1959,10 +1960,10 @@ function varSummary(d) {
         .remove();
     }
     else if (dataArray[0].properties.type === "continuous") {
-      density(dataArray[0], allNodes[i]);
+      density(dataArray[0], allNodes[i], div="varSummary");
     }
     else if (dataArray[0].properties.type === "bar") {
-      bars(dataArray[0], allNodes[i]);
+      bars(dataArray[0], allNodes[i], div="varSummary");
     }
     else {
       var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
@@ -1981,11 +1982,6 @@ function populatePopover () {
 }
 
 function popoverContent(d) {
-    
-    function threeSF(x){
-        var tsf = d3.format(".3r");                            // format to three significant figures after the decimal place
-        return tsf(x).replace( /0+$/, "").replace( /\.$/, "")  // trim trailing zeros after a period, and any orphaned period
-    }
     
     var rint = d3.format("r");
     return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
@@ -2088,42 +2084,68 @@ function subset() {
     d3.select("#btnSelect")
     .style("display", "inline");
 
+}
+
+function panelPlots() {
     
     // build arrays from nodes in main
     var dataArray = [];
     var varArray = [];
+    // build array from existing plots
+    var plotArray = [];
+    
     for(var j=0; j < nodes.length; j++ ) {
         dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
         varArray.push(nodes[j].name);
     }
+   /*
+    d3.select("#tab2").selectAll("svg")
+    .each(function(){
+          d3.select(this);
+          plotArray.push(this.id.substr(0,this.id.length-4));
+          console.log(this.id.substr(0,this.id.length-4));
+          })
+    console.log(plotArray);
+    for (var i = 0; i < plotArray.length; i++) {
+        var j = varArray.indexOf(plotArray[i]);
+        console.log(j);
+    }
+    */
     
     for (var i = 0; i < allNodes.length; i++) {
         var j = varArray.indexOf(allNodes[i].name);
         if (j > -1) {
+            if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
+                allNodes[i].setxplot=true;
+                density(dataArray[j], allNodes[i], div="setx");
+            }
+            else if (dataArray[j].properties.type === "bar" & allNodes[i].setxplot==false) {
+                allNodes[i].setxplot=true;
+                bars(dataArray[j], allNodes[i], div="setx");
+            }
+            
             if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
-                density(dataArray[j], allNodes[i]);
+                density(dataArray[j], allNodes[i], div="subset");
             }
             else if (dataArray[j].properties.type === "bar" & allNodes[i].subsetplot==false) {
                 allNodes[i].subsetplot=true;
-                bars(dataArray[j], allNodes[i]);
+                bars(dataArray[j], allNodes[i], div="subset");
             }
         }
-        
         else {
-            allNodes[i].subsetplot=false;
-            var temp = "svg#".concat(allNodes[i].name,"subset");
+            allNodes[i].setxplot=false;
+            var temp = "svg#".concat(allNodes[i].name,"setx");
             d3.select(temp)
-            .remove();     //// copy logic for histograms.
+            .remove();
+            
+            allNodes[i].subsetplot=false;
+            var temp = "svg#".concat(allNodes[i].name,"tab2");
+            d3.select(temp)
+            .remove();
         }
-        
-      // Panels
-      //subsetPanel();
-        
     }
-    
 }
-
 
 function setxOff() {
     
@@ -2161,34 +2183,6 @@ function setx() {
     d3.select("#rightpanel")
     .attr("class", "sidepanel container clearfix expandpanel");
     
-    // build arrays from nodes in main
-    var dataArray = [];
-    var varArray = [];
-    for(var j=0; j < nodes.length; j++ ) {
-        dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
-        varArray.push(nodes[j].name);
-    }
-    
-    for (var i = 0; i < allNodes.length; i++) {
-        var j = varArray.indexOf(allNodes[i].name);
-        if (j > -1) {
-            if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
-                allNodes[i].setxplot=true;
-                density(dataArray[j], allNodes[i]);
-            }
-            else if (dataArray[j].properties.type === "bar" & allNodes[i].setxplot==false) {
-                allNodes[i].setxplot=true;
-                bars(dataArray[j], allNodes[i]);
-            }
-        }
-        
-        else {
-            allNodes[i].setxplot=false;
-            var temp = "svg#".concat(allNodes[i].name,"setx");
-            d3.select(temp)
-            .remove();
-        }        
-    }
 }
 
 // function to convert color codes
@@ -2411,7 +2405,7 @@ function subsetSelect(btn) {
         
         preprocess=readPreprocess(json.url);
         
-        resetPlots();
+        rePlot(reset=true);
         populatePopover();
     }
     
@@ -2582,6 +2576,8 @@ function left() {
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
+    
+    rePlot();
     layout(v="move");
     
     selectMe = "navdot".concat(myspace);
@@ -2667,6 +2663,8 @@ function right() {
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
+    
+    rePlot();
     layout(v="move");
 
     if(myspace===0) {
@@ -2759,29 +2757,47 @@ function closeabout() {
     $('#about').hide();
 }
 
-function resetPlots() {
+// function to remove all the children svgs inside subset and setx divs. if true, reset will collapse the panels
+function rePlot(reset) {
     // collapse subset or setx divs and reset all plots
-    d3.select("#tab2")
-    .style("display", "none")
-    .selectAll("svg")
-    .remove();
+    if(reset==true) {
+        d3.select("#tab2")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#setx")
+        .style("display", "none")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#rightpanel")
+        .attr("class", "sidepanel container clearfix");
+        
+        d3.select("#leftpanel")
+        .attr("class", "sidepanel container clearfix");
+        
+        d3.select("#btnSelect")
+        .style("display", "none");
+        
+        lefttab="tab1";
+        tabLeft(lefttab);
     
-    d3.select("#setx")
-    .style("display", "none")
-    .selectAll("svg")
-    .remove();
+    }
+    else {
+        d3.select("#tab2")
+        .selectAll("svg")
+        .remove();
+        
+        d3.select("#setx")
+        .selectAll("svg")
+        .remove();
+    }
     
-    d3.select("#rightpanel")
-    .attr("class", "sidepanel container clearfix");
-    
-    d3.select("#leftpanel")
-    .attr("class", "sidepanel container clearfix");
-    
-    d3.select("#btnSelect")
-    .style("display", "none");
-    
-    lefttab="tab1";
-    tabLeft(lefttab);
+    for(var i = 0; i<allNodes.length; i++) {
+        allNodes[i].setxplot=false;
+        allNodes[i].subsetplot=false;
+    }
 }
 
 function showLog() {
