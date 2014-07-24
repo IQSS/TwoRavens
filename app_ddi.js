@@ -31,20 +31,20 @@ var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 
 // collapsable user log
 $('#collapseLog').on('shown.bs.collapse', function () {
-                     d3.select("#collapseLog").selectAll("p")
+                     d3.select("#collapseLog div.panel-body").selectAll("p")
                      .data(logArray)
                      .enter()
                      .append("p")
                      .text(function(d){
                            return d;
                            });
-                     $("#logicon").removeClass("glyphicon-folder-close").addClass("glyphicon-folder-open");
+                     //$("#logicon").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
                      });
 
 $('#collapseLog').on('hidden.bs.collapse', function () {
-                     d3.select("#collapseLog").selectAll("p")
+                     d3.select("#collapseLog div.panel-body").selectAll("p")
                      .remove();
-                     $("#logicon").removeClass("glyphicon-folder-open").addClass("glyphicon-folder-close");
+                     //$("#logicon").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
                      });
 var logArray = [];
 
@@ -2798,6 +2798,13 @@ function rePlot(reset) {
 function showLog() {
     if(logArray.length > 0) {
         document.getElementById('logdiv').setAttribute("style", "display:block");
+        d3.select("#collapseLog div.panel-body").selectAll("p")
+                     .data(logArray)
+                     .enter()
+                     .append("p")
+                     .text(function(d){
+                           return d;
+                           });
     }
     else {
         document.getElementById('logdiv').setAttribute("style", "display:none");
@@ -2805,9 +2812,9 @@ function showLog() {
 }
 
 function reWriteLog() {
-    d3.select("#collapseLog").selectAll("p")
+    d3.select("#collapseLog div.panel-body").selectAll("p")
     .remove();
-    d3.select("#collapseLog").selectAll("p")
+    d3.select("#collapseLog div.panel-body").selectAll("p")
     .data(logArray)
     .enter()
     .append("p")

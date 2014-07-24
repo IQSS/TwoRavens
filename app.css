@@ -139,8 +139,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #leftpanel #leftContentArea div.active {display:block;}
 #leftpanel.expandpanel {width:40%;}
 #leftpanel.closepanel {width:1px;}
-#leftpanel.closepanel div.btn-toolbar {display:none;}
-#leftpanel.closepanel div.row-fluid.closepanel {display:none;}
+#leftpanel.closepanel #leftpaneltitle, #leftpanel.closepanel div.btn-toolbar, #leftpanel.closepanel div.row-fluid.closepanel {display:none;}
 
 #rightpanel {
     border:1px solid #ADADAD;
@@ -155,8 +154,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #rightpanel #rightContentArea div.active {display:block;}
 #rightpanel.expandpanel {width:40%;}
 #rightpanel.closepanel {width:1px;}
-#rightpanel.closepanel div.btn-toolbar {display:none;}
-#rightpanel.closepanel div.row-fluid.closepanel {display:none;}
+#rightpanel.closepanel #rightpaneltitle, #rightpanel.closepanel div.btn-toolbar, #rightpanel.closepanel div.row-fluid.closepanel {display:none;}
 
 div.sidepanel div.panelbar {
   position:absolute;
@@ -185,19 +183,6 @@ div.sidepanel div.panelbar span {
     position: relative;
 }
 
-.transformTool {
-    height:8%;
-    width:14%; 
-    left:21%;
-    top: 0;
-    position:absolute;
-    margin-left:10px; 
-    margin-top:10px;
-}
-
-#transSel li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
-#transList li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
-
 #spacetools {
     z-index: 17;
 }
@@ -218,7 +203,12 @@ div.sidepanel div.panelbar span {
 }
 
 #transformations {
-    z-index: 16;
+    z-index:33;
+    height:8%;
+    width:14%; 
+    right:200px;
+    top:14px;
+    position:absolute;
 }
 #transformations ul, #transformations ul li {
     list-style:none;
@@ -227,7 +217,10 @@ div.sidepanel div.panelbar span {
 }
 #transformations ul li {
     padding:1px 4px;
+    text-align: left;
 }
+#transSel li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
+#transList li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
 
 .legendary {
     width:10%;
