@@ -2,7 +2,7 @@
 
 function density(data, node, div) {
     var mydiv;
-
+  
     if(div=="subset") {
         mydiv = "#tab2";
     }
@@ -349,7 +349,7 @@ function bars(data, node, div) {
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
-
+   
     var mydiv;
     if(div=="subset") {
         mydiv = "#tab2";
@@ -363,7 +363,7 @@ function bars(data, node, div) {
     else {
         return (alert("Error: incorrect div selected for plots"));
     }
-
+    
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0,(tempWidth.length-2));
     
@@ -696,4 +696,126 @@ plotsvg.selectAll("rect")
             node.setxvals[1]=twoSF(invx(xpos));                      
     }
 
-}  
+}
+
+
+function densityNode(data, node, obj) {
+
+    var yVals = data.properties.y;
+    var xVals = data.properties.x;
+    
+    // an array of objects
+    var data2 = [];
+    for(var i = 0; i < data.properties.x.length; i++) {
+        data2.push({x:data.properties.x[i], y:data.properties.y[i]});
+    }
+    
+    data2.forEach(function(d) {
+                  d.x = +d.x;
+                  d.y = +d.y;
+                  });
+    
+    
+    var width = 60;  // NOTE: hardcoded, should be set automatically
+    var height = 30;
+    var margin = {top: 20, right: 10, bottom: 53, left: 10};
+    
+    var x = d3.scale.linear()
+    .domain([d3.min(xVals), d3.max(xVals)])
+    .range([0, width]);
+
+    var y = d3.scale.linear()
+    .domain([d3.min(yVals), d3.max(yVals)])
+    .range([height, 0]);
+    
+    var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x(d.x); })
+    .y0(height)
+    .y1(function(d) { return y(d.y); });
+    
+    var plotsvg = d3.select(obj)
+    .append("svg")
+    .attr("x", -40)  // NOTE: Not sure exactly why these numbers work, but these hardcoded values seem to position the plot inside g correctly.  this shouldn't be hardcoded in the future
+    .attr("y", -45)
+    .attr("id", function(){
+            return data.varname.toString().concat("nodeplot");
+            })
+    .style("width", width)
+    .style("height", height)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+    plotsvg.append("path")
+    .datum(data2)
+    .attr("class", "area")
+    .attr("d", area);
+}
+
+function barsNode(data, node, obj) {
+    
+    // Histogram spacing
+    var barPadding = .015;  // Space between bars
+    var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
+    
+    // Data
+    var keys = Object.keys(data.properties.values);
+    var yVals = new Array;
+    var xVals = new Array;
+    for (var i = 0; i < keys.length; i++) {
+        yVals[i] = data.properties.values[keys[i]];
+        xVals[i] = Number(keys[i]);
+    }
+    var maxY = d3.max(yVals);
+    var minX = d3.min(xVals);
+    var maxX = d3.max(xVals);
+    
+    var width = 60;
+    var height = 30;
+    var margin = {top: 20, right: 10, bottom: 53, left: 10};
+    
+    var x = d3.scale.linear()
+    .domain([ minX-0.5 , maxX+0.5])
+    .range([0, width]);
+    
+    var invx = d3.scale.linear()
+    .range([ minX-0.5 , maxX+0.5])
+    .domain([0, width]);
+    
+    var y = d3.scale.linear()
+    .domain([0, maxY])
+    .range([0, height]);
+    
+    
+    //Create SVG element
+    var plotsvg = d3.select(obj)
+        .append("svg")
+        .attr("x", -40)
+        .attr("y", -45)
+    
+        .attr("id", function(){
+              return data.varname.toString().concat("nodeplot");
+              })
+        .style("width", width) //setting height to the height of #main.left
+        .style("height", height)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    plotsvg.selectAll("rect")
+    .data(yVals)
+    .enter()
+    .append("rect")
+    .attr("x", function(d, i) {
+          return x(xVals[i]-0.5+barPadding);
+          })
+    .attr("y", function(d) {
+          return y(maxY - d);
+          })
+    .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
+    .attr("height", function(d) {
+          return y(d);
+          })
+    .attr("fill", "#1f77b4");
+}
+
+

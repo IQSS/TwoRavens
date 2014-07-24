@@ -234,7 +234,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
 
 
       // temporary values for hold that correspond to histogram bins
-      hold = [0, 0, 0, 0, 0, 0, 0];
+      hold = [.6, .2, .9, .8, .1, .3, .4];
       var myvalues = [0, 0, 0, 0, 0];
 
     for (i=0;i<vars.length;i++) {
@@ -254,7 +254,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        for (j=0; j<varStats.length; j++) {
             var myType = "";
             myType = varStats[j].getAttribute("type");
-            if(myType==null) continue;
+            if(myType==null) continue; // no sumStat
             sumStats[myType] = varStats[j].childNodes[0].nodeValue;
        //console.log(varStats[j]);
        }
@@ -834,28 +834,23 @@ function layout(v) {
         
         // add new nodes
         
+        
         var g = circle.enter().append('svg:g');
         
-        g.selectAll("rect")
-        .data(function(d){return allNodes[d.id].count;}) // notice the change to allNodes to maintain consistent indexing
-        .enter()
-        .append("rect")
-        .attr("x", function(d, i) {
-              return i * (barwidth / barnumber) - 0.5 * barwidth;  //barnumber should become local to each variable
-              })
-        .attr("y", function(d) {
-              return - d * barheight; //Height minus data value
-              })
-        .attr("width", barwidth / barnumber - barPadding)  //barnumber should become local to each variable
-        .attr("height", function(d) {
-              return d * barheight; //data is scaled [0,1]
-              })
-        .attr("fill", "#4F4F4F")
-        //      .call(xAxis)
-        ;
+        // add plot
+        g.each(function(d) {console.log(d);
+               d3.select(this);
+               console.log(this);
+               dataArray = [{varname: d.name, properties: preprocess[d.name]}];
+               if(dataArray[0].properties.type === "continuous") {
+                densityNode(dataArray[0], d, obj=this);
+               }
+               else if (dataArray[0].properties.type === "bar") {
+                barsNode(dataArray[0], d, obj=this);
+               }
+               
+               });
         
-        
-// VJD: this is where the hardcoded images were initially piped into the rightpanel.  the mousedown portions have been commented out, but those blue arcs can probably be used for something so they have been left as is.
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -1184,14 +1179,15 @@ function layout(v) {
             restart();
             });
         
-        
+       
         // show node Names
         g.append('svg:text')
         .attr('x', 0)
         .attr('y', 15)
         .attr('class', 'id')
-        .text(function(d) { return d.name; });
+        .text(function(d) {return d.name; });
         
+
         
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
