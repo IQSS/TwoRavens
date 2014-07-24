@@ -838,9 +838,8 @@ function layout(v) {
         var g = circle.enter().append('svg:g');
         
         // add plot
-        g.each(function(d) {console.log(d);
+        g.each(function(d) {
                d3.select(this);
-               console.log(this);
                dataArray = [{varname: d.name, properties: preprocess[d.name]}];
                if(dataArray[0].properties.type === "continuous") {
                 densityNode(dataArray[0], d, obj=this);
