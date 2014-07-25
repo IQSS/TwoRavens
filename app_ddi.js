@@ -834,20 +834,20 @@ function layout(v) {
         
         // add new nodes
         
-        
         var g = circle.enter().append('svg:g');
-        
+       
         // add plot
         g.each(function(d) {
                d3.select(this);
-               dataArray = [{varname: d.name, properties: preprocess[d.name]}];
+         
+               var dataArray = [{varname: d.name, properties: preprocess[d.name]}];
                if(dataArray[0].properties.type === "continuous") {
                 densityNode(dataArray[0], d, obj=this);
                }
                else if (dataArray[0].properties.type === "bar") {
                 barsNode(dataArray[0], d, obj=this);
                }
-               
+          
                });
         
         g.append("path")
@@ -1186,7 +1186,6 @@ function layout(v) {
         .attr('class', 'id')
         .text(function(d) {return d.name; });
         
-
         
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
@@ -1319,7 +1318,6 @@ function layout(v) {
         // remove old nodes
         circle.exit().remove();
         force.start();
-        
     }  //end restart function
     
     
@@ -1653,12 +1651,22 @@ function transform(n,t) {
         estimateLadda.stop();
         console.log("json in: ", json);
         
+        
         var rCall = [];
         rCall[0] = json.call;
         var newVar = rCall[0][0];
         trans.push(newVar);
         logArray.push("transform: ".concat(rCall[0]));
         showLog();
+        readPreprocess(json.url, from="transform", v=newVar, callback=mycallback);
+        
+        function mycallback() {
+            scaffolding(rCall[0]);
+            valueKey.push(newVar);
+            nodes.push(findNode(newVar));
+            fakeClick();
+            panelPlots();
+        }
         
         // update the log for each space. note: if spaces is empty, this is not a problem.
         for(var i = 0; i < spaces.length; i++) {
@@ -1675,14 +1683,6 @@ function transform(n,t) {
 
             spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
         }
-        
-        valueKey.push(newVar);
-        nodes.push(findNode(newVar));
-        
-        scaffolding(rCall[0]);
-        readPreprocess(json.url, from="transform", v=newVar);
-        
-        fakeClick();
     }
     
     function transformFail(btn) {
@@ -2081,65 +2081,57 @@ function subset() {
 
 }
 
-function panelPlots() {
+function panelPlots() {  // VJD: some optimization added 7/25/14
     
     // build arrays from nodes in main
     var dataArray = [];
     var varArray = [];
-    // build array from existing plots
-    var plotArray = [];
+    var idArray = [];
+    
     
     for(var j=0; j < nodes.length; j++ ) {
         dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
-        varArray.push(nodes[j].name);
+        varArray.push(nodes[j].name.replace(/\(|\)/g, ""));
+        idArray.push(nodes[j].id);
     }
-   /*
-    d3.select("#tab2").selectAll("svg")
+    
+    for (var i = 0; i < varArray.length; i++) {
+            if (dataArray[i].properties.type === "continuous" & allNodes[idArray[i]].setxplot==false) {
+                allNodes[idArray[i]].setxplot=true;
+                density(dataArray[i], allNodes[idArray[i]], div="setx");
+                allNodes[idArray[i]].subsetplot=true;
+                density(dataArray[i], allNodes[idArray[i]], div="subset");
+            }
+            else if (dataArray[i].properties.type === "bar" & allNodes[idArray[i]].setxplot==false) {
+                allNodes[idArray[i]].setxplot=true;
+                bars(dataArray[i], allNodes[idArray[i]], div="setx");
+                allNodes[idArray[i]].subsetplot=true;
+                bars(dataArray[i], allNodes[idArray[i]], div="subset");
+            }
+        }
+    
+    
+    d3.select("#setx").selectAll("svg")
     .each(function(){
           d3.select(this);
-          plotArray.push(this.id.substr(0,this.id.length-4));
-          console.log(this.id.substr(0,this.id.length-4));
-          })
-    console.log(plotArray);
-    for (var i = 0; i < plotArray.length; i++) {
-        var j = varArray.indexOf(plotArray[i]);
-        console.log(j);
-    }
-    */
-    
-    for (var i = 0; i < allNodes.length; i++) {
-        var j = varArray.indexOf(allNodes[i].name);
-        if (j > -1) {
-            if (dataArray[j].properties.type === "continuous" & allNodes[i].setxplot==false) {
-                allNodes[i].setxplot=true;
-                density(dataArray[j], allNodes[i], div="setx");
-            }
-            else if (dataArray[j].properties.type === "bar" & allNodes[i].setxplot==false) {
-                allNodes[i].setxplot=true;
-                bars(dataArray[j], allNodes[i], div="setx");
-            }
-            
-            if (dataArray[j].properties.type === "continuous" & allNodes[i].subsetplot==false) {
-                allNodes[i].subsetplot=true;
-                density(dataArray[j], allNodes[i], div="subset");
-            }
-            else if (dataArray[j].properties.type === "bar" & allNodes[i].subsetplot==false) {
-                allNodes[i].subsetplot=true;
-                bars(dataArray[j], allNodes[i], div="subset");
-            }
+          var regstr = /(.+)_setx_(\d+)/;
+          var myname = regstr.exec(this.id);
+          var nodeid = myname[2];
+          myname = myname[1];
+          var j = varArray.indexOf(myname);
+          
+        if(j == -1) {
+          allNodes[nodeid].setxplot=false;
+           var temp = "#".concat(myname,"_setx_",nodeid);
+           d3.select(temp)
+           .remove();
+           
+           allNodes[nodeid].subsetplot=false;
+           var temp = "#".concat(myname,"_tab2_",nodeid);
+           d3.select(temp)
+           .remove();
         }
-        else {
-            allNodes[i].setxplot=false;
-            var temp = "svg#".concat(allNodes[i].name,"setx");
-            d3.select(temp)
-            .remove();
-            
-            allNodes[i].subsetplot=false;
-            var temp = "svg#".concat(allNodes[i].name,"tab2");
-            d3.select(temp)
-            .remove();
-        }
-    }
+          });
 }
 
 function setxOff() {
@@ -2396,9 +2388,8 @@ function subsetSelect(btn) {
         .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
         
-        layout(v="add");
-        
         preprocess=readPreprocess(json.url);
+        layout(v="add");
         
         rePlot(reset=true);
         populatePopover();
@@ -2415,7 +2406,7 @@ function subsetSelect(btn) {
     
 }
 
-function readPreprocess(url, from, v) {
+function readPreprocess(url, from, v, callback) {
     var p = {};
     d3.json(url, function(error, json) {
             if (error) return console.warn(error);
@@ -2427,7 +2418,7 @@ function readPreprocess(url, from, v) {
             }
             if(from==="transform") {
                 preprocess[v]=p[v];
-                return;
+                callback();
             }
 
             });
@@ -2841,6 +2832,5 @@ function fakeClick() {
     d3.select(myws)
     .classed('active', false); // remove active class
 }
-
 
 

@@ -111,7 +111,9 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          return data.varname.toString().concat(mydiv.substr(1));
+          var myname = data.varname.toString();
+          myname = myname.replace(/\(|\)/g, "");
+          return myname.concat("_",mydiv.substr(1), "_", node.id);
           })
     .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
     .style("height", height + margin.top + margin.bottom)
@@ -441,7 +443,9 @@ else {
 var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          return data.varname.toString().concat(mydiv.substr(1));
+          var myname = data.varname.toString();
+          myname = myname.replace(/\(|\)/g, "");
+          return myname.concat("_",mydiv.substr(1), "_", node.id);
           })
     .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
     .style("height", height + margin.top + margin.bottom)
