@@ -768,69 +768,29 @@ function layout(v) {
                     links.splice(j,1);
                 }
             }
-        /*    if(d3.event.ctrlKey) return;
-            
-            // select link
-            mousedown_link = d;
-            if(mousedown_link === selected_link) selected_link = null;
-            else selected_link = mousedown_link;
-            selected_node = null;
-            restart(); */
-            });
+        });
         
         // remove old links
         path.exit().remove();
         
         // circle (node) group
-        // NB: the function arg is crucial here! nodes are known by id, not by index!
-        // VJD: these nodes are known by index, an attribute of each object in the array.  it's confusing, but the id, as an attribute, is pegged to allNodes.
        circle = circle.data(nodes, function(d) {return d.id; });
      
+        
         // update existing nodes (reflexive & selected visual states)
         //d3.rgb is the function adjusting the color here.
         circle.selectAll('circle')
         .classed('reflexive', function(d) { return d.reflexive; })
         .style('fill', function(d){
-               var myIndex = findNodeIndex(d.name);
-                return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol); // IF d is equal to selected_node return brighter color ELSE return normal color
+               return d3.rgb(d.nodeCol);
+                //return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol); // IF d is equal to selected_node return brighter color ELSE return normal color
                })
         .style('stroke', function(d){
-               var myIndex = findNodeIndex(d.name);
-               return (d3.rgb(d.strokeColor)); // IF d is equal to selected_node return brighter color ELSE return normal color
+               return (d3.rgb(d.strokeColor));
                })
         .style('stroke-width', function(d){
-               var myIndex = findNodeIndex(d.name);
-               return (d.strokeWidth)
+               return (d.strokeWidth);
                });
-        
-     /*
-        var tooltip = d3.select("#main.left").selectAll("svg")
-        .append("stats")
-        .attr("width", 200)
-        .attr("height", 200)
-        .style("visibility", "hidden")
-        .text("a simple tooltip");
-        
-        var sampleSVG = d3.select("#main.left")
-         .append("svg:svg")
-         .attr("class", "sample")
-         .attr("width", 300)
-         .attr("height", 300);
-         */
-
-        
-        
-       /*
-        
-        // circle (node) group
-        // NB: the function arg is crucial here! nodes are known by id, not by index!
-        circle = circle.data(nodes, function(d) { return d.id; });
-        // update existing nodes (reflexive & selected visual states)
-        circle.selectAll('circle')
-        .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); }) // IF d is equal to selected_node return brighter color ELSE return normal color
-        .classed('reflexive', function(d) { return d.reflexive; });   */
-        
-        
         
         // add new nodes
         
@@ -850,6 +810,7 @@ function layout(v) {
           
                });
         
+        // add arc tags
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -947,7 +908,7 @@ function layout(v) {
               return "dvArc".concat(d.id);
               })
         .attr("d", arc3)
-        .style("fill", dvColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+        .style("fill", dvColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
             d3.select(this).transition()  .attr("fill-opacity", .3)
@@ -988,7 +949,7 @@ function layout(v) {
               return "nomArc".concat(d.id);
               })
         .attr("d", arc4)
-        .style("fill", nomColor) //function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+        .style("fill", nomColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
             d3.select(this).transition()  .attr("fill-opacity", .3)
@@ -1024,60 +985,25 @@ function layout(v) {
               })
         .text("Nominal");
 
-        
-        // allowing graphics to adjust for size
-             d3.select("#rightpanel.left").selectAll("image")
-        .on("mouseover", function() {
-            
-            d3.select("#rightpanel.left").style("width", "600px");
-            
-            myWidth = d3.select("#rightpanel.left").style("width");
-            myWidth = myWidth.substring(0,(myWidth.length-2));
-
-            myHeight = d3.select("#rightpanel.left").style("height");
-            myHeight = myHeight.substring(0,(myHeight.length-2));
-
-        //      console.log(d3.select(this).attr("width"));
-              d3.select(this)
-            .attr("width", myWidth)
-            .attr("height", myHeight);
-                  })
-        .on("mouseout", function() {
-            d3.select("#rightpanel.left").style("width", "200px");
-            
-            d3.select(this)
-            .attr("width", 200)
-            .attr("height", 200);
-            });
-        
-        
         g.append('svg:circle')
         .attr('class', 'node')
         .attr('r', allR)
         .style('pointer-events', 'inherit')
         .style('fill', function(d) {
-  //             console.log(d);
-               var myIndex = findNodeIndex(d.name);
-               return (d === selected_node) ? d3.rgb(d.nodeCol).brighter().toString() : d.nodeCol; })
+         //      return (d === selected_node) ? d3.rgb(d.nodeCol).brighter().toString() : d.nodeCol; })
+               return d.nodeCol; })
         .style('opacity', "0.5")
-        //    .style(  fill: url(#fade); )
         .style('stroke', function(d) {
-               var myIndex = findNodeIndex(d.name);
                return d3.rgb(d.strokeColor).toString(); })
         .classed('reflexive', function(d) { return d.reflexive; })
         .on('mouseover', function(d) {
-            //console.log("this is where to add summary stats");
-            if(!mousedown_node || d === mousedown_node) return;
-            // the above if and the same one on mouseout have been commented out...
-            // enlarge target node
-           // tooltip.style("visibility", "visible");
-            d3.select(this).attr('transform', 'scale(1.1)');
+       //     if(!mousedown_node || d === mousedown_node) return;
             })
         .on('mouseout', function(d) {
-            if(!mousedown_node || d === mousedown_node) return;
+        //    if(!mousedown_node || d === mousedown_node) return;
             // unenlarge target node
             //tooltip.style("visibility", "hidden");
-            d3.select(this).attr('transform', '');
+        //    d3.select(this).attr('transform', '');
             })
   //      .on('mousedown', function(d) {
    //         })
@@ -1085,23 +1011,6 @@ function layout(v) {
             d3.event.stopPropagation(); // stop click from bubbling
             summaryHold = true;
 //            document.getElementById('transformations').setAttribute("style", "display:block");
-/*
-            if(d3.event.ctrlKey) return;
-            
-            // select node
-            mousedown_node = d;
-            if(mousedown_node === selected_node) selected_node = null;
-            else selected_node = mousedown_node;
-            selected_link = null;
-            
-            // reposition drag line
-            drag_line
-            .style('marker-end', 'url(#end-arrow)')
-            .classed('hidden', false)
-            .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-            
-            restart();
- */
             })
         .on('contextmenu', function(d) { // right click on node
             d3.event.preventDefault();
@@ -1224,16 +1133,7 @@ function layout(v) {
             .duration(100);
                 })
             // popup(d, xPos, yPos);
-            /*
-            //Create the tooltip label
-            d3.select("#tooltip")
-            .style("left", xPos + "px")
-            .style("top", yPos + "px")
-            .select("#value")
-            .html("median: " + d.median + "<br> mode: " + d.mode + "<br> maximum: " + d.maximum + "<br> minimum: " + d.minimum + "<br> mean: " + d.mean + "<br> invalid: " + d.invalid + "<br> valid: " + d.valid + "<br> stand dev: " + d.standardDeviation);
-            
-            d3.select("#tooltip").style("display", "inline");
-*/
+        
         .on("mouseout", function(d) {
             if(summaryHold===false) { tabLeft(lefttab); }
 
@@ -1271,10 +1171,6 @@ function layout(v) {
             .duration(500);
 
 
-            //Remove the tooltip
-          //  d3.select("#tooltip").remove();
-          //  d3.select("#tooltip").style("display", "none");
-            
             });
         
         // populating transformation dropdown
@@ -1342,7 +1238,6 @@ function layout(v) {
         drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
     }
     
-    // why not move all the code from pebble.on(mouseup) here?  it seems like we are doing the same thing in two places...
     function mouseup(d) {
         if(mousedown_node) {
             // hide drag line
@@ -1380,7 +1275,7 @@ function layout(v) {
 } // end layout
 
 
-
+// returns id
 var findNodeIndex = function(nodeName) {
     for (var i in allNodes) {
         if(allNodes[i]["name"] === nodeName) {return allNodes[i]["id"];}
@@ -1432,7 +1327,10 @@ function zPop() {
     
     for(var j =0; j < nodes.length; j++ ) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
-        var temp = findNodeIndex(nodes[j].name);
+        var temp = nodes[j].id;
+        //var temp = findNodeIndex(nodes[j].name);
+        //console.log("node ",nodes[j].id);
+        //console.log("temp ", temp);
         
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
@@ -2297,7 +2195,8 @@ function subsetSelect(btn) {
     
     for(var j =0; j < nodes.length; j++ ) { //populate zvars and zsubset arrays
         zparams.zvars.push(nodes[j].name);
-        var temp = findNodeIndex(nodes[j].name);
+        var temp = nodes[j].id;
+        //var temp = findNodeIndex(nodes[j].name);
         zparams.zsubset[j] = allNodes[temp].subsetrange;
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
