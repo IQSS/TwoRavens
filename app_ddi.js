@@ -92,6 +92,7 @@ var setxdiv=false;
 var varColor = '#f0f8ff';   //d3.rgb("aliceblue");
 var selVarColor = '#fa8072';    //d3.rgb("salmon");
 var taggedColor = '#f5f5f5';    //d3.rgb("whitesmoke");
+var d3Color = '#1f77b4';  // d3's default blue
 
 var lefttab = "tab1"; //global for current tab in left panel
 
@@ -122,6 +123,7 @@ if (fileid) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
     pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
+   // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
 
 var preprocess = readPreprocess(pURL);
@@ -207,7 +209,8 @@ if (fileid) {
     metadataurl="http://"+hostname+"/api/meta/datafile/"+fileid;
 } else {
     // no file id supplied; use one of the sample DDIs that come with 
-    // the app, in the data directory: 
+    // the app, in the data directory:
+   // metadataurl="data/qog137.xml"; // quality of government
     metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
     //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
     //metadataurl="data/19.xml"; // Fearon from DVN Demo
@@ -1432,10 +1435,6 @@ function viz(m) {
     removeKids(myparent);
 
     var json = allResults[mym];
-
-    d3.select("#resultsView")
-    .append("p")
-    .text(json.call[0]);
     
     // pipe in figures to right panel
     var filelist = new Array;
@@ -1473,7 +1472,7 @@ function viz(m) {
     
     var table = d3.select("#resultsView")
     .append("p")
-    .html("<center><b>Results</b></center>")
+//    .html("<center><b>Results</b></center>")
     .append("table");
     
     var thead = table.append("thead");
@@ -1499,6 +1498,11 @@ function viz(m) {
     .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
     .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
     
+    d3.select("#resultsView")
+    .append("p")
+    .html(function() {
+          return "<b>Formula: </b>".concat(json.call[0]);
+          });
 }
 
 function transParse(n) {
@@ -2004,7 +2008,7 @@ function panelPlots() {  // VJD: some optimization added 7/25/14
                 allNodes[idArray[i]].setxplot=true;
                 bars(dataArray[i], allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
-                bars(dataArray[i], allNodes[idArray[i]], div="subset");
+                barsSubset(dataArray[i], allNodes[idArray[i]], div="subset");
             }
         }
     

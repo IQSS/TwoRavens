@@ -63,9 +63,9 @@
             <li id="create"><a href="#create" title="Create Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
         </ol>
 
-        <a href="#main" id="carouselLeft" style="z-index:7" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
+        <a href="#main" id="carouselLeft" style="z-index:7; margin-top:-.625em;" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
 
-        <a href="#main" id="carouselRight" style="z-index:7" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
+        <a href="#main" id="carouselRight" style="z-index:7; margin-top:-.625em;" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
         
         <!-- Carousel items -->
         <div class="carousel-inner">
@@ -139,7 +139,7 @@
                 <h3 class="panel-title">Data Selection</h3>
             </div>
             
-            <div class="btn-toolbar" role="toolbar" style="margin-left:10px;margin-top:.5em;">
+            <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
                 <div class="btn-group" style="margin-left:0;">
                     <button type="button" class="btn active" id="btnPanel1" onclick="lefttab='tab1'; subsetOff(); tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnPanel2" onclick="lefttab='tab2'; subset(); tabLeft('tab2');">Subset</button>
@@ -150,7 +150,7 @@
                 <div id="leftpanelcontent">
                     <div id="leftContentArea" style="overflow: scroll; height:488px;">
                         <div id="tab1" style="display:block;padding:6px 12px;text-align:center"></div>
-                        <div id="tab2" style="display:none;">
+                        <div id="tab2" style="display:none; margin-top:.5em;">
                         </div>
                         <div id="tab3">
                             <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view its summary statistics.</p>
@@ -168,7 +168,7 @@
               <h3 class="panel-title">Model Selection</h3>
           </div>
          
-         <div class="btn-toolbar" role="toolbar" style="margin-left:0;margin-top:.5em;">
+         <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
              <div class="btn-group" style="margin-right:0;">
                  <button type="button" class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button>
                  <button type="button" class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button>
@@ -185,10 +185,11 @@
             <div class="row-fluid">
                 <div id="rightpanelcontent">
                     <div id="rightContentArea" style="overflow:scroll; height:488px;">
-                        <div id="results">
+                        <div id="results" style="margin-top:.5em;">
                             <div id="resultsView" class="container"; style="width:80%; background-color:white; display:none; float:right; overflow:auto; white-space:nowrap;"></div>
                             <div id="modelView" style="width:20%; background-color:white; display:none; float:left;"></div>
-                            <p id="resultsHolder" style="padding:.5em 1em;">No results available until a model is estimated.</p>
+                            <p id="resultsHolder" style="padding:.5em 1em;"></p>
+                            <!--No results available until a model is estimated.-->
                         </div>
                         <div id="setx" style="display:none;"></div>
                         <div id="models" style="display:block;padding:6px 12px;text-align:center;"></div>

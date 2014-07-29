@@ -702,6 +702,157 @@ plotsvg.selectAll("rect")
 
 }
 
+function barsSubset(data, node) {
+    
+    // set node.subsetrange to an empty array, meaning all values selected by default
+    node.subsetrange = [];
+    
+    // Histogram spacing
+    var barPadding = .015;  // Space between bars
+    var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
+    
+    // Data
+    var keys = Object.keys(data.properties.values);
+    var yVals = new Array;
+    var xVals = new Array;
+    for (var i = 0; i < keys.length; i++) {
+        yVals[i] = data.properties.values[keys[i]];
+        xVals[i] = Number(keys[i]);
+    }
+    
+    var maxY = d3.max(yVals);
+    var minX = d3.min(xVals);
+    var maxX = d3.max(xVals);
+    var gname = ["subsetyes", "subsetno"];
+    
+    var yVals2 = [];
+    var yVals1 = [];
+    for(i=0; i<yVals.length; i++) {
+        yVals1.push({y0:maxY-yVals[i], y1:yVals[i], col:d3Color});
+        yVals2.push({y0:0, y1:maxY-yVals[i], col:"transparent"});
+    }
+    var freqs = [yVals1, yVals2];
+    
+    // y0 is the starting point
+    // y1 is the length of the bar
+    
+    var mydiv = "#tab2";
+    var width = 200;
+    var height = 120;
+    var margin = {top: 20, right: 20, bottom: 53, left: 50};
+    
+    var x = d3.scale.linear()
+    .domain([ minX-0.5 , maxX+0.5])
+    .range([0, width]);
+    
+    var invx = d3.scale.linear()
+    .range([ minX-0.5 , maxX+0.5])
+    .domain([0, width]);
+    
+    var y = d3.scale.linear()
+    .domain([0, maxY])
+    .range([0, height]);
+    
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .ticks(yVals.length)
+    .orient("bottom");
+    
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+    
+    //Create SVG element
+    
+          var plotsvg = d3.select(mydiv)
+        .append("svg")
+        .attr("id", function(){
+              var myname = data.varname.toString();
+              myname = myname.replace(/\(|\)/g, "");
+              return myname.concat("_",mydiv.substr(1), "_", node.id);
+              })
+        .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+    .style("height", height + margin.top + margin.bottom)
+        .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    var freq = plotsvg.selectAll("g.freq")
+    .data(freqs)
+    .enter().append("g")
+    .attr("class", "freq")
+    .attr("name", function(d,i) {
+          return gname[i];
+          });
+    
+    rect = freq.selectAll("rect")
+    .data(Object)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("name", function(d, i) {
+          return xVals[i];
+          })
+    .attr("x", function(d, i) {
+          return x(xVals[i]-0.5+barPadding);
+          })
+    .attr("y", function(d) {
+          return y(d.y0);
+          })
+    .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
+    .attr("height", function(d) {
+          return y(d.y1);
+          })
+    .style("fill", function(d){
+          return d.col;
+          })
+    .on("click", function(){
+        var selectMe = this;
+        var selectName = this.getAttribute("name");
+        if(this.parentNode.getAttribute("name")=="subsetno") {
+            selectMe = $('[name="subsetyes"]').children('[name="' + selectName + '"]')[0];
+        }
+        d3.select(selectMe)
+        .style("fill", function(d,i){
+               var myCol="";
+               if(this.style.fill===selVarColor) {
+                    var myindex = node.subsetrange.indexOf(this.getAttribute("name"));
+                    node.subsetrange.splice(myindex, 1);
+                    myCol=d3Color;
+               }
+               else {
+                    node.subsetrange.push(this.getAttribute("name"));
+                    myCol=selVarColor;
+               }
+               return myCol;
+               });
+        plotsvg.select("text#selectrange")
+        .text(function() {
+              if(node.subsetrange.length==0) {return("Selected: ".concat(xVals));}
+              else {return("Selected: ".concat(node.subsetrange));}
+              });
+        
+        });
+    
+    plotsvg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+    
+    plotsvg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0-(margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text(data.varname);
+    
+    plotsvg.append("text")
+    .attr("id", "selectrange")
+    .attr("x", 25)
+    .attr("y", height+40)
+    .text(function() {
+          return("Selected: ".concat(xVals));
+          });
+}
+
 
 function densityNode(data, node, obj) {
 

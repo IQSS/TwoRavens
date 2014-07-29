@@ -132,6 +132,7 @@ zelig.app <- function(env){
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             # This is the Fearon Laitin data:
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 		if(is.null(mydata)){
 			warning <- TRUE
@@ -290,7 +291,8 @@ zelig.app <- function(env){
         
         print(z.out$call$formula)
         summaryMatrix <- summary(z.out)$coefficients
-        sumColName <- c(" ",colnames(summaryMatrix))
+        # sumColName <- c(" ",colnames(summaryMatrix))
+        sumColName <- c(" ", "Estimate", "SE", "t-value", "Pr(<|t|)")
         sumInfo <- list(colnames=sumColName)
     
         sumRowName <- row.names(summaryMatrix)
@@ -538,6 +540,7 @@ subset.app <- function(env){
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 		if(is.null(mydata)){
 			warning <- TRUE
@@ -639,6 +642,7 @@ transform.app <- function(env){
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 		if(is.null(mydata)){
 			warning <- TRUE
