@@ -1725,11 +1725,10 @@ function reset() {
 
 // programmatically deselecting every selected variable...
 function erase() {
-    subsetOff();
+    leftpanelMedium();
     rightpanelMedium();
     document.getElementById("legend").setAttribute("style", "display:none");
     
-    lefttab='tab1';
     tabLeft('tab1');
     
     jQuery.fn.d3Click = function () {
@@ -1775,7 +1774,9 @@ function loadXMLDoc(XMLname)
 
 
 function tabLeft(tab) {
-    tabi = tab.substring(3);
+    
+    if(tab!="tab3") {lefttab=tab;}
+    var tabi = tab.substring(3);
     
     if(tab != "tab3") {
         document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
@@ -1788,18 +1789,36 @@ function tabLeft(tab) {
     if(tabi==1) {
         summaryHold = false;
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
-     //   document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+        
+        d3.select("#leftpanel")
+        .attr("class", "sidepanel container clearfix");
     }
     else if (tabi==2) {
         summaryHold = false;
         document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
-     //   document.getElementById('btnPanel3').setAttribute("class", "btn btn-default");
+        toggleL();
     }
     else {
         document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
         document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
+        
+        d3.select("#leftpanel")
+        .attr("class", "sidepanel container clearfix");
     }
     document.getElementById(tab).style.display = 'block';
+    
+    function toggleL() {
+        d3.select("#leftpanel")
+        .attr("class", function(d){
+              if(this.getAttribute("class")==="sidepanel container clearfix expandpanel") {
+              return "sidepanel container clearfix";
+              }
+              else {
+              return "sidepanel container clearfix expandpanel";
+              }
+              });
+    }
+
 }
 
 function tabRight(tabid) {
@@ -1982,52 +2001,6 @@ function popupX(d) {
 }
 
 
-function subsetOff() {
-    if (subsetdiv==true) {
-        subsetdiv = false;
-        d3.select("#tab2")
-        .style("display", "none");
-        d3.select("#leftpanel")
-        .attr("class", "sidepanel container clearfix");
-        d3.select("#btnSelect")
-        .style("display", "none");
-    };
-  };
-
-
-function subset() {
-    
-    if (subsetdiv==true) {
-        subsetdiv = false;
-        d3.select("#subset")
-        .style("display", "none");
-        d3.select("#leftpanel")
-        .attr("class", "sidepanel container clearfix");
-        d3.select("#btnSelect")
-        .style("display", "none");
-      //subsetOff();
-        return;
-    }
-    
-/*  if (setxdiv==true) {
-        setxdiv = false;
-        d3.select("#setx")
-        .style("display", "none");
-    } */
-
-    subsetdiv = true;
-
-    d3.select("#tab2")
-    .style("display", "inline");
-    
-    d3.select("#leftpanel")
-    .attr("class", "sidepanel container clearfix expandpanel");
-    
-    d3.select("#btnSelect")
-    .style("display", "inline");
-
-}
-
 function panelPlots() {  // VJD: some optimization added 7/25/14
 
     // build arrays from nodes in main
@@ -2080,8 +2053,13 @@ function panelPlots() {  // VJD: some optimization added 7/25/14
           });
 }
 
+// easy functions to collapse panels to base
 function rightpanelMedium() {
     d3.select("#rightpanel")
+    .attr("class", "sidepanel container clearfix");
+}
+function leftpanelMedium() {
+    d3.select("#leftpanel")
     .attr("class", "sidepanel container clearfix");
 }
 
@@ -2666,8 +2644,7 @@ function rePlot(reset) {
         d3.select("#btnSelect")
         .style("display", "none");
         
-        lefttab="tab1";
-        tabLeft(lefttab);
+        tabLeft("tab1");
     
     }
     else {
