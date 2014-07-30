@@ -60,7 +60,6 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 var forcetoggle=["true"];
 var estimated=false;
 var subseted=false; //use this to tell users they have subseted the data
-var resultsViewer=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
@@ -96,6 +95,7 @@ var d3Color = '#1f77b4';  // d3's default blue
 var grayColor = '#c0c0c0';
 
 var lefttab = "tab1"; //global for current tab in left panel
+var righttab = "btnModels"; // global for current tab in right panel
 
 // Zelig models, eventually this could be a separate xml file that is imported
 //var zmods = ["OLS", "Logit"];
@@ -1381,11 +1381,20 @@ function estimate(btn) {
         }
     
         estimated=true;
-        // is this righttab necessary?  it's in the html when Results clicked...
-        //righttab='results';
-        //setxOff();
-        //tabRight('btnResults');
-     
+        d3.select("#results")
+        .style("display", "block");
+        
+        d3.select("#resultsView")
+        .style("display", "block");
+        
+        d3.select("#modelView")
+        .style("display", "block");
+
+        
+        // programmatic click on Results button
+        $("#btnResults").trigger("click");
+        
+        
         modelCount = modelCount+1;
         var model = "Model".concat(modelCount);
         
@@ -1406,7 +1415,7 @@ function estimate(btn) {
             var a = this.style.backgroundColor.replace(/\s*/g, "");
             var b = hexToRgba(selVarColor).replace(/\s*/g, "");
             if(a.substr(0,17)===b.substr(0,17)) {
-                return;
+                return; //escapes the function early if the displayed model is clicked
             }
             modCol();
             d3.select(this)
@@ -1717,7 +1726,7 @@ function reset() {
 // programmatically deselecting every selected variable...
 function erase() {
     subsetOff();
-    setxOff();
+    rightpanelMedium();
     document.getElementById("legend").setAttribute("style", "display:none");
     
     lefttab='tab1';
@@ -1803,21 +1812,45 @@ function tabRight(tabid) {
       document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn btn-default");
       document.getElementById('btnModels').setAttribute("class", "btn active");
-      document.getElementById('models').style.display = 'block';     
+      document.getElementById('models').style.display = 'block';
+        
+        d3.select("#rightpanel")
+        .attr("class", "sidepanel container clearfix");
     }
     else if (tabid=="btnSetx") {
       document.getElementById('btnModels').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn btn-default");
       document.getElementById('btnSetx').setAttribute("class", "btn active");
-      document.getElementById('setx').style.display = 'block';     
+      document.getElementById('setx').style.display = 'block';
+        
+        if(righttab=="btnSetx"  | d3.select("#rightpanel").attr("class")=="sidepanel container clearfix") {toggleR()};
     }
-    else {
+    else if (tabid=="btnResults") {
       document.getElementById('btnModels').setAttribute("class", "btn btn-default");
       document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn active");
-      document.getElementById('results').style.display = 'block';     
+      document.getElementById('results').style.display = 'block';
+        
+        if(estimated===false) {
+            d3.select("#rightpanel")
+            .attr("class", "sidepanel container clearfix");
+        }
+        else if(righttab=="btnResults" | d3.select("#rightpanel").attr("class")=="sidepanel container clearfix") {toggleR()};
     }
+    
+    righttab=tabid; // a global that may be of use
 
+    function toggleR() {
+        d3.select("#rightpanel")
+        .attr("class", function(d){
+              if(this.getAttribute("class")==="sidepanel container clearfix expandpanel") {
+              return "sidepanel container clearfix";
+              }
+              else {
+              return "sidepanel container clearfix expandpanel";
+              }
+              });
+    }
 }
 
 
@@ -2047,42 +2080,9 @@ function panelPlots() {  // VJD: some optimization added 7/25/14
           });
 }
 
-function setxOff() {
-    
-    if (setxdiv==true) {
-        setxdiv = false;
-        d3.select("#setx")
-        .style("display", "none");
-        d3.select("#rightpanel")
-        .attr("class", "sidepanel container clearfix");
-        
-    };
-};
-
-function setx() {
-
-    if (setxdiv==true) {
-        setxdiv = false;
-        d3.select("#setx")
-        .style("display", "none");
-        d3.select("#rightpanel")
-        .attr("class", "sidepanel container clearfix");
-        return;
-    }
-    
-  /*if (subsetdiv==true) {
-        subsetdiv = false;
-        d3.select("#subset")
-        .style("display", "none");
-    }  */
-    setxdiv = true;  
-    
-    d3.select("#setx")
-    .style("display", "inline");
-    
+function rightpanelMedium() {
     d3.select("#rightpanel")
-    .attr("class", "sidepanel container clearfix expandpanel");
-    
+    .attr("class", "sidepanel container clearfix");
 }
 
 // function to convert color codes
@@ -2632,41 +2632,6 @@ function right() {
     reWriteLog();
     
   //  event.preventDefault();
-}
-
-function resultsView() {
-    if(estimated==false) {
-        righttab='results';
-        tabRight('btnResults');
-        return;
-    }
-    
-    if(resultsViewer==true) {
-        resultsViewer=false;
-        
-        d3.select("#rightpanel")
-        .attr("class", "sidepanel container clearfix");
-        
-        return;
-    }
-    
-    righttab='results';
-    tabRight('btnResults');
-    
-    resultsViewer=true;
-    d3.select("#results")
-    .style("display", "block");
-    
-    d3.select("#resultsView")
-    .style("display", "block");
-    
-    d3.select("#modelView")
-    .style("display", "block");
-    
-    d3.select("#rightpanel")
-    .attr("class", "sidepanel container clearfix expandpanel");
-    
-    return;
 }
 
 

@@ -170,9 +170,9 @@
          
          <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
              <div class="btn-group" style="margin-right:0;">
-                 <button type="button" class="btn active" id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</button>
-                 <button type="button" class="btn btn-default" id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</button>
-                 <button type="button" class="btn btn-default" id="btnResults" onclick="resultsView();">Results</button>
+                 <button type="button" class="btn active" id="btnModels" onclick="tabRight('btnModels');">Models</button>
+                 <button type="button" class="btn btn-default" id="btnSetx" onclick="tabRight('btnSetx');">Set Covar.</button>
+                 <button type="button" class="btn btn-default" id="btnResults" onclick="tabRight('btnResults');">Results</button>
              </div>
          </div>
          
@@ -257,7 +257,7 @@
           $('#leftpanel > div.row-fluid').toggleClass('closepanel');
           $('#leftpanel').toggleClass('closepanel');
           $('#main').toggleClass('svg-leftpanel');
-          $('#btnSelect').css('display','none');
+          $('#btnSelect').css('display','none'); 
       }
   };
   function closeRightPanel() {
