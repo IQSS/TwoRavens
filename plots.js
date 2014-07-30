@@ -412,7 +412,10 @@ function bars(data, node, div) {
   
     var brush = d3.svg.brush()
     .x(x)
-    .extent(node.subsetrange)
+    .extent(function(){
+            if(node.subsetrange.length==1) {return [node.subsetrange[0], node.subsetrange[0]];}
+            else {return node.subsetrange;}
+            })
     .on("brush", brushed);
 
     var brush2 = d3.svg.brush()
@@ -501,7 +504,7 @@ plotsvg.selectAll("rect")
     }
 
 
-    if(mydiv=="#setx") {        
+    if(mydiv=="#setx") {
         plotsvg.append("text")
         .attr("id", "range")
         .attr("x", 25)
@@ -711,6 +714,11 @@ function barsSubset(data, node) {
     var barPadding = .015;  // Space between bars
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
     
+    // Variable name
+    var myname = data.varname.toString();
+    myname = myname.replace(/\(|\)/g, "");
+
+    
     // Data
     var keys = Object.keys(data.properties.values);
     var yVals = new Array;
@@ -767,9 +775,7 @@ function barsSubset(data, node) {
           var plotsvg = d3.select(mydiv)
         .append("svg")
         .attr("id", function(){
-              var myname = data.varname.toString();
-              myname = myname.replace(/\(|\)/g, "");
-              return myname.concat("_",mydiv.substr(1), "_", node.id);
+                    return myname.concat("_",mydiv.substr(1), "_", node.id);
               })
         .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
     .style("height", height + margin.top + margin.bottom)
@@ -781,7 +787,7 @@ function barsSubset(data, node) {
     .enter().append("g")
     .attr("class", "freq")
     .attr("name", function(d,i) {
-          return gname[i];
+          return myname.concat(gname[i]);
           });
     
     rect = freq.selectAll("rect")
@@ -807,8 +813,8 @@ function barsSubset(data, node) {
     .on("click", function(){
         var selectMe = this;
         var selectName = this.getAttribute("name");
-        if(this.parentNode.getAttribute("name")=="subsetno") {
-            selectMe = $('[name="subsetyes"]').children('[name="' + selectName + '"]')[0];
+        if(this.parentNode.getAttribute("name")==myname.concat("subsetno")) {
+            selectMe = $('[name="' + myname.concat("subsetyes") + '"]').children('[name="' + selectName + '"]')[0];
         }
         d3.select(selectMe)
         .style("fill", function(d,i){

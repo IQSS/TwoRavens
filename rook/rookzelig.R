@@ -108,6 +108,14 @@ zelig.app <- function(env){
 	}
     
     if(!warning){
+        myplot <- everything$zplot
+        if(is.null(myplot)){
+            warning <- TRUE
+            result <- list(warning="Problem with zplot.")
+        }
+    }
+    
+    if(!warning){
 		mysetx <- everything$zsetx
         myvars <- everything$zvars
         setxCall <- buildSetx(mysetx, myvars)
@@ -171,8 +179,16 @@ zelig.app <- function(env){
     }
 
     if(!warning){
-        mysubset <- everything$zsubset
-        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        if(class(everything$zsubset)=="matrix") {
+            mysubset <- list()
+            t <- everything$zsubset
+            for(i in 1:nrow(t)) {
+                mysubset[[i]]<-t[i,]
+            }
+        } else {
+            mysubset <- everything$zsubset
+        }
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
@@ -351,24 +367,43 @@ getDataverse<-function(hostname, fileid){
 #}
 
 
-subsetData <- function(data, sub, varnames){
+## subsetData is a function called by all apps. sub is a list of subset values, varnames and plot are vectors. each has the same number of elements.
+subsetData <- function(data, sub, varnames, plot){
     fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
     fdata$flag <- 0
     skip <- ""
-    
     for(i in 1:length(varnames)){
-        t <-  sub[i,]   # under rjson was: unlist(sub[i])
-        if(t[1]=="" & t[2]=="") {next} #no subset region
+        t <-  sub[[i]]   # under rjson was: unlist(sub[i])
+        p <- plot[i]
+        print("my plot is")
+        print(p)
+        if(t[1]=="" | length(t)==0) {next} #no subset region
         else {
-            myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1")
-            eval(parse(text=myexpr))
+            if(p=="continuous") {
+                            print("here continuous")
+                myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1", sep="")
+                eval(parse(text=myexpr))
             
-            if(sum(fdata$flag)==nrow(fdata)) { # if this will remove all the data, skip this subset and warn the user
-                fdata$flag <- 0
-                skip <- c(skip, varnames[i]) ## eventually warn the user that skip[2:length(skip)] are variables that they have chosen to subset but have been skipped because if they were subsetted we would have no data left
-            }
-            else {
-                fdata <- fdata[which(fdata$flag==0),] # subsets are the overlap of all remaining selected regions.
+                if(sum(fdata$flag)==nrow(fdata)) { # if this will remove all the data, skip this subset and warn the user
+                    fdata$flag <- 0
+                    skip <- c(skip, varnames[i]) ## eventually warn the user that skip[2:length(skip)] are variables that they have chosen to subset but have been skipped because if they were subsetted we would have no data left
+                }
+                else {
+                    fdata <- fdata[which(fdata$flag==0),] # subsets are the overlap of all remaining selected regions.
+                }
+            } else if(p=="bar") {
+                print("here bar")
+                myexpr <- paste("fdata$flag[which(as.character(fdata$",varnames[i],")%in% t)] <- 1", sep="")
+                print(myexpr)
+                eval(parse(text=myexpr))
+                
+                if(sum(fdata$flag)==nrow(fdata)) {
+                    fdata$flag <- 1
+                    skip <- c(skip, varnames[i])
+                }
+                else {
+                    fdata <- fdata[which(fdata$flag==1),] # notice we keep 1s, above we keep 0s
+                }
             }
         }
     }
@@ -557,10 +592,25 @@ subset.app <- function(env){
 	}
     
     if(!warning){
-        mysubset <- everything$zsubset
+        if(class(everything$zsubset)=="matrix") {
+            mysubset <- list()
+            t <- everything$zsubset
+            for(i in 1:nrow(t)) {
+                mysubset[[i]]<-t[i,]
+            }
+        } else {
+            mysubset <- everything$zsubset
+        }
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
+        }
+    }
+    if(!warning){
+        myplot <- everything$zplot
+        if(is.null(myplot)){
+            warning <- TRUE
+            result <- list(warning="Problem with zplot.")
         }
     }
     
@@ -570,15 +620,19 @@ subset.app <- function(env){
     # this tryCatch is not fully tested.
     tryCatch(
     {
-        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars)
+        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
         sumstats <- calcSumStats(usedata)
         
         call <- ""
         for(i in 1:length(myvars)) {
-            if(mysubset[i,1]=="" & mysubset[i,2]=="") {next}
+            if(mysubset[[i]][1]=="") {next}
             else {
                 if(call != "") {call <- paste(call, ", ", sep="")}
-                call <- paste(call, myvars[i], "[", mysubset[i,1], ":", mysubset[i,2], "]", sep="")
+                if(myplot[i]=="continuous") {
+                    call <- paste(call, myvars[i], "[", mysubset[[i]][1], ":", mysubset[[i]][2], "]", sep="")
+                } else if(myplot[i]=="bar") {
+                    call <- paste(call, myvars[i], "[", paste(mysubset[[i]], collapse=","), "]", sep="")
+                }
             }
         }
     

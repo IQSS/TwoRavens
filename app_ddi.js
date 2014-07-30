@@ -93,6 +93,7 @@ var varColor = '#f0f8ff';   //d3.rgb("aliceblue");
 var selVarColor = '#fa8072';    //d3.rgb("salmon");
 var taggedColor = '#f5f5f5';    //d3.rgb("whitesmoke");
 var d3Color = '#1f77b4';  // d3's default blue
+var grayColor = '#c0c0c0';
 
 var lefttab = "tab1"; //global for current tab in left panel
 
@@ -110,7 +111,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[], zmodelcount:0};
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[], zmodelcount:0, zplot:[]};
 
 
 // Pre-processed data:
@@ -126,7 +127,8 @@ if (fileid) {
    // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
 
-var preprocess = readPreprocess(pURL);
+var preprocess = {};
+readPreprocess(url=pURL, p=preprocess, v=null, callback=null);
 
 // Radius of circle
 var allR = 40;
@@ -322,7 +324,7 @@ function scaffolding(v) {
         .attr("onmouseover", "$(this).popover('toggle');")
         .attr("onmouseout", "$(this).popover('toggle');")
         .attr("data-original-title", "Summary Statistics")
-        .on("click", function(){
+        .on("click", function varClick(){
             d3.select(this)
             .style('background-color',function(d) {
                    var myText = d3.select(this).text();
@@ -508,7 +510,6 @@ function layout(v) {
     nodes = [];
     links = [];
     
-    
     if(v === "add" | v === "move") {
         d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
@@ -546,6 +547,7 @@ function layout(v) {
             return;
         }
     }
+    
     panelPlots(); // after nodes is populated, add subset and setx panels
     
     // init D3 force layout
@@ -642,7 +644,7 @@ function layout(v) {
         //Remove the tooltip
         //d3.select("#tooltip").style("display", "none");
         })
-    .on("click", function(){
+    .on("click", function varClick(){
         d3.select(this)
         .style('background-color',function(d) {
                var myText = d3.select(this).text();
@@ -1401,11 +1403,21 @@ function estimate(btn) {
         .text(model)
         .style('background-color', hexToRgba(selVarColor))
         .on("click", function(){
+            var a = this.style.backgroundColor.replace(/\s*/g, "");
+            var b = hexToRgba(selVarColor).replace(/\s*/g, "");
+            if(a.substr(0,17)===b.substr(0,17)) {
+                return;
+            }
             modCol();
             d3.select(this)
             .style('background-color', hexToRgba(selVarColor));
             viz(this.id);
             });
+        
+        var rCall = [];
+        rCall[0] = json.call;
+        logArray.push("estimate: ".concat(rCall[0]));
+        showLog();
         
         viz(model);
     }
@@ -1447,10 +1459,10 @@ function viz(m) {
         //            filelist.push(json[i]);
     }
     
-    var rCall = [];
-    rCall[0] = json.call;
-    logArray.push("estimate: ".concat(rCall[0]));
-    showLog();
+   // var rCall = [];
+   // rCall[0] = json.call;
+   // logArray.push("estimate: ".concat(rCall[0]));
+   // showLog();
     
     
     // write the results table
@@ -1560,7 +1572,7 @@ function transform(n,t) {
         trans.push(newVar);
         logArray.push("transform: ".concat(rCall[0]));
         showLog();
-        readPreprocess(json.url, from="transform", v=newVar, callback=mycallback);
+        readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
         
         function mycallback() {
             scaffolding(rCall[0]);
@@ -1984,12 +1996,11 @@ function subset() {
 }
 
 function panelPlots() {  // VJD: some optimization added 7/25/14
-    
+
     // build arrays from nodes in main
     var dataArray = [];
     var varArray = [];
     var idArray = [];
-    
     
     for(var j=0; j < nodes.length; j++ ) {
         dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
@@ -2194,6 +2205,7 @@ function subsetSelect(btn) {
     zparams.zfileid = fileid;
     
     zparams.zvars = [];
+    zparams.zplot = [];
     
     var subsetEmpty = true;
     
@@ -2202,6 +2214,7 @@ function subsetSelect(btn) {
         var temp = nodes[j].id;
         //var temp = findNodeIndex(nodes[j].name);
         zparams.zsubset[j] = allNodes[temp].subsetrange;
+        zparams.zplot.push(preprocess[nodes[j].name].type);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
     
@@ -2211,7 +2224,7 @@ function subsetSelect(btn) {
     }
     
     //package the output as JSON
-    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset};
+    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot};
     
     var jsonout = JSON.stringify(subsetstuff);
     var base = rappURL+"subsetapp?solaJSON="
@@ -2223,6 +2236,7 @@ function subsetSelect(btn) {
         
         selectLadda.stop(); // stop motion
         subseted=true;
+        var grayOuts = [];
         
         var rCall = [];
         rCall[0] = json.call;
@@ -2272,9 +2286,26 @@ function subsetSelect(btn) {
             allNodes[temp].standardDeviation=json.sd[j];
             allNodes[temp].maximum=json.max[j];
             allNodes[temp].subsetplot=false;
+            allNodes[temp].subsetrange=["",""];
             allNodes[temp].subsethold=allNodes[temp].subsetrange;
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
+            
+            if(json.valid[j]==0) { grayOuts.push(allNodes[temp].name);}
+        }
+        
+        // this is to be used to gray out and remove listeners for variables that have been subsetted out of the data
+        function varOut(v) {
+            // if in nodes, remove
+            // gray out in left panel
+            // make unclickable in left panel
+            for(var i=0; i < v.length; i++) {
+                var selectMe=v[i].replace(/\W/g, "_");
+                document.getElementById(selectMe).style.color=hexToRgba(grayColor);
+                selectMe = "p#".concat(selectMe);
+                d3.select(selectMe)
+                .on("click", null);
+            }
         }
         
         logArray.push("subset: ".concat(rCall[0]));
@@ -2291,11 +2322,16 @@ function subsetSelect(btn) {
         .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
         
-        preprocess=readPreprocess(json.url);
-        layout(v="add");
+       
+        readPreprocess(json.url, p=preprocess, v=null, callback=mycallback);
+
+        function mycallback() {
+            rePlot(reset=true);
+            populatePopover();
+            layout(v="add");
+        }
         
-        rePlot(reset=true);
-        populatePopover();
+      //  varOut(grayOuts);
     }
     
     
@@ -2309,8 +2345,7 @@ function subsetSelect(btn) {
     
 }
 
-function readPreprocess(url, from, v, callback) {
-    var p = {};
+function readPreprocess(url, p, v, callback) {
     d3.json(url, function(error, json) {
             if (error) return console.warn(error);
             var jsondata = json;
@@ -2319,13 +2354,10 @@ function readPreprocess(url, from, v, callback) {
             for(var key in jsondata) {
                 p[key] = jsondata[key];
             }
-            if(from==="transform") {
-                preprocess[v]=p[v];
+            if(typeof callback === "function") {
                 callback();
             }
-
             });
-    return p;
 }
 
 
