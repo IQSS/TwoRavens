@@ -1778,47 +1778,45 @@ function tabLeft(tab) {
     if(tab!="tab3") {lefttab=tab;}
     var tabi = tab.substring(3);
     
-    if(tab != "tab3") {
-        document.getElementById('btnPanel'+tabi).setAttribute("class", "btn active");
-    }
-    
     document.getElementById('tab1').style.display = 'none';
     document.getElementById('tab2').style.display = 'none';
     document.getElementById('tab3').style.display = 'none';
 
-    if(tabi==1) {
+    if(tab==="tab1") {
         summaryHold = false;
-        document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        document.getElementById('btnVariables').setAttribute("class", "btn active");
+        document.getElementById("btnSelect").style.display = 'none';
         
         d3.select("#leftpanel")
         .attr("class", "sidepanel container clearfix");
     }
-    else if (tabi==2) {
+    else if (tab==="tab2") {
         summaryHold = false;
-        document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
-        toggleL();
-    }
-    else {
-        document.getElementById('btnPanel2').setAttribute("class", "btn btn-default");
-        document.getElementById('btnPanel1').setAttribute("class", "btn btn-default");
+        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
+        document.getElementById('btnSubset').setAttribute("class", "btn active");
         
-        d3.select("#leftpanel")
-        .attr("class", "sidepanel container clearfix");
-    }
-    document.getElementById(tab).style.display = 'block';
-    
-    function toggleL() {
         d3.select("#leftpanel")
         .attr("class", function(d){
               if(this.getAttribute("class")==="sidepanel container clearfix expandpanel") {
-              return "sidepanel container clearfix";
+                document.getElementById("btnSelect").style.display = 'none';
+                return "sidepanel container clearfix";
               }
               else {
-              return "sidepanel container clearfix expandpanel";
+                document.getElementById("btnSelect").style.display = 'block';
+                return "sidepanel container clearfix expandpanel";
               }
               });
     }
+    else {
+        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
+        
+        d3.select("#leftpanel")
+        .attr("class", "sidepanel container clearfix");
+    }
 
+    document.getElementById(tab).style.display = 'block';
 }
 
 function tabRight(tabid) {
@@ -2213,6 +2211,9 @@ function subsetSelect(btn) {
     function subsetSelectSuccess(btn,json) {
         
         selectLadda.stop(); // stop motion
+        $("#btnVariables").trigger("click"); // programmatic clicks
+        $("#btnModels").trigger("click");
+        
         subseted=true;
         var grayOuts = [];
         
@@ -2304,7 +2305,7 @@ function subsetSelect(btn) {
         readPreprocess(json.url, p=preprocess, v=null, callback=mycallback);
 
         function mycallback() {
-            rePlot(reset=true);
+            rePlot();
             populatePopover();
             layout(v="add");
         }
@@ -2621,33 +2622,9 @@ function closeabout() {
     $('#about').hide();
 }
 
-// function to remove all the children svgs inside subset and setx divs. if true, reset will collapse the panels
-function rePlot(reset) {
-    // collapse subset or setx divs and reset all plots
-    if(reset==true) {
-        d3.select("#tab2")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#setx")
-        .style("display", "none")
-        .selectAll("svg")
-        .remove();
-        
-        d3.select("#rightpanel")
-        .attr("class", "sidepanel container clearfix");
-        
-        d3.select("#leftpanel")
-        .attr("class", "sidepanel container clearfix");
-        
-        d3.select("#btnSelect")
-        .style("display", "none");
-        
-        tabLeft("tab1");
-    
-    }
-    else {
+// function to remove all the children svgs inside subset and setx divs
+function rePlot() {
+
         d3.select("#tab2")
         .selectAll("svg")
         .remove();
@@ -2655,7 +2632,6 @@ function rePlot(reset) {
         d3.select("#setx")
         .selectAll("svg")
         .remove();
-    }
     
     for(var i = 0; i<allNodes.length; i++) {
         allNodes[i].setxplot=false;
