@@ -1650,8 +1650,8 @@ function createCORSRequest(method, url) {
     console.log("xmlhttprequest ", xhr);
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
-        // true is the default, and is a asynchronous.  this fails when the json becomes large, which happens as a result of callHistory growing.  changing to false and thus making this load synchronous...
-        xhr.open(method, url, false);
+        // true is the default, and is a asynchronous.
+        xhr.open(method, url, true);
     } else if (typeof XDomainRequest != "undefined") {
         // XDomainRequest for IE.
         xhr = new XDomainRequest();
