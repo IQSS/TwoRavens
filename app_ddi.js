@@ -111,7 +111,7 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], ztransformed:[], ztransFrom:[], ztransFunc:[], zmodelcount:0, zplot:[]};
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
 
 
 // Pre-processed data:
@@ -173,7 +173,6 @@ var arc4 = d3.svg.arc()
 
 
   // From .csv
-var lastNodeId = 0;  
 var dataset2 = [];
 var valueKey = [];
 var lablArray = [];
@@ -187,6 +186,7 @@ var transformVar = "";
 var summaryHold = false;
 var selInteract = false;
 var modelCount = 0;
+var callHistory = []; // unique to the space. saves transform and subset calls.
 
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
@@ -265,7 +265,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        }
 
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":false, "transFrom":"", "transFunc":""});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
        };
  
        
@@ -1339,9 +1339,6 @@ function zPop() {
         
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
-        zparams.ztransformed[j] = allNodes[temp].transformed;
-        zparams.ztransFrom[j] = allNodes[temp].transFrom;
-        zparams.ztransFunc[j] = allNodes[temp].transFunc;
     }
     
     for(var j =0; j < links.length; j++ ) { //populate zedges array
@@ -1360,14 +1357,16 @@ function zPop() {
 function estimate(btn) {
     zPop();
     // write links to file & run R CMD
-
-    //package the zparams object as JSON
+    
+    //package the output as JSON
+    // add call history and package the zparams object as JSON
+    zparams.callHistory=callHistory;
     var jsonout = JSON.stringify(zparams);
+    
     var base = rappURL+"zeligapp?solaJSON="
 
     urlcall = base.concat(jsonout);
     console.log("urlcall out: ", urlcall);
-    
     
     function estimateSuccess(btn,json) {
         estimateLadda.stop();  // stop spinner
@@ -1444,7 +1443,6 @@ function estimate(btn) {
 
 function viz(m) {
     var mym = +m.substr(5,5) - 1;
-    console.log(mym);
     
     function removeKids(parent) {
         while (parent.firstChild) {
@@ -1526,28 +1524,55 @@ function viz(m) {
           });
 }
 
+// this function parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
 function transParse(n) {
-    var out = [];
-    var t = n;
-    var k = 0;
-    var subMe = "_transvar".concat(k);
     
+    var out2 = [];
+    var t2=n;
+    var k2=0;
+    var subMe2 = "_transvar".concat(k2);
+    var indexed = [];
+    
+    // out2 is all matched variables, indexed is an array, each element is an object that contains the matched variables starting index and finishing index.  e.g., n="wars+2", out2=[war, wars], indexed=[{0,2},{0,3}]
     for(var i in valueKey) {
-        var m = n.match(valueKey[i]);
-        if(m !== null) {
-            t = t.replace(m, subMe); //something that'll never be a variable name
-            k = k+1;
-            subMe = "_transvar".concat(k);
-            //return [n=m[0], t=t];
-            out.push(m[0]);
+        var m2 = n.match(valueKey[i]);
+        if(m2 !== null) {
+            out2.push(m2[0]);
+        }
+        
+        var re = new RegExp(valueKey[i], "g")
+        var s = n.search(re);
+        if(s != -1) {
+            indexed.push({from:s, to:s+valueKey[i].length});
         }
     }
-    if(out.length > 0) {
-        out.push(t);
-        return(out);
+    
+    // nested loop not good, but indexed is not likely to be very large.
+    // if a variable is nested, it is removed from out2
+    // notice, loop is backwards so that index changes don't affect the splice
+    console.log("indexed ", indexed);
+    for(var i=indexed.length-1; i>-1; i--) {
+        for(var j=indexed.length-1; j>-1; j--) {
+            if(i===j) {continue;}
+            if((indexed[i].from >= indexed[j].from) & (indexed[i].to <= indexed[j].to)) {
+                console.log(i, " is nested in ", j);
+                out2.splice(i, 1);
+            }
+        }
+    }
+
+    for(var i in out2) {
+        t2 = t2.replace(out2[i], subMe2); //something that'll never be a variable name
+        k2 = k2+1;
+        subMe2 = "_transvar".concat(k2);
     }
     
-    if(m===null) {
+    if(out2.length > 0) {
+        out2.push(t2);
+        console.log("new out ", out2);
+        return(out2);
+    }
+    else {
         alert("No variable name found. Perhaps check your spelling?");
         return null;
     }
@@ -1562,7 +1587,7 @@ function transform(n,t) {
     var btn = document.getElementById('btnEstimate');
     
     //package the output as JSON
-    var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t};
+    var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t, callHistory:callHistory};
     var jsonout = JSON.stringify(transformstuff);
     var base = rappURL+"transformapp?solaJSON="
     
@@ -1573,7 +1598,7 @@ function transform(n,t) {
     function transformSuccess(btn, json) {
         estimateLadda.stop();
         console.log("json in: ", json);
-        
+        callHistory.push({func:"transform", zvars:n, transform:t});
         
         var rCall = [];
         rCall[0] = json.call;
@@ -1598,13 +1623,13 @@ function transform(n,t) {
         
         // add transformed variable to the current space
         var i = allNodes.length;
-        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
+        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
         
         // add transformed variable to all spaces
         for(var j in spaces) {
             var i = spaces[j].allNodes.length;
 
-            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""], "transformed":true, "transFrom":json.trans[0], "transFunc":json.trans[1]});
+            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
         }
     }
     
@@ -1622,9 +1647,11 @@ function transform(n,t) {
 // Create the XHR object.
 function createCORSRequest(method, url) {
     var xhr = new XMLHttpRequest();
+    console.log("xmlhttprequest ", xhr);
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
-        xhr.open(method, url, true);
+        // true is the default, and is a asynchronous.  this fails when the json becomes large, which happens as a result of callHistory growing.  changing to false and thus making this load synchronous...
+        xhr.open(method, url, false);
     } else if (typeof XDomainRequest != "undefined") {
         // XDomainRequest for IE.
         xhr = new XDomainRequest();
@@ -1650,7 +1677,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
         alert('CORS not supported');
         return;
     }
-    
+    console.log("xhr ", xhr);
     // Response handlers for asynchronous load.  disabled for now
     xhr.onload = function() {
       var text = xhr.responseText;
@@ -2185,10 +2212,10 @@ function subsetSelect(btn) {
     
     var subsetEmpty = true;
     
+    // is this the same as zPop()?
     for(var j =0; j < nodes.length; j++ ) { //populate zvars and zsubset arrays
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
-        //var temp = findNodeIndex(nodes[j].name);
         zparams.zsubset[j] = allNodes[temp].subsetrange;
         zparams.zplot.push(preprocess[nodes[j].name].type);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
@@ -2200,7 +2227,7 @@ function subsetSelect(btn) {
     }
     
     //package the output as JSON
-    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot};
+    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot, callHistory:callHistory};
     
     var jsonout = JSON.stringify(subsetstuff);
     var base = rappURL+"subsetapp?solaJSON="
@@ -2210,6 +2237,8 @@ function subsetSelect(btn) {
 
     function subsetSelectSuccess(btn,json) {
         
+        callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
+        console.log(callHistory);
         selectLadda.stop(); // stop motion
         $("#btnVariables").trigger("click"); // programmatic clicks
         $("#btnModels").trigger("click");
@@ -2316,7 +2345,6 @@ function subsetSelect(btn) {
     
     function subsetSelectFail(btn) {
         selectLadda.stop(); //stop motion
-        //document.getElementById(btn).style.background="#CC3333";
     }
     
     selectLadda.start(); //start button motion

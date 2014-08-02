@@ -147,51 +147,20 @@ zelig.app <- function(env){
 			result<-list(warning="Dataset not loadable from Dataverse")
 		}
 	}
-    
-    ## NOTE: variables are transformed then data is subsetted
-    if(!warning) {
-        tryCatch({
-        if(any(everything$ztransformed)){
-            # tDV <- FALSE
-            t <- which(everything$ztransformed)
-            # if(mydv %in% myvars[t]) {tDV <- which(mydv==myvars)}
-            myT <- everything$ztransFunc[which(everything$ztransformed)]
-            for(i in length(t)){
-                v <- everything$ztransFrom[t[i]]
-                tdata <- as.data.frame(mydata[,v])
-                newcol <- transform(data=tdata, func=myT)
-                newname <- gsub("20BarrySanders20", colnames(mydata)[t[i]], myT)
-                newname <- gsub("\\W+", "_" ,newname)
-                evalstr <- paste("mydata$", newname, "<-newcol[,1]", sep="")
-                eval(parse(text=evalstr))
-                myedges[which(myedges==myvars[t[i]])] <- newname
-                myvars[t[i]] <- newname
-            }
-            #if(tDV != FALSE) {mydv <- myvars[tDV]}
-            # print(mydv)
-        }
-        },
-        error=function(err){
-            warning <- TRUE
-            result <- list(warning=paste("Transformed variable error: ", err))
-            assign("result", result, envir=globalenv())
-        })
-    }
 
     if(!warning){
-        if(class(everything$zsubset)=="matrix") {
-            mysubset <- list()
-            t <- everything$zsubset
-            for(i in 1:nrow(t)) {
-                mysubset[[i]]<-t[i,]
-            }
-        } else {
-            mysubset <- everything$zsubset
-        }
-        usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
+        mysubset <- parseSubset(everything$zsubset)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
+        }
+    }
+    
+    if(!warning){
+        history <- everything$callHistory
+        if(is.null(history)){
+            warning<-TRUE
+            result<-list(warning="callHistory is null.")
         }
     }
 
@@ -215,17 +184,21 @@ zelig.app <- function(env){
       
         tryCatch({
           
+          ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
+          mydata <- executeHistory(data=mydata, history=history)
+          
+          ## 2. additional subset of the data in the event that a user wants to estimate a model on the subset, but hasn't "selected" on the subset. that is, just brushed the region, does not press "Select", and presses "Estimate"
+          usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
+          usedata <- refactor(usedata) # when data is subset, factors levels do not update, and this causes an error in zelig's setx(). refactor() is a quick fix
+          
           # Here is present dealing with missing data
           # listwise deletion on variables in the formula
           usevars<-all.vars(myformula)
           missmap<-!is.na(usedata[,usevars])
           isobserved<-apply(missmap,1,all)
-          usedata<-usedata[isobserved,]
+          usedata<<-usedata[isobserved,]
           print(dim(usedata))
 
-    #       assign("mydata", mydata, envir=globalenv())   # Zelig4 Error with Environments
-            assign("usedata", usedata, envir=globalenv()) # Zelig4 Error with Environments
-        
             z.out <- zelig(formula=myformula, model=mymodel, data=usedata)   # maybe just pass variables being used?
             almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
 
@@ -241,13 +214,13 @@ zelig.app <- function(env){
             }
         
             if(length(setxCall)==1) { # there is no x.alt
+                print(x.out)
                 s.out <- sim(z.out, x=x.out)
             }
             else {
                 s.out <- sim(z.out, x=x.out, x1=x.alt)
             }
             assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
-
             qicount<-0
             imageVector<-list()
             for(i in 1:length(s.out$qi)){
@@ -281,7 +254,7 @@ zelig.app <- function(env){
             }
         },
         error=function(err){
-            warning <- TRUE
+            warning <<- TRUE ## assign up the scope
             result <- list(warning=paste("Zelig error: ", err))
             assign("result", result, envir=globalenv())
         })
@@ -293,8 +266,26 @@ zelig.app <- function(env){
     #add the summary table to the results
     # R can't construct an array of lists...
     # NOTE: this will likely change for Zelig 5
+    #      rm(list=ls())
+    #           mydata <- read.delim("../data/fearonLaitin.tsv")
+    #mydata <- mydata[which(mydata$ccode>423),]
+    #mydata$country <- factor(mydata$country)
+    #  z.out <- zelig(ccode~country, model="ls", data=mydata)
+    #x.out <- setx(z.out)
+    #s.out <- sim(z.out, x.out)
     
-    #         mydata <- read.delim("../data/fearonLaitin.tsv")
+    # putting factor(var) in the formula fails with Zelig4
+    # adding a factor variable to the data, or coercing variable to be a factor, works
+    # rm(list=ls())
+    #mydata <- read.delim("../data/fearonLaitin.tsv")
+    #mydata <- mydata[,c("war", "lpop", "region")]
+    #mydata <- na.omit(mydata)
+    #mydata$fregion <- factor(mydata$region)
+    #mydata$region <- as.factor(mydata$region)
+    #z.out <- zelig(war~lpop + factor(region), model="logit", data=mydata)
+    #x.out <- setx(z.out)
+    #s.out <- sim(z.out, x.out) # fail
+    
     #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
     #  imageVector <- "image"
     #  almostCall <- "call"
@@ -302,10 +293,7 @@ zelig.app <- function(env){
 
 
     ## NOTE: z.out not guaranteed to exist, if some warning is tripped above.
-    ## VJD: tryCatch() wraps Zelig code above.  If an error occurs, warning set to true and the error message is assigned to result.
     if(!warning){
-        
-        print(z.out$call$formula)
         summaryMatrix <- summary(z.out)$coefficients
         # sumColName <- c(" ",colnames(summaryMatrix))
         sumColName <- c(" ", "Estimate", "SE", "t-value", "Pr(<|t|)")
@@ -319,10 +307,8 @@ zelig.app <- function(env){
             assign(paste("row", i, sep = ""), c(sumRowName[i],summaryMatrix[i,]))
             assign("sumInfo", c(sumInfo, list(eval(parse(text=paste("row",i,sep=""))))))
         }
-    
         sumMat <- list(sumInfo=sumInfo)
     
-        print(result)
         result<- jsonlite:::toJSON(c(result,sumMat))   # rjson does not format json correctly for a list of lists
     }else{
         result<-jsonlite:::toJSON(result)
@@ -349,10 +335,19 @@ terminate<-function(response,warning){
 
 getDataverse<-function(hostname, fileid){
     path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
-    mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)  # if data is not readable, return NULL
+    mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)  # if data is not readable, NULL
     return(mydata)
 }
 
+# quick way to reassign factor levels in the data, necessary for setx() after data have been subset
+refactor <- function(data) {
+    for(i in 1:ncol(data)) {
+        if(is.factor(data[,i])) {
+            data[,i] <- factor(data[,i])
+        }
+    }
+    return(data)
+}
 
 # This utility function was necessary when using rjson, rather than jsonlite, to transform list-of-lists to matrix
 #
@@ -367,49 +362,7 @@ getDataverse<-function(hostname, fileid){
 #}
 
 
-## subsetData is a function called by all apps. sub is a list of subset values, varnames and plot are vectors. each has the same number of elements.
-subsetData <- function(data, sub, varnames, plot){
-    fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
-    fdata$flag <- 0
-    skip <- ""
-    for(i in 1:length(varnames)){
-        t <-  sub[[i]]   # under rjson was: unlist(sub[i])
-        p <- plot[i]
-        print("my plot is")
-        print(p)
-        if(t[1]=="" | length(t)==0) {next} #no subset region
-        else {
-            if(p=="continuous") {
-                            print("here continuous")
-                myexpr <- paste("fdata$flag[which(fdata$",varnames[i],"<",t[1]," | fdata$",varnames[i],">",t[2],")] <- 1", sep="")
-                eval(parse(text=myexpr))
-            
-                if(sum(fdata$flag)==nrow(fdata)) { # if this will remove all the data, skip this subset and warn the user
-                    fdata$flag <- 0
-                    skip <- c(skip, varnames[i]) ## eventually warn the user that skip[2:length(skip)] are variables that they have chosen to subset but have been skipped because if they were subsetted we would have no data left
-                }
-                else {
-                    fdata <- fdata[which(fdata$flag==0),] # subsets are the overlap of all remaining selected regions.
-                }
-            } else if(p=="bar") {
-                print("here bar")
-                myexpr <- paste("fdata$flag[which(as.character(fdata$",varnames[i],")%in% t)] <- 1", sep="")
-                print(myexpr)
-                eval(parse(text=myexpr))
-                
-                if(sum(fdata$flag)==nrow(fdata)) {
-                    fdata$flag <- 1
-                    skip <- c(skip, varnames[i])
-                }
-                else {
-                    fdata <- fdata[which(fdata$flag==1),] # notice we keep 1s, above we keep 0s
-                }
-            }
-        }
-    }
-    fdata$flag<-NULL
-    return(fdata)
-}
+
 
 
 buildSetx <- function(setx, varnames) {
@@ -554,6 +507,65 @@ pCall <- function(data,production) {
     return(url)
 }
 
+
+## called by executeHistory(), subset.app, and zelig.app.
+## this function parses everything$zsubset to a list of subset values. the names of the elements in the list are 1, 2, 3, etc, and corresponds to the indices in the zvars and plot arrays
+parseSubset <- function(sub) {
+    if(class(sub)=="matrix") {
+        mysubset <- list()
+        t <- sub
+        for(i in 1:nrow(t)) {
+            mysubset[[i]]<-t[i,]
+        }
+    } else {
+        mysubset <- sub
+    }
+    return(mysubset)
+}
+
+## called by executeHistory, subset.app, and zelig.app.
+## sub is a list of subset values, from parseSubset(). varnames and plot are vectors.  if plot[i] is "bar", it subsets on all values in sub[[i]].  if plot[i] is "continuous", it subsets on the range specified by the two values in sub[[i]]
+subsetData <- function(data, sub, varnames, plot){
+    fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
+    fdata$flag <- 0
+    skip <- ""
+    for(i in 1:length(varnames)){
+        t <-  sub[[i]]   # under rjson was: unlist(sub[i])
+        p <- plot[i]
+        if(t[1]=="" | length(t)==0) {next} #no subset region
+        else {
+            if(p=="continuous") {
+                myexpr <- paste("fdata$flag[which(fdata$\"",varnames[i],"\" < ",t[1]," | fdata$\"",varnames[i],"\" > ",t[2],")] <- 1", sep="")
+                print(myexpr)
+                print(colnames(fdata))
+                eval(parse(text=myexpr))
+                
+                if(sum(fdata$flag)==nrow(fdata)) { # if this will remove all the data, skip this subset and warn the user
+                    fdata$flag <- 0
+                    skip <- c(skip, varnames[i]) ## eventually warn the user that skip[2:length(skip)] are variables that they have chosen to subset but have been skipped because if they were subsetted we would have no data left
+                }
+                else {
+                    fdata <- fdata[which(fdata$flag==0),] # subsets are the overlap of all remaining selected regions.
+                }
+            } else if(p=="bar") {
+                myexpr <- paste("fdata$flag[which(as.character(fdata$\"",varnames[i],"\")%in% t)] <- 1", sep="")
+                eval(parse(text=myexpr))
+                
+                if(sum(fdata$flag)==nrow(fdata)) {
+                    fdata$flag <- 1
+                    skip <- c(skip, varnames[i])
+                }
+                else {
+                    fdata <- fdata[which(fdata$flag==1),] # notice we keep 1s, above we keep 0s
+                }
+            }
+        }
+    }
+    fdata$flag<-NULL
+    return(fdata)
+}
+
+
 subset.app <- function(env){
     
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
@@ -566,6 +578,8 @@ subset.app <- function(env){
     
     everything <- jsonlite:::fromJSON(request$params()$solaJSON)
     print(everything)
+    
+    print(class(everything$callHistory))
     
     warning<-FALSE
     
@@ -592,15 +606,7 @@ subset.app <- function(env){
 	}
     
     if(!warning){
-        if(class(everything$zsubset)=="matrix") {
-            mysubset <- list()
-            t <- everything$zsubset
-            for(i in 1:nrow(t)) {
-                mysubset[[i]]<-t[i,]
-            }
-        } else {
-            mysubset <- everything$zsubset
-        }
+        mysubset <- parseSubset(everything$zsubset)
         if(is.null(mysubset)){
             warning <- TRUE
             result <- list(warning="Problem with subset.")
@@ -614,18 +620,31 @@ subset.app <- function(env){
         }
     }
     
+    if(!warning){
+        history <- everything$callHistory
+        if(is.null(history)){
+            warning<-TRUE
+            result<-list(warning="callHistory is null.")
+        }
+    }
+    
     #print(dim(mydata))
     #print(dim(usedata))
     
     # this tryCatch is not fully tested.
     tryCatch(
     {
+        
+        ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
+        mydata <- executeHistory(history=history, data=mydata)
+        
+        ## 2. perform current subset and out appropriate metadata
         usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
         sumstats <- calcSumStats(usedata)
         
         call <- ""
         for(i in 1:length(myvars)) {
-            if(mysubset[[i]][1]=="") {next}
+            if(mysubset[[i]][1]=="" | is.na(mysubset[[i]][1])) {next}
             else {
                 if(call != "") {call <- paste(call, ", ", sep="")}
                 if(myplot[i]=="continuous") {
@@ -642,7 +661,7 @@ subset.app <- function(env){
         result<- jsonlite:::toJSON(c(sumstats,list(url=purl, call=call)))
     },
     error=function(err){
-        warning <- TRUE
+        warning <<- TRUE
         result <- list(warning=paste("Subset error: ", err))
         result<-jsonlite:::toJSON(result)
         assign("result", result, envir=globalenv())
@@ -657,6 +676,8 @@ subset.app <- function(env){
     response$finish()
 }
 
+# data is a data.frame of columns of data used for transformation
+# func is a string of the form "log(_transvar0)" or "_transvar0^2"
 transform <- function(data, func) {
     x <- gsub("_transvar0", "data[,1]", func)
     if(ncol(data)>1) {
@@ -673,7 +694,34 @@ transform <- function(data, func) {
     return(data)
 }
 
+## called by executeHistory() and transform.app
+parseTransform <- function(data, func, vars) {
+    call <- "no transformation"
+    t <- which(colnames(data) %in% vars)
+    tdata <- as.data.frame(data[,t])
+    colnames(tdata) <- colnames(data)[t]
+    
+    tdata <- transform(data=tdata, func=func)
+    tdata <- as.data.frame(tdata[,1])
+    
+    call <- gsub("_plus_", "+", func) # + operator disappears, probably a jsonlite parsing bug, so + operator is mapped to '_plus_' in the javascript, and remapped to + operator here
+    call <- gsub("_transvar0", vars[1], call)
+    if(length(vars)>1) {
+        for(i in 2:length(vars)) {
+            sub1 <- paste("_transvar", i-1, sep="")
+            sub2 <- vars[i]
+            call <- gsub(sub1, sub2, call)
+        }
+    }
+    
+    # replace non-alphanumerics with '_' so that these variables may be used in R formulas.
+    call <- gsub("[[:punct:]]", "_", call)
+    call <- paste("t_", call, sep="")
+    colnames(tdata) <- call
+    return(tdata)
+}
 
+## called by parseTransform()
 transform.app <- function(env){
 
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
@@ -719,30 +767,24 @@ transform.app <- function(env){
             result<-list(warning="Invalid transformation.")
         }
 	}
+
+    if(!warning){
+        history <- everything$callHistory
+        if(is.null(history)){
+            warning<-TRUE
+            result<-list(warning="callHistory is null.")
+        }
+    }
     
     if(!warning) {
         tryCatch(
         {
-            call <- "no transformation"
-            print(myvars)
-            t <- which(colnames(mydata) %in% myvars)
-            tdata <- as.data.frame(mydata[,t])
-            colnames(tdata) <- colnames(mydata)[t]
+            ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
+            mydata <- executeHistory(history=history, data=mydata)
             
-            tdata <- transform(data=tdata, func=myT)
-            tdata <- as.data.frame(tdata[,1])
-            
-            call <- gsub("_plus_", "+", myT) # + operator disappears, probably a jsonlite parsing bug, so + operator is mapped to '_plus_' in the javascript, and remapped to + operator here
-            call <- gsub("_transvar0", myvars[1], call)
-            if(length(myvars)>1) {
-                for(i in 2:length(myvars)) {
-                    sub1 <- paste("_transvar", i-1, sep="")
-                    sub2 <- myvars[i]
-                    call <- gsub(sub1, sub2, call)
-                }
-            }
-            colnames(tdata) <- call
-            
+            ## 2. make the current transformation
+            tdata <- parseTransform(data=mydata, func=myT, vars=myvars)
+            call<-colnames(tdata)
             sumstats <- calcSumStats(tdata)
         
         # preprocess just one variable
@@ -751,7 +793,7 @@ transform.app <- function(env){
         result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl, trans=c(myvars,myT)))
         },
         error=function(err){
-            warning <- TRUE
+            warning <<- TRUE
             result <- list(warning=paste("Transformation error: ", err))
             result<-jsonlite:::toJSON(result)
             assign("result", result, envir=globalenv())
@@ -772,8 +814,30 @@ transform.app <- function(env){
     response$finish()
 }
 
-
-
+## called by zelig.app, subset.app, transform.app
+# history is everything$callHistory, data is mydata, as initially read
+# if empty, i.e. the first call from space i, history is an empty list
+# else, history is a data.frame where each row contains the data to reconstruct the call
+executeHistory <- function (history, data) {
+    n <- nrow(history)
+    if(is.null(n)) {return(data)}
+    print(n)
+    for(i in 1:n) {
+        if(history[i,"func"]=="transform") {
+            v <- history[i,"zvars"]
+            if(class(v)=="list") {v <- v[[1]]} # v must be a vector of variable names
+            f <- history[i,"transform"]
+            tdata <- parseTransform(data=data, func=f, vars=v)
+            data <- cbind(data, tdata)
+        } else if(history[i,"func"]=="subset") {
+            v <- history[i,"zvars"][[1]] # cell is a list so take the first element
+            p <- history[i,"zplot"][[1]]
+            sub <- parseSubset(history[i, "zsubset"][[1]])
+            data <- subsetData(data=data, sub=sub, varnames=v, plot=p)
+        }
+    }
+    return(data)
+}
 
 
 
