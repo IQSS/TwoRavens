@@ -59,7 +59,6 @@ var height = tempHeight.substring(0,(tempHeight.length-2));
 
 var forcetoggle=["true"];
 var estimated=false;
-var subseted=false; //use this to tell users they have subseted the data
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
@@ -265,7 +264,7 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        }
 
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
+       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
        };
  
        
@@ -341,7 +340,6 @@ function scaffolding(v) {
                    return hexToRgba(selVarColor);
                    }
                    else { // dropping a variable
-                   if(findNode(myText).subsethold[0] !== "") {return hexToRgba(selVarColor);} //can't drop one with subsethold[0] value
                    
                    nodes.splice(findNode(myText)["index"], 1);
                    spliceLinksForNode(findNode(myText));
@@ -661,8 +659,7 @@ function layout(v) {
                 return hexToRgba(selVarColor);
                }
                else { // dropping a variable
-                if(findNode(myText).subsethold[0] !== "") {return hexToRgba(selVarColor);} //can't drop one with subsethold[0] value
-               
+            
                     nodes.splice(findNode(myText)["index"], 1);
                     spliceLinksForNode(findNode(myText));
                
@@ -1579,7 +1576,7 @@ function transParse(n) {
 }
 
 function transform(n,t) {
-    t = t.replace("+", "_plus_"); // there is a bug in R's json parse
+    t = t.replace("+", "_plus_"); // can't send the plus operator
     
     console.log(n);
     console.log(t);
@@ -1600,12 +1597,11 @@ function transform(n,t) {
         console.log("json in: ", json);
         callHistory.push({func:"transform", zvars:n, transform:t});
         
+        var subseted = false;
         var rCall = [];
         rCall[0] = json.call;
         var newVar = rCall[0][0];
         trans.push(newVar);
-        logArray.push("transform: ".concat(rCall[0]));
-        showLog();
         readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
         
         function mycallback() {
@@ -1616,41 +1612,87 @@ function transform(n,t) {
             panelPlots();
         }
         
-        // update the log for each space. note: if spaces is empty, this is not a problem.
-        for(var i = 0; i < spaces.length; i++) {
-            spaces[i].logArray.push("transform: ".concat(rCall[0]));
-        }
+        // update the log
+        logArray.push("transform: ".concat(rCall[0]));
+        showLog();
         
         // add transformed variable to the current space
         var i = allNodes.length;
-        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
+        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
         
         // add transformed variable to all spaces
+        // check if myspace callHistory contains a subset
+        for(var k0=0; k0<callHistory.length; k0++) {
+            if(callHistory[k0].func==="subset") {
+                var subseted = true;
+            }
+        }
+        
+    loopJ:
         for(var j in spaces) {
+            console.log("j ", j, " myspace ", myspace);
+            if(j===myspace) {continue;}
             var i = spaces[j].allNodes.length;
+            if(subseted===true) { // myspace has been subseted
+                offspaceTransform(j);
+                continue loopJ;
+            }
+        loopK:
+            for(var k=0; k<spaces[j].callHistory.length; k++) { // gets here if myspace has not been subseted
+                if(spaces[j].callHistory[k].func==="subset") { // check if space j has been subseted
+                    console.log("offspace ", j)
+                    offspaceTransform(j);
+                    continue loopJ;
+                }
+            }
+            // if there is a subset in the callHistory of the current space, transformation is different
+            function offspaceTransform(j) {
+                transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t, callHistory:spaces[j].callHistory};
+                var jsonout = JSON.stringify(transformstuff);
+                var base = rappURL+"transformapp?solaJSON="
+                urlcall = base.concat(jsonout);
+                console.log("offspace urlcall out: ", urlcall);
+                
+                function offspaceSuccess(btn, json) {
+                    console.log("j in offspace ", j);
+                    spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
+                    spaces[j].logArray.push("transform: ".concat(rCall[0]));
+                    readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
+                    
+                    spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+                }
+                function offspaceFail(btn) {
+                    alert("transform fail");
+                }
+                makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail);
+            }
+            
+            // if myspace and space j have not been subseted, append the same transformation
+            spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
+            spaces[j].logArray.push("transform: ".concat(rCall[0]));
 
-            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "subsethold":["", ""], "setxvals":["", ""]});
+            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""]});
+            readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
         }
     }
     
     function transformFail(btn) {
-        console.log("transform fail");
+        alert("transform fail");
         estimateLadda.stop();
     }
     
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
+    console.log(spaces);
     
 }
 
-// below from http://www.html5rocks.com/en/tutorials/cors/ for cross-origin resource sharing (an issue when moving from port to port)
+// below from http://www.html5rocks.com/en/tutorials/cors/ for cross-origin resource sharing
 // Create the XHR object.
-function createCORSRequest(method, url) {
+function createCORSRequest(method, url, callback) {
     var xhr = new XMLHttpRequest();
-    console.log("xmlhttprequest ", xhr);
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
-        // true is the default, and is a asynchronous.
         xhr.open(method, url, true);
     } else if (typeof XDomainRequest != "undefined") {
         // XDomainRequest for IE.
@@ -1661,33 +1703,26 @@ function createCORSRequest(method, url) {
         xhr = null;
     }
     return xhr;
+    
 }
 
-// Helper method to parse the title tag from the response.
-//function getTitle(text) {
-//    return text.match('<title>(.*)?</title>')[1];
-//}
 
 // Make the actual CORS request.
 function makeCorsRequest(url,btn,callback, warningcallback) {
-    // All HTML5 Rocks properties support CORS.
-    // var url = 'http://updates.html5rocks.com';
-    var xhr = createCORSRequest('GET', url);
+    
+    var xhr = createCORSRequest('POST', url);
     if (!xhr) {
         alert('CORS not supported');
         return;
     }
-    console.log("xhr ", xhr);
-    // Response handlers for asynchronous load.  disabled for now
+    // Response handlers for asynchronous load
+    // onload or onreadystatechange?
+    
     xhr.onload = function() {
+        
       var text = xhr.responseText;
-      console.log(text);
-   //   console.log(typeof text);
+      console.log("text ", text);
       var json = JSON.parse(text);   // should wrap in try / catch
-      //var json = eval('(' + text + ')'); 
-    //  console.log(json);
-   //   console.log(typeof json);
-      
       var names = Object.keys(json);
 
       if (names[0] == "warning"){
@@ -1698,10 +1733,19 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
       }
     };
     xhr.onerror = function() {
+        // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
+        if(xhr.status==0) {
+            alert('xmlhttprequest status is 0. local server limitation?  url too long?');
+        }
+        else if(xhr.readyState!=4) {
+            alert('xmlhttprequest readystate is not 4.');
+        }
+        else {
+            alert('Woops, there was an error making the request.');
+        }
         console.log(xhr);
         estimateLadda.stop();
         selectLadda.stop();
-      alert('Woops, there was an error making the request.');
     };
     
     xhr.send();
@@ -2237,13 +2281,10 @@ function subsetSelect(btn) {
 
     function subsetSelectSuccess(btn,json) {
         
-        callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
-        console.log(callHistory);
         selectLadda.stop(); // stop motion
         $("#btnVariables").trigger("click"); // programmatic clicks
         $("#btnModels").trigger("click");
         
-        subseted=true;
         var grayOuts = [];
         
         var rCall = [];
@@ -2257,8 +2298,9 @@ function subsetSelect(btn) {
         var myForce = jQuery.extend(true, [], forcetoggle);
         var myPreprocess = jQuery.extend(true, {}, preprocess);
         var myLog = jQuery.extend(true, [], logArray);
+        var myHistory = jQuery.extend(true, [], callHistory);
         
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog, "callHistory":myHistory};
         
         // remove pre-subset svg
         var selectMe = "#m".concat(myspace);
@@ -2271,6 +2313,9 @@ function subsetSelect(btn) {
         mynavdot.removeAttribute("class");
         
         myspace = spaces.length;
+        callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
+        console.log(callHistory);
+
         
         selectMe = "navdot".concat(myspace-1);
         mynavdot = document.getElementById(selectMe);
@@ -2295,7 +2340,6 @@ function subsetSelect(btn) {
             allNodes[temp].maximum=json.max[j];
             allNodes[temp].subsetplot=false;
             allNodes[temp].subsetrange=["",""];
-            allNodes[temp].subsethold=allNodes[temp].subsetrange;
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
             
@@ -2361,6 +2405,7 @@ function readPreprocess(url, p, v, callback) {
             for(var key in jsondata) {
                 p[key] = jsondata[key];
             }
+            
             if(typeof callback === "function") {
                 callback();
             }
@@ -2420,15 +2465,18 @@ function delSpace() {
 function addSpace() {
 
     zPop();
+    
+    // everything we need to save the image of the current space.
     var myNodes = jQuery.extend(true, [], allNodes); // very important. this clones the allNodes object, and may slow us down in the future.  if user hits plus 4 times, we'll have four copies of the same space in memory.  certainly a way to optimize this
     var myParams = jQuery.extend(true, {}, zparams);
     var myTrans = jQuery.extend(true, [], trans);
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
     var myLog = jQuery.extend(true, [], logArray);
+    var myHistory = jQuery.extend(true, [], callHistory);
 
   
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog, "callHistory":myHistory};
     
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).attr('class', 'item');
@@ -2474,12 +2522,13 @@ function left() {
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
     var myLog = jQuery.extend(true, [], logArray);
+    var myHistory = jQuery.extend(true, [], callHistory);
     
     if(typeof spaces[myspace] === "undefined") {
-        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog});
+        spaces.push({"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog, "callHistory":myHistory});
     }
     else {
-        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
+        spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog, "callHistory":myHistory};
     }
     
     if(myspace===0) {
@@ -2501,6 +2550,7 @@ function left() {
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
     preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
     logArray = jQuery.extend(true, [], spaces[myspace].logArray);
+    callHistory = jQuery.extend(true, [], spaces[myspace].callHistory);
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);
@@ -2565,8 +2615,9 @@ function right() {
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
     var myLog = jQuery.extend(true, [], logArray);
+    var myHistory = jQuery.extend(true, [], callHistory);
     
-    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
+    spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog,"callHistory":myHistory};
     
   
     if(myspace===spaces.length-1) {
@@ -2588,6 +2639,7 @@ function right() {
     forcetoggle = jQuery.extend(true, [], spaces[myspace].force);
     preprocess = jQuery.extend(true, {}, spaces[myspace].preprocess);
     logArray = jQuery.extend(true, [], spaces[myspace].logArray);
+    callHistory = jQuery.extend(true, [], spaces[myspace].callHistory);
 
     selectMe = "#whitespace".concat(myspace);
     svg = d3.select(selectMe);

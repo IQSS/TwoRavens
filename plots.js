@@ -252,8 +252,7 @@ if(mydiv=="#tab3"){
                 node.subsetrange=[(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)];
             }
             else {
-                if(!subseted) {node.subsetrange=["", ""];}
-                else {node.subsetrange=node.subsethold;}
+                node.subsetrange=["", ""];
             }
         }
         else if(mydiv=="#setx") {
