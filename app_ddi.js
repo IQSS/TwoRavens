@@ -1630,7 +1630,6 @@ function transform(n,t) {
         
     loopJ:
         for(var j in spaces) {
-            console.log("j ", j, " myspace ", myspace);
             if(j===myspace) {continue;}
             var i = spaces[j].allNodes.length;
             if(subseted===true) { // myspace has been subseted
@@ -1640,7 +1639,6 @@ function transform(n,t) {
         loopK:
             for(var k=0; k<spaces[j].callHistory.length; k++) { // gets here if myspace has not been subseted
                 if(spaces[j].callHistory[k].func==="subset") { // check if space j has been subseted
-                    console.log("offspace ", j)
                     offspaceTransform(j);
                     continue loopJ;
                 }
@@ -1654,7 +1652,6 @@ function transform(n,t) {
                 console.log("offspace urlcall out: ", urlcall);
                 
                 function offspaceSuccess(btn, json) {
-                    console.log("j in offspace ", j);
                     spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
                     spaces[j].logArray.push("transform: ".concat(rCall[0]));
                     readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
@@ -1683,7 +1680,6 @@ function transform(n,t) {
     
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
-    console.log(spaces);
     
 }
 
@@ -1709,7 +1705,6 @@ function createCORSRequest(method, url, callback) {
 
 // Make the actual CORS request.
 function makeCorsRequest(url,btn,callback, warningcallback) {
-    
     var xhr = createCORSRequest('POST', url);
     if (!xhr) {
         alert('CORS not supported');
@@ -2314,8 +2309,7 @@ function subsetSelect(btn) {
         
         myspace = spaces.length;
         callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
-        console.log(callHistory);
-
+        
         
         selectMe = "navdot".concat(myspace-1);
         mynavdot = document.getElementById(selectMe);
