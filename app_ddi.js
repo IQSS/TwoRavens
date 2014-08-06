@@ -511,7 +511,9 @@ function layout(v) {
     if(v === "add" | v === "move") {
         d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
-            nodes.push(allNodes[findNodeIndex(zparams.zvars[j])]);
+            var ii = findNodeIndex(zparams.zvars[j]);
+            if(allNodes[ii].grayout) {continue;}
+            nodes.push(allNodes[ii]);
             var selectMe = zparams.zvars[j].replace(/\W/g, "_");
             selectMe = "#".concat(selectMe);
             d3.select(selectMe).style('background-color',function(){
