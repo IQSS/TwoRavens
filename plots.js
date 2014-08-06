@@ -705,9 +705,10 @@ plotsvg.selectAll("rect")
 }
 
 function barsSubset(data, node) {
-    
-    // set node.subsetrange to an empty array, meaning all values selected by default
-    node.subsetrange = [];
+    // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
+    if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
+        node.subsetrange=[];
+    }
     
     // Histogram spacing
     var barPadding = .015;  // Space between bars
@@ -806,8 +807,11 @@ function barsSubset(data, node) {
     .attr("height", function(d) {
           return y(d.y1);
           })
-    .style("fill", function(d){
-          return d.col;
+    .style("fill", function(d,i){
+           if(node.subsetrange.length>0 & d.col===d3Color & $.inArray(xVals[i].toString(), node.subsetrange)>-1) {
+            return selVarColor;
+           }
+           else {return d.col;}
           })
     .on("click", function(){
         var selectMe = this;
@@ -854,7 +858,8 @@ function barsSubset(data, node) {
     .attr("x", 25)
     .attr("y", height+40)
     .text(function() {
-          return("Selected: ".concat(xVals));
+          if(node.subsetrange.length==0) {return("Selected: ".concat(xVals));}
+          else {return("Selected: ".concat(node.subsetrange));}
           });
 }
 

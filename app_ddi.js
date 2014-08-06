@@ -2605,7 +2605,6 @@ function left() {
 }
 
 function right() {
-    
     zPop();
     var myNodes = jQuery.extend(true, [], allNodes);
     var myParams = jQuery.extend(true, {}, zparams);
@@ -2711,6 +2710,7 @@ function rePlot() {
         .selectAll("svg")
         .remove();
     
+    // make this smarter
     for(var i = 0; i<allNodes.length; i++) {
         allNodes[i].setxplot=false;
         allNodes[i].subsetplot=false;
