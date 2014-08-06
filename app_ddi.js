@@ -28,7 +28,6 @@ var rappURL = "http://0.0.0.0:8000/custom/";
 var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 .append('div').attr('class', 'item').attr('id', 'm0').append('svg').attr('id', 'whitespace');
-svg.append('div').attr('id', 'fakeTarget');
 
 // collapsable user log
 $('#collapseLog').on('shown.bs.collapse', function () {
@@ -1373,9 +1372,7 @@ function layout(v) {
     .on('mouseup', function() {
         mouseup(this);
         });
-    d3.select('#fakeTarget').attr('id', function(){
-        return "fakeTarget".concat(myspace);
-    });
+    svg.append('div').attr('id', 'fakeTarget');
     
     d3.select(window)
     .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
@@ -2380,8 +2377,6 @@ function subsetSelect(btn) {
         .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
 
-        svg.append('div').attr('id', 'fakeTarget');
-
         owl.trigger('owl.goTo', myspace);
         
         layout(v="add");
@@ -2484,32 +2479,17 @@ function addSpace() {
   
     spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
     
-    // var selectMe = "#m".concat(myspace);
-    // d3.select(selectMe).attr('class', 'item');
     var selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
     var selectMe = "#m".concat(myspace);
     d3.select(selectMe).append('span').attr('class', 'emptyItem');
     
-    // selectMe = "navdot".concat(myspace);
-    // var mynavdot = document.getElementById(selectMe);
-    // mynavdot.removeAttribute("class");
-    
     myspace = spaces.length;
     
-    // selectMe = "navdot".concat(myspace-1);
-    // mynavdot = document.getElementById(selectMe);
-    
-    // var newnavdot = document.createElement("li");
-    // newnavdot.setAttribute("class", "active");
-    // selectMe = "navdot".concat(myspace);
-    // newnavdot.setAttribute("id", selectMe);
-    // mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
-
-    var owl = $('#innercarousel'), i = myspace;
+    var owl = $('#innercarousel');
     var content = "";
 
-    content += "<div id=\"m" + i + "\" class=\"item\"><span class=\"emptyItem\"></span></div>"
+    content += "<div id=\"m" + myspace + "\" class=\"item\"><span class=\"emptyItem\"></span></div>"
 
     owl.data('owlCarousel').addItem(content);
 
@@ -2519,8 +2499,6 @@ function addSpace() {
     .append('svg')
     .attr('id', 'whitespace');
     svg = d3.select("#whitespace");
-
-    svg.append('div').attr('id', 'fakeTarget');
 
     owl.trigger('owl.goTo', myspace);
 
@@ -2802,9 +2780,9 @@ function reWriteLog() {
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
 
-    var fake = "#fakeTarget".concat(myspace);
+    var fake = "#fakeTarget";
 
-    fake.trigger('click');
+    $(fake).trigger('click');
 
     // var myws = "#whitespace".concat(myspace);
     
