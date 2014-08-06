@@ -28,6 +28,7 @@ var rappURL = "http://0.0.0.0:8000/custom/";
 var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 .append('div').attr('class', 'item').attr('id', 'm0').append('svg').attr('id', 'whitespace');
+svg.append('div').attr('id', 'fakeTarget');
 
 // collapsable user log
 $('#collapseLog').on('shown.bs.collapse', function () {
@@ -1372,6 +1373,9 @@ function layout(v) {
     .on('mouseup', function() {
         mouseup(this);
         });
+    d3.select('#fakeTarget').attr('id', function(){
+        return "fakeTarget".concat(myspace);
+    });
     
     d3.select(window)
     .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
@@ -2320,10 +2324,10 @@ function subsetSelect(btn) {
         spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
         
         // remove pre-subset svg
-        var selectMe = "#m".concat(myspace);
-        d3.select(selectMe).attr('class', 'item');
-        selectMe = "#whitespace".concat(myspace);
+        var selectMe = "#whitespace".concat(myspace);
         d3.select(selectMe).remove();
+        var selectMe = "#m".concat(myspace);
+        d3.select(selectMe).append('span').attr('class', 'emptyItem');
         
         // selectMe = "navdot".concat(myspace);
         // var mynavdot = document.getElementById(selectMe);
@@ -2361,16 +2365,24 @@ function subsetSelect(btn) {
         logArray.push("subset: ".concat(rCall[0]));
         showLog();
         reWriteLog();
+
+        var owl = $('#innercarousel'), i = myspace;
+        var content = "";
+
+        content += "<div id=\"m" + i + "\" class=\"item\"><span class=\"emptyItem\"></span></div>"
+
+        owl.data('owlCarousel').addItem(content);
         
-        d3.select("#innercarousel")
-        .append('div')
-        .attr('class', 'item')
-        .attr('id', function(){
-              return "m".concat(myspace.toString());
-              })
+        d3.select("#m".concat(myspace))
+        .select('span').remove();
+        d3.select("#m".concat(myspace))
         .append('svg')
         .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
+
+        svg.append('div').attr('id', 'fakeTarget');
+
+        owl.trigger('owl.goTo', myspace);
         
         layout(v="add");
         
@@ -2493,7 +2505,7 @@ function addSpace() {
     // selectMe = "navdot".concat(myspace);
     // newnavdot.setAttribute("id", selectMe);
     // mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
-    
+
     var owl = $('#innercarousel'), i = myspace;
     var content = "";
 
@@ -2508,15 +2520,11 @@ function addSpace() {
     .attr('id', 'whitespace');
     svg = d3.select("#whitespace");
 
+    svg.append('div').attr('id', 'fakeTarget');
+
+    owl.trigger('owl.goTo', myspace);
+
     layout(v="add");
-
-    owl.data('owlCarousel').jumpTo(myspace);
-
-    fakeClick();
-
-    // d3.event.stopPropagation();
-
-    // stopPropagation
 
 }
 
@@ -2610,9 +2618,6 @@ function left() {
     legend();
     showLog();
     reWriteLog();
-    
- //   event.preventDefault();
-
 }
 
 function right() {
@@ -2700,8 +2705,6 @@ function right() {
     legend();
     showLog();
     reWriteLog();
-    
-  //  event.preventDefault();
 }
 
 function resultsView() {
@@ -2798,20 +2801,26 @@ function reWriteLog() {
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
-    var myws = "#whitespace".concat(myspace);
-    // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
-    jQuery.fn.d3Click = function () {
-        this.each(function (i, e) {
-                  var evt = document.createEvent("MouseEvents");
-                  evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-                  
-                  e.dispatchEvent(evt);
-                  });
-    };
-    $(myws).d3Click();
+
+    var fake = "#fakeTarget".concat(myspace);
+
+    fake.trigger('click');
+
+    // var myws = "#whitespace".concat(myspace);
     
-    d3.select(myws)
-    .classed('active', false); // remove active class
+    // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
+    // jQuery.fn.d3Click = function () {
+    //     this.each(function (i, e) {
+    //               var evt = document.createEvent("MouseEvents");
+    //               evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                  
+    //               e.dispatchEvent(evt);
+    //               });
+    // };
+    // $(myws).d3Click();
+    
+    // d3.select(myws)
+    // .classed('active', false); // remove active class
 }
 
 

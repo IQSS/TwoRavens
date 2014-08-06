@@ -105,6 +105,12 @@ text.id {
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: calc(100% - 300px);}
 #main.svg-leftpanel.svg-rightpanel svg {width: calc(100% - 300px);}
 
+#main #fakeTarget {
+    /* visibility: hidden; */
+    position: absolute;
+    left: -9999px;
+    top: 0;
+}
 #main .owl-carousel .emptyItem {
   height:600px;
   line-height:600px;

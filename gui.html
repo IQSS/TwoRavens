@@ -215,7 +215,7 @@
 
      initOwlCarousel();
 
-     $("#innercarousel").on("touchstart mousedown", "div.item svg g", function(e) {
+     $("#innercarousel").on("touchstart mousedown", "div.item svg g, #fakeTarget", function(e) {
         // Prevent carousel swipe
         e.stopPropagation();
      });
@@ -246,24 +246,10 @@
     var owl = $('#innercarousel');
 
     if(this.owl.dragDirection == 'left'){
-      // left();
+      left();
     } else if(this.owl.dragDirection == 'right'){
-      // right();
+      right();
     }
-  }
-
-  function addSpaceOwl() {
-    
-    // nothing
-  }
-
-  function removeSpaceOwl() {
-    var owl = $('#innercarousel');
-
-    // i -= 1;
-    // if(i<=0)i=0;
-
-    owl.data('owlCarousel').removeItem();
   }
 
   // Open/Close Panels
