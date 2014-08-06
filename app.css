@@ -104,8 +104,20 @@ text.id {
 }
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: calc(100% - 300px);}
 #main.svg-leftpanel.svg-rightpanel svg {width: calc(100% - 300px);}
-/* #main.svg-marg-left svg {margin-left:0px;}
-#main.svg-marg-right svg {margin-right:0px;} */
+
+#main .owl-carousel .emptyItem {
+  height:600px;
+  line-height:600px;
+  display:block;
+  text-align: center;
+  background: url(images/spinner-loading.gif) no-repeat 50% 50%;
+}
+#main .owl-carousel .owl-controls {
+  position: absolute;
+  top:10px;
+  left:0;
+  width:100%;
+}
 
 #option.navbar {
     padding:.5em;

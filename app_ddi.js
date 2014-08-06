@@ -27,7 +27,7 @@ var rappURL = "http://0.0.0.0:8000/custom/";
 // space index
 var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
-.append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
+.append('div').attr('class', 'item').attr('id', 'm0').append('svg').attr('id', 'whitespace');
 
 // collapsable user log
 $('#collapseLog').on('shown.bs.collapse', function () {
@@ -2325,20 +2325,20 @@ function subsetSelect(btn) {
         selectMe = "#whitespace".concat(myspace);
         d3.select(selectMe).remove();
         
-        selectMe = "navdot".concat(myspace);
-        var mynavdot = document.getElementById(selectMe);
-        mynavdot.removeAttribute("class");
+        // selectMe = "navdot".concat(myspace);
+        // var mynavdot = document.getElementById(selectMe);
+        // mynavdot.removeAttribute("class");
         
         myspace = spaces.length;
         
-        selectMe = "navdot".concat(myspace-1);
-        mynavdot = document.getElementById(selectMe);
+        // selectMe = "navdot".concat(myspace-1);
+        // mynavdot = document.getElementById(selectMe);
         
-        var newnavdot = document.createElement("li");
-        newnavdot.setAttribute("class", "active");
-        selectMe = "navdot".concat(myspace);
-        newnavdot.setAttribute("id", selectMe);
-        mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+        // var newnavdot = document.createElement("li");
+        // newnavdot.setAttribute("class", "active");
+        // selectMe = "navdot".concat(myspace);
+        // newnavdot.setAttribute("id", selectMe);
+        // mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
         
         
         // assign the post-subset allNodes
@@ -2364,7 +2364,7 @@ function subsetSelect(btn) {
         
         d3.select("#innercarousel")
         .append('div')
-        .attr('class', 'item active')
+        .attr('class', 'item')
         .attr('id', function(){
               return "m".concat(myspace.toString());
               })
@@ -2424,24 +2424,24 @@ function delSpace() {
     d3.select(selectMe).remove();
     
     // remove last navdot
-    selectMe = "navdot".concat(spaces.length);
-    var mynavdot = document.getElementById(selectMe);
-    mynavdot.parentElement.removeChild(mynavdot); // remove from parent to remove the pointer to the child
+    // selectMe = "navdot".concat(spaces.length);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.parentElement.removeChild(mynavdot);  remove from parent to remove the pointer to the child
     
     // remove last inner carousel m
     selectMe = "m".concat(spaces.length);
-    var mynavdot = document.getElementById(selectMe);
-    mynavdot.parentElement.removeChild(mynavdot);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.parentElement.removeChild(mynavdot);
     
     if(lastSpace) { myspace = myspace-1; }
     
-    selectMe = "navdot".concat(myspace);
-    newnavdot = document.getElementById(selectMe);
-    newnavdot.setAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // newnavdot = document.getElementById(selectMe);
+    // newnavdot.setAttribute("class", "active");
     
     // add whitespace back in to current inner carousel m
     selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item active')
+    d3.select(selectMe).attr('class', 'item')
     .append('svg').attr('id', function(){
                         return "whitespace".concat(myspace);
                         });
@@ -2469,41 +2469,54 @@ function addSpace() {
     var myForce = jQuery.extend(true, [], forcetoggle);
     var myPreprocess = jQuery.extend(true, {}, preprocess);
     var myLog = jQuery.extend(true, [], logArray);
-
   
     spaces[myspace] = {"allNodes":myNodes, "zparams":myParams, "trans":myTrans, "force":myForce, "preprocess":myPreprocess, "logArray":myLog};
     
-    var selectMe = "#m".concat(myspace);
-    d3.select(selectMe).attr('class', 'item');
-    selectMe = "#whitespace".concat(myspace);
+    // var selectMe = "#m".concat(myspace);
+    // d3.select(selectMe).attr('class', 'item');
+    var selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
+    var selectMe = "#m".concat(myspace);
+    d3.select(selectMe).append('span').attr('class', 'emptyItem');
     
-    selectMe = "navdot".concat(myspace);
-    var mynavdot = document.getElementById(selectMe);
-    mynavdot.removeAttribute("class");
+    // selectMe = "navdot".concat(myspace);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.removeAttribute("class");
     
     myspace = spaces.length;
     
-    selectMe = "navdot".concat(myspace-1);
-    mynavdot = document.getElementById(selectMe);
+    // selectMe = "navdot".concat(myspace-1);
+    // mynavdot = document.getElementById(selectMe);
     
-    var newnavdot = document.createElement("li");
-    newnavdot.setAttribute("class", "active");
-    selectMe = "navdot".concat(myspace);
-    newnavdot.setAttribute("id", selectMe);
-    mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+    // var newnavdot = document.createElement("li");
+    // newnavdot.setAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // newnavdot.setAttribute("id", selectMe);
+    // mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
     
-    d3.select("#innercarousel")
-    .append('div')
-    .attr('class', 'item active')
-    .attr('id', function(){
-          return "m".concat(myspace.toString());
-          })
+    var owl = $('#innercarousel'), i = myspace;
+    var content = "";
+
+    content += "<div id=\"m" + i + "\" class=\"item\"><span class=\"emptyItem\"></span></div>"
+
+    owl.data('owlCarousel').addItem(content);
+
+    d3.select("#m".concat(myspace))
+    .select('span').remove();
+    d3.select("#m".concat(myspace))
     .append('svg')
     .attr('id', 'whitespace');
     svg = d3.select("#whitespace");
 
     layout(v="add");
+
+    owl.data('owlCarousel').jumpTo(myspace);
+
+    fakeClick();
+
+    // d3.event.stopPropagation();
+
+    // stopPropagation
 
 }
 
@@ -2534,9 +2547,11 @@ function left() {
     
     selectMe = "#m".concat(myspace);
     d3.select(selectMe)
+    .select('span').remove();
+    d3.select(selectMe)
     .append('svg').attr('id', function(){
-                        return "whitespace".concat(myspace);
-                        });
+        return "whitespace".concat(myspace);
+    });
 
     allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
@@ -2549,9 +2564,9 @@ function left() {
     svg = d3.select(selectMe);
     layout(v="move");
     
-    selectMe = "navdot".concat(myspace);
-    newnavdot = document.getElementById(selectMe);
-    newnavdot.setAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // newnavdot = document.getElementById(selectMe);
+    // newnavdot.setAttribute("class", "active");
   
     if(myspace===spaces.length-1) {
         myspace=0;
@@ -2560,12 +2575,16 @@ function left() {
         myspace = myspace+1;
     }
 
-    selectMe = "navdot".concat(myspace);
-    var mynavdot = document.getElementById(selectMe);
-    mynavdot.removeAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.removeAttribute("class", "active");
     
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
+
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe)
+    .append('span').attr('class','emptyItem');
 
     if(myspace===0) {
         myspace=spaces.length-1; // move to last when left is click at 0
@@ -2573,7 +2592,6 @@ function left() {
     else {
         myspace = myspace-1;
     }
-
 
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");
@@ -2619,9 +2637,11 @@ function right() {
 
     selectMe = "#m".concat(myspace);
     d3.select(selectMe)
+    .select('span').remove();
+    d3.select(selectMe)
     .append('svg').attr('id', function(){
-                        return "whitespace".concat(myspace);
-                        });
+        return "whitespace".concat(myspace);
+    });
 
     allNodes = jQuery.extend(true, [], spaces[myspace].allNodes);
     zparams = jQuery.extend(true, {}, spaces[myspace].zparams);
@@ -2641,12 +2661,16 @@ function right() {
         myspace = myspace-1;
     }
     
-    selectMe = "navdot".concat(myspace);
-    var mynavdot = document.getElementById(selectMe);
-    mynavdot.removeAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // var mynavdot = document.getElementById(selectMe);
+    // mynavdot.removeAttribute("class", "active");
     
     selectMe = "#whitespace".concat(myspace);
     d3.select(selectMe).remove();
+
+    selectMe = "#m".concat(myspace);
+    d3.select(selectMe)
+    .append('span').attr('class','emptyItem');
     
     if(myspace===spaces.length-1) {
         myspace=0; // move to last when left is click at 0
@@ -2655,9 +2679,9 @@ function right() {
         myspace = myspace+1;
     }
     
-    selectMe = "navdot".concat(myspace);
-    var newnavdot = document.getElementById(selectMe);
-    newnavdot.setAttribute("class", "active");
+    // selectMe = "navdot".concat(myspace);
+    // var newnavdot = document.getElementById(selectMe);
+    // newnavdot.setAttribute("class", "active");
    
     if(forcetoggle[0]==="false") {
         document.getElementById('btnForce').setAttribute("class", "btn active");

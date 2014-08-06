@@ -9,6 +9,8 @@
         
         <link rel="stylesheet" href="app.css">
         <link rel="stylesheet" href="Ladda/dist/ladda-themeless.min.css">
+        <link rel="stylesheet" href="owl.carousel.css">
+        <link rel="stylesheet" href="owl.theme.css">
             
         <script src="Ladda/dist/spin.min.js"></script>
         <script src="Ladda/dist/ladda.min.js"></script>
@@ -18,6 +20,7 @@
         
         <script type="text/javascript" src="d3.v3.min.js"></script>
         <script type="text/javascript" src="plots.js"></script>
+        <script type="text/javascript" src="owl.carousel.js"></script>
   </head>
   
 <!--svg id="accidents">
@@ -54,21 +57,28 @@
           </div>
       </nav>
     
-    <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide" data-ride="carousel">
+    <div id="main" class="left svg-leftpanel svg-rightpanel">
         
         <!-- LINKED CAROUSEL NAV -->
-        <ol class="carousel-indicators">
+        <!-- <ol class="carousel-indicators">
             <li id="delete"><a href="#delete" title="Delete Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
             <li data-target="#main" data-slide-to="m0" class="active" id="navdot0"></li>
             <li id="create"><a href="#create" title="Create Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-plus" onclick="addSpace();"></span></a></li>
-        </ol>
+        </ol> -->
 
-        <a href="#main" id="carouselLeft" style="z-index:7" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
+        <!-- <a href="#" id="carouselLeft" style="z-index:7" title="Previous Workspace" onclick="owlControlsLeft();event.preventDefault();"><span class="glyphicon glyphicon-chevron-left"></span></a>
 
-        <a href="#main" id="carouselRight" style="z-index:7" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
+        <a href="#" id="carouselRight" style="z-index:7" title="Next Workspace" onclick="owlControlsRight();event.preventDefault();"><span class="glyphicon glyphicon-chevron-right"></span></a> -->
         
         <!-- Carousel items -->
         <div class="carousel-inner">
+        </div>
+
+        <div class="buttonBlock" style="position:absolute; left:21%; top: 10px; z-index:16; margin-left: 10px;">
+          <div class="btn-group" style="margin-left:0;">
+              <button type="button" class="btn btn-default" id="btnAddItem" onclick="addSpace();" title="Add Workspace"><span class="glyphicon glyphicon-plus" style="color:#818181;"></span></button>
+              <button type="button" class="btn btn-default" id="btnRmvItem" onclick="removeSpaceOwl();" title="Delete Workspace"><span class="glyphicon glyphicon-minus" style="color:#818181;"></span></button>
+          </div>
         </div>
         
         <div id="spacetools" class="spaceTool" style="z-index:16;">
@@ -201,42 +211,60 @@
     </div>
 
 <script>
-    
-    /* initially hide panels */
-//    $('#panel2').hide();
+  $(document).ready(function() {
 
-    // invoke the carousel
-    $('#main').carousel({
-        interval: false /* AUTOPLAY REMOVED */
-    });
-    // after carousel rotates, trigger left/right functions
-    $('#main').on('slid.bs.carousel', function () {
-      if($('#main').hasClass('leftCarousel')){
-        left();
-      }
-      else {
-        right();
-      }
-    });
-  
-    /* SLIDE ON CLICK */
-  
-    $('ol.carousel-linked-nav > li > a').click(function() {
-       // grab href, remove pound sign, convert to number
-       var item = Number($(this).attr('href').substring(1));
-       
-       // slide to number -1 (account for zero indexing)
-       $('#main').carousel(item - 1);
-       
-       // remove current active class
-       $('ol.carousel-linked-nav li.active').removeClass('active');
-       
-       // add active class to just clicked on item
-       $(this).parent().addClass('active');
-       
-       // don't follow the link
-       return false;
+     initOwlCarousel();
+
+     $("#innercarousel").on("touchstart mousedown", "div.item svg g", function(e) {
+        // Prevent carousel swipe
+        e.stopPropagation();
      });
+
+  });
+
+  //Carousel
+  function initOwlCarousel() {
+    $("#innercarousel").owlCarousel({
+     
+      navigation : true,
+      navigationText: ['<span class="glyphicon glyphicon-chevron-left" title="Previous"></span>', '<span class="glyphicon glyphicon-chevron-right" title="Next"></span>'],
+      pagination : true,
+      addClassActive : true,
+
+      afterMove : owlMoved,
+
+      items : 1,
+      itemsDesktop : false,
+      itemsDesktopSmall : false,
+      itemsTablet: false,
+      itemsMobile : false
+     
+    });
+  }
+
+  function owlMoved() {
+    var owl = $('#innercarousel');
+
+    if(this.owl.dragDirection == 'left'){
+      // left();
+    } else if(this.owl.dragDirection == 'right'){
+      // right();
+    }
+  }
+
+  function addSpaceOwl() {
+    
+    // nothing
+  }
+
+  function removeSpaceOwl() {
+    var owl = $('#innercarousel');
+
+    // i -= 1;
+    // if(i<=0)i=0;
+
+    owl.data('owlCarousel').removeItem();
+  }
 
   // Open/Close Panels
   $('#leftpanel span').click(function(){
