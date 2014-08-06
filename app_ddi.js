@@ -16,13 +16,17 @@
 // defined here; dataverse should always supply the hostname, when 
 // creating URLs for the app; like 
 // .../gui.html?dfId=17&hostname=dataverse-demo.hmdc.harvard.edu
-// -- L.A. 
+// -- L.A.
+
+var protocol = window.location.protocol;
+
 if (!hostname) {
        hostname="localhost:8080";
 }
 
 // base URL for the R apps: 
-var rappURL = "http://0.0.0.0:8000/custom/";
+var rappURL = protocol+"//0.0.0.0:8000/custom/";
+//var rappURL = "http://0.0.0.0:8000/custom/";
 
 // space index
 var myspace = 0;
@@ -110,14 +114,15 @@ d3.json("data/zeligmodels2.json", function(error, json) {
         });
 var zmods = mods;
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zhostname:"", zfileid:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[], zprotocol:""};
 
 
 // Pre-processed data:
 var pURL = "";
 if (fileid) {
     // file id supplied; read in pre-processed data from dvn
-    pURL = "http://"+hostname+"/api/access/datafile/"+fileid+"?format=prep";
+    pURL = protocol+"//"+hostname+"/api/access/datafile/"+fileid+"?format=prep";
+    //pURL = "http://"+hostname+"/api/access/datafile/"+fileid+"?format=prep";
 } else {
     // no id supplied; use one of the sample data files distributed with the 
     // app in the "data" directory:
@@ -206,8 +211,9 @@ var trans = []; //var list for each space contain variables in original data plu
 // read DDI metadata with d3:
 var metadataurl = "";
 if (fileid) {
-    // file id supplied; read the DDI fragment from the DVN: 
-    metadataurl="http://"+hostname+"/api/meta/datafile/"+fileid;
+    // file id supplied; read the DDI fragment from the DVN:
+    metadataurl=protocol+"//"+hostname+"/api/meta/datafile/"+fileid;
+    //metadataurl="http://"+hostname+"/api/meta/datafile/"+fileid;
 } else {
     // no file id supplied; use one of the sample DDIs that come with 
     // the app, in the data directory:
@@ -512,7 +518,7 @@ function layout(v) {
         d3.select("#tab1").selectAll("p").style('background-color',varColor);
         for(var j =0; j < zparams.zvars.length; j++ ) {
             var ii = findNodeIndex(zparams.zvars[j]);
-            if(allNodes[ii].grayout) {continue;}
+            if(allNodes[ii].grayout) {continue;} // the grayout is still in zparams, but shouldn't be a problem
             nodes.push(allNodes[ii]);
             var selectMe = zparams.zvars[j].replace(/\W/g, "_");
             selectMe = "#".concat(selectMe);
@@ -1323,8 +1329,11 @@ function spliceLinksForNode(node) {
 }
 
 function zPop() {
+    // move these three assignments to creation of zparams?
     zparams.zhostname = hostname;
     zparams.zfileid = fileid;
+    zparams.zprotocol = protocol;
+    
     zparams.zmodelcount = modelCount;
     
     zparams.zedges = [];
@@ -1587,7 +1596,7 @@ function transform(n,t) {
     var btn = document.getElementById('btnEstimate');
     
     //package the output as JSON
-    var transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t, callHistory:callHistory};
+    var transformstuff = {zhostname:hostname, zfileid:fileid, zprotocol:protocol, zvars:n, transform:t, callHistory:callHistory};
     var jsonout = JSON.stringify(transformstuff);
     var base = rappURL+"transformapp?solaJSON="
     
@@ -1648,7 +1657,7 @@ function transform(n,t) {
             }
             // if there is a subset in the callHistory of the current space, transformation is different
             function offspaceTransform(j) {
-                transformstuff = {zhostname:hostname, zfileid:fileid, zvars:n, transform:t, callHistory:spaces[j].callHistory};
+                transformstuff = {zhostname:hostname, zfileid:fileid, zprotocol:protocol, zvars:n, transform:t, callHistory:spaces[j].callHistory};
                 var jsonout = JSON.stringify(transformstuff);
                 var base = rappURL+"transformapp?solaJSON="
                 urlcall = base.concat(jsonout);
@@ -2269,7 +2278,7 @@ function subsetSelect(btn) {
     }
     
     //package the output as JSON
-    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot, callHistory:callHistory};
+    var subsetstuff = {zhostname:zparams.zhostname, zfileid:zparams.zfileid, zprotocol:protocol, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot, callHistory:callHistory};
     
     var jsonout = JSON.stringify(subsetstuff);
     var base = rappURL+"subsetapp?solaJSON="
