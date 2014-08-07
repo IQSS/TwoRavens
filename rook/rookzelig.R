@@ -8,17 +8,17 @@
 
 production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
 
+if(!production){
+   packageList<-c("Rook","Zelig","jsonlite","rjson")
 
-packageList<-c("Rook","Zelig","jsonlite","rjson")
-
-## install missing packages, and update if newer version available
-for(i in 1:length(packageList)){
-    if (!require(packageList[i],character.only = TRUE)){
-        install.packages(packageList[i], repos="http://lib.stat.cmu.edu/R/CRAN/")
-    }
+   ## install missing packages, and update if newer version available
+   for(i in 1:length(packageList)){
+       if (!require(packageList[i],character.only = TRUE)){
+           install.packages(packageList[i], repos="http://lib.stat.cmu.edu/R/CRAN/")
+       }
+   }
+   update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
 }
-update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
-
 
 #!/usr/bin/env Rscript
 
@@ -497,13 +497,19 @@ Mode <- function(x) {
 
 pCall <- function(data,production) {
     pjson<-preprocess(testdata=data)
-    if(production){
-        url <- "/var/www/html/rookzelig/data/preprocessSubset.txt"
-        write(pjson,file=url)
-    }else{
+    # Commenting-out the "production" clause for the location of the subset file, *for now*;
+    # Eventually, we need to be able to retrieve the subest file over HTTP from rApache; 
+    # because if rApache is running on a different server from where TwoRavens is served, 
+    # it won't be able to write the subset file directly into the data directory, as below!
+    # 	-- L.A. 
+    #if(production){
+    #    subsetfile <- "/var/www/html/rookzelig/data/preprocessSubset.txt"
+    #    write(pjson,file=subsetfile)
+    #    url <- "http://dataverse-demo.hmdc.harvard.edu:8008/rookzelig/data/preprocessSubset.txt"
+    #}else{
         url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
         write(pjson,file=paste("../",url, sep=""))
-    }
+    #}
     return(url)
 }
 
