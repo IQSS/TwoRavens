@@ -8,6 +8,6 @@ http://datascience.iq.harvard.edu/tworavens
 
 <br><br>
 
-![Example Page](images/tworavens_est3.png)
+![Example Page](images/example2Rpage.png)
 
 
