@@ -215,7 +215,8 @@
 
      initOwlCarousel();
 
-     $("#innercarousel").on("touchstart mousedown", "div.item svg g, #fakeTarget", function(e) {
+//     $("#innercarousel").on("touchstart mousedown", "div.item svg g, #fakeTarget", function(e) {
+                         $("#innercarousel").on("touchstart mousedown", "div.item svg g", function(e) {
         // Prevent carousel swipe
         e.stopPropagation();
      });

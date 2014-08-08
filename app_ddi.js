@@ -2779,26 +2779,26 @@ function reWriteLog() {
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
-
+/*
     var fake = "#fakeTarget";
 
     $(fake).trigger('click');
-
-    // var myws = "#whitespace".concat(myspace);
+*/
+     var myws = "#whitespace".concat(myspace);
     
     // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
-    // jQuery.fn.d3Click = function () {
-    //     this.each(function (i, e) {
-    //               var evt = document.createEvent("MouseEvents");
-    //               evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+     jQuery.fn.d3Click = function () {
+         this.each(function (i, e) {
+                   var evt = document.createEvent("MouseEvents");
+                   evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
                   
-    //               e.dispatchEvent(evt);
-    //               });
-    // };
-    // $(myws).d3Click();
+                   e.dispatchEvent(evt);
+                   });
+     };
+     $(myws).d3Click();
     
-    // d3.select(myws)
-    // .classed('active', false); // remove active class
+     d3.select(myws)
+     .classed('active', false); // remove active class
 }
 
 
