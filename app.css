@@ -176,6 +176,10 @@ div.sidepanel div.panelbar span {
   background:#eee;
 }
 
+#accordionL, #accordionR {border-top:1px solid #ddd;margin-bottom:0;}
+#accordionL .collapse.in, #accordionR .collapse.in {overflow-y:scroll;}
+#accordionL .panel, #accordionR .panel {margin-top:0;border-radius:0;border-top:0;}
+
 #main {
     border:1px solid #ADADAD;
     width: 100%;

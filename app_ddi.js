@@ -1853,8 +1853,8 @@ function tabLeft(tab) {
 
     if(tab==="tab1") {
         summaryHold = false;
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
-        document.getElementById('btnVariables').setAttribute("class", "btn active");
+        // document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        // document.getElementById('btnVariables').setAttribute("class", "btn active");
         document.getElementById("btnSelect").style.display = 'none';
         
         d3.select("#leftpanel")
@@ -1862,8 +1862,8 @@ function tabLeft(tab) {
     }
     else if (tab==="tab2") {
         summaryHold = false;
-        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSubset').setAttribute("class", "btn active");
+        // document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
+        // document.getElementById('btnSubset').setAttribute("class", "btn active");
         
         d3.select("#leftpanel")
         .attr("class", function(d){
@@ -1878,8 +1878,8 @@ function tabLeft(tab) {
               });
     }
     else {
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
-        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
+        // document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
+        // document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
         
         d3.select("#leftpanel")
         .attr("class", "sidepanel container clearfix");
@@ -1895,26 +1895,26 @@ function tabRight(tabid) {
     document.getElementById('results').style.display = 'none';
     
     if(tabid=="btnModels") {
-      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-      document.getElementById('btnModels').setAttribute("class", "btn active");
+      // document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnModels').setAttribute("class", "btn active");
       document.getElementById('models').style.display = 'block';
         
         d3.select("#rightpanel")
         .attr("class", "sidepanel container clearfix");
     }
     else if (tabid=="btnSetx") {
-      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-      document.getElementById('btnSetx').setAttribute("class", "btn active");
+      // document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnResults').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnSetx').setAttribute("class", "btn active");
       document.getElementById('setx').style.display = 'block';
         
         if(righttab=="btnSetx"  | d3.select("#rightpanel").attr("class")=="sidepanel container clearfix") {toggleR()};
     }
     else if (tabid=="btnResults") {
-      document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-      document.getElementById('btnResults').setAttribute("class", "btn active");
+      // document.getElementById('btnModels').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
+      // document.getElementById('btnResults').setAttribute("class", "btn active");
       document.getElementById('results').style.display = 'block';
         
         if(estimated===false) {
