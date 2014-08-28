@@ -1105,7 +1105,8 @@ function layout(v) {
         // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
         .on("mouseover", function(d) {
-            tabLeft("tab3");
+            //tabLeft("tab3");
+            $('#tab3Link').trigger('click');
             varSummary(d);
             document.getElementById('transformations').setAttribute("style", "display:block");
             var select = document.getElementById("transSel");
@@ -1140,7 +1141,7 @@ function layout(v) {
             // popup(d, xPos, yPos);
         
         .on("mouseout", function(d) {
-            if(summaryHold===false) { tabLeft(lefttab); }
+            // if(summaryHold===false) { tabLeft(lefttab); }
 
             d3.select("#csArc".concat(d.id)).transition()
             .attr("fill-opacity", 0)
@@ -1955,6 +1956,8 @@ function varSummary(d) {
         tmpDataset.push(t2[i]);
         summarydata.push(tmpDataset);
     };
+
+    $('#tab3').show();
 
   //  console.log(summarydata);
     d3.select("#tab3")

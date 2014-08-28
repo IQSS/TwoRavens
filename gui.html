@@ -34,7 +34,7 @@
     <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
               <div class="navbar-header" onmouseover="about();" onmouseout="closeabout();" >
-                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em"> XX TEST-ACCRDN
+                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em">
                   <div id="about" class="panel panel-default" style="position:absolute; left:140px; width:380px; display:none; z-index:50;">
                     <div class="panel-body"> </div>
                   </div>
@@ -164,7 +164,7 @@
                 </div>
                 <div id="collapseTwoL" class="panel-collapse collapse">
 
-                  <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right; margin-right:10px" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
+                  <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right; margin-right:10px; margin-top:10px;" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
                   <div id="tab2" class="panel-body">
                     
                   </div>
@@ -173,7 +173,7 @@
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordionL" href="#collapseThreeL">
+                    <a data-toggle="collapse" data-parent="#accordionL" href="#collapseThreeL" id="tab3Link" onclick="tabLeft('tab3');">
                       Summary Statistics
                     </a>
                   </h4>
@@ -261,6 +261,15 @@
         $('#accordionR').on('shown.bs.collapse', function () {
           accordionRFullAnimation();
         });
+
+        $('.panel-heading a').on('click',function(e){
+            if($(this).parents('.panel').children('.panel-collapse').hasClass('in')){
+                e.preventDefault();
+                e.stopPropagation();
+                //alert('2nd Click');
+            }
+        });
+
      });
      function accordionRFullAnimation() {
         $('#accordionR .collapse.in').animate({
