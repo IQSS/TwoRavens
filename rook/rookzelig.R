@@ -134,7 +134,7 @@ zelig.app <- function(env){
 
 	if(!warning){
         if(production){
-            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+            mydata <- getData(dataurl=everything$zdataurl)
         }else{
             # This is the Strezhnev Voeten data:
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
@@ -333,7 +333,12 @@ terminate<-function(response,warning){
     stop()
 }
 
-getDataverse<-function(hostname, fileid){
+getData<-function(dataurl){
+    mydata<-tryCatch(expr=read.delim(file=dataurl), error=function(e) NULL)  # if data is not readable, NULL
+    return(mydata)
+}
+
+getDataFromDataverse<-function(hostname, fileid){
     path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
     mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)  # if data is not readable, NULL
     return(mydata)
@@ -591,7 +596,7 @@ subset.app <- function(env){
     
     if(!warning){
         if(production){
-            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+            mydata <- getData(dataurl=everything$zdataurl)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
@@ -746,7 +751,7 @@ transform.app <- function(env){
     
     if(!warning){
         if(production){
-            mydata <- getDataverse(host=everything$zhostname, fileid=everything$zfileid)
+            mydata <- getData(dataurl=everything$zdataurl)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
