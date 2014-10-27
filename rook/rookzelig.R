@@ -235,7 +235,7 @@ zelig.app <- function(env){
                     Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
                     dev.off()
                     if(production){
-                        imageVector[[qicount]]<-paste("http://dataverse-demo.hmdc.harvard.edu:8008/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
+                        imageVector[[qicount]]<-paste("http://dataverse-demo.iq.harvard.edu:8008/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
                     }else{
                         imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
                     }
@@ -517,7 +517,7 @@ pCall <- function(data,production) {
     #if(production){
     #    subsetfile <- "/var/www/html/rookzelig/data/preprocessSubset.txt"
     #    write(pjson,file=subsetfile)
-    #    url <- "http://dataverse-demo.hmdc.harvard.edu:8008/rookzelig/data/preprocessSubset.txt"
+    #    url <- "http://dataverse-demo.iq.harvard.edu:8008/rookzelig/data/preprocessSubset.txt"
     #}else{
         url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
         write(pjson,file=paste("../",url, sep=""))
