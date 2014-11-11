@@ -162,7 +162,7 @@ selector.app <- function(env){
           usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
           usedata <- refactor(usedata) # when data is subset, factors levels do not update, and this causes an error in zelig's setx(). refactor() is a quick fix
           
-          usedata$train <- rbinom(nrow(usedata), 1, .8)
+          usedata$train <- rbinom(nrow(usedata), 1, .7)
           usevars<-c(all.vars(myformula), "train")
           basedata <- usedata[,usevars]
           basedata <- na.omit(basedata)
@@ -170,11 +170,13 @@ selector.app <- function(env){
           traindata <- basedata[which(basedata$train==1),]
           testdata <- basedata[which(basedata$train==0),]
           
-          fit <- glm(war~polity2, data=traindata, family="binomial")
+          fit <- glm(myformula, data=traindata, family="binomial")
           predfit <- predict.glm(fit, newdata=testdata, type="response")
-          rmse <- sum((testdata$war - predfit)^2)
           
-          addvars <- NULL
+          eval(parse(text=paste("y <- testdata$", mydv, sep="")))
+          rmse <- (sum((y- predfit)^2)) / nrow(testdata) # normalized by number of rows in testdata
+          
+          contribution <- matrix(0, nrow=0, ncol=2)
 
           for(i in 1:length(allvars)) {
                 if(allvars[i] %in% all.vars(myformula)) {next}
@@ -194,17 +196,16 @@ selector.app <- function(env){
                 
                 fit <- glm(tempform, data=traindata, family="binomial")
                 predfit <- predict.glm(fit, newdata=testdata, type="response")
+            
+                eval(parse(text=paste("y <- testdata$", mydv, sep="")))
+                newrmse <- (sum((y- predfit)^2)) / nrow(testdata)
                 
-                y <- eval(parse(text=paste("testdata$", mydv, sep="")))
-                evalstr <- paste("newrmse <- sum((", y, " - predfit)^2)", sep="")
-                eval(parse(text=evalstr))
-                
-                if(newrmse < rmse) {
-                    addvars <- c(addvars, allvars[i])
-                } else {
-                    cat(allvars[i], " does not contribute ")
-                }
+                contribution <- rbind(contribution, c(allvars[i], newrmse))
           }
+          
+          print(contribution)
+          print(rmse)
+          addvars <- contribution[which(contribution[,2] < rmse),1]
             if(is.null(addvars)) {
                 result = "No additional variables suggested"
             } else {
@@ -218,19 +219,22 @@ selector.app <- function(env){
         })
 	}
 
-
+#mydv <- "war"
+# myformula <- formula(war~polity2)
 #usedata <- read.delim("../data/fearonLaitin.tsv")
-#usedata$train <- rbinom(nrow(usedata), 1, .8)
+#usedata$train <- rbinom(nrow(usedata), 1, .7)
 
-#usedata <- usedata[,c("war", "polity2", "train")]
+#usedata <- usedata[,c("war", "polity2", "lpop", "gdptype", "lpopl1", "train")]
 #usedata <- na.omit(usedata)
 
 #traindata <- usedata[which(usedata$train==1),]
 #testdata <- usedata[which(usedata$train==0),]
 
-#fit <- glm(war~polity2, data=traindata, family="binomial")
+#fit <- glm(myformula, data=traindata, family="binomial")
 #predfit <- predict.glm(fit, newdata=testdata, type="response")
-#rmse <- sum((testdata$war - predfit)^2)
+
+#eval(parse(text=paste("y <- testdata$", mydv, sep="")))
+#newrmse <- sum((y - predfit)^2)
 
 
     ## package up variable lists to be sent back
