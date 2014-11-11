@@ -232,36 +232,6 @@ selector.app <- function(env){
 #predfit <- predict.glm(fit, newdata=testdata, type="response")
 #rmse <- sum((testdata$war - predfit)^2)
 
-    #response$headers("localhost:8888")
-    
-    #add the summary table to the results
-    # R can't construct an array of lists...
-    # NOTE: this will likely change for Zelig 5
-    #      rm(list=ls())
-    #           mydata <- read.delim("../data/fearonLaitin.tsv")
-    #mydata <- mydata[which(mydata$ccode>423),]
-    #mydata$country <- factor(mydata$country)
-    #  z.out <- zelig(ccode~country, model="ls", data=mydata)
-    #x.out <- setx(z.out)
-    #s.out <- sim(z.out, x.out)
-    
-    # putting factor(var) in the formula fails with Zelig4
-    # adding a factor variable to the data, or coercing variable to be a factor, works
-    # rm(list=ls())
-    #mydata <- read.delim("../data/fearonLaitin.tsv")
-    #mydata <- mydata[,c("war", "lpop", "region")]
-    #mydata <- na.omit(mydata)
-    #mydata$fregion <- factor(mydata$region)
-    #mydata$region <- as.factor(mydata$region)
-    #z.out <- zelig(war~lpop + factor(region), model="logit", data=mydata)
-    #x.out <- setx(z.out)
-    #s.out <- sim(z.out, x.out) # fail
-    
-    #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
-    #  imageVector <- "image"
-    #  almostCall <- "call"
-    #  result<-list(images=imageVector, call=almostCall)
-
 
     ## package up variable lists to be sent back
     result<- jsonlite:::toJSON(result)   # rjson does not format json correctly for a list of lists
