@@ -1461,7 +1461,7 @@ function estimate(btn) {
     
     function selectorSuccess(btn, json) {
         d3.select("#ticker")
-        .text("We suggest you add the following variables: " + json);
+        .text("Suggested variables and percent improvement on RMSE: " + json.vars);
         console.log("selectorSuccess: ", json);
     }
     

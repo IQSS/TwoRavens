@@ -178,9 +178,13 @@ selector.app <- function(env){
           
           contribution <- matrix(0, nrow=0, ncol=2)
 
+
           for(i in 1:length(allvars)) {
+              
+                # next if the variable is already in the formula
                 if(allvars[i] %in% all.vars(myformula)) {next}
                 
+                # next if the variable is a factor
                 evalstr <- paste("if(is.factor(usedata$", allvars[i], ")) {next}", sep="")
                 eval(parse(text=evalstr))
                 
@@ -194,10 +198,13 @@ selector.app <- function(env){
                 traindata <- basedata[which(basedata$train==1),]
                 testdata <- basedata[which(basedata$train==0),]
                 
+                eval(parse(text=paste("y <- testdata$", mydv, sep="")))
+
+                # next if there is 1 unique value of y in the test data
+                if(length(unique(y))==1) {next}
+                
                 fit <- glm(tempform, data=traindata, family="binomial")
                 predfit <- predict.glm(fit, newdata=testdata, type="response")
-            
-                eval(parse(text=paste("y <- testdata$", mydv, sep="")))
                 newrmse <- (sum((y- predfit)^2)) / nrow(testdata)
                 
                 contribution <- rbind(contribution, c(allvars[i], newrmse))
@@ -205,11 +212,15 @@ selector.app <- function(env){
           
           print(contribution)
           print(rmse)
-          addvars <- contribution[which(contribution[,2] < rmse),1]
-            if(is.null(addvars)) {
-                result = "No additional variables suggested"
+          contribution <- contribution[which(contribution[,2] < rmse),]
+          improvement <- ((rmse-as.numeric(contribution[,2])) / rmse) * 100
+          improvement <- round(improvement, digits=3)
+          
+          addvars <- list(vars=paste(contribution[,1], improvement))
+            if(nrow(contribution)>0) {
+                result = addvars
             } else {
-                result <- addvars
+                result <- "No additional variables suggested"
             }
         },
         error=function(err){
@@ -224,7 +235,7 @@ selector.app <- function(env){
 #usedata <- read.delim("../data/fearonLaitin.tsv")
 #usedata$train <- rbinom(nrow(usedata), 1, .7)
 
-#usedata <- usedata[,c("war", "polity2", "lpop", "gdptype", "lpopl1", "train")]
+#usedata <- usedata[,c("war", "polity2", "lpop", "gdptype", "lpopl1", "durest", "train")]
 #usedata <- na.omit(usedata)
 
 #traindata <- usedata[which(usedata$train==1),]
