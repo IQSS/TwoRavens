@@ -858,12 +858,13 @@ executeHistory <- function (history, data) {
 }
 
 
-
+source("rookselector.R")
 
 if(!production){
     R.server$add(app = zelig.app, name = "zeligapp")
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
+    R.server$add(app = selector.app, name="selectorapp")
     print(R.server)
 }
 
