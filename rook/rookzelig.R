@@ -74,7 +74,7 @@ zelig.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
 
-    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
+    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
     print(everything)
 
     warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
@@ -594,7 +594,7 @@ subset.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
+    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
     print(everything)
     
     print(class(everything$callHistory))
@@ -751,7 +751,7 @@ transform.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- jsonlite:::fromJSON(request$params()$solaJSON)
+    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
     print(everything)
     
     warning<-FALSE

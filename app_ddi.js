@@ -1382,15 +1382,17 @@ function estimate(btn) {
     zparams.callHistory=callHistory;
     var jsonout = JSON.stringify(zparams);
     
-    var base = rappURL+"zeligapp?solaJSON="
-
-    urlcall = base.concat(jsonout);
+    //var base = rappURL+"zeligapp?solaJSON="
+    urlcall = rappURL+"zeligapp"; //base.concat(jsonout);
+    var solajsonout = "solaJSON="+jsonout;
     console.log("urlcall out: ", urlcall);
+    console.log("POST out: ", solajsonout);
+
   
     zparams.allVars = valueKey.slice(10,25); // this is because the URL is too long...
     var jsonout = JSON.stringify(zparams);
-    var selectorBase = rappURL+"selectorapp?solaJSON=";
-    var selectorurlcall = selectorBase.concat(jsonout);
+    //var selectorBase = rappURL+"selectorapp?solaJSON=";
+    var selectorurlcall = rappURL+"selectorapp"; //.concat(jsonout);
     
     function estimateSuccess(btn,json) {
         estimateLadda.stop();  // stop spinner
@@ -1470,8 +1472,8 @@ function estimate(btn) {
     }
 
     estimateLadda.start();  // start spinner
-    makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail);
-    makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail);
+    makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail, solajsonout);
+    makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail, solajsonout);
 
     
 }
@@ -1624,11 +1626,14 @@ function transform(n,t) {
     //package the output as JSON
     var transformstuff = {zdataurl:dataurl, zvars:n, transform:t, callHistory:callHistory};
     var jsonout = JSON.stringify(transformstuff);
-    var base = rappURL+"transformapp?solaJSON="
+    //var base = rappURL+"transformapp?solaJSON="
     
-    urlcall = base.concat(jsonout);
+    urlcall = rappURL+"transformapp"; //base.concat(jsonout);
+    var solajsonout = "solaJSON="+jsonout;
     console.log("urlcall out: ", urlcall);
-    
+    console.log("POST out: ", solajsonout);
+
+
     
     function transformSuccess(btn, json) {
         estimateLadda.stop();
@@ -1685,9 +1690,12 @@ function transform(n,t) {
             function offspaceTransform(j) {
                 transformstuff = {zdataurl:dataurl, zvars:n, transform:t, callHistory:spaces[j].callHistory}; 
                 var jsonout = JSON.stringify(transformstuff);
-                var base = rappURL+"transformapp?solaJSON="
-                urlcall = base.concat(jsonout);
-                console.log("offspace urlcall out: ", urlcall);
+                //var base = rappURL+"transformapp?solaJSON="
+                urlcall = rappURL+"transformapp"; //base.concat(jsonout);
+                var solajsonout = "solaJSON="+jsonout;
+                console.log("urlcall out: ", urlcall);
+                console.log("POST out: ", solajsonout);
+
                 
                 function offspaceSuccess(btn, json) {
                     spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
@@ -1699,7 +1707,8 @@ function transform(n,t) {
                 function offspaceFail(btn) {
                     alert("transform fail");
                 }
-                makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail);
+                f
+                makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail, solajsonout);
             }
             
             // if myspace and space j have not been subseted, append the same transformation
@@ -1717,7 +1726,7 @@ function transform(n,t) {
     }
     
     estimateLadda.start();  // start spinner
-    makeCorsRequest(urlcall,btn, transformSuccess, transformFail);
+    makeCorsRequest(urlcall,btn, transformSuccess, transformFail, solajsonout);
     
 }
 
@@ -1742,7 +1751,7 @@ function createCORSRequest(method, url, callback) {
 
 
 // Make the actual CORS request.
-function makeCorsRequest(url,btn,callback, warningcallback) {
+function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     var xhr = createCORSRequest('POST', url);
     if (!xhr) {
         alert('CORS not supported');
@@ -1781,7 +1790,7 @@ function makeCorsRequest(url,btn,callback, warningcallback) {
         selectLadda.stop();
     };
     
-    xhr.send();
+    xhr.send(jsonstring);
 }
 
 
@@ -2307,10 +2316,12 @@ function subsetSelect(btn) {
     var subsetstuff = {zdataurl:zparams.zdataurl, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot, callHistory:callHistory};
     
     var jsonout = JSON.stringify(subsetstuff);
-    var base = rappURL+"subsetapp?solaJSON="
+    //var base = rappURL+"subsetapp?solaJSON="
+    urlcall = rappURL+"subsetapp"; //base.concat(jsonout);
+    var solajsonout = "solaJSON="+jsonout;
+    console.log("urlcall out: ", urlcall);
+    console.log("POST out: ", solajsonout);
     
-    urlcall = base.concat(jsonout);
-    console.log("subset url: ",urlcall);
 
     function subsetSelectSuccess(btn,json) {
         
@@ -2427,7 +2438,7 @@ function subsetSelect(btn) {
     }
     
     selectLadda.start(); //start button motion
-    makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail);
+    makeCorsRequest(urlcall,btn, subsetSelectSuccess, subsetSelectFail, solajsonout);
     
 }
 
