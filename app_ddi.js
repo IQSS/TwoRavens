@@ -81,6 +81,63 @@ $('#about div.panel-body').text('The Norse god Odin had two talking ravens as ad
 
 
 
+// this could maybe be a separate function that populates the model list
+// Zelig models
+var mods = new Object;
+d3.json("data/zelig5models.json", function(error, json) {
+        if (error) return console.warn(error);
+        var jsondata = json;
+    
+        console.log("zelig models json: ", jsondata);
+        for(var key in jsondata.zelig5models) {
+            if(jsondata.zelig5models.hasOwnProperty(key)) {
+                mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
+            }
+        }
+     
+        d3.json("data/zelig5choicemodels.json", function(error, json) {
+                if (error) return console.warn(error);
+                var jsondata = json;
+                console.log("zelig choice models json: ", jsondata);
+                for(var key in jsondata.zelig5choicemodels) {
+                    if(jsondata.zelig5choicemodels.hasOwnProperty(key)) {
+                        mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
+                    }
+                }
+                
+                d3.select("#models")
+                .style('height', 2000)
+                .style('overfill', 'scroll');
+                
+                var modellist = Object.keys(mods);
+                
+                d3.select("#models").selectAll("p")
+                .data(modellist)
+                .enter()
+                .append("p")
+                .attr("id", function(d){
+                      return "_model_".concat(d);
+                      })
+                .text(function(d){return d;})
+                .style('background-color',function(d) {
+                       return varColor;
+                       })
+                .attr("data-container", "body")
+                .attr("data-toggle", "popover")
+                .attr("data-trigger", "hover")
+                .attr("data-placement", "top")
+                .attr("data-html", "true")
+                .attr("onmouseover", "$(this).popover('toggle');")
+                .attr("onmouseout", "$(this).popover('toggle');")
+                .attr("data-original-title", "Model Description")
+                .attr("data-content", function(d){
+                      return mods[d];
+                      });
+                });
+        });
+
+
+
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
 
@@ -107,20 +164,6 @@ var grayColor = '#c0c0c0';
 
 var lefttab = "tab1"; //global for current tab in left panel
 var righttab = "btnModels"; // global for current tab in right panel
-
-// Zelig models, eventually this could be a separate xml file that is imported
-//var zmods = ["OLS", "Logit"];
-var mods = new Object;
-d3.json("data/zeligmodels2.json", function(error, json) {
-        if (error) return console.warn(error);
-        var jsondata = json;
-        console.log("json: ", jsondata);
-        jsondata.zeligmodels.forEach(function(d) {
-       // mods.push(d["-name"]);
-        mods[d["-name"]] = d["description"];
-                                    });
-        });
-var zmods = mods;
 
 var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
 
@@ -283,36 +326,6 @@ d3.xml(metadataurl, "application/xml", function(xml) {
        // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
        allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
        };
- 
-       
-       d3.select("#models")
-       .style('height', 2000)
-       .style('overfill', 'scroll');
-     
-       var modellist = Object.keys(zmods);
-       
-       d3.select("#models").selectAll("p")
-       .data(modellist)
-       .enter()
-       .append("p")
-       .attr("id", function(d){
-           return "_model_".concat(d);
-           })
-       .text(function(d){return d;})
-       .style('background-color',function(d) {
-              return varColor;
-              })
-       .attr("data-container", "body")
-       .attr("data-toggle", "popover")
-       .attr("data-trigger", "hover")
-       .attr("data-placement", "top")
-       .attr("data-html", "true")
-       .attr("onmouseover", "$(this).popover('toggle');")
-       .attr("onmouseout", "$(this).popover('toggle');")
-       .attr("data-original-title", "Model Description")
-       .attr("data-content", function(d){
-              return zmods[d];
-             });
      
        scaffolding();
        layout();
