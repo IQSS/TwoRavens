@@ -1,0 +1,64 @@
+{
+    "zelig5choicemodels": {
+        "blogit": {
+            "name": [
+                "blogit"
+            ],
+            "description": [
+                "Bivariate Logit Regression for Dichotomous Dependent Variables"
+            ],
+            "outcome": {
+                "modelingType": [
+                    ""
+                ]
+            },
+            "explanatory": {
+                "modelingType": [
+                    "continuous",
+                    "discrete",
+                    "nominal",
+                    "ordinal",
+                    "binary"
+                ]
+            },
+            "vignette.url": [
+                "http://zeligproject.org/zelig-blogit.html"
+            ],
+            "tree": [
+                "Zelig-blogit",
+                "Zelig-bbinchoice",
+                "Zelig"
+            ]
+        },
+        "bprobit": {
+            "name": [
+                "blogit"
+            ],
+            "description": [
+                "Bivariate Logit Regression for Dichotomous Dependent Variables"
+            ],
+            "outcome": {
+                "modelingType": [
+                    ""
+                ]
+            },
+            "explanatory": {
+                "modelingType": [
+                    "continuous",
+                    "discrete",
+                    "nominal",
+                    "ordinal",
+                    "binary"
+                ]
+            },
+            "vignette.url": [
+                "http://zeligproject.org/zelig-blogit.html"
+            ],
+            "tree": [
+                "Zelig-blogit",
+                "Zelig-bbinchoice",
+                "Zelig"
+            ]
+        }
+    }
+}
