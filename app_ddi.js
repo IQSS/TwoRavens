@@ -28,7 +28,7 @@ if (fileid && !dataurl) {
     // a dataverse and cook a standard dataverse data access url,
     // with the fileid supplied and the hostname we have
     // either supplied or configured:
-    dataurl = "http://"+hostname+"/api/access/datafile/"+fileid;
+    dataurl = "https://"+hostname+"/api/access/datafile/"+fileid;
     // (it is also possible to supply dataurl to the script directly, 
     // as an argument -- L.A.)
 }
@@ -224,7 +224,7 @@ if (ddiurl) {
     // file id supplied; we're going to cook a standard dataverse
     // metadata url, with the file id provided and the hostname 
     // supplied or configured:
-    metadataurl="http://"+hostname+"/api/meta/datafile/"+fileid;
+    metadataurl="https://"+hostname+"/api/meta/datafile/"+fileid;
 } else {
     // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with 
     // the app, in the data directory:
