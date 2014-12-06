@@ -179,62 +179,6 @@ $('#about div.panel-body').text('The Norse god Odin had two talking ravens as ad
 
 
 
-// Reading the zelig models and populating the model list in the right panel.
-// this could maybe be a separate script/function that populates the model list?
-// mods is a global that contains parsed zeligmodels.json files
-var mods = new Object;
-d3.json("data/zelig5models.json", function(error, json) {
-        if (error) return console.warn(error);
-        var jsondata = json;
-    
-        console.log("zelig models json: ", jsondata);
-        for(var key in jsondata.zelig5models) {
-            if(jsondata.zelig5models.hasOwnProperty(key)) {
-                mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
-            }
-        }
-     
-        d3.json("data/zelig5choicemodels.json", function(error, json) {
-                if (error) return console.warn(error);
-                var jsondata = json;
-                console.log("zelig choice models json: ", jsondata);
-                for(var key in jsondata.zelig5choicemodels) {
-                    if(jsondata.zelig5choicemodels.hasOwnProperty(key)) {
-                        mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
-                    }
-                }
-                
-                d3.select("#models")
-                .style('height', 2000)
-                .style('overfill', 'scroll');
-                
-                var modellist = Object.keys(mods);
-                
-                d3.select("#models").selectAll("p")
-                .data(modellist)
-                .enter()
-                .append("p")
-                .attr("id", function(d){
-                      return "_model_".concat(d);
-                      })
-                .text(function(d){return d;})
-                .style('background-color',function(d) {
-                       return varColor;
-                       })
-                .attr("data-container", "body")
-                .attr("data-toggle", "popover")
-                .attr("data-trigger", "hover")
-                .attr("data-placement", "top")
-                .attr("data-html", "true")
-                .attr("onmouseover", "$(this).popover('toggle');")
-                .attr("onmouseout", "$(this).popover('toggle');")
-                .attr("data-original-title", "Model Description")
-                .attr("data-content", function(d){
-                      return mods[d];
-                      });
-                });
-        }); //end populating model list
-
 
 //
 // read DDI metadata with d3:
@@ -275,6 +219,9 @@ if (dataurl) {
 }
 
 var preprocess = {};
+var mods = new Object;
+
+// this is the function and callback routine that loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig)
 readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                d3.xml(metadataurl, "application/xml", function(xml) {
                       var vars = xml.documentElement.getElementsByTagName("var");
@@ -322,93 +269,44 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                       };
                       
-                      scaffolding();
-                      layout();
-                      
+                      // Reading the zelig models and populating the model list in the right panel.
+                      d3.json("data/zelig5models.json", function(error, json) {
+                              if (error) return console.warn(error);
+                              var jsondata = json;
+                              
+                              console.log("zelig models json: ", jsondata);
+                              for(var key in jsondata.zelig5models) {
+                              if(jsondata.zelig5models.hasOwnProperty(key)) {
+                              mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
+                              }
+                              }
+                              
+                              d3.json("data/zelig5choicemodels.json", function(error, json) {
+                                      if (error) return console.warn(error);
+                                      var jsondata = json;
+                                      console.log("zelig choice models json: ", jsondata);
+                                      for(var key in jsondata.zelig5choicemodels) {
+                                      if(jsondata.zelig5choicemodels.hasOwnProperty(key)) {
+                                      mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
+                                      }
+                                      }
+                                      
+                                      scaffolding(callback=layout);
+                                      
+                                      });
+                              });
                       });
                });
 
 
+////////////////////////////////////////////
+// everything below this point is a function
 
-// to be called after valueKey (array of variable names) is updated or initialized
-function scaffolding(v) {
 
-    if(typeof v !== "undefined") {
-        
-        d3.select("#tab1")
-        .data(v)
-        .append("p")
-        .attr("id",function(){
-              return v[0].replace(/\W/g, "_");
-              })
-        .text(v[0])
-        .style('background-color', hexToRgba(selVarColor))
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-placement", "right")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics")
-        .on("click", function varClick(){
-            d3.select(this)
-            .style('background-color',function(d) {
-                   var myText = d3.select(this).text();
-                   var myColor = d3.select(this).style('background-color');
-                   var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-                   
-                   zparams.zvars = []; //empty the zvars array
-                   if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
-                   if(nodes.length==0) {
-                   nodes.push(findNode(myText));
-                   nodes[0].reflexive=true;
-                   }
-                   else {nodes.push(findNode(myText));}
-                   return hexToRgba(selVarColor);
-                   }
-                   else { // dropping a variable
-                   
-                   nodes.splice(findNode(myText)["index"], 1);
-                   spliceLinksForNode(findNode(myText));
-                   
-                   if(mySC==dvColor) {
-                   var dvIndex = zparams.zdv.indexOf(myText);
-                   if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                   //zparams.zdv="";
-                   }
-                   else if(mySC==csColor) {
-                   var csIndex = zparams.zcross.indexOf(myText);
-                   if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
-                   }
-                   else if(mySC==timeColor) {
-                   var timeIndex = zparams.ztime.indexOf(myText);
-                   if (timeIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
-                   }
-                   else if(mySC==nomColor) {
-                   var nomIndex = zparams.znom.indexOf(myText);
-                   if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
-                   }
-                   
-                   nodeReset(allNodes[findNodeIndex(myText)]);
-                   borderState();
-                   return varColor;
-                   }
-                   });
-            fakeClick();
-            panelPlots();
-            });
-        populatePopover(); // pipes in the summary stats
-        
-        // drop down menu for tranformation toolbar
-        d3.select("#transSel")
-        .data(v)
-        .append("option")
-        .text(function(d) {return d; });
-        
-        return;
-    }
+// scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
+function scaffolding(callback) {
  
+    // establishing the transformation element
     d3.select("#transformations")
     .append("input")
     .attr("id", "tInput")
@@ -504,7 +402,7 @@ function scaffolding(v) {
                              transform(n=tvar, t=tfunc);
                              });
                             
-  
+    // populating the variable list in the left panel
     d3.select("#tab1").selectAll("p")
     .data(valueKey)
     .enter()
@@ -526,8 +424,40 @@ function scaffolding(v) {
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
     
-    populatePopover(); // pipes in the summary stats
+    populatePopover(); // pipes in the summary stats shown on mouseovers
+                    
+    d3.select("#models")
+    .style('height', 2000)
+    .style('overfill', 'scroll');
     
+    var modellist = Object.keys(mods);
+    
+    d3.select("#models").selectAll("p")
+    .data(modellist)
+    .enter()
+    .append("p")
+    .attr("id", function(d){
+          return "_model_".concat(d);
+          })
+    .text(function(d){return d;})
+    .style('background-color',function(d) {
+           return varColor;
+           })
+    .attr("data-container", "body")
+    .attr("data-toggle", "popover")
+    .attr("data-trigger", "hover")
+    .attr("data-placement", "top")
+    .attr("data-html", "true")
+    .attr("onmouseover", "$(this).popover('toggle');")
+    .attr("onmouseout", "$(this).popover('toggle');")
+    .attr("data-original-title", "Model Description")
+    .attr("data-content", function(d){
+          return mods[d];
+          });
+    
+    if(typeof callback === "function") {
+        callback(); // this calls layout() because at this point all scaffolding is up and ready
+    }
 }
 
 
@@ -659,7 +589,7 @@ function layout(v) {
         }
     
     
-    //  add listerners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
+    //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
     .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
@@ -1659,7 +1589,7 @@ function transform(n,t) {
         readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
         
         function mycallback() {
-            scaffolding(rCall[0]);
+            scaffoldingPush(rCall[0]);
             valueKey.push(newVar);
             nodes.push(findNode(newVar));
             fakeClick();
@@ -1739,6 +1669,79 @@ function transform(n,t) {
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, transformSuccess, transformFail, solajsonout);
     
+}
+
+function scaffoldingPush(v) { // adding a variable to the variable list after a transformation
+    
+        d3.select("#tab1")
+        .data(v)
+        .append("p")
+        .attr("id",function(){
+              return v[0].replace(/\W/g, "_");
+              })
+        .text(v[0])
+        .style('background-color', hexToRgba(selVarColor))
+        .attr("data-container", "body")
+        .attr("data-toggle", "popover")
+        .attr("data-trigger", "hover")
+        .attr("data-placement", "right")
+        .attr("data-html", "true")
+        .attr("onmouseover", "$(this).popover('toggle');")
+        .attr("onmouseout", "$(this).popover('toggle');")
+        .attr("data-original-title", "Summary Statistics")
+        .on("click", function varClick(){ // we've added a new variable, so we need to add the listener
+            d3.select(this)
+            .style('background-color',function(d) {
+                   var myText = d3.select(this).text();
+                   var myColor = d3.select(this).style('background-color');
+                   var mySC = allNodes[findNodeIndex(myText)].strokeColor;
+                   
+                   zparams.zvars = []; //empty the zvars array
+                   if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
+                    if(nodes.length==0) {
+                        nodes.push(findNode(myText));
+                        nodes[0].reflexive=true;
+                    }
+                    else {nodes.push(findNode(myText));}
+                    return hexToRgba(selVarColor);
+                   }
+                   else { // dropping a variable
+                   
+                    nodes.splice(findNode(myText)["index"], 1);
+                    spliceLinksForNode(findNode(myText));
+                   
+                    if(mySC==dvColor) {
+                        var dvIndex = zparams.zdv.indexOf(myText);
+                        if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                    }
+                    else if(mySC==csColor) {
+                        var csIndex = zparams.zcross.indexOf(myText);
+                        if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
+                    }
+                    else if(mySC==timeColor) {
+                        var timeIndex = zparams.ztime.indexOf(myText);
+                        if (timeIndex > -1) { zparams.ztime.splice(dvIndex, 1); }
+                    }
+                    else if(mySC==nomColor) {
+                        var nomIndex = zparams.znom.indexOf(myText);
+                        if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
+                    }
+                   
+                    nodeReset(allNodes[findNodeIndex(myText)]);
+                    borderState();
+                    return varColor;
+                   }
+                });
+            fakeClick();
+            panelPlots();
+            });
+        populatePopover(); // pipes in the summary stats
+        
+        // drop down menu for tranformation toolbar
+        d3.select("#transSel")
+        .data(v)
+        .append("option")
+        .text(function(d) {return d; });
 }
 
 // below from http://www.html5rocks.com/en/tutorials/cors/ for cross-origin resource sharing
