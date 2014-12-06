@@ -1,11 +1,6 @@
 //////////
 // Globals
 
-// set up SVG for D3
-
-//var leftpanel = d3.select("body")
-//.append('svg');
-
 // hostname default - the app will use it to obtain the variable metadata
 // (ddi) and pre-processed data info if the file id is supplied as an 
 // argument (for ex., gui.html?dfId=17), but hostname isn't. 
@@ -41,23 +36,8 @@ var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
 
-// collapsable user log
-$('#collapseLog').on('shown.bs.collapse', function () {
-                     d3.select("#collapseLog div.panel-body").selectAll("p")
-                     .data(logArray)
-                     .enter()
-                     .append("p")
-                     .text(function(d){
-                           return d;
-                           });
-                     //$("#logicon").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
-                     });
 
-$('#collapseLog').on('hidden.bs.collapse', function () {
-                     d3.select("#collapseLog div.panel-body").selectAll("p")
-                     .remove();
-                     //$("#logicon").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
-                     });
+
 var logArray = [];
 
            
@@ -75,14 +55,133 @@ var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
 
+
+// this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
+var colors = d3.scale.category20();
+
+var colorTime=false;
+var timeColor = '#2d6ca2';
+
+var colorCS=false;
+var csColor = '#419641';
+
+var depVar=false;
+var dvColor = '#28a4c9';
+
+var nomColor = '#ff6600';
+
+var subsetdiv=false;
+var setxdiv=false;
+
+
+var varColor = '#f0f8ff';   //d3.rgb("aliceblue");
+var selVarColor = '#fa8072';    //d3.rgb("salmon");
+var taggedColor = '#f5f5f5';    //d3.rgb("whitesmoke");
+var d3Color = '#1f77b4';  // d3's default blue
+var grayColor = '#c0c0c0';
+
+var lefttab = "tab1"; //global for current tab in left panel
+var righttab = "btnModels"; // global for current tab in right panel
+
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
+
+
+// Radius of circle
+var allR = 40;
+
+//Width and height for histgrams
+var barwidth = 1.3*allR;
+var barheight = 0.5*allR;
+var barPadding = 0.35;
+var barnumber =7;
+
+
+var arc0 = d3.svg.arc()
+.innerRadius(allR + 5)
+.outerRadius(allR + 20)
+.startAngle(0)
+.endAngle(3.2);
+
+var arc1 = d3.svg.arc()
+.innerRadius(allR + 5)
+.outerRadius(allR + 20)
+.startAngle(0)
+.endAngle(1);
+
+var arc2 = d3.svg.arc()
+.innerRadius(allR + 5)
+.outerRadius(allR + 20)
+.startAngle(1.1)
+.endAngle(2.2);
+
+var arc3 = d3.svg.arc()
+.innerRadius(allR + 5)
+.outerRadius(allR + 20)
+.startAngle(2.3)
+.endAngle(3.3);
+
+var arc4 = d3.svg.arc()
+.innerRadius(allR + 5)
+.outerRadius(allR + 20)
+.startAngle(4.3)
+.endAngle(5.3);
+
+
+
+// From .csv
+var dataset2 = [];
+var valueKey = [];
+var lablArray = [];
+var hold = [];
+var allNodes = [];
+var allResults = [];
+var subsetNodes = [];
+var links = [];
+var nodes = [];
+var transformVar = "";
+var summaryHold = false;
+var selInteract = false;
+var modelCount = 0;
+var callHistory = []; // unique to the space. saves transform and subset calls.
+
+// transformation toolbar options
+var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
+
+// arry of objects containing allNode, zparams, transform vars
+var spaces = [];
+var trans = []; //var list for each space contain variables in original data plus trans in that space
+
+// end of (most) global declarations (minus functions)
+
+
+// collapsable user log
+$('#collapseLog').on('shown.bs.collapse', function () {
+                     d3.select("#collapseLog div.panel-body").selectAll("p")
+                     .data(logArray)
+                     .enter()
+                     .append("p")
+                     .text(function(d){
+                           return d;
+                           });
+                     //$("#logicon").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+                     });
+
+$('#collapseLog').on('hidden.bs.collapse', function () {
+                     d3.select("#collapseLog div.panel-body").selectAll("p")
+                     .remove();
+                     //$("#logicon").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+                     });
+
+
 // text for the about box
 // note that .textContent is the new way to write text to a div
 $('#about div.panel-body').text('The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
 
 
-// this could maybe be a separate function that populates the model list
-// Zelig models
+// Reading the zelig models and populating the model list in the right panel.
+// this could maybe be a separate script/function that populates the model list?
+// mods is a global that contains parsed zeligmodels.json files
 var mods = new Object;
 d3.json("data/zelig5models.json", function(error, json) {
         if (error) return console.warn(error);
@@ -134,130 +233,10 @@ d3.json("data/zelig5models.json", function(error, json) {
                       return mods[d];
                       });
                 });
-        });
+        }); //end populating model list
 
 
-
-// this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
-var colors = d3.scale.category20();
-
-var colorTime=false;
-var timeColor = '#2d6ca2';
-
-var colorCS=false;
-var csColor = '#419641';
-
-var depVar=false;
-var dvColor = '#28a4c9';
-
-var nomColor = '#ff6600';
-
-var subsetdiv=false;
-var setxdiv=false;
-
-
-var varColor = '#f0f8ff';   //d3.rgb("aliceblue");
-var selVarColor = '#fa8072';    //d3.rgb("salmon");
-var taggedColor = '#f5f5f5';    //d3.rgb("whitesmoke");
-var d3Color = '#1f77b4';  // d3's default blue
-var grayColor = '#c0c0c0';
-
-var lefttab = "tab1"; //global for current tab in left panel
-var righttab = "btnModels"; // global for current tab in right panel
-
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
-
-
-// Pre-processed data:
-var pURL = "";
-if (dataurl) {
-    // data url is supplied
-    pURL = dataurl+"?format=prep";
-} else {
-    // no dataurl/file id supplied; use one of the sample data files distributed with the 
-    // app in the "data" directory:
-    //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
-    pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
-   // pURL = "data/qog_pp.json";   // This is Qual of Gov
-}
-
-var preprocess = {};
-readPreprocess(url=pURL, p=preprocess, v=null, callback=null);
-
-// Radius of circle
-var allR = 40;
-
-  //Width and height for histgrams
-var barwidth = 1.3*allR; 
-var barheight = 0.5*allR; 
-var barPadding = 0.35;  
-var barnumber =7;
-
-
-var arc0 = d3.svg.arc()
-    .innerRadius(allR + 5)
-    .outerRadius(allR + 20)
-    .startAngle(0)
-    .endAngle(3.2);
-
-var arc1 = d3.svg.arc()
-    .innerRadius(allR + 5)
-    .outerRadius(allR + 20)
-    .startAngle(0)
-    .endAngle(1);
-
-var arc2 = d3.svg.arc()
-    .innerRadius(allR + 5)
-    .outerRadius(allR + 20)
-    .startAngle(1.1)
-    .endAngle(2.2);
-
-var arc3 = d3.svg.arc()
-    .innerRadius(allR + 5)
-    .outerRadius(allR + 20)
-    .startAngle(2.3)
-    .endAngle(3.3);
-
-var arc4 = d3.svg.arc()
-    .innerRadius(allR + 5)
-    .outerRadius(allR + 20)
-    .startAngle(4.3)
-    .endAngle(5.3);
-
-
-
-  // From .csv
-var dataset2 = [];
-var valueKey = [];
-var lablArray = [];
-var hold = [];
-var allNodes = [];
-var allResults = [];
-var subsetNodes = [];
-var links = [];
-var nodes = [];
-var transformVar = "";
-var summaryHold = false;
-var selInteract = false;
-var modelCount = 0;
-var callHistory = []; // unique to the space. saves transform and subset calls.
-
-// transformation toolbar options
-var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
-
-// arry of objects containing allNode, zparams, transform vars
-var spaces = [];
-var trans = []; //var list for each space contain variables in original data plus trans in that space
-
-
-// load data from DDI just javascript
-//var xmlDoc=loadXMLDoc("data/strezhnev_voeten_2013.xml"); // Path to the XML file;
-//console.log(xmlDoc);
-
-//var vars = xmlDoc.getElementsByTagName("var");
-//console.log(vars); // each variable in the data
-//console.log(vars.length); // 109 of them
-
+//
 // read DDI metadata with d3:
 var metadataurl = "";
 if (ddiurl) {
@@ -265,11 +244,11 @@ if (ddiurl) {
     metadataurl=ddiurl;
 } else if (fileid) {
     // file id supplied; we're going to cook a standard dataverse
-    // metadata url, with the file id provided and the hostname 
+    // metadata url, with the file id provided and the hostname
     // supplied or configured:
     metadataurl="https://"+hostname+"/api/meta/datafile/"+fileid;
 } else {
-    // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with 
+    // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
     // the app, in the data directory:
     // metadataurl="data/qog137.xml"; // quality of government
     metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
@@ -281,56 +260,75 @@ if (ddiurl) {
     //metadataurl="data/0000.xml"; // zero vars in metadata
 }
 
-d3.xml(metadataurl, "application/xml", function(xml) {
-      var vars = xml.documentElement.getElementsByTagName("var");
-      var temp = xml.documentElement.getElementsByTagName("fileName");
-      zparams.zdata = temp[0].childNodes[0].nodeValue;
-  //    console.log(temp[0].childNodes[0].nodeValue);
-  //    console.log(temp);
-  //    console.log(zparams.zdata);
+// Reading the pre-processed metadata:
+// Pre-processed data:
+var pURL = "";
+if (dataurl) {
+    // data url is supplied
+    pURL = dataurl+"?format=prep";
+} else {
+    // no dataurl/file id supplied; use one of the sample data files distributed with the
+    // app in the "data" directory:
+    //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
+    pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
+    // pURL = "data/qog_pp.json";   // This is Qual of Gov
+}
+
+var preprocess = {};
+readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
+               d3.xml(metadataurl, "application/xml", function(xml) {
+                      var vars = xml.documentElement.getElementsByTagName("var");
+                      var temp = xml.documentElement.getElementsByTagName("fileName");
+                      zparams.zdata = temp[0].childNodes[0].nodeValue;
+                      //    console.log(temp[0].childNodes[0].nodeValue);
+                      //    console.log(temp);
+                      //    console.log(zparams.zdata);
+                      
+                      
+                      // dataset name trimmed to 12 chars
+                      var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
+                      // Put dataset name, from meta-data, into top panel
+                      d3.select("#datasetName").selectAll("h4")
+                      .html(dataname);
+                      
+                      
+                      // temporary values for hold that correspond to histogram bins
+                      hold = [.6, .2, .9, .8, .1, .3, .4];
+                      var myvalues = [0, 0, 0, 0, 0];
+                      
+                      for (i=0;i<vars.length;i++) {
+                      
+                      var sumStats = new Object;
+                      var varStats = [];
+                      valueKey[i] = vars[i].attributes.name.nodeValue;
+                      
+                      if(vars[i].getElementsByTagName("labl").length === 0) {lablArray[i]="no label";}
+                      else {lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;}
+                      
+                      var datasetcount = d3.layout.histogram()
+                      .bins(barnumber).frequency(false)
+                      (myvalues);
+                      
+                      varStats = vars[i].getElementsByTagName("sumStat");
+                      for (j=0; j<varStats.length; j++) {
+                      var myType = "";
+                      myType = varStats[j].getAttribute("type");
+                      if(myType==null) continue; // no sumStat
+                      sumStats[myType] = varStats[j].childNodes[0].nodeValue;
+                      //console.log(varStats[j]);
+                      }
+                      
+                      // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
+                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                      };
+                      
+                      scaffolding();
+                      layout();
+                      
+                      });
+               });
 
 
-    // dataset name trimmed to 12 chars
-       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
-      // Put dataset name, from meta-data, into top panel
-      d3.select("#datasetName").selectAll("h4")
-      .html(dataname);
-
-
-      // temporary values for hold that correspond to histogram bins
-      hold = [.6, .2, .9, .8, .1, .3, .4];
-      var myvalues = [0, 0, 0, 0, 0];
-
-    for (i=0;i<vars.length;i++) {
-       
-        var sumStats = new Object;
-        var varStats = [];
-        valueKey[i] = vars[i].attributes.name.nodeValue;
-       
-       if(vars[i].getElementsByTagName("labl").length === 0) {lablArray[i]="no label";}
-       else {lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;}
-       
-        var datasetcount = d3.layout.histogram()
-        .bins(barnumber).frequency(false)
-        (myvalues);
-       
-       varStats = vars[i].getElementsByTagName("sumStat");
-       for (j=0; j<varStats.length; j++) {
-            var myType = "";
-            myType = varStats[j].getAttribute("type");
-            if(myType==null) continue; // no sumStat
-            sumStats[myType] = varStats[j].childNodes[0].nodeValue;
-       //console.log(varStats[j]);
-       }
-
-       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-       allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
-       };
-     
-       scaffolding();
-       layout();
-       
-       });
 
 // to be called after valueKey (array of variable names) is updated or initialized
 function scaffolding(v) {
