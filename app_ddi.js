@@ -28,6 +28,8 @@ if (fileid && !dataurl) {
     // as an argument -- L.A.)
 }
 
+dataurl = dataurl+"?key="+apikey;
+
 // base URL for the R apps: 
 var rappURL = "http://0.0.0.0:8000/custom/";
 
@@ -209,7 +211,7 @@ if (ddiurl) {
 var pURL = "";
 if (dataurl) {
     // data url is supplied
-    pURL = dataurl+"?format=prep";
+    pURL = dataurl+"&format=prep";
 } else {
     // no dataurl/file id supplied; use one of the sample data files distributed with the
     // app in the "data" directory:
