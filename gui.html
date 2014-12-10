@@ -293,6 +293,9 @@
   var ddiurl="";
   if (myurl.indexOf("ddiurl=") > 0) {
     ddiurl=myurl.substring(myurl.indexOf("ddiurl=")+7);
+    ddiurl=ddiurl.replace(/%25/g,"%");
+    ddiurl=ddiurl.replace(/%3A/g,":");
+    ddiurl=ddiurl.replace(/%2F/g,"/");
     cindex=ddiurl.indexOf("&");
     if (cindex > 0) {
       ddiurl=ddiurl.substring(0,cindex);
@@ -301,6 +304,9 @@
   var dataurl="";
   if (myurl.indexOf("dataurl=") > 0) {
     dataurl=myurl.substring(myurl.indexOf("dataurl=")+8);
+    dataurl=dataurl.replace(/%25/g,"%");
+    dataurl=dataurl.replace(/%3A/g,":");
+    dataurl=dataurl.replace(/%2F/g,"/");
     cindex=dataurl.indexOf("&");
     if (cindex > 0) {
       dataurl=dataurl.substring(0,cindex);
