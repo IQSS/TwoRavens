@@ -290,6 +290,14 @@
       hostname=hostname.substring(0,cindex);
     };
   };
+  var apikey="";
+  if (myurl.indexOf("key=") > 0) {
+    apikey=myurl.substring(myurl.indexOf("key=")+4);
+    cindex=apikey.indexOf("&");
+    if (cindex > 0) {
+      apikey=apikey.substring(0,cindex);
+    };
+  };
   var ddiurl="";
   if (myurl.indexOf("ddiurl=") > 0) {
     ddiurl=myurl.substring(myurl.indexOf("ddiurl=")+7);
@@ -316,6 +324,7 @@
 
   console.log("fileid: "+fileid);
   console.log("hostname: "+hostname);
+  console.log("apikey: "+apikey);
   console.log("ddiurl: "+ddiurl);
   console.log("dataurl: "+dataurl);
   
