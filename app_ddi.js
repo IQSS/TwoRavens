@@ -24,11 +24,11 @@ if (fileid && !dataurl) {
     // with the fileid supplied and the hostname we have
     // either supplied or configured:
     dataurl = "https://"+hostname+"/api/access/datafile/"+fileid;
+    dataurl = dataurl+"?key="+apikey;
     // (it is also possible to supply dataurl to the script directly, 
     // as an argument -- L.A.)
 }
 
-dataurl = dataurl+"?key="+apikey;
 
 // base URL for the R apps: 
 var rappURL = "http://0.0.0.0:8000/custom/";
@@ -2459,6 +2459,7 @@ function subsetSelect(btn) {
 }
 
 function readPreprocess(url, p, v, callback) {
+    console.log(url);
     d3.json(url, function(error, json) {
             if (error) return console.warn(error);
             var jsondata = json;
