@@ -9,15 +9,24 @@
 production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
 
 if(!production){
-   packageList<-c("Rook","Zelig","jsonlite","rjson")
+   packageList<-c("Zelig","Rook","jsonlite","rjson")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
        if (!require(packageList[i],character.only = TRUE)){
+           if(packageList[i]=="Zelig") {
+               install.packages("Zelig", type="source", repos="http://r.iq.harvard.edu")
+               next
+           }
            install.packages(packageList[i], repos="http://lib.stat.cmu.edu/R/CRAN/")
        }
    }
    update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
+}
+
+# check to make sure we have Zelig 5 installed, if not, install Zelig 5 from r.iq
+if(package_version(packageVersion("Zelig"))$major != 5) {
+    install.packages("Zelig", type="source", repos="http://r.iq.harvard.edu")
 }
 
 #!/usr/bin/env Rscript
@@ -73,7 +82,7 @@ zelig.app <- function(env){
     
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
-
+print("HERE")
     everything <- jsonlite::fromJSON(request$POST()$solaJSON)
     print(everything)
 
