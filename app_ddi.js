@@ -1415,7 +1415,7 @@ function estimate(btn) {
     }
 
     estimateLadda.start();  // start spinner
-    makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail, solajsonout);
+    makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail, solajsonout); 
     makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail, solajsonout);
 
     
@@ -1761,6 +1761,7 @@ function createCORSRequest(method, url, callback) {
         // CORS not supported.
         xhr = null;
     }
+    xhr.setRequestHeader('Content-Type', 'text/plain');
     return xhr;
     
 }
@@ -1805,7 +1806,6 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
         estimateLadda.stop();
         selectLadda.stop();
     };
-    
     xhr.send(jsonstring);
 }
 
