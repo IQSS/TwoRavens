@@ -1416,7 +1416,7 @@ function estimate(btn) {
 
     estimateLadda.start();  // start spinner
     makeCorsRequest(urlcall,btn, estimateSuccess, estimateFail, solajsonout); 
-    makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail, solajsonout);
+    //makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail, solajsonout);
 
     
 }
