@@ -5,8 +5,16 @@
 ##
 
 
-
 production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+
+
+if(production){
+    sink(file = stderr(), type = "output")
+    print("system time at source: ")
+    print(Sys.time())
+    sink()
+}
+
 
 if(!production){
    packageList<-c("VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools")
@@ -20,8 +28,12 @@ if(!production){
    update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
 }
 
+library(Rook)
+library(rjson)
+library(jsonlite)
 library(devtools)
-if(!require("Zelig", character.only=TRUE)) {
+
+if(!("Zelig" %in% rownames(installed.packages()))) {
     install_github("IQSS/Zelig")
 } else if(package_version(packageVersion("Zelig"))$major != 5) {
     install_github("IQSS/Zelig")
@@ -29,17 +41,12 @@ if(!require("Zelig", character.only=TRUE)) {
 
 #!/usr/bin/env Rscript
 
-library(Rook)
 library(Zelig)
-library(rjson)
-library(jsonlite)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
-    #myInterface <- "127.0.0.1"
-    #myInterface <- "140.247.0.42"
     status <- -1
     status<-.Call(tools:::startHTTPD, myInterface, myPort)
 
@@ -52,9 +59,6 @@ if(!production){
     #    assign("httpdPort", myPort, environment(tools:::startDynamicHelp))
     #}
 
-    ## maybe something like this gets around the access-control limits of CRAN?
-    #R.server$add(name = "solafide", app = "/Users/vjdorazio/Desktop/github/ZeligGUI/ZeligGUI/app_ddi.js") ...but not an app...
-
     R.server <- Rhttpd$new()
 
 
@@ -62,7 +66,6 @@ if(!production){
     R.server$add(app = File$new(getwd()), name = "pic_dir")
     print(R.server)
 
-    # vjd: added port=myPort
     R.server$start(listen=myInterface, port=myPort)
     R.server$listenAddr <- myInterface
     R.server$listenPort <- myPort
@@ -85,6 +88,7 @@ zelig.app <- function(env){
     print(everything)
 
     warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
+    result <-list()
 
 	if(!warning){
 		mydv <- everything$zdv
@@ -210,60 +214,41 @@ zelig.app <- function(env){
             almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
 
             print(summary(z.out))
-            assign("z.out", z.out, envir=globalenv())  # Zelig4 Error with Environments
-        
+
             eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
-            assign("x.out", x.out, envir=globalenv())  # Zelig4 Error with Environments
-        
+
             if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
                 eval(parse(text=setxCall[2]))
-                assign("x.alt", x.alt, envir=globalenv())  # Zelig4 Error with Environments
-            }
-        
-            if(length(setxCall)==1) { # there is no x.alt
+            } else if(length(setxCall)==1) { # there is no x.alt
                 print(x.out)
+                print(setxCall)
                 s.out <- sim(z.out, x=x.out)
-            }
-            else {
+            } else {
+                print(x.out)
                 s.out <- sim(z.out, x=x.out, x1=x.alt)
             }
-            assign("s.out", s.out, envir=globalenv())  # Zelig4 Error with Environments
-            qicount<-0
-            imageVector<-list()
-            for(i in 1:length(s.out$qi)){
-                if(!is.na(s.out$qi[[i]][1])){       # Should find better way of determining if empty
-                    qicount<-qicount+1
-                    if(production){
-                        mypath<-"/var/www/html/custom/pic_dir"
-                        png(file.path(mypath, paste("output",mymodelcount,qicount,".png",sep="")))
-                    }else{
-                        png(file.path(getwd(), paste("output",mymodelcount,qicount,".png",sep="")))
-                    }
-                    Zelig:::simulations.plot(s.out$qi[[i]], main=names(s.out$qi)[i])  #from the Zelig library
-                    dev.off()
-                    if(production){
-                        imageVector[[qicount]]<-paste("http://dataverse-demo.iq.harvard.edu:8008/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
-                    }else{
-                        imageVector[[qicount]]<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
-                    }
-                }
+            
+            if(production){
+                mypath <- "/var/www/html/custom/pic_dir"
+                plotpath <- "png(file.path(mypath, paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
+            }else{
+                plotpath <- "png(file.path(getwd(), paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }
+            
+            # zplots() recreates Zelig plots
+            images <- zplots(s.out, plotpath, mymodelcount)
 
-            if(qicount>0){
-                names(imageVector)<-paste("output",1:length(imageVector),sep="")
-                result<-list(images=imageVector, call=almostCall)
-                assign("result", result, envir=globalenv())
-                #names(result)<-paste("output",1:length(result),sep="")
+            if(length(images)>0){
+                names(images)<-paste("output",1:length(images),sep="")
+                result<-list(images=images, call=almostCall)
             }else{
                 warning<-TRUE
                 result<-list(warning="There are no Zelig output graphs to show.")
-                assign("result", result, envir=globalenv())
             }
         },
         error=function(err){
-            warning <<- TRUE ## assign up the scope
-            result <- list(warning=paste("Zelig error: ", err))
-            assign("result", result, envir=globalenv())
+            warning <<- TRUE ## assign up the scope bc inside function
+            result <<- list(warning=paste("Zelig error: ", err))
         })
 	}
 
@@ -293,6 +278,13 @@ zelig.app <- function(env){
     #x.out <- setx(z.out)
     #s.out <- sim(z.out, x.out) # fail
     
+    #mydata <- read.delim("../data/fearonLaitin.tsv")
+    #mydata <- mydata[,c("war", "lpop")]
+    #mydata <- na.omit(mydata)
+    #z.out <- zelig(war~lpop, model="logit", data=mydata)
+    #x.out <- setx(z.out)
+    #s.out <- sim(z.out, x.out) # fail
+    
     #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
     #  imageVector <- "image"
     #  almostCall <- "call"
@@ -301,8 +293,9 @@ zelig.app <- function(env){
 
     ## NOTE: z.out not guaranteed to exist, if some warning is tripped above.
     if(!warning){
-        summaryMatrix <- summary(z.out)$coefficients
-        # sumColName <- c(" ",colnames(summaryMatrix))
+
+        summaryMatrix <- summary(z.out$zelig.out$z.out[[1]])$coefficients
+        
         sumColName <- c(" ", "Estimate", "SE", "t-value", "Pr(<|t|)")
         sumInfo <- list(colnames=sumColName)
     
@@ -865,13 +858,87 @@ executeHistory <- function (history, data) {
 }
 
 
-source("rookselector.R")
+# Code mostly from Zelig's plots.R function plot.qi(). Eventually, Zelig will implement a more general solution where each plot is stored in the Zelig object.
+zplots <- function(obj, path, mymodelcount){
+    
+    writeplot <- function(exec, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles) {
+        qicount <<- qicount+1
+        qicount<-qicount+1
+        
+        eval(parse(text=path))
+        eval(parse(text=exec))
+        dev.off()
+        
+        if(production){
+            imageVector[[qicount]]<<-paste("https://dataverse-internal.iq.harvard.edu/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
+        }else{
+            imageVector[[qicount]]<<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
+        }
+    }
+    
+    qicount<-0
+    imageVector<-list()
+    
+    # Determine whether two "Expected Values" qi's exist
+    both.ev.exist <- (length(obj$sim.out$x$ev)>0) & (length(obj$sim.out$x1$ev)>0)
+    # Determine whether two "Predicted Values" qi's exist
+    both.pv.exist <- (length(obj$sim.out$x$pv)>0) & (length(obj$sim.out$x1$pv)>0)
+    
+    color.x <- rgb(242, 122, 94, maxColorValue=255)
+    color.x1 <- rgb(100, 149, 237, maxColorValue=255)
+    # Interpolation of the above colors in rgb color space:
+    color.mixed <- rgb(t(round((col2rgb(color.x) + col2rgb(color.x1))/2)), maxColorValue=255)
+    
+    titles <- obj$setx.labels
+    
+    # Plot each simulation
+    if(length(obj$sim.out$x$pv)>0) {
+        execMe <- "Zelig::simulations.plot(obj$sim.out$x$pv[[1]], main = titles$pv, col = color.x, line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(length(obj$sim.out$x1$pv)>0) {
+        execMe <- "Zelig::simulations.plot(obj$sim.out$x1$pv[[1]], main = titles$pv1, col = color.x1, line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(length(obj$sim.out$x$ev)>0) {
+        execMe <- "Zelig::simulations.plot(obj$sim.out$x$ev[[1]], main = titles$ev, col = color.x, line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(length(obj$sim.out$x1$ev)>0) {
+        execMe <- "Zelig::simulations.plot(obj$sim.out$x1$ev[[1]], main = titles$ev1, col = color.x1, line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(length(obj$sim.out$x1$fd)>0) {
+        execMe <- "Zelig::simulations.plot(obj$sim.out$x1$fd[[1]], main = titles$fd, col = color.mixed, line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(both.pv.exist) {
+        execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$pv[[1]], y1=obj$sim.out$x1$pv[[1]], main = \"Comparison of Y|X and Y|X1\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+    
+    if(both.ev.exist) {
+        execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$ev[[1]], y1=obj$sim.out$x1$ev[[1]], main = \"Comparison of E(Y|X) and E(Y|X1)\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
+        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+    }
+ 
+    return(imageVector)
+}
+
+
+
+#source("rookselector.R")
 
 if(!production){
     R.server$add(app = zelig.app, name = "zeligapp")
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
-    R.server$add(app = selector.app, name="selectorapp")
+    #   R.server$add(app = selector.app, name="selectorapp")
     print(R.server)
 }
 
