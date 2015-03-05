@@ -1453,7 +1453,7 @@ function dataDownload() {
     
     function downloadSuccess(btn, json) {
         console.log("dataDownload json in: ", json);
-        if(production) {zparams.zsessionid=json.sessionid[0]};
+        zparams.zsessionid=json.sessionid[0];
     }
     
     function downloadFail(btn) {

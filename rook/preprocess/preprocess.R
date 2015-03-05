@@ -1,7 +1,7 @@
 ##
 ##  preprocess.r
 ##
-##  10/3/14
+##  3/3/15
 ##
 
 
@@ -11,7 +11,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
     
     if(!is.null(testdata)){
         mydata<-testdata
-    }else{
+    }else{ # VJD: I don't believe this is ever used or needed
         path<-paste("http://",hostname,"/api/access/datafile/",fileid,sep="")
         mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)
         #mydata<-getDataverse(hostname=hostname, fileid=fileid) #could use this function if we set up a common set of utilities with the rook code.

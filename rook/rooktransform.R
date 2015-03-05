@@ -23,8 +23,16 @@ transform.app <- function(env){
     warning<-FALSE
     
     if(!warning){
+        mysessionid <- everything$zsessionid
+        if(mysessionid==""){
+            warning <- TRUE
+            result <- list(warning="No session id.")
+        }
+    }
+    
+    if(!warning){
         if(production){
-            mydata <- readData(sessionid=everything$zsessionid)
+            mydata <- readData(sessionid=mysessionid)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
@@ -69,7 +77,7 @@ transform.app <- function(env){
         
         # preprocess just one variable
         colnames(tdata) <- call
-        purl <- pCall(data=tdata, production)
+        purl <- pCall(data=tdata, production, sessionid=mysessionid)
         result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl, trans=c(myvars,myT)))
         },
         error=function(err){

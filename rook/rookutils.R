@@ -188,21 +188,17 @@ Mode <- function(x) {
     ux[which.max(tabulate(match(x, ux)))]
 }
 
-pCall <- function(data,production) {
+pCall <- function(data,production,sessionid) {
     pjson<-preprocess(testdata=data)
-    # Commenting-out the "production" clause for the location of the subset file, *for now*;
-    # Eventually, we need to be able to retrieve the subest file over HTTP from rApache; 
-    # because if rApache is running on a different server from where TwoRavens is served, 
-    # it won't be able to write the subset file directly into the data directory, as below!
-    # 	-- L.A. 
-    #if(production){
-    #    subsetfile <- "/var/www/html/rookzelig/data/preprocessSubset.txt"
-    #    write(pjson,file=subsetfile)
-    #    url <- "http://dataverse-demo.iq.harvard.edu:8008/rookzelig/data/preprocessSubset.txt"
-    #}else{
-        url <- "data/preprocessSubset.txt"   # only one subset stored at a time, eventually these will be saved? or maybe just given unique names?
+   
+    if(production){
+        subsetfile <- paste("/var/www/html/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
+        write(pjson,file=subsetfile)
+        url <- paste("https://dataverse-internal.iq.harvard.edu/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
+    }else{
+        url <- paste("data/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=paste("../",url, sep=""))
-    #}
+    }
     return(url)
 }
 

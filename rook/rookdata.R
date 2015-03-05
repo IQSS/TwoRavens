@@ -31,9 +31,9 @@ data.app <- function(env){
       }
   }
   
-  if(production & !warning){
+  if(!warning){
       
-          # this will generate a unique id on the system. getData() is called by rookdata.R, which is the app that is called when TwoRavens is loaded (the "Explore" button is clicked). This downloads the data in the background to /tmp/ while the user is specifying a model. /tmp/ will be wiped every so often or after inactivity.
+          # this will generate a unique id on the system for Mac/Unix. Might need something else for other systems. getData() is called by rookdata.R, which is the app that is called when TwoRavens is loaded (the "Explore" button is clicked). This downloads the data in the background to /tmp/ while the user is specifying a model. /tmp/ will be wiped every so often or after inactivity.
           myid <- system("uuidgen",intern=T)
           
           # We discovered that R's read.delim() method does not work with https URLs.
@@ -42,13 +42,17 @@ data.app <- function(env){
           # If anyone knows of a prettier way of doing this - please change it accordingly...
           # -- L.A.
           #mydata<-tryCatch(expr=read.delim(file=dataurl), error=function(e) NULL)  # if data is not readable, NULL
-          tryCatch({
-              download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl")
+          if(production) {
+              tryCatch({
+                  download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl")
+                  result <- list(sessionid=myid)
+              }, error=function(e) {
+                  result <<- list(warning="Error: Cannot download from Dataverse.") # if the url is not readable, NULL
+              })
+          } else {
               result <- list(sessionid=myid)
-          }, error=function(e) {
-              result <<- list(warning="Error: Cannot download from Dataverse.") # if the url is not readable, NULL
-          })
-    }
+          }
+  }
 
     print(result)
     if(production){

@@ -22,8 +22,16 @@ subset.app <- function(env){
     warning<-FALSE
     
     if(!warning){
+        mysessionid <- everything$zsessionid
+        if(mysessionid==""){
+            warning <- TRUE
+            result <- list(warning="No session id.")
+        }
+    }
+    
+    if(!warning){
         if(production){
-            mydata <- readData(sessionid=everything$zsessionid)
+            mydata <- readData(sessionid=mysessionid)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
@@ -90,7 +98,7 @@ subset.app <- function(env){
         }
     
         # send preprocess new usedata and receive url with location
-        purl <- pCall(data=usedata, production)
+        purl <- pCall(data=usedata, production, sessionid=mysessionid)
         #purl <- "test"
         result<- jsonlite:::toJSON(c(sumstats,list(url=purl, call=call)))
     },
