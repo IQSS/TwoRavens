@@ -85,7 +85,7 @@ var grayColor = '#c0c0c0';
 var lefttab = "tab1"; //global for current tab in left panel
 var righttab = "btnModels"; // global for current tab in right panel
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[]};
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[], zsessionid:""};
 
 
 // Radius of circle
@@ -223,7 +223,7 @@ if (dataurl) {
 var preprocess = {};
 var mods = new Object;
 
-// this is the function and callback routine that loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig)
+// this is the function and callback routine that loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
 readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                d3.xml(metadataurl, "application/xml", function(xml) {
                       var vars = xml.documentElement.getElementsByTagName("var");
@@ -294,7 +294,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                                       }
                                       
                                       scaffolding(callback=layout);
-                                      
+                                      dataDownload();
                                       });
                               });
                       });
@@ -1421,6 +1421,36 @@ function estimate(btn) {
     
 }
 
+
+function dataDownload() {
+    zPop();
+    // write links to file & run R CMD
+    
+    //package the output as JSON
+    // add call history and package the zparams object as JSON
+    var jsonout = JSON.stringify(zparams);
+    var btn="nobutton";
+    
+    //var base = rappURL+"zeligapp?solaJSON="
+    urlcall = rappURL+"dataapp"; //base.concat(jsonout);
+    var solajsonout = "solaJSON="+jsonout;
+    console.log("urlcall out: ", urlcall);
+    console.log("POST out: ", solajsonout);
+    
+    function downloadSuccess(btn, json) {
+        console.log("dataDownload json in: ", json);
+        zparams.zsessionid=json.sessionid[0];
+    }
+    
+    function downloadFail(btn) {
+        console.log("Data have not been downloaded");
+    }
+    
+    makeCorsRequest(urlcall,btn, downloadSuccess, downloadFail, solajsonout);
+}
+
+
+
 function viz(m) {
     var mym = +m.substr(5,5) - 1;
     
@@ -1761,7 +1791,8 @@ function createCORSRequest(method, url, callback) {
         // CORS not supported.
         xhr = null;
     }
-    xhr.setRequestHeader('Content-Type', 'text/plain');
+//    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     return xhr;
     
 }

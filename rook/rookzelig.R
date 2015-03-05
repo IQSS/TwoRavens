@@ -16,7 +16,10 @@ zelig.app <- function(env){
     
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
+    
+        
     everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+    
 
     print(everything)
 
@@ -78,7 +81,7 @@ zelig.app <- function(env){
 
 	if(!warning){
         if(production){
-            mydata <- getData(dataurl=everything$zdataurl)
+            mydata <- readData(sessionid=everything$zsessionid)
         }else{
             # This is the Strezhnev Voeten data:
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
@@ -86,10 +89,6 @@ zelig.app <- function(env){
             mydata <- read.delim("../data/fearonLaitin.tsv")
             #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
-		if(is.null(mydata)){
-			warning <- TRUE
-			result<-list(warning="Dataset not loadable from Dataverse")
-		}
 	}
 
     if(!warning){
@@ -152,7 +151,8 @@ zelig.app <- function(env){
 
             if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
                 eval(parse(text=setxCall[2]))
-            } else if(length(setxCall)==1) { # there is no x.alt
+            }
+            if(length(setxCall)==1) { # there is no x.alt
                 print(x.out)
                 print(setxCall)
                 s.out <- sim(z.out, x=x.out)
@@ -162,8 +162,7 @@ zelig.app <- function(env){
             }
             
             if(production){
-                mypath <- "/var/www/html/custom/pic_dir"
-                plotpath <- "png(file.path(mypath, paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
+                plotpath <- "png(file.path(\"/var/www/html/custom/pic_dir\", paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }else{
                 plotpath <- "png(file.path(getwd(), paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }

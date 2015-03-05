@@ -23,16 +23,12 @@ subset.app <- function(env){
     
     if(!warning){
         if(production){
-            mydata <- getData(dataurl=everything$zdataurl)
+            mydata <- readData(sessionid=everything$zsessionid)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
             #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
-		if(is.null(mydata)){
-			warning <- TRUE
-			result<-list(warning="Dataset not loadable from Dataverse")
-		}
 	}
     
     if(!warning){

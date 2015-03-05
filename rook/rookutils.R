@@ -15,16 +15,15 @@ terminate<-function(response,warning){
     stop()
 }
 
-getData<-function(dataurl){
-    # We discovered that R's read.delim() method does not work with https URLs. 
-    # So I worked around it with the hack below - I first download the tab-delimited file and 
-    # save it locally, using download.file() method; then read the local file with read.delim. 
-    # If anyone knows of a prettier way of doing this - please change it accordingly... 
-    # -- L.A. 
-    #mydata<-tryCatch(expr=read.delim(file=dataurl), error=function(e) NULL)  # if data is not readable, NULL
-    tryCatch(expr=download.file(dataurl,destfile = "/tmp/temp.tab",method="curl"), error=function(e) NULL) # if the url is not readable, NULL
-    mydata<-tryCatch(expr=read.delim(file="/tmp/temp.tab"), error=function(e) NULL)  # if data is not readable, NULL
-    return(mydata)
+readData <- function(sessionid){
+    tryCatch({
+        mydata<-NULL
+        mydata<-read.delim(file=paste("/tmp/data_",sessionid,".tab",sep=""))
+    }, error=function(err){
+        warning <<- TRUE ## assign up the scope bc inside function
+        result <<- list(warning=paste("R data loading error: ", err))
+    })  # if data is not readable, returns a warning and an error
+    return(mydata) #note mydata might be NULL
 }
 
 getDataFromDataverse<-function(hostname, fileid){
