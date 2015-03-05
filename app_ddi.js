@@ -1328,7 +1328,7 @@ function estimate(btn) {
     
     if(production && zparams.zessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
-        return();
+        return;
     }
 
     zPop();
@@ -1453,7 +1453,7 @@ function dataDownload() {
     
     function downloadSuccess(btn, json) {
         console.log("dataDownload json in: ", json);
-        zparams.zsessionid=json.sessionid[0];
+        if(production) {zparams.zsessionid=json.sessionid[0]};
     }
     
     function downloadFail(btn) {
@@ -1606,7 +1606,7 @@ function transform(n,t) {
     
     if(production && zparams.zessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
-        return();
+        return;
     }
 
     t = t.replace("+", "_plus_"); // can't send the plus operator
@@ -2363,7 +2363,7 @@ function subsetSelect(btn) {
     
     if(production && zparams.zessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
-        return();
+        return;
     }
     
     zparams.zvars = [];
