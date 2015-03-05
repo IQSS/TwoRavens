@@ -13,9 +13,14 @@
 // will go the old route - will try to cook standard dataverse urls 
 // for both the data and metadata, if the file id is supplied; or the 
 // local files if nothing is supplied. 
-// -- L.A. 
-if (!hostname) {
+// -- L.A.
+
+var production=false;
+
+if (!hostname && !production) {
        hostname="localhost:8080";
+} else if (!hostname && production) {
+    hostname="dataverse-internal.iq.harvard.edu"; //this will change when/if the production host changes
 }
 
 if (fileid && !dataurl) {
@@ -29,9 +34,12 @@ if (fileid && !dataurl) {
     // as an argument -- L.A.)
 }
 
-
-// base URL for the R apps: 
-var rappURL = "http://0.0.0.0:8000/custom/";
+if (!production) {
+    // base URL for the R apps:
+    var rappURL = "http://0.0.0.0:8000/custom/";
+} else {
+    var rappURL = "https://dataverse-internal.iq.harvard.edu/custom/"; //this will change when/if the production host changes
+}
 
 // space index
 var myspace = 0;
@@ -1317,6 +1325,12 @@ function zPop() {
 }
 
 function estimate(btn) {
+    
+    if(production && zparams.zessionid=="") {
+        alert("Warning: Data download is not complete. Try again soon.");
+        return();
+    }
+
     zPop();
     // write links to file & run R CMD
     
@@ -1589,6 +1603,12 @@ function transParse(n) {
 }
 
 function transform(n,t) {
+    
+    if(production && zparams.zessionid=="") {
+        alert("Warning: Data download is not complete. Try again soon.");
+        return();
+    }
+
     t = t.replace("+", "_plus_"); // can't send the plus operator
     
     console.log(n);
@@ -1597,7 +1617,7 @@ function transform(n,t) {
     var btn = document.getElementById('btnEstimate');
     
     //package the output as JSON
-    var transformstuff = {zdataurl:dataurl, zvars:n, transform:t, callHistory:callHistory};
+    var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory};
     var jsonout = JSON.stringify(transformstuff);
     //var base = rappURL+"transformapp?solaJSON="
     
@@ -2339,7 +2359,12 @@ function subsetSelect(btn) {
 
     if (dataurl) {
 	zparams.zdataurl = dataurl;
-    } 
+    }
+    
+    if(production && zparams.zessionid=="") {
+        alert("Warning: Data download is not complete. Try again soon.");
+        return();
+    }
     
     zparams.zvars = [];
     zparams.zplot = [];
@@ -2360,7 +2385,7 @@ function subsetSelect(btn) {
         return;
     }
     
-    var subsetstuff = {zdataurl:zparams.zdataurl, zvars:zparams.zvars, zsubset:zparams.zsubset, zplot:zparams.zplot, callHistory:callHistory};
+    var subsetstuff = {zdataurl:zparams.zdataurl, zvars:zparams.zvars, zsubset:zparams.zsubset, zsessionid:zparams.zsessionid, zplot:zparams.zplot, callHistory:callHistory};
     
     var jsonout = JSON.stringify(subsetstuff);
     //var base = rappURL+"subsetapp?solaJSON="
