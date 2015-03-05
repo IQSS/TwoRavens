@@ -374,37 +374,37 @@ zplots <- function(obj, path, mymodelcount, mysessionid){
     # Plot each simulation
     if(length(obj$sim.out$x$pv)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x$pv[[1]], main = titles$pv, col = color.x, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(length(obj$sim.out$x1$pv)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$pv[[1]], main = titles$pv1, col = color.x1, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(length(obj$sim.out$x$ev)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x$ev[[1]], main = titles$ev, col = color.x, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(length(obj$sim.out$x1$ev)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$ev[[1]], main = titles$ev1, col = color.x1, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(length(obj$sim.out$x1$fd)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$fd[[1]], main = titles$fd, col = color.mixed, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(both.pv.exist) {
         execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$pv[[1]], y1=obj$sim.out$x1$pv[[1]], main = \"Comparison of Y|X and Y|X1\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
     
     if(both.ev.exist) {
         execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$ev[[1]], y1=obj$sim.out$x1$ev[[1]], main = \"Comparison of E(Y|X) and E(Y|X1)\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
     }
  
     return(imageVector)
