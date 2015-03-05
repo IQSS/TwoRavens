@@ -78,10 +78,18 @@ zelig.app <- function(env){
 		#	result<-list(warning="Problem creating edges.")
 		#}
 	}
+    
+    if(!warning){
+        mysessionid <- everything$zsessionid
+        if(mysessionid==""){
+            warning <- TRUE
+            result <- list(warning="No session id.")
+        }
+    }
 
 	if(!warning){
         if(production){
-            mydata <- readData(sessionid=everything$zsessionid)
+            mydata <- readData(sessionid=mysessionid)
         }else{
             # This is the Strezhnev Voeten data:
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
@@ -162,13 +170,13 @@ zelig.app <- function(env){
             }
             
             if(production){
-                plotpath <- "png(file.path(\"/var/www/html/custom/pic_dir\", paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
+                plotpath <- "png(file.path(\"/var/www/html/custom/pic_dir\", paste(mysessionid,\"_\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }else{
                 plotpath <- "png(file.path(getwd(), paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }
             
             # zplots() recreates Zelig plots
-            images <- zplots(s.out, plotpath, mymodelcount)
+            images <- zplots(s.out, plotpath, mymodelcount, mysessionid)
 
             if(length(images)>0){
                 names(images)<-paste("output",1:length(images),sep="")

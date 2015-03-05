@@ -339,7 +339,7 @@ executeHistory <- function (history, data) {
 
 
 # Code mostly from Zelig's plots.R function plot.qi(). Eventually, Zelig will implement a more general solution where each plot is stored in the Zelig object.
-zplots <- function(obj, path, mymodelcount){
+zplots <- function(obj, path, mymodelcount, sessionid){
     
     writeplot <- function(exec, path, mymodelcount, qicount, color.x, color.x1, color.mixed, titles) {
         qicount <<- qicount+1
@@ -350,7 +350,7 @@ zplots <- function(obj, path, mymodelcount){
         dev.off()
         
         if(production){
-            imageVector[[qicount]]<<-paste("https://dataverse-internal.iq.harvard.edu/custom/pic_dir", "/output",mymodelcount,qicount,".png", sep = "")
+            imageVector[[qicount]]<<-paste("https://dataverse-internal.iq.harvard.edu/custom/pic_dir/", sessionid,"_",mymodelcount,qicount,".png", sep = "")
         }else{
             imageVector[[qicount]]<<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
         }
