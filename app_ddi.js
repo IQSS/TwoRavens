@@ -1326,7 +1326,7 @@ function zPop() {
 
 function estimate(btn) {
     
-    if(production && zparams.zessionid=="") {
+    if(production && zparams.zsessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
@@ -1604,7 +1604,7 @@ function transParse(n) {
 
 function transform(n,t) {
     
-    if(production && zparams.zessionid=="") {
+    if(production && zparams.zsessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
@@ -2361,7 +2361,7 @@ function subsetSelect(btn) {
 	zparams.zdataurl = dataurl;
     }
     
-    if(production && zparams.zessionid=="") {
+    if(production && zparams.zsessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
