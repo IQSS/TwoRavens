@@ -1700,7 +1700,6 @@ function transform(n,t) {
                 function offspaceFail(btn) {
                     alert("transform fail");
                 }
-                f
                 makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail, solajsonout);
             }
             
