@@ -24,6 +24,7 @@ transform.app <- function(env){
     
     if(!warning){
         mysessionid <- everything$zsessionid
+        #mylogfile<-logFile(mysessionid)
         if(mysessionid==""){
             warning <- TRUE
             result <- list(warning="No session id.")
@@ -32,7 +33,7 @@ transform.app <- function(env){
     
     if(!warning){
         if(production){
-            mydata <- readData(sessionid=mysessionid)
+            mydata <- readData(sessionid=mysessionid,logfile=mylogfile)
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")

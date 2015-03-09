@@ -15,10 +15,12 @@ terminate<-function(response,warning){
     stop()
 }
 
-readData <- function(sessionid){
+readData <- function(sessionid,logfile){
     tryCatch({
         mydata<-NULL
         mydata<-read.delim(file=paste("/tmp/data_",sessionid,".tab",sep=""))
+        write(deparse(bquote(mydata<-read.delim(file=.(paste("/tmp/data_",sessionid,".tab",sep=""))))),logfile,append=TRUE)
+
     }, error=function(err){
         warning <<- TRUE ## assign up the scope bc inside function
         result <<- list(warning=paste("R data loading error: ", err))
@@ -405,4 +407,23 @@ zplots <- function(obj, path, mymodelcount, mysessionid){
  
     return(imageVector)
 }
+
+logFile <- function(sessionid, production){
+    if(production){
+        outfile<-paste("/var/www/html/custom/log_dir/log_",sessionid,".txt",sep="")
+    } else {
+        outfile<-paste("log_",sessionid,".txt",sep="")
+    }
+    return(outfile)
+}
+
+logSessionInfo <- function(logfile, sessionid){
+    sink(file = logfile, append=TRUE, type = "output")
+    print(sessionInfo())
+    sink(file = stderr(), type = "output")
+    
+    write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
+}
+
+
 

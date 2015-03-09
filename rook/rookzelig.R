@@ -81,6 +81,7 @@ zelig.app <- function(env){
     
     if(!warning){
         mysessionid <- everything$zsessionid
+        mylogfile<-logFile(mysessionid, production)
         if(mysessionid==""){
             warning <- TRUE
             result <- list(warning="No session id.")
@@ -89,12 +90,13 @@ zelig.app <- function(env){
 
 	if(!warning){
         if(production){
-            mydata <- readData(sessionid=mysessionid)
+            mydata <- readData(sessionid=mysessionid,logfile=mylogfile)
         }else{
             # This is the Strezhnev Voeten data:
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             # This is the Fearon Laitin data:
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            write("mydata <- read.delim(\"../data/fearonLaitin.tsv\")",mylogfile,append=TRUE)
             #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 	}
@@ -109,6 +111,10 @@ zelig.app <- function(env){
     
     if(!warning){
         history <- everything$callHistory
+        
+        t<-jsonlite::toJSON(history)
+        write(deparse(bquote(historyistory<-jsonlite::fromJSON(.(t)))),mylogfile,append=TRUE)
+        
         if(is.null(history)){
             warning<-TRUE
             result<-list(warning="callHistory is null.")
@@ -137,11 +143,15 @@ zelig.app <- function(env){
           
           ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
           mydata <- executeHistory(data=mydata, history=history)
+          write("mydata <- executeHistory(data=mydata, history=history)",mylogfile,append=TRUE)
           
           ## 2. additional subset of the data in the event that a user wants to estimate a model on the subset, but hasn't "selected" on the subset. that is, just brushed the region, does not press "Select", and presses "Estimate"
           usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
           usedata <- refactor(usedata) # when data is subset, factors levels do not update, and this causes an error in zelig's setx(). refactor() is a quick fix
+          write("usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)",mylogfile,append=TRUE)
+          write("usedata <- refactor(usedata))",mylogfile,append=TRUE)
           
+          ## VJD: Zelig5 handles missingness, no?
           # Here is present dealing with missing data
           # listwise deletion on variables in the formula
           usevars<-all.vars(myformula)
@@ -152,21 +162,26 @@ zelig.app <- function(env){
 
             z.out <- zelig(formula=myformula, model=mymodel, data=usedata)   # maybe just pass variables being used?
             almostCall<-paste(mymodel,"( ",deparse(myformula)," )",sep="")
+            write("z.out <- zelig(formula=myformula, model=mymodel, data=usedata)",mylogfile,append=TRUE)
 
             print(summary(z.out))
 
             eval(parse(text=setxCall[1]))   #x.out <- setx(z.out, covariates...)
+            write(deparse(bquote(eval(parse(text=.(setxCall[1]))))),mylogfile,append=TRUE)
 
             if(length(setxCall)==2) { #if exists: x.alt <- setx(z.out, covariates...)
                 eval(parse(text=setxCall[2]))
+                write(deparse(bquote(eval(parse(text=.(setxCall[2]))))),mylogfile,append=TRUE)
             }
             if(length(setxCall)==1) { # there is no x.alt
                 print(x.out)
                 print(setxCall)
                 s.out <- sim(z.out, x=x.out)
+                write("s.out <- sim(z.out, x=x.out)",mylogfile,append=TRUE)
             } else {
                 print(x.out)
                 s.out <- sim(z.out, x=x.out, x1=x.alt)
+                write("s.out <- sim(z.out, x=x.out, x1=x.alt)",mylogfile,append=TRUE)
             }
             
             if(production){
@@ -177,6 +192,7 @@ zelig.app <- function(env){
             
             # zplots() recreates Zelig plots
             images <- zplots(s.out, plotpath, mymodelcount, mysessionid)
+            write("plot(s.out)",mylogfile,append=TRUE)
 
             if(length(images)>0){
                 names(images)<-paste("output",1:length(images),sep="")
