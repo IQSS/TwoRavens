@@ -1831,8 +1831,17 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
         
       var text = xhr.responseText;
       console.log("text ", text);
-      var json = JSON.parse(text);   // should wrap in try / catch
-      var names = Object.keys(json);
+        
+        try {
+            var json = JSON.parse(text);   // should wrap in try / catch
+            var names = Object.keys(json);
+        }
+        catch(err) {
+            estimateLadda.stop();
+            selectLadda.stop();
+            console.log(err);
+            alert('Error: Could not parse incoming JSON.');
+        }
 
       if (names[0] == "warning"){
         warningcallback(btn);
@@ -1844,10 +1853,10 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     xhr.onerror = function() {
         // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
         if(xhr.status==0) {
-            alert('xmlhttprequest status is 0. local server limitation?  url too long?');
+            alert('There was an error making hte request. xmlhttprequest status is 0.');
         }
         else if(xhr.readyState!=4) {
-            alert('xmlhttprequest readystate is not 4.');
+            alert('There was an error making hte request. xmlhttprequest readystate is not 4.');
         }
         else {
             alert('Woops, there was an error making the request.');

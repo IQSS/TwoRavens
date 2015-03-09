@@ -9,7 +9,6 @@ zelig.app <- function(env){
     
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
     
-    
     if(production){
         sink(file = stderr(), type = "output")
     }

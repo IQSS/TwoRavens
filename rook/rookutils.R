@@ -418,7 +418,7 @@ logFile <- function(sessionid, production){
 logSessionInfo <- function(logfile, sessionid){
     sink(file = logfile, append=TRUE, type = "output")
     print(sessionInfo())
-    sink(file = stderr(), type = "output")
+    sink()
     
     write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
 }

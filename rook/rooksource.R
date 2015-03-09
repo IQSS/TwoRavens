@@ -12,7 +12,6 @@ if(production){
     sink(file = stderr(), type = "output")
     print("system time at source: ")
     print(Sys.time())
-    sink()
 }
 
 if(production) {
@@ -84,6 +83,10 @@ source("rooktransform.R")
 source("rookzelig.R")
 source("rookutils.R")
 source("rookdata.R")
+
+if(production){
+    sink()
+}
 
 if(!production){
     R.server$add(app = zelig.app, name = "zeligapp")
