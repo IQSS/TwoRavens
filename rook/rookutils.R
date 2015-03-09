@@ -19,8 +19,6 @@ readData <- function(sessionid,logfile){
     tryCatch({
         mydata<-NULL
         mydata<-read.delim(file=paste("/tmp/data_",sessionid,".tab",sep=""))
-        write(deparse(bquote(mydata<-read.delim(file=.(paste("/tmp/data_",sessionid,".tab",sep=""))))),logfile,append=TRUE)
-
     }, error=function(err){
         warning <<- TRUE ## assign up the scope bc inside function
         result <<- list(warning=paste("R data loading error: ", err))

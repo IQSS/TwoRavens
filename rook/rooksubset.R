@@ -23,7 +23,7 @@ subset.app <- function(env){
     
     if(!warning){
         mysessionid <- everything$zsessionid
-        #mylogfile<-logFile(mysessionid)
+        mylogfile<-logFile(mysessionid)
         if(mysessionid==""){
             warning <- TRUE
             result <- list(warning="No session id.")

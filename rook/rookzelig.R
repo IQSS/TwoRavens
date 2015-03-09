@@ -91,6 +91,7 @@ zelig.app <- function(env){
 	if(!warning){
         if(production){
             mydata <- readData(sessionid=mysessionid,logfile=mylogfile)
+            write(deparse(bquote(mydata<-read.delim(file=.(paste("/tmp/data_",mysessionid,".tab",sep=""))))),mylogfile,append=TRUE)
         }else{
             # This is the Strezhnev Voeten data:
             #   		mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")

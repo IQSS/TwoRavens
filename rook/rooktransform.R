@@ -24,7 +24,7 @@ transform.app <- function(env){
     
     if(!warning){
         mysessionid <- everything$zsessionid
-        #mylogfile<-logFile(mysessionid)
+        mylogfile<-logFile(mysessionid)
         if(mysessionid==""){
             warning <- TRUE
             result <- list(warning="No session id.")
@@ -88,7 +88,7 @@ transform.app <- function(env){
             assign("result", result, envir=globalenv())
         },
         warning=function(err){ # for zelig.app, warnings are ignored.  here, factor^2 produces a warning, and we don't want to ignore that...
-            warning <- TRUE
+            warning <<- TRUE
             result <- list(warning=paste("Transformation warning: ", err))
             result<-jsonlite:::toJSON(result)
             assign("result", result, envir=globalenv())
