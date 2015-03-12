@@ -1361,7 +1361,7 @@ function estimate(btn) {
         if(estimated==false) {
             myparent.removeChild(document.getElementById("resultsHolder"));
         }
-    
+        
         estimated=true;
         d3.select("#results")
         .style("display", "block");
@@ -1454,6 +1454,12 @@ function dataDownload() {
     function downloadSuccess(btn, json) {
         console.log("dataDownload json in: ", json);
         zparams.zsessionid=json.sessionid[0];
+        
+        // set the link URL
+        if(production){
+            var logURL=rappURL+"log_dir/log_"+zparams.zsessionid+".txt";
+            document.getElementById("logID").href=logURL;
+        }
     }
     
     function downloadFail(btn) {
