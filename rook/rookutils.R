@@ -415,7 +415,10 @@ logFile <- function(sessionid, production){
     return(outfile)
 }
 
-logSessionInfo <- function(logfile, sessionid){
+logSessionInfo <- function(logfile, sessionid, cite){
+    
+    write(paste("\nData file citation from Dataverse:\n\n",cite,"\n\nR session information:",sep=""),logfile,append=TRUE)
+    
     sink(file = logfile, append=TRUE, type = "output")
     print(sessionInfo())
     sink()

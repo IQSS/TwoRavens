@@ -32,11 +32,19 @@ data.app <- function(env){
   }
   
   if(!warning){
+      datacite=everything$zdatacite
+      if(length(datacite) == 0){
+          warning <- TRUE
+          result<-list(warning="No data file citation.")
+      }
+  }
+  
+  if(!warning){
       
           # this will generate a unique id on the system for Mac/Unix. Might need something else for other systems. getData() is called by rookdata.R, which is the app that is called when TwoRavens is loaded (the "Explore" button is clicked). This downloads the data in the background to /tmp/ while the user is specifying a model. /tmp/ will be wiped every so often or after inactivity.
           myid <- system("uuidgen",intern=T)
           logfile<-logFile(myid, production)
-          logSessionInfo(logfile, myid)
+          logSessionInfo(logfile, myid, datacite)
           
           # We discovered that R's read.delim() method does not work with https URLs.
           # So I worked around it with the hack below - I first download the tab-delimited file and

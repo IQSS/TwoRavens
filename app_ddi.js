@@ -93,7 +93,7 @@ var grayColor = '#c0c0c0';
 var lefttab = "tab1"; //global for current tab in left panel
 var righttab = "btnModels"; // global for current tab in right panel
 
-var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[], zsessionid:""};
+var zparams = { zdata:[], zedges:[], ztime:[], znom:[], zcross:[], zmodel:"", zvars:[], zdv:[], zdataurl:"", zsubset:[], zsetx:[], zmodelcount:0, zplot:[], zsessionid:"", zdatacite:""};
 
 
 // Radius of circle
@@ -237,6 +237,9 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var vars = xml.documentElement.getElementsByTagName("var");
                       var temp = xml.documentElement.getElementsByTagName("fileName");
                       zparams.zdata = temp[0].childNodes[0].nodeValue;
+                      var cite = xml.documentElement.getElementsByTagName("biblCit");
+                      zparams.zdatacite=cite[0].childNodes[0].nodeValue;
+                      
                       //    console.log(temp[0].childNodes[0].nodeValue);
                       //    console.log(temp);
                       //    console.log(zparams.zdata);
