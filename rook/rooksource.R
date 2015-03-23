@@ -36,10 +36,12 @@ library(rjson)
 library(jsonlite)
 library(devtools)
 
-if(!("Zelig" %in% rownames(installed.packages()))) {
-    install_github("IQSS/Zelig")
-} else if(package_version(packageVersion("Zelig"))$major != 5) {
-    install_github("IQSS/Zelig")
+if (!production) {
+    if(!("Zelig" %in% rownames(installed.packages()))) {
+        install_github("IQSS/Zelig")
+    } else if(package_version(packageVersion("Zelig"))$major != 5) {
+        install_github("IQSS/Zelig")
+    }
 }
 
 #!/usr/bin/env Rscript
