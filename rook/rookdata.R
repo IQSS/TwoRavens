@@ -54,8 +54,8 @@ data.app <- function(env){
           #mydata<-tryCatch(expr=read.delim(file=dataurl), error=function(e) NULL)  # if data is not readable, NULL
           if(production) {
               tryCatch({
-                  download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl")
-                  write(deparse(bquote(download.file(.(dataurl),destfile = .(paste("data_",myid,".tab",sep="")),method="curl"))),logfile,append=TRUE)
+                  download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl",extra=c("--insecure"))
+                  write(deparse(bquote(download.file(.(dataurl),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
                   result <- list(sessionid=myid)
               }, error=function(e) {
                   result <<- list(warning="Error: Cannot download from Dataverse.") # if the url is not readable, NULL
