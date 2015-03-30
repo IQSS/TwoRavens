@@ -33,24 +33,30 @@
       
     <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
-              <div class="navbar-header" onmouseover="about();" onmouseout="closeabout();" >
-                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em">
+              </span>
+              <div class="navbar-header" >
+                  <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em" onmouseover="about();" onmouseout="closeabout();">
+                      
                   <div id="about" class="panel panel-default" style="position:absolute; left:140px; width:380px; display:none; z-index:50;">
                     <div class="panel-body"> </div>
                   </div>
+                  
               </div>
-                 
-              <div class="field" id="datasetName" style="text-align:center;margin-top:0.5em">
-                  <h4 style="display:inline;">Dataset Name</h4>
-
+              
+              <div class="field" id="dataField" style="text-align:center; margin-top:0.5em">
+                  <h4 id="dataName" style="display:inline;" onclick="citetoggle=clickcite(citetoggle);" onmouseover="opencite();" onmouseout="closecite(citetoggle);">Dataset Name</h4>
+                  <div id="cite" class="panel panel-default" style="position:absolute; right:50%; width:380px; display:none; z-index:50;text-align:left;">
+                      <div class="panel-body"> </div>
+                  </div>
+                  <!-- HIDE THE DATA BROWSER BUTTON FOR NOW
                   <button class="btn btn-default" id="makeTable" title="Make Table" style="margin-left:1em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-list-alt"></span></button>
-
+-->
                   <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                   <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-left:2.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
 
                   <div id="transformations" class="transformTool">
                   </div>
-              </div>  
+              </div>
           </div>
       </nav>
     

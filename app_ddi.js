@@ -153,6 +153,8 @@ var summaryHold = false;
 var selInteract = false;
 var modelCount = 0;
 var callHistory = []; // unique to the space. saves transform and subset calls.
+var citetoggle = false;
+
 
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
@@ -248,9 +250,10 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       // dataset name trimmed to 12 chars
                       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
                       // Put dataset name, from meta-data, into top panel
-                      d3.select("#datasetName").selectAll("h4")
+                      d3.select("#dataName")
                       .html(dataname);
                       
+                      $('#cite div.panel-body').text(zparams.zdatacite);
                       
                       // temporary values for hold that correspond to histogram bins
                       hold = [.6, .2, .9, .8, .1, .3, .4];
@@ -2837,6 +2840,25 @@ function closeabout() {
     $('#about').hide();
 }
 
+function opencite() {
+    $('#cite').show();
+}
+
+function closecite(toggle) {
+    if(toggle==false) {
+        $('#cite').hide();
+    }
+}
+
+function clickcite(toggle) {
+    if(toggle==false) {
+        $('#cite').show();
+        return true;
+    }else {
+        $('#cite').hide();
+        return false;
+    }
+}
 // function to remove all the children svgs inside subset and setx divs
 function rePlot() {
 
