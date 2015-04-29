@@ -64,6 +64,22 @@ data.app <- function(env){
               result <- list(sessionid=myid)
           }
   }
+  
+  if(!warning){
+      tryCatch({
+          if(production){
+              mydata <- readData(sessionid=myid,logfile=mylogfile)
+          }else{
+              mydata <- read.delim("../data/fearonLaitin.tsv")
+          }
+      
+        sumstats <- calcSumStats(mydata)
+        result$sumstats <- sumstats
+        
+        }, error=function(e) {
+            result <<- list(warning="Error: Cannot calculate summary statistics in rookdata.R")
+    })
+  }
 
     print(result)
     if(production){

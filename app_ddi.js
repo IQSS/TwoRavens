@@ -264,6 +264,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var sumStats = new Object;
                       var varStats = [];
                       valueKey[i] = vars[i].attributes.name.nodeValue;
+                      var intrval = vars[i].attributes.intrvl.nodeValue;
                       
                       if(vars[i].getElementsByTagName("labl").length === 0) {lablArray[i]="no label";}
                       else {lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;}
@@ -273,16 +274,24 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       (myvalues);
                       
                       varStats = vars[i].getElementsByTagName("sumStat");
+                      
                       for (j=0; j<varStats.length; j++) {
-                      var myType = "";
-                      myType = varStats[j].getAttribute("type");
-                      if(myType==null) continue; // no sumStat
-                      sumStats[myType] = varStats[j].childNodes[0].nodeValue;
-                      //console.log(varStats[j]);
+                        var myType = "";
+                        myType = varStats[j].getAttribute("type");
+                        if(myType==null) continue; // no sumStat
+                        sumStats[myType] = varStats[j].childNodes[0].nodeValue;
+                      }
+                      
+                      if(typeof (sumStats.mode) === 'undefined' | sumStats.mode == '.'){
+                        sumStats.mode = "NaN";
+                      } else {
+                      console.log(sumStats.mode);
+                        (sumStats.mode).tostring();
                       }
                       
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":vars[i].attributes.intrvl.nodeValue, "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                      console.log(sumStats.mode);
+                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":intrval[i], "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                       };
                       
                       // Reading the zelig models and populating the model list in the right panel.
@@ -1466,6 +1475,25 @@ function dataDownload() {
             var logURL=rappURL+"log_dir/log_"+zparams.zsessionid+".txt";
             document.getElementById("logID").href=logURL;
         }
+        
+        // assign the summary statistics to allNodes
+        for(var j=0; j<json.sumstats.varnames.length; j++) {
+        //    console.log((json.sumstats.mode[j]).toString(),"\n");
+            var temp = findNodeIndex(json.sumstats.varnames[j]);
+            allNodes[temp].minimum=json.sumstats.min[j];
+            allNodes[temp].median=json.sumstats.median[j];
+//            allNodes[temp].mode=json.sumstats.mode[j];
+            allNodes[temp].mode=(json.sumstats.mode[j]).toString();
+            allNodes[temp].mean=json.sumstats.mean[j];
+            allNodes[temp].invalid=json.sumstats.invalid[j];
+            allNodes[temp].valid=json.sumstats.valid[j];
+            allNodes[temp].standardDeviation=json.sumstats.sd[j];
+            allNodes[temp].maximum=json.sumstats.max[j];
+        }
+        
+        populatePopover();
+        rePlot();
+        panelPlots();
     }
     
     function downloadFail(btn) {
@@ -2077,7 +2105,7 @@ function varSummary(d) {
 
     var summarydata = [],
     tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
-    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),(+d.mode).toPrecision(4).toString(),(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.valid),rint(d.invalid)],
+    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.valid),rint(d.invalid)],
     i, j;
 
     for (i = 0; i < t1.length; i++) {
@@ -2149,7 +2177,7 @@ function popoverContent(d) {
     
     "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mode).toPrecision(4).toString() + "</p></div></div>" +
+    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
     
     "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.standardDeviation).toPrecision(4).toString() + "</p></div></div>" +
     
@@ -2176,7 +2204,7 @@ function popupX(d) {
           
           "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.median) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mode) + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
                   
           "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.standardDeviation) + "</p></div></div>" +
   

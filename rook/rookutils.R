@@ -147,40 +147,64 @@ buildFormula<-function(dv, linkagelist, varnames=NULL, nomvars){
     return(formula)
 }
 
-## VJD: note that this skips all factor and character classes
+## VJD: at some point we can add additional statistics like number of unique values,  and for characters percentiles and frequency
 calcSumStats <- function(data) {
-
-    medians <- sapply(data, function(x) {
-      if(is.factor(x) | is.character(x)) return(NA)
-      else return(median(x, na.rm=TRUE))
-    })
-    means <- sapply(data, function(x) {
-        if(is.factor(x) | is.character(x)) return(NA)
-        else return(mean(x, na.rm=TRUE))
-    })
-    modes <- sapply(data, function(x) {
-        if(is.factor(x) | is.character(x)) return(NA)
-        else return(Mode(x))
-    })
-    maxs <- sapply(data, function(x) {
-        if(is.factor(x) | is.character(x)) return(NA)
-        else return(max(x, na.rm=TRUE))
-    })
-    mins <- sapply(data, function(x) {
-        if(is.factor(x) | is.character(x)) return(NA)
-        else return(min(x, na.rm=TRUE))
-    })
-    sds <- sapply(data, function(x) {
-        if(is.factor(x) | is.character(x)) return(NA)
-        else return(sd(x, na.rm=TRUE))
-    })
     
-    invalids <- apply(data, 2, function(x) length(which(is.na(x))))
-    valids <- nrow(data)-invalids
+    k <- ncol(data)
+    out<-list(varnames=colnames(data), median=as.vector(rep(NA,k)), mean=as.vector(rep(NA,k)), mode=as.vector(rep(NA,k)), max=as.vector(rep(NA,k)), min=as.vector(rep(NA,k)), invalid=as.vector(rep(NA,k)), valid=as.vector(rep(NA,k)), sd=as.vector(rep(NA,k)))
     
-    out<-list(varnames=colnames(data), median=as.vector(medians), mean=as.vector(means), mode=as.vector(modes), max=as.vector(maxs), min=as.vector(mins), invalid=as.vector(invalids), valid=as.vector(valids), sd=as.vector(sds))
+    for(i in 1:k) {
+        
+        v <- data[,i]
+        numchar <- NumChar(v)
+        
+        # this drops the factor
+        v <- as.character(v)
+        
+        out$invalid[i] <- length(which(is.na(v)))
+        out$valid[i] <- length(v)-out$invalid[i]
+        
+        v[v=="" | v=="NULL" | v=="NA" | v=="."]  <- NA
+        v <- v[!is.na(v)]
+        
+        out$mode[i] <- Mode(v)
+        
+        if(numchar=="character") {
+            next
+        }
+        
+        # if not a "character"
+        v <- as.numeric(v)
+        
+        out$median[i] <- median(v)
+        out$mean[i] <- mean(v)
+        out$max[i] <- max(v)
+        out$min[i] <- min(v)
+        out$sd[i] <- sd(v)
+    }
+    
     return(out)
+}
+
+
+## NumChar() is a function that takes as input a column of data and returns "numeric" or "character"
+NumChar <- function(v) {
     
+    # if user tagged the variable as character, it is
+    # do something... return("character")
+    
+    # if variable is a factor or logical, return character
+    if(is.factor(v) | is.logical(v)) return("character")
+    
+    v <- as.character(v)
+    v[v=="" | v=="NULL" | v=="NA"]  <- NA
+    v <- v[!is.na(v)]
+    
+    # converts to numeric and if any do not convert and become NA, return character
+    v <- as.numeric(v)
+    if(any(is.na(v))) return("character")
+    
+    return("numeric")
 }
 
 Mode <- function(x) {
