@@ -15,6 +15,7 @@ terminate<-function(response,warning){
     stop()
 }
 
+# VJD: this reads a tab-delimited file. in the future, this should read and load the file based on the type of file defined at ingest. this way R can make use of important metadata such as whether a variable is a factor.
 readData <- function(sessionid,logfile){
     tryCatch({
         mydata<-NULL
@@ -147,16 +148,35 @@ buildFormula<-function(dv, linkagelist, varnames=NULL, nomvars){
     return(formula)
 }
 
-## VJD: at some point we can add additional statistics like number of unique values,  and for characters percentiles and frequency
-calcSumStats <- function(data) {
+## calcSumStats is a function that takes as input a dataset and the types for each variable, as coded by typeHell()
+calcSumStats <- function(data, types) {
+    
+    Mode <- function(x, nc) {
+        out <- list(mode=NA, mid=NA, fewest=NA, freqmode=NA, freqfewest=NA, freqmid=NA)
+        ux <- unique(x)
+        tab <- tabulate(match(x, ux))
+        
+        out$mode <- ux[which.max(tab)]
+        out$freqmode <- max(tab)
+
+        if(nc=="numeric") return(out)
+        
+        out$mid <- ux[which(tab==median(tab))][1] # just take the first
+        out$fewest <- ux[which.min(tab)]
+        
+        out$freqmid <- median(tab)
+        out$freqfewest <- min(tab)
+        
+        return(out)
+    }
     
     k <- ncol(data)
-    out<-list(varnames=colnames(data), median=as.vector(rep(NA,k)), mean=as.vector(rep(NA,k)), mode=as.vector(rep(NA,k)), max=as.vector(rep(NA,k)), min=as.vector(rep(NA,k)), invalid=as.vector(rep(NA,k)), valid=as.vector(rep(NA,k)), sd=as.vector(rep(NA,k)))
+    out<-list(varnames=colnames(data), median=as.vector(rep(NA,k)), mean=as.vector(rep(NA,k)), mode=as.vector(rep(NA,k)), max=as.vector(rep(NA,k)), min=as.vector(rep(NA,k)), invalid=as.vector(rep(NA,k)), valid=as.vector(rep(NA,k)), sd=as.vector(rep(NA,k)), uniques=as.vector(rep(NA,k)), herfindahl=as.vector(rep(NA,k)), freqmode=as.vector(rep(NA,k)), fewest=as.vector(rep(NA,k)), mid=as.vector(rep(NA,k)), freqfewest=as.vector(rep(NA,k)), freqmid=as.vector(rep(NA,k)) )
     
     for(i in 1:k) {
         
         v <- data[,i]
-        numchar <- NumChar(v)
+        nc <- types$numchar[which(types$varnames==out$varnames[i])]
         
         # this drops the factor
         v <- as.character(v)
@@ -167,9 +187,27 @@ calcSumStats <- function(data) {
         v[v=="" | v=="NULL" | v=="NA" | v=="."]  <- NA
         v <- v[!is.na(v)]
         
-        out$mode[i] <- Mode(v)
+        tabs <- Mode(v, nc)
+        out$mode[i] <- tabs$mode
+        out$freqmode[i] <- tabs$freqmode
         
-        if(numchar=="character") {
+        out$uniques[i] <- length(unique(v))
+        
+        if(nc=="character") {
+            out$fewest[i] <- tabs$fewest
+            out$mid[i] <- tabs$mid
+            out$freqfewest[i] <- tabs$freqfewest
+            out$freqmid[i] <- tabs$freqmid
+            
+            herf.t <- table(v)
+            out$herfindahl[i] <- Herfindahl(herf.t)
+            
+            out$median[i] <- "NA"
+            out$mean[i] <- "NA"
+            out$max[i] <- "NA"
+            out$min[i] <- "NA"
+            out$sd[i] <- "NA"
+            
             next
         }
         
@@ -181,36 +219,106 @@ calcSumStats <- function(data) {
         out$max[i] <- max(v)
         out$min[i] <- min(v)
         out$sd[i] <- sd(v)
+        
+        if(nc=="numeric"){
+            out$mode[i] <- as.character(signif(as.numeric(out$mode[i]), 4))
+        }
+        
+        out$fewest[i] <- "NA"
+        out$mid[i] <- "NA"
+        out$freqfewest[i] <- "NA"
+        out$freqmid[i] <- "NA"
+        out$herfindahl[i] <- "NA"
+    }
+    return(out)
+}
+
+
+## typeHell() is a function that takes as input a dataset and returns types of variables that we can learn automatically. numchar is {"numeric" , "character"}, interval is {"continuous" , "discrete"}, nature is {"nominal" , "ordinal" , "interval" , "ratio" , "percent" , "other"}. binary is {"yes" , "no"}. if numchar is "character", interval is "discrete" and nature is "nominal" by default.
+typeHell <- function(data) {
+    
+    k <- ncol(data)
+    out<-list(varnames=colnames(data), interval=as.vector(rep(NA,k)), numchar=as.vector(rep(NA,k)), nature=as.vector(rep(NA,k)), binary=as.vector(rep("no",k)))
+    
+    numchar.values <- c("numeric", "character")
+    interval.values <- c("continuous", "discrete")
+    nature.values <- c("nominal", "ordinal", "interval", "ratio", "percent", "other")
+    binary.values <- c("yes", "no")
+
+
+    Decimal <-function(x){
+        result <- FALSE
+        level <- floor(x)
+        if(any(x!=level)) result <- TRUE
+        
+        return(result)
+    }
+    
+    # Nature() takes a column of data x, and a boolean c that is true if x is continuous, and a vector nat that is the values of nature and returns a guess at the nature field
+    Nature <- function(x, c, nat) {
+        if(c) { # interval is continuous
+            if(all(x >=0 & x <=1)) {
+                return(nat[5])
+            }
+            else if(all(x >=0 & x <=100) & min(x) < 15 & max(x) > 85){
+                return(nat[5])
+            } else {
+                return(nat[4]) # ratio is generally the world we're going to be in
+            }
+        } else { # interval is discrete
+            return(nat[2]) # if it is a continuous, discrete number, assume ordinal
+        }
+    }
+
+
+    for(i in 1:k){
+        
+        v<- data[,i]
+        
+        # if variable is a factor or logical, return character
+        if(is.factor(v) | is.logical(v)) {
+            out$interval[i] <- interval.values[2]
+            out$numchar[i] <- numchar.values[2]
+            out$nature[i] <- nature.values[1]
+            
+            v <- as.character(v)
+            v[v=="" | v=="NULL" | v=="NA"]  <- NA
+            v <- v[!is.na(v)]
+            
+            if(length(unique(v))==2) {out$binary[i] <- binary.values[1]}
+            next
+        }
+        
+        v <- as.character(v)
+        v[v=="" | v=="NULL" | v=="NA"]  <- NA
+        v <- v[!is.na(v)]
+        
+        # converts to numeric and if any do not convert and become NA, numchar is character
+        v <- as.numeric(v)
+        
+        if(length(unique(v))==2) {out$binary[i] <- binary.values[1]} # if there are only two unique values after dropping missing, set binary to "yes"
+        
+        if(any(is.na(v))) { # numchar is character
+            out$numchar[i] <- numchar.values[2]
+            out$nature[i] <- nature.values[1]
+            out$interval[i] <- interval.values[2]
+        } else { # numchar is numeric
+            out$numchar[i] <- numchar.values[1]
+            
+            d <- Decimal(v)
+            if(d) { # interval is continuous
+                out$interval[i] <- interval.values[1]
+                out$nature[i] <- Nature(v,TRUE, nature.values)
+            } else { # interval is discrete
+                out$interval[i] <- interval.values[2]
+                out$nature[i] <- Nature(v,FALSE, nature.values)
+            }
+        }
     }
     
     return(out)
 }
 
-
-## NumChar() is a function that takes as input a column of data and returns "numeric" or "character"
-NumChar <- function(v) {
-    
-    # if user tagged the variable as character, it is
-    # do something... return("character")
-    
-    # if variable is a factor or logical, return character
-    if(is.factor(v) | is.logical(v)) return("character")
-    
-    v <- as.character(v)
-    v[v=="" | v=="NULL" | v=="NA"]  <- NA
-    v <- v[!is.na(v)]
-    
-    # converts to numeric and if any do not convert and become NA, return character
-    v <- as.numeric(v)
-    if(any(is.na(v))) return("character")
-    
-    return("numeric")
-}
-
-Mode <- function(x) {
-    ux <- unique(x)
-    ux[which.max(tabulate(match(x, ux)))]
-}
 
 pCall <- function(data,production,sessionid) {
     pjson<-preprocess(testdata=data)

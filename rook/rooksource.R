@@ -20,7 +20,7 @@ if(production) {
 
 
 if(!production){
-   packageList<-c("VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools")
+   packageList<-c("VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
@@ -35,6 +35,7 @@ library(Rook)
 library(rjson)
 library(jsonlite)
 library(devtools)
+library(DescTools)
 
 if (!production) {
     if(!("Zelig" %in% rownames(installed.packages()))) {

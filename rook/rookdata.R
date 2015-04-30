@@ -72,12 +72,14 @@ data.app <- function(env){
           }else{
               mydata <- read.delim("../data/fearonLaitin.tsv")
           }
-      
-        sumstats <- calcSumStats(mydata)
+          
+        types <- typeHell(mydata)
+        sumstats <- calcSumStats(mydata, types)
         result$sumstats <- sumstats
+        result$types <- types
         
         }, error=function(e) {
-            result <<- list(warning="Error: Cannot calculate summary statistics in rookdata.R")
+            result <<- list(warning="Error: Cannot calculate summary statistics or variable types in rookdata.R")
     })
   }
 

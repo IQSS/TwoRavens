@@ -282,16 +282,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                         sumStats[myType] = varStats[j].childNodes[0].nodeValue;
                       }
                       
-                      if(typeof (sumStats.mode) === 'undefined' | sumStats.mode == '.'){
-                        sumStats.mode = "NaN";
-                      } else {
-                      console.log(sumStats.mode);
-                        (sumStats.mode).tostring();
-                      }
-                      
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-                      console.log(sumStats.mode);
-                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":intrval[i], "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":intrval[i], "numchar":"", "nature":"", "binary":"", "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "freqmode":NaN, "fewest":sumStats.mode, "freqfewest":NaN, "mid":sumStats.mode, "freqmid":NaN, "uniques":NaN, "herfindahl":NaN, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                       };
                       
                       // Reading the zelig models and populating the model list in the right panel.
@@ -449,8 +441,6 @@ function scaffolding(callback) {
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
     
-    populatePopover(); // pipes in the summary stats shown on mouseovers
-                    
     d3.select("#models")
     .style('height', 2000)
     .style('overfill', 'scroll');
@@ -532,6 +522,8 @@ function layout(v) {
     }
     
     panelPlots(); // after nodes is populated, add subset and setx panels
+    populatePopover(); // pipes in the summary stats shown on mouseovers
+    
     
     // init D3 force layout
         var force = d3.layout.force()
@@ -1478,17 +1470,27 @@ function dataDownload() {
         
         // assign the summary statistics to allNodes
         for(var j=0; j<json.sumstats.varnames.length; j++) {
-        //    console.log((json.sumstats.mode[j]).toString(),"\n");
             var temp = findNodeIndex(json.sumstats.varnames[j]);
             allNodes[temp].minimum=json.sumstats.min[j];
             allNodes[temp].median=json.sumstats.median[j];
-//            allNodes[temp].mode=json.sumstats.mode[j];
             allNodes[temp].mode=(json.sumstats.mode[j]).toString();
             allNodes[temp].mean=json.sumstats.mean[j];
             allNodes[temp].invalid=json.sumstats.invalid[j];
             allNodes[temp].valid=json.sumstats.valid[j];
             allNodes[temp].standardDeviation=json.sumstats.sd[j];
             allNodes[temp].maximum=json.sumstats.max[j];
+            allNodes[temp].freqmode=json.sumstats.freqmode[j];
+            allNodes[temp].freqfewest=json.sumstats.freqfewest[j];
+            allNodes[temp].freqmid=json.sumstats.freqmid[j];
+            allNodes[temp].fewest=(json.sumstats.fewest[j]).toString();
+            allNodes[temp].mid=(json.sumstats.mid[j]).toString();
+            allNodes[temp].uniques=json.sumstats.uniques[j];
+            allNodes[temp].herfindahl=json.sumstats.herfindahl[j];
+            
+            allNodes[temp].interval=json.types.interval[j];
+            allNodes[temp].numchar=json.types.numchar[j];
+            allNodes[temp].nature=json.types.nature[j];
+            allNodes[temp].binary=json.types.binary[j];
         }
         
         populatePopover();
@@ -1694,7 +1696,8 @@ function transform(n,t) {
         
         // add transformed variable to the current space
         var i = allNodes.length;
-        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+            "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
         
         // add transformed variable to all spaces
         // check if myspace callHistory contains a subset
@@ -1721,7 +1724,7 @@ function transform(n,t) {
             }
             // if there is a subset in the callHistory of the current space, transformation is different
             function offspaceTransform(j) {
-                transformstuff = {zdataurl:dataurl, zvars:n, transform:t, callHistory:spaces[j].callHistory}; 
+                transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:spaces[j].callHistory};
                 var jsonout = JSON.stringify(transformstuff);
                 //var base = rappURL+"transformapp?solaJSON="
                 urlcall = rappURL+"transformapp"; //base.concat(jsonout);
@@ -1735,7 +1738,8 @@ function transform(n,t) {
                     spaces[j].logArray.push("transform: ".concat(rCall[0]));
                     readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
                     
-                    spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                    spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                        "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                 }
                 function offspaceFail(btn) {
                     alert("transform fail");
@@ -1747,7 +1751,9 @@ function transform(n,t) {
             spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
             spaces[j].logArray.push("transform: ".concat(rCall[0]));
 
-            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "varLevel":"level", "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":json.sumStats.mode[0], "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+            
             readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
         }
     }
@@ -2104,16 +2110,19 @@ function varSummary(d) {
     var rint = d3.format("r");
 
     var summarydata = [],
-    tmpDataset = [], t1 = ["Mean:","Median:","Mode:","Stand.Dev:","Minimum:","Maximum:","Valid:","Invalid:"],
-    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.valid),rint(d.invalid)],
+    tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Mid Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
+    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
     i, j;
 
     for (i = 0; i < t1.length; i++) {
+        if(t2[i]=="NaN" | t2[i]=="NA") continue;
         tmpDataset=[];
         tmpDataset.push(t1[i]);
         tmpDataset.push(t2[i]);
         summarydata.push(tmpDataset);
     };
+    
+    console.log(summarydata);
 
   //  console.log(summarydata);
     d3.select("#tab3")
@@ -2171,23 +2180,54 @@ function populatePopover () {
 function popoverContent(d) {
     
     var rint = d3.format("r");
-    return "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>" +
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() + "</p></div></div>" +
+    var outtext = "";
+
+    if(d.labl != "") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>" +
+    if (d.mean != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
+    if (d.median != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.standardDeviation).toPrecision(4).toString() + "</p></div></div>" +
+    if (d.mode != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Most Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.maximum).toPrecision(4).toString() + "</p></div></div>" +
+    if (d.freqmode != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.minimum).toPrecision(4).toString() + "</p></div></div>" +
+    if (d.mid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mid Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" +
+    if (d.freqmid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
+    }
+    if (d.fewest != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Least Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.fewest + "</p></div></div>";
+    }
     
-    "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" ;
+    if (d.freqfewest != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
+    }
+    
+    if (d.standardDeviation != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.standardDeviation).toPrecision(4).toString() + "</p></div></div>";
+    }
+    
+    if (d.maximum != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.maximum).toPrecision(4).toString() + "</p></div></div>";
+    }
+    
+    if (d.minimum != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.minimum).toPrecision(4).toString() + "</p></div></div>";
+    }
+    if (d.invalid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>";
+    }
+    if (d.valid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" ;
+    }
+    
+    if (d.uniques != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Uniques</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.uniques) + "</p></div></div>";
+    }
+    if (d.herfindahl != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Herfindahl</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.herfindahl).toPrecision(4).toString() + "</p></div></div>";
+    }
+    
+    return outtext;
 }
 
 function popupX(d) {
@@ -2489,24 +2529,31 @@ function subsetSelect(btn) {
         newnavdot.setAttribute("id", selectMe);
         mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
         
-        
         // assign the post-subset allNodes
-        for(var j=0; j<json.varnames.length; j++) {
-            var temp = findNodeIndex(json.varnames[j]);
-            allNodes[temp].minimum=json.min[j];
-            allNodes[temp].median=json.median[j];
-            allNodes[temp].mode=json.mode[j];
-            allNodes[temp].mean=json.mean[j];
-            allNodes[temp].invalid=json.invalid[j];
-            allNodes[temp].valid=json.valid[j];
-            allNodes[temp].standardDeviation=json.sd[j];
-            allNodes[temp].maximum=json.max[j];
+        for(var j=0; j<json.sumstats.varnames.length; j++) {
+            var temp = findNodeIndex(json.sumstats.varnames[j]);
+            allNodes[temp].minimum=json.sumstats.min[j];
+            allNodes[temp].median=json.sumstats.median[j];
+            allNodes[temp].mode=(json.sumstats.mode[j]).toString();
+            allNodes[temp].mean=json.sumstats.mean[j];
+            allNodes[temp].invalid=json.sumstats.invalid[j];
+            allNodes[temp].valid=json.sumstats.valid[j];
+            allNodes[temp].standardDeviation=json.sumstats.sd[j];
+            allNodes[temp].maximum=json.sumstats.max[j];
+            allNodes[temp].freqmode=json.sumstats.freqmode[j];
+            allNodes[temp].freqfewest=json.sumstats.freqfewest[j];
+            allNodes[temp].freqmid=json.sumstats.freqmid[j];
+            allNodes[temp].fewest=(json.sumstats.fewest[j]).toString();
+            allNodes[temp].mid=(json.sumstats.mid[j]).toString();
+            allNodes[temp].uniques=json.sumstats.uniques[j];
+            allNodes[temp].herfindahl=json.sumstats.herfindahl[j];
+
             allNodes[temp].subsetplot=false;
             allNodes[temp].subsetrange=["",""];
             allNodes[temp].setxplot=false;
             allNodes[temp].setxvals=["",""];
             
-            if(json.valid[j]==0) {
+            if(json.sumstats.valid[j]==0) {
                 grayOuts.push(allNodes[temp].name);
                 allNodes[temp].grayout=true;
             }

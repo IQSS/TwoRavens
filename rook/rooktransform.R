@@ -74,12 +74,13 @@ transform.app <- function(env){
             ## 2. make the current transformation
             tdata <- parseTransform(data=mydata, func=myT, vars=myvars)
             call<-colnames(tdata)
-            sumstats <- calcSumStats(tdata)
+            types <- typeHell(tdata)
+            sumstats <- calcSumStats(tdata, types)
         
         # preprocess just one variable
         colnames(tdata) <- call
         purl <- pCall(data=tdata, production, sessionid=mysessionid)
-        result<- jsonlite:::toJSON(list(sumStats=sumstats, call=call, url=purl, trans=c(myvars,myT)))
+        result<- jsonlite:::toJSON(list(sumStats=sumstats, types=types, call=call, url=purl, trans=c(myvars,myT)))
         },
         error=function(err){
             warning <<- TRUE
