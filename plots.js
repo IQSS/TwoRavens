@@ -334,19 +334,37 @@ if(mydiv=="#tab3"){
 
 
 function bars(data, node, div) {
-
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
+    var plotXaxis = true;
 
     // Data
     var keys = Object.keys(data.properties.values);
     var yVals = new Array;
     var xVals = new Array;
-    for (var i = 0; i < keys.length; i++) {
-        yVals[i] = data.properties.values[keys[i]];
-        xVals[i] = Number(keys[i]);
+    var yValKey = new Array;
+    
+    if(node.numchar==="character") {
+        var xi = 0;
+        for (var i = 0; i < keys.length; i++) {
+            if(data.properties.values[keys[i]]==0) {continue;}
+            yVals[xi] = data.properties.values[keys[i]];
+            xVals[xi] = xi;
+            yValKey.push({y:yVals[xi], x:keys[i] });
+            xi = xi+1;
+        }
+        yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
+        yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
     }
+    else {
+        for (var i = 0; i < keys.length; i++) {
+            yVals[i] = data.properties.values[keys[i]];
+            xVals[i] = Number(keys[i]);
+        }
+    }
+    
+    if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
@@ -472,11 +490,13 @@ plotsvg.selectAll("rect")
        .attr("fill", "#1f77b4")
        ;
 
-    plotsvg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
- 
+    if(plotXaxis) {
+        plotsvg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+    }
+    
     plotsvg.append("text")
     .attr("x", (width / 2))
     .attr("y", 0-(margin.top / 2))
@@ -509,7 +529,10 @@ plotsvg.selectAll("rect")
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              return("x: ".concat(Math.round(node.mean)));
+              if (node.numchar==="character") {
+                return("x: "+yValKey[Math.trunc(yValKey.length/2)].x);
+              }
+              else {return("x: ".concat(Math.round(node.mean)));}
               });
         
         plotsvg.append("text")
@@ -517,7 +540,10 @@ plotsvg.selectAll("rect")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-              return("x1: ".concat(Math.round(node.mean)));
+              if (node.numchar==="character") {
+                return("x1: "+yValKey[Math.trunc(yValKey.length/2)].x);
+              }
+              else {return("x1: ".concat(Math.round(node.mean)));}
               });
 
         // create tick marks at all zscores in the bounds of the data
@@ -577,7 +603,12 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[0]=="") {var xnm=x(node.mean);}
+              if(node.setxvals[0]=="") {
+                if(node.numchar=="character") { // if this variable is a character, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.trunc(xVals.length/2));
+                }
+                else {var xnm=x(node.mean);}
+              }
               else {var xnm=x(node.setxvals[0])};
             return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
 
@@ -590,7 +621,12 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[1]=="") {var xnm=x(node.mean);}
+              if(node.setxvals[1]=="") {
+                if(node.numchar=="character") { // if this variable is a character, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.trunc(xVals.length/2));
+                }
+                else {var xnm=x(node.mean);}
+              }
               else {var xnm=x(node.setxvals[1])};
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
     }
@@ -659,7 +695,13 @@ plotsvg.selectAll("rect")
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                return("x: ".concat(twoSF(invx(xpos))));});
+                  if(node.numchar==="character") {
+                    return("x: "+yValKey[Math.trunc(invx(xpos))].x);
+                  }
+                  else {
+                    return("x: ".concat(twoSF(invx(xpos))));
+                  }
+                });
             node.setxvals[1]=twoSF(invx(xpos));                              
         }
     }
@@ -698,7 +740,13 @@ plotsvg.selectAll("rect")
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                return("x1: ".concat(twoSF(invx(xpos))));});
+                  if(node.numchar==="character") {
+                    return("x1: "+yValKey[Math.trunc(invx(xpos))].x);
+                  }
+                  else {
+                    return("x1: ".concat(twoSF(invx(xpos))));
+                  }
+                });
             node.setxvals[1]=twoSF(invx(xpos));                      
     }
 
@@ -713,6 +761,7 @@ function barsSubset(data, node) {
     // Histogram spacing
     var barPadding = .015;  // Space between bars
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
+    var plotXaxis = true;
     
     // Variable name
     var myname = data.varname.toString();
@@ -723,10 +772,28 @@ function barsSubset(data, node) {
     var keys = Object.keys(data.properties.values);
     var yVals = new Array;
     var xVals = new Array;
-    for (var i = 0; i < keys.length; i++) {
-        yVals[i] = data.properties.values[keys[i]];
-        xVals[i] = Number(keys[i]);
+    var yValKey = new Array;
+    
+    if(node.numchar==="character") {
+        var xi = 0;
+        for (var i = 0; i < keys.length; i++) {
+            if(data.properties.values[keys[i]]==0) {continue;}
+            yVals[xi] = data.properties.values[keys[i]];
+            xVals[xi] = xi;
+            yValKey.push({y:yVals[xi], x:keys[i] });
+            xi = xi+1;
+        }
+        yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
+        yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
     }
+    else {
+        for (var i = 0; i < keys.length; i++) {
+            yVals[i] = data.properties.values[keys[i]];
+            xVals[i] = Number(keys[i]);
+        }
+    }
+    
+    if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
@@ -835,17 +902,47 @@ function barsSubset(data, node) {
                });
         plotsvg.select("text#selectrange")
         .text(function() {
-              if(node.subsetrange.length==0) {return("Selected: ".concat(xVals));}
-              else {return("Selected: ".concat(node.subsetrange));}
+              if(node.subsetrange.length==0) {return("Selected: all values");}
+              else {
+                if(node.numchar==="character") {
+                    var a = node.subsetrange;
+                    var selecteds = new Array;
+                    a.forEach(function(val) {
+                        selecteds.push(yValKey[val].x);
+                    })
+                    return("Selected: "+selecteds);
+                }
+                else {
+                    return("Selected: ".concat(node.subsetrange));
+                }
+              }
               });
         
+        })
+    .on("mouseover", function(){
+        var i = this.getAttribute("name");
+        plotsvg.select("text#mymouseover")
+        .text(function(){
+              var out = yValKey[i].x + ": " + yValKey[i].y;
+              return(out);
+              });
         });
     
-    plotsvg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
-    
+    if(plotXaxis) {
+        plotsvg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+    } else {
+        plotsvg.append("text")
+        .attr("id", "mymouseover")
+        .attr("x", 25)
+        .attr("y", height+20)
+        .text(function() {
+              return("");
+              });
+    }
+        
     plotsvg.append("text")
     .attr("x", (width / 2))
     .attr("y", 0-(margin.top / 2))
@@ -858,9 +955,21 @@ function barsSubset(data, node) {
     .attr("x", 25)
     .attr("y", height+40)
     .text(function() {
-          if(node.subsetrange.length==0) {return("Selected: ".concat(xVals));}
-          else {return("Selected: ".concat(node.subsetrange));}
-          });
+          if(node.subsetrange.length==0) {return("Selected: all values");}
+          else {
+            if(node.numchar==="character") {
+                var a = node.subsetrange;
+                var selecteds = new Array;
+                a.forEach(function(val) {
+                    selecteds.push(yValKey[val].x);
+                    })
+                return("Selected: "+selecteds);
+            }
+            else {
+                return("Selected: ".concat(node.subsetrange));
+            }
+          }
+        });
 }
 
 
@@ -927,10 +1036,27 @@ function barsNode(data, node, obj) {
     var keys = Object.keys(data.properties.values);
     var yVals = new Array;
     var xVals = new Array;
-    for (var i = 0; i < keys.length; i++) {
-        yVals[i] = data.properties.values[keys[i]];
-        xVals[i] = Number(keys[i]);
+    var yValKey = new Array;
+    
+    if(node.numchar==="character") {
+        var xi = 0;
+        for (var i = 0; i < keys.length; i++) {
+            if(data.properties.values[keys[i]]==0) {continue;}
+            yVals[xi] = data.properties.values[keys[i]];
+            xVals[xi] = xi;
+            yValKey.push({y:yVals[xi], x:keys[i] });
+            xi = xi+1;
+        }
+        yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
+        yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
     }
+    else {
+        for (var i = 0; i < keys.length; i++) {
+            yVals[i] = data.properties.values[keys[i]];
+            xVals[i] = Number(keys[i]);
+        }
+    }
+
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);

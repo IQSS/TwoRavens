@@ -2110,7 +2110,7 @@ function varSummary(d) {
     var rint = d3.format("r");
 
     var summarydata = [],
-    tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Mid Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
+    tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
     t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
     i, j;
 
@@ -2121,8 +2121,6 @@ function varSummary(d) {
         tmpDataset.push(t2[i]);
         summarydata.push(tmpDataset);
     };
-    
-    console.log(summarydata);
 
   //  console.log(summarydata);
     d3.select("#tab3")
@@ -2198,7 +2196,7 @@ function popoverContent(d) {
     if (d.freqmode != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
     }
     
-    if (d.mid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mid Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
+    if (d.mid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
     }
     
     if (d.freqmid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
