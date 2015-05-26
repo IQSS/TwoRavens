@@ -151,7 +151,7 @@ buildFormula<-function(dv, linkagelist, varnames=NULL, nomvars){
 ## calcSumStats is a function that takes as input a dataset and the types for each variable, as coded by typeHell()
 calcSumStats <- function(data, types) {
     
-    Mode <- function(x, nc) {
+    Mode <- function(x, nat) {
         out <- list(mode=NA, mid=NA, fewest=NA, freqmode=NA, freqfewest=NA, freqmid=NA)
         ux <- unique(x)
         tab <- tabulate(match(x, ux))
@@ -159,7 +159,7 @@ calcSumStats <- function(data, types) {
         out$mode <- ux[which.max(tab)]
         out$freqmode <- max(tab)
 
-        if(nc=="numeric") return(out)
+        if(nat!="nominal") return(out)
         
         out$mid <- ux[which(tab==median(tab))][1] # just take the first
         out$fewest <- ux[which.min(tab)]
@@ -177,6 +177,7 @@ calcSumStats <- function(data, types) {
         
         v <- data[,i]
         nc <- types$numchar[which(types$varnames==out$varnames[i])]
+        nat <- types$nature[which(types$varnames==out$varnames[i])]
         
         # this drops the factor
         v <- as.character(v)
@@ -187,13 +188,13 @@ calcSumStats <- function(data, types) {
         v[v=="" | v=="NULL" | v=="NA" | v=="."]  <- NA
         v <- v[!is.na(v)]
         
-        tabs <- Mode(v, nc)
+        tabs <- Mode(v, nat)
         out$mode[i] <- tabs$mode
         out$freqmode[i] <- tabs$freqmode
         
         out$uniques[i] <- length(unique(v))
         
-        if(nc=="character") {
+        if(nat=="nominal") {
             out$fewest[i] <- tabs$fewest
             out$mid[i] <- tabs$mid
             out$freqfewest[i] <- tabs$freqfewest
@@ -211,7 +212,7 @@ calcSumStats <- function(data, types) {
             next
         }
         
-        # if not a "character"
+        # if not nominal
         v <- as.numeric(v)
         
         out$median[i] <- median(v)

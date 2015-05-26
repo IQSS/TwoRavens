@@ -15,6 +15,7 @@
 // local files if nothing is supplied. 
 // -- L.A.
 
+
 var production=false;
 
 if (!hostname && !production) {
@@ -283,7 +284,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       }
                       
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":intrval[i], "numchar":"", "nature":"", "binary":"", "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "freqmode":NaN, "fewest":sumStats.mode, "freqfewest":NaN, "mid":sumStats.mode, "freqmid":NaN, "uniques":NaN, "herfindahl":NaN, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":intrval[i], "numchar":"", "nature":"", "binary":"", "defaultInterval":intrval[i], "defaultNumchar":"", "defaultNature":"", "defaultBinary":"", "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "freqmode":NaN, "fewest":sumStats.mode, "freqfewest":NaN, "mid":sumStats.mode, "freqmid":NaN, "uniques":NaN, "herfindahl":NaN, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                       };
                       
                       // Reading the zelig models and populating the model list in the right panel.
@@ -394,7 +395,7 @@ function scaffolding(callback) {
                //        console.log(t);
                  //      console.log(t.slice(0, t.length-1));
                    //    console.log(t[t.length-1]);
-                            transform(n=t.slice(0, t.length-1), t=t[t.length-1]);
+                            transform(n=t.slice(0, t.length-1), t=t[t.length-1], typeTransform=false);
                        }
                     });
     
@@ -416,7 +417,7 @@ function scaffolding(callback) {
                              $('#tInput').val(tcall);
                             $(this).parent().fadeOut(100);
                              event.stopPropagation();
-                             transform(n=tvar, t=tfunc);
+                             transform(n=tvar, t=tfunc, typeTransform=false);
                              });
                             
     // populating the variable list in the left panel
@@ -730,7 +731,8 @@ function layout(v) {
         path = path.data(links);
         
         // update existing links
-        path.classed('selected', function(d) { return d === selected_link; })
+        // VJD: dashed links between pebbles are "selected". this is disabled for now
+        path.classed('selected', function(d) { return;})//return d === selected_link; })
         .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
         .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
         
@@ -738,7 +740,7 @@ function layout(v) {
         // add new links
         path.enter().append('svg:path')
         .attr('class', 'link')
-        .classed('selected', function(d) { return d === selected_link; })
+        .classed('selected', function(d) { return;})//return d === selected_link; })
         .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
         .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
         .on('mousedown', function(d) { // do we ever need to select a link? make it delete..
@@ -774,13 +776,19 @@ function layout(v) {
         
         // add new nodes
         
-        var g = circle.enter().append('svg:g');
+        var g = circle.enter()
+        .append('svg:g')
+        .attr("id", function(d) {
+              var myname = d.name+"biggroup";
+              return (myname);
+              });
        
         // add plot
         g.each(function(d) {
                d3.select(this);
          
                var dataArray = [{varname: d.name, properties: preprocess[d.name]}];
+               
                if(dataArray[0].properties.type === "continuous") {
                 densityNode(dataArray[0], d, obj=this);
                }
@@ -1181,7 +1189,7 @@ function layout(v) {
                                     var t = transParse(n=n);
                                     if(t === null) {return;}
                                     $(this).parent().fadeOut(100);
-                                    transform(n=t.slice(0, t.length-1), t=t[t.length-1]);
+                                    transform(n=t.slice(0, t.length-1), t=t[t.length-1], typeTransform=false);
                                     return;
                                 }
 
@@ -1467,6 +1475,10 @@ function dataDownload() {
             var logURL=rappURL+"log_dir/log_"+zparams.zsessionid+".txt";
             document.getElementById("logID").href=logURL;
         }
+        else{
+            var logURL="rook/log_"+zparams.zsessionid+".txt";
+            document.getElementById("logID").href=logURL;
+        }
         
         // assign the summary statistics to allNodes
         for(var j=0; j<json.sumstats.varnames.length; j++) {
@@ -1491,6 +1503,10 @@ function dataDownload() {
             allNodes[temp].numchar=json.types.numchar[j];
             allNodes[temp].nature=json.types.nature[j];
             allNodes[temp].binary=json.types.binary[j];
+            allNodes[temp].defaultInterval=json.types.interval[j];
+            allNodes[temp].defaultNumchar=json.types.numchar[j];
+            allNodes[temp].defaultNature=json.types.nature[j];
+            allNodes[temp].defaultBinary=json.types.binary[j];
         }
         
         populatePopover();
@@ -1644,22 +1660,30 @@ function transParse(n) {
     }
 }
 
-function transform(n,t) {
+function transform(n,t, typeTransform) {
     
     if(production && zparams.zsessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
-
-    t = t.replace("+", "_plus_"); // can't send the plus operator
+    
+    if(!typeTransform){
+        t = t.replace("+", "_plus_"); // can't send the plus operator
+    }
     
     console.log(n);
     console.log(t);
     
     var btn = document.getElementById('btnEstimate');
     
+    
+    var myn = allNodes[findNodeIndex(n[0])];
+    if(typeof myn==="undefined") {var myn = allNodes[findNodeIndex(n)];}
+    
+    var outtypes = {varnames:n, interval:myn.interval, numchar:myn.numchar, nature:myn.nature, binary:myn.binary}
+    
     //package the output as JSON
-    var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory};
+    var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory, typeTransform:typeTransform, typeStuff:outtypes};
     var jsonout = JSON.stringify(transformstuff);
     //var base = rappURL+"transformapp?solaJSON="
     
@@ -1673,88 +1697,131 @@ function transform(n,t) {
     function transformSuccess(btn, json) {
         estimateLadda.stop();
         console.log("json in: ", json);
-        callHistory.push({func:"transform", zvars:n, transform:t});
         
-        var subseted = false;
-        var rCall = [];
-        rCall[0] = json.call;
-        var newVar = rCall[0][0];
-        trans.push(newVar);
-        readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
-        
-        function mycallback() {
-            scaffoldingPush(rCall[0]);
-            valueKey.push(newVar);
-            nodes.push(findNode(newVar));
-            fakeClick();
-            panelPlots();
+        if(json.typeTransform[0]) {
+            console.log("HEREHEREHERE");
+                        
+            readPreprocess(json.url, p=preprocess, v=newVar, callback=function(){
+                
+                           myn.interval = json.typeStuff.interval[0];
+                           myn.numchar = json.typeStuff.numchar[0];
+                           myn.nature = json.typeStuff.nature[0];
+                           myn.binary = json.typeStuff.binary[0];
+                           
+                           myn.minimum = json.sumStats.min[0];
+                           myn.median = json.sumStats.median[0];
+                           myn.mode=(json.sumStats.mode[0]).toString();
+                           myn.mean=json.sumStats.mean[0];
+                           myn.invalid=json.sumStats.invalid[0];
+                           myn.valid=json.sumStats.valid[0];
+                           myn.standardDeviation=json.sumStats.sd[0];
+                           myn.maximum=json.sumStats.max[0];
+                           myn.freqmode=json.sumStats.freqmode[0];
+                           myn.freqfewest=json.sumStats.freqfewest[0];
+                           myn.freqmid=json.sumStats.freqmid[0];
+                           myn.fewest=(json.sumStats.fewest[0]).toString();
+                           myn.mid=(json.sumStats.mid[0]).toString();
+                           myn.uniques=json.sumStats.uniques[0];
+                           myn.herfindahl=json.sumStats.herfindahl[0];
+                           
+                           var dataArray = [{varname: myn.name, properties: preprocess[myn.name]}];
+                           if(dataArray[0].properties.type === "continuous") {
+                            densityNode(dataArray[0], myn);
+                           }
+                           else if (dataArray[0].properties.type === "bar") {
+                            barsNode(dataArray[0], myn);
+                           }
+                           
+                           fakeClick();
+                           populatePopover();
+                           panelPlots();
+                        });
         }
+        else {
         
-        // update the log
-        logArray.push("transform: ".concat(rCall[0]));
-        showLog();
+            callHistory.push({func:"transform", zvars:n, transform:t});
         
-        // add transformed variable to the current space
-        var i = allNodes.length;
-        allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
-            "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+            var subseted = false;
+            var rCall = [];
+            rCall[0] = json.call;
+            var newVar = rCall[0][0];
+            trans.push(newVar);
+            readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
         
-        // add transformed variable to all spaces
-        // check if myspace callHistory contains a subset
-        for(var k0=0; k0<callHistory.length; k0++) {
-            if(callHistory[k0].func==="subset") {
-                var subseted = true;
+            function mycallback() {
+                scaffoldingPush(rCall[0]);
+                valueKey.push(newVar);
+                nodes.push(findNode(newVar));
+                fakeClick();
+                panelPlots();
             }
-        }
         
-    loopJ:
-        for(var j in spaces) {
-            if(j===myspace) {continue;}
-            var i = spaces[j].allNodes.length;
-            if(subseted===true) { // myspace has been subseted
-                offspaceTransform(j);
-                continue loopJ;
+            // update the log
+            logArray.push("transform: ".concat(rCall[0]));
+            showLog();
+        
+            // add transformed variable to the current space
+            var i = allNodes.length;
+            allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                          "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+        
+            // add transformed variable to all spaces
+            // check if myspace callHistory contains a subset
+            for(var k0=0; k0<callHistory.length; k0++) {
+                if(callHistory[k0].func==="subset") {
+                    var subseted = true;
+                }
             }
-        loopK:
-            for(var k=0; k<spaces[j].callHistory.length; k++) { // gets here if myspace has not been subseted
-                if(spaces[j].callHistory[k].func==="subset") { // check if space j has been subseted
+        
+        loopJ:
+            for(var j in spaces) {
+                if(j===myspace) {continue;}
+                var i = spaces[j].allNodes.length;
+                if(subseted===true) { // myspace has been subseted
                     offspaceTransform(j);
                     continue loopJ;
                 }
-            }
-            // if there is a subset in the callHistory of the current space, transformation is different
-            function offspaceTransform(j) {
-                transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:spaces[j].callHistory};
-                var jsonout = JSON.stringify(transformstuff);
-                //var base = rappURL+"transformapp?solaJSON="
-                urlcall = rappURL+"transformapp"; //base.concat(jsonout);
-                var solajsonout = "solaJSON="+jsonout;
-                console.log("urlcall out: ", urlcall);
-                console.log("POST out: ", solajsonout);
+            loopK:
+                for(var k=0; k<spaces[j].callHistory.length; k++) { // gets here if myspace has not been subseted
+                    if(spaces[j].callHistory[k].func==="subset") { // check if space j has been subseted
+                        offspaceTransform(j);
+                        continue loopJ;
+                    }
+                }
+                // if there is a subset in the callHistory of the current space, transformation is different
+                function offspaceTransform(j) {
+                    transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:spaces[j].callHistory};
+                    var jsonout = JSON.stringify(transformstuff);
+                    //var base = rappURL+"transformapp?solaJSON="
+                    urlcall = rappURL+"transformapp"; //base.concat(jsonout);
+                    var solajsonout = "solaJSON="+jsonout;
+                    console.log("urlcall out: ", urlcall);
+                    console.log("POST out: ", solajsonout);
 
                 
-                function offspaceSuccess(btn, json) {
-                    spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
-                    spaces[j].logArray.push("transform: ".concat(rCall[0]));
-                    readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
+                    function offspaceSuccess(btn, json) {
+                        spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
+                        spaces[j].logArray.push("transform: ".concat(rCall[0]));
+                        readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
                     
-                    spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                        spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
                         "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                    }
+                    function offspaceFail(btn) {
+                        alert("transform fail");
+                    }
+                    makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail, solajsonout);
                 }
-                function offspaceFail(btn) {
-                    alert("transform fail");
-                }
-                makeCorsRequest(urlcall,btn, offspaceSuccess, offspaceFail, solajsonout);
-            }
             
-            // if myspace and space j have not been subseted, append the same transformation
-            spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
-            spaces[j].logArray.push("transform: ".concat(rCall[0]));
+                // if myspace and space j have not been subseted, append the same transformation
+                spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
+                spaces[j].logArray.push("transform: ".concat(rCall[0]));
 
-            spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
                 "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
             
-            readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
+                readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
+            }
         }
     }
     
@@ -2106,7 +2173,7 @@ function tabRight(tabid) {
 
 
 function varSummary(d) {
-  
+    console.log(d);
     var rint = d3.format("r");
 
     var summarydata = [],
@@ -2142,6 +2209,7 @@ function varSummary(d) {
     var dataArray = [];
     dataArray.push({varname: d.name, properties: preprocess[d.name]});
 
+    console.log(dataArray);
     var nameList = new Array;
     for (var i = 0; i < allNodes.length; i++) {
       nameList[i] = allNodes[i].name;
@@ -2265,7 +2333,7 @@ function popupX(d) {
 }
 
 
-function panelPlots() {  // VJD: some optimization added 7/25/14
+function panelPlots() {
 
     // build arrays from nodes in main
     var dataArray = [];
@@ -2278,7 +2346,16 @@ function panelPlots() {  // VJD: some optimization added 7/25/14
         idArray.push(nodes[j].id);
     }
     
+    console.log("panelPlots");
+    console.log(dataArray);
+    
+    //remove all plots, could be smarter here
+    d3.select("#setx").selectAll("svg").remove();
+    d3.select("#tab2").selectAll("svg").remove();
+    
     for (var i = 0; i < varArray.length; i++) {
+        allNodes[idArray[i]].setxplot=false;
+        allNodes[idArray[i]].subsetplot=false;
             if (dataArray[i].properties.type === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
                 density(dataArray[i], allNodes[idArray[i]], div="setx");
@@ -2340,8 +2417,9 @@ function hexToRgba(hex) {
     return "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
 
-// function takes a node and a color.  sets zparams as well.
+// function takes a node and a color and updates zparams
 function setColors (n, c) {
+    
     if(n.strokeWidth=='1') { // adding time, cs, dv, nom to a node with no stroke
         n.strokeWidth = '4';
         n.strokeColor = c;
@@ -2363,6 +2441,8 @@ function setColors (n, c) {
         else if(nomColor==c) {
             zparams.znom = Object.prototype.toString.call(zparams.znom) == "[object Array]" ? zparams.znom : [];
             zparams.znom.push(n.name);
+            allNodes[findNodeIndex(n.name)].nature="nominal";
+            transform(n.name, t=null, typeTransform=true);
         }
         
         d3.select("#tab1").select("p#".concat(n.name))
@@ -2390,7 +2470,10 @@ function setColors (n, c) {
             }
             else if(nomColor==c) {
                 var nomIndex = zparams.znom.indexOf(n.name);
-                if (nomIndex > -1) { zparams.znom.splice(nomIndex, 1); }
+                if (nomIndex > -1) { zparams.znom.splice(nomIndex, 1);
+                    allNodes[findNodeIndex(n.name)].nature=allNodes[findNodeIndex(n.name)].defaultNature;
+                    transform(n.name, t=null, typeTransform=true);
+                }
             }
         }
         else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
@@ -2408,7 +2491,11 @@ function setColors (n, c) {
             }
             else if(nomColor==n.strokeColor) {
                 var nomIndex = zparams.znom.indexOf(n.name);
-                if (nomIndex > -1) { zparams.znom.splice(nomIndex, 1); }
+                if (nomIndex > -1) {
+                    zparams.znom.splice(nomIndex, 1);
+                    allNodes[findNodeIndex(n.name)].nature=allNodes[findNodeIndex(n.name)].defaultNature;
+                    transform(n.name, t=null, typeTransform=true);
+                }
             }
             n.strokeColor = c;
             d3.select("#tab1").select("p#".concat(n.name))
@@ -2417,7 +2504,11 @@ function setColors (n, c) {
             if(dvColor==c) {zparams.zdv.push(n.name);}
             else if(csColor==c) {zparams.zcross.push(n.name);}
             else if(timeColor==c) {zparams.ztime.push(n.name);}
-            else if(nomColor==c) {zparams.znom.push(n.name);}
+            else if(nomColor==c) {
+                zparams.znom.push(n.name);
+                allNodes[findNodeIndex(n.name)].nature="nominal";
+                transform(n.name, t=null, typeTransform=true);
+            }
         }
     }
 }

@@ -345,7 +345,7 @@ function bars(data, node, div) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    if(node.numchar==="character") {
+    if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
             if(data.properties.values[keys[i]]==0) {continue;}
@@ -604,7 +604,7 @@ plotsvg.selectAll("rect")
         .attr("points", function(d){
             var s=6;
               if(node.setxvals[0]=="") {
-                if(node.numchar=="character") { // if this variable is a character, use the median frequency as the position for the setx slider
+                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
                     var xnm = x(Math.trunc(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
@@ -622,7 +622,7 @@ plotsvg.selectAll("rect")
         .attr("points", function(d){
             var s=6;
               if(node.setxvals[1]=="") {
-                if(node.numchar=="character") { // if this variable is a character, use the median frequency as the position for the setx slider
+                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
                     var xnm = x(Math.trunc(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
@@ -774,7 +774,7 @@ function barsSubset(data, node) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    if(node.numchar==="character") {
+    if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
             if(data.properties.values[keys[i]]==0) {continue;}
@@ -975,6 +975,18 @@ function barsSubset(data, node) {
 
 function densityNode(data, node, obj) {
 
+    var myname = data.varname.toString().concat("nodeplot");
+    
+    if(typeof obj === "undefined") {
+        var obj = document.getElementById(data.varname.toString()+"biggroup");
+        
+        // if obj contains an svg element, remove it. this removes any plot inside the node
+        if(d3.select(obj).selectAll("svg")[0].length>0) {
+            d3.select(obj).selectAll("svg").remove();
+        }
+    }
+
+    
     var yVals = data.properties.y;
     var xVals = data.properties.x;
     
@@ -1009,11 +1021,12 @@ function densityNode(data, node, obj) {
     .y1(function(d) { return y(d.y); });
     
     var plotsvg = d3.select(obj)
-    .append("svg")
+    .insert("svg", ":first-child")
+//    .append("svg")
     .attr("x", -40)  // NOTE: Not sure exactly why these numbers work, but these hardcoded values seem to position the plot inside g correctly.  this shouldn't be hardcoded in the future
     .attr("y", -45)
     .attr("id", function(){
-            return data.varname.toString().concat("nodeplot");
+            return myname;
             })
     .style("width", width)
     .style("height", height)
@@ -1027,6 +1040,18 @@ function densityNode(data, node, obj) {
 }
 
 function barsNode(data, node, obj) {
+    console.log(data);
+    var myname = data.varname.toString().concat("nodeplot");
+    
+    if(typeof obj === "undefined") {
+        var obj = document.getElementById(data.varname.toString()+"biggroup");
+        
+        // if obj contains an svg element, remove it. this removes any plot inside the node
+        if(d3.select(obj).selectAll("svg")[0].length>0) {
+            d3.select(obj).selectAll("svg").remove();
+        }
+    }
+
     
     // Histogram spacing
     var barPadding = .015;  // Space between bars
@@ -1038,7 +1063,7 @@ function barsNode(data, node, obj) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    if(node.numchar==="character") {
+    if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
             if(data.properties.values[keys[i]]==0) {continue;}
@@ -1078,14 +1103,17 @@ function barsNode(data, node, obj) {
     .range([0, height]);
     
     
+    
+    
     //Create SVG element
     var plotsvg = d3.select(obj)
-        .append("svg")
+    .insert("svg", ":first-child")
+//        .append("svg")
         .attr("x", -40)
         .attr("y", -45)
     
         .attr("id", function(){
-              return data.varname.toString().concat("nodeplot");
+              return myname;
               })
         .style("width", width) //setting height to the height of #main.left
         .style("height", height)
@@ -1107,6 +1135,7 @@ function barsNode(data, node, obj) {
           return y(d);
           })
     .attr("fill", "#1f77b4");
+    
 }
 
 

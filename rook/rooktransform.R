@@ -50,14 +50,6 @@ transform.app <- function(env){
 	}
     
     if(!warning){
-		myT <- everything$transform
-        if(is.null(myT)){
-            warning<-TRUE
-            result<-list(warning="Invalid transformation.")
-        }
-	}
-
-    if(!warning){
         history <- everything$callHistory
         if(is.null(history)){
             warning<-TRUE
@@ -65,7 +57,62 @@ transform.app <- function(env){
         }
     }
     
-    if(!warning) {
+    if(!warning){
+        typeTransform <- everything$typeTransform
+        if(!is.logical(typeTransform)){
+            warning<-TRUE
+            result<-list(warning="typeTransform must be a logical.")
+        }
+    }
+    
+    if(!warning){
+		myT <- everything$transform
+        if(is.null(myT) & !typeTransform){
+            warning<-TRUE
+            result<-list(warning="Invalid transformation.")
+        }
+	}
+    
+    if(!warning){
+        typeStuff <- everything$typeStuff
+        if(!is.list(typeStuff) | (is.null(typeStuff$varnames) | is.null(typeStuff$interval) | is.null(typeStuff$numchar) | is.null(typeStuff$nature) | is.null(typeStuff$binary))){
+            warning<-TRUE
+            result<-list(warning="typeStuff is not a list or one of the necessary elements---varnames, interval, numchar, nature, binary---is null.")
+        }
+    }
+    
+    if(!warning & typeTransform) {
+        tryCatch(
+        {
+            ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
+            mydata <- executeHistory(history=history, data=mydata)
+            
+            ## 2. calculate summary statistics
+            tdata <- as.data.frame(mydata[,myvars])
+            colnames(tdata) <- myvars
+            print(class(tdata))
+            #typeStuff should be a list: list(varnames=c(""), interval=c(""), numchar=c(""), nature=(""), binary=c(""))
+            sumstats <- calcSumStats(tdata, typeStuff)
+            
+            # preprocess just one variable
+            purl <- pCall(data=tdata, production, sessionid=mysessionid, types=typeStuff)
+            result<- jsonlite:::toJSON(list(sumStats=sumstats, typeStuff=typeStuff, url=purl, typeTransform=typeTransform))
+        },
+        error=function(err){
+            warning <<- TRUE
+            result <- list(warning=paste("Transformation error: ", err))
+            result<-jsonlite:::toJSON(result)
+            assign("result", result, envir=globalenv())
+        },
+        warning=function(err){ # for zelig.app, warnings are ignored.  here, factor^2 produces a warning, and we don't want to ignore that...
+            warning <<- TRUE
+            result <- list(warning=paste("Transformation warning: ", err))
+            result<-jsonlite:::toJSON(result)
+            assign("result", result, envir=globalenv())
+        })
+    }
+    
+    if(!warning & !typeTransform) {
         tryCatch(
         {
             ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
@@ -79,8 +126,8 @@ transform.app <- function(env){
         
         # preprocess just one variable
         colnames(tdata) <- call
-        purl <- pCall(data=tdata, production, sessionid=mysessionid)
-        result<- jsonlite:::toJSON(list(sumStats=sumstats, types=types, call=call, url=purl, trans=c(myvars,myT)))
+        purl <- pCall(data=tdata, production, sessionid=mysessionid, types=types)
+        result<- jsonlite:::toJSON(list(sumStats=sumstats, types=types, call=call, url=purl, trans=c(myvars,myT), typeTransform=typeTransform))
         },
         error=function(err){
             warning <<- TRUE

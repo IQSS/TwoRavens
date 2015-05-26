@@ -5,7 +5,7 @@
 ##
 
 
-preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
+preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL){
     
     histlimit<-13
     
@@ -26,7 +26,8 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
     count<-0
     
     for(i in 1:k){
-        if(is.numeric(mydata[,i])){
+        nat <- types$nature[which(types$varnames==varnames[i])]
+        if(nat!="nominal"){
             uniqueValues<-sort(na.omit(unique(mydata[,i])))
             
             if(length(uniqueValues)< histlimit){
@@ -39,7 +40,8 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL){
             }
             
         }else{
-            hold[[i]]<-list(type="character")
+            output<- table(mydata[,i])
+            hold[[i]]<- list(type="bar", values=output)
         }
     }
     names(hold)<-varnames
