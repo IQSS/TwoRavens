@@ -81,6 +81,7 @@ transform.app <- function(env){
         }
     }
     
+    # transforming a variable's type
     if(!warning & typeTransform) {
         tryCatch(
         {
@@ -91,12 +92,10 @@ transform.app <- function(env){
             tdata <- as.data.frame(mydata[,myvars])
             colnames(tdata) <- myvars
             print(class(tdata))
-            #typeStuff should be a list: list(varnames=c(""), interval=c(""), numchar=c(""), nature=(""), binary=c(""))
-            sumstats <- calcSumStats(tdata, typeStuff)
             
             # preprocess just one variable
             purl <- pCall(data=tdata, production, sessionid=mysessionid, types=typeStuff)
-            result<- jsonlite:::toJSON(list(sumStats=sumstats, typeStuff=typeStuff, url=purl, typeTransform=typeTransform))
+            result<- jsonlite:::toJSON(list(url=purl, typeTransform=typeTransform))
         },
         error=function(err){
             warning <<- TRUE
@@ -112,6 +111,7 @@ transform.app <- function(env){
         })
     }
     
+    # creating a new variable with a transformation function
     if(!warning & !typeTransform) {
         tryCatch(
         {
@@ -121,13 +121,11 @@ transform.app <- function(env){
             ## 2. make the current transformation
             tdata <- parseTransform(data=mydata, func=myT, vars=myvars)
             call<-colnames(tdata)
-            types <- typeHell(tdata)
-            sumstats <- calcSumStats(tdata, types)
-        
-        # preprocess just one variable
-        colnames(tdata) <- call
-        purl <- pCall(data=tdata, production, sessionid=mysessionid, types=types)
-        result<- jsonlite:::toJSON(list(sumStats=sumstats, types=types, call=call, url=purl, trans=c(myvars,myT), typeTransform=typeTransform))
+            
+            # preprocess just one variable
+            colnames(tdata) <- call
+            purl <- pCall(data=tdata, production, sessionid=mysessionid, types=NULL)
+            result<- jsonlite:::toJSON(list(call=call, url=purl, trans=c(myvars,myT), typeTransform=typeTransform))
         },
         error=function(err){
             warning <<- TRUE

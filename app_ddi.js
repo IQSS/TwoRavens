@@ -18,6 +18,11 @@
 
 var production=false;
 
+if(production && fileid=="") {
+    alert("Error: No fileid has been provided.");
+    throw new Error("Error: No fileid has been provided.");
+}
+
 if (!hostname && !production) {
        hostname="localhost:8080";
 } else if (!hostname && production) {
@@ -46,8 +51,6 @@ if (!production) {
 var myspace = 0;
 var svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
 .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
-
-
 
 var logArray = [];
 
@@ -227,7 +230,8 @@ if (dataurl) {
     // no dataurl/file id supplied; use one of the sample data files distributed with the
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
-    pURL = "data/fearonLaitin.txt";     // This is the Fearon Laitin JSON data
+   // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
+    pURL = "data/fearonLaitinNewPreprocess3.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
 
@@ -243,11 +247,6 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var cite = xml.documentElement.getElementsByTagName("biblCit");
                       zparams.zdatacite=cite[0].childNodes[0].nodeValue;
                       
-                      //    console.log(temp[0].childNodes[0].nodeValue);
-                      //    console.log(temp);
-                      //    console.log(zparams.zdata);
-                      
-                      
                       // dataset name trimmed to 12 chars
                       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
                       // Put dataset name, from meta-data, into top panel
@@ -262,10 +261,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       
                       for (i=0;i<vars.length;i++) {
                       
-                      var sumStats = new Object;
-                      var varStats = [];
                       valueKey[i] = vars[i].attributes.name.nodeValue;
-                      var intrval = vars[i].attributes.intrvl.nodeValue;
                       
                       if(vars[i].getElementsByTagName("labl").length === 0) {lablArray[i]="no label";}
                       else {lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;}
@@ -274,19 +270,17 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       .bins(barnumber).frequency(false)
                       (myvalues);
                       
-                      varStats = vars[i].getElementsByTagName("sumStat");
+                      // this creates an object to be pushed to allNodes. this contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
+                      var obj1 = {id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false};
                       
-                      for (j=0; j<varStats.length; j++) {
-                        var myType = "";
-                        myType = varStats[j].getAttribute("type");
-                        if(myType==null) continue; // no sumStat
-                        sumStats[myType] = varStats[j].childNodes[0].nodeValue;
-                      }
+                      jQuery.extend(true, obj1, preprocess[valueKey[i]]);
                       
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
-                      allNodes.push({id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":intrval[i], "numchar":"", "nature":"", "binary":"", "defaultInterval":intrval[i], "defaultNumchar":"", "defaultNature":"", "defaultBinary":"", "minimum":sumStats.min, "median":sumStats.medn, "standardDeviation":sumStats.stdev, "mode":sumStats.mode, "freqmode":NaN, "fewest":sumStats.mode, "freqfewest":NaN, "mid":sumStats.mode, "freqmid":NaN, "uniques":NaN, "herfindahl":NaN, "valid":sumStats.vald, "mean":sumStats.mean, "maximum":sumStats.max, "invalid":sumStats.invd, "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                      allNodes.push(obj1);
                       };
+                      //,
                       
+                        console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -786,17 +780,13 @@ function layout(v) {
         // add plot
         g.each(function(d) {
                d3.select(this);
-         
-               var dataArray = [{varname: d.name, properties: preprocess[d.name]}];
-               
-               if(dataArray[0].properties.type === "continuous") {
-                densityNode(dataArray[0], d, obj=this);
+               if(d.plottype === "continuous") {
+                densityNode(d, obj=this);
                }
-               else if (dataArray[0].properties.type === "bar") {
-                barsNode(dataArray[0], d, obj=this);
+               else if (d.plottype === "bar") {
+                barsNode(d, obj=this);
                }
-          
-               });
+            });
         
         // add arc tags
         g.append("path")
@@ -931,7 +921,7 @@ function layout(v) {
               return "#dvArc".concat(d.id);
               })
         .text("Dep Var");
-
+        
        g.append("path")
         .attr("id", function(d){
               return "nomArc".concat(d.id);
@@ -940,6 +930,7 @@ function layout(v) {
         .style("fill", nomColor)
         .attr("fill-opacity", 0)
         .on('mouseover', function(d){
+            if(d.defaultNumchar=="character") {return;}
             d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);
@@ -948,6 +939,7 @@ function layout(v) {
             .duration(100);
             })
         .on('mouseout', function(d){
+            if(d.defaultNumchar=="character") {return;}
             d3.select(this).transition()  .attr("fill-opacity", 0)
             .delay(100)
             .duration(500);
@@ -956,6 +948,7 @@ function layout(v) {
             .duration(500);
             })
         .on('click', function(d){
+            if(d.defaultNumchar=="character") {return;}
             setColors(d, nomColor);
             legend(nomColor);
             restart();
@@ -1101,12 +1094,14 @@ function layout(v) {
             d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
             .delay(0)
             .duration(100);
-            d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
-            .delay(0)
-            .duration(100);
-            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
-            .delay(0)
-            .duration(100);
+            if(d.defaultNumchar=="numeric") {
+                d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+                .delay(0)
+                .duration(100);
+                d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+                .delay(0)
+                .duration(100);
+            }
             d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
             .delay(0)
             .duration(100);
@@ -1480,38 +1475,6 @@ function dataDownload() {
             document.getElementById("logID").href=logURL;
         }
         
-        // assign the summary statistics to allNodes
-        for(var j=0; j<json.sumstats.varnames.length; j++) {
-            var temp = findNodeIndex(json.sumstats.varnames[j]);
-            allNodes[temp].minimum=json.sumstats.min[j];
-            allNodes[temp].median=json.sumstats.median[j];
-            allNodes[temp].mode=(json.sumstats.mode[j]).toString();
-            allNodes[temp].mean=json.sumstats.mean[j];
-            allNodes[temp].invalid=json.sumstats.invalid[j];
-            allNodes[temp].valid=json.sumstats.valid[j];
-            allNodes[temp].standardDeviation=json.sumstats.sd[j];
-            allNodes[temp].maximum=json.sumstats.max[j];
-            allNodes[temp].freqmode=json.sumstats.freqmode[j];
-            allNodes[temp].freqfewest=json.sumstats.freqfewest[j];
-            allNodes[temp].freqmid=json.sumstats.freqmid[j];
-            allNodes[temp].fewest=(json.sumstats.fewest[j]).toString();
-            allNodes[temp].mid=(json.sumstats.mid[j]).toString();
-            allNodes[temp].uniques=json.sumstats.uniques[j];
-            allNodes[temp].herfindahl=json.sumstats.herfindahl[j];
-            
-            allNodes[temp].interval=json.types.interval[j];
-            allNodes[temp].numchar=json.types.numchar[j];
-            allNodes[temp].nature=json.types.nature[j];
-            allNodes[temp].binary=json.types.binary[j];
-            allNodes[temp].defaultInterval=json.types.interval[j];
-            allNodes[temp].defaultNumchar=json.types.numchar[j];
-            allNodes[temp].defaultNature=json.types.nature[j];
-            allNodes[temp].defaultBinary=json.types.binary[j];
-        }
-        
-        populatePopover();
-        rePlot();
-        panelPlots();
     }
     
     function downloadFail(btn) {
@@ -1680,7 +1643,25 @@ function transform(n,t, typeTransform) {
     var myn = allNodes[findNodeIndex(n[0])];
     if(typeof myn==="undefined") {var myn = allNodes[findNodeIndex(n)];}
     
-    var outtypes = {varnames:n, interval:myn.interval, numchar:myn.numchar, nature:myn.nature, binary:myn.binary}
+    var outtypes = {varnamesTypes:n, interval:myn.interval, numchar:myn.numchar, nature:myn.nature, binary:myn.binary};
+    
+    // if typeTransform but we already have the metadata
+    if(typeTransform) {
+        if(myn.nature=="nominal" & typeof myn.plotvalues !=="undefined") {
+            myn.plottype="bar";
+            barsNode(myn);
+            populatePopover();
+            panelPlots();
+            return;
+        }
+        else if (myn.nature!="nominal" & typeof myn.plotx !=="undefined") {
+            myn.plottype="continuous";
+            densityNode(myn);
+            populatePopover();
+            panelPlots();
+            return;
+        }
+    }
     
     //package the output as JSON
     var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory, typeTransform:typeTransform, typeStuff:outtypes};
@@ -1699,43 +1680,28 @@ function transform(n,t, typeTransform) {
         console.log("json in: ", json);
         
         if(json.typeTransform[0]) {
-            console.log("HEREHEREHERE");
-                        
-            readPreprocess(json.url, p=preprocess, v=newVar, callback=function(){
-                
-                           myn.interval = json.typeStuff.interval[0];
-                           myn.numchar = json.typeStuff.numchar[0];
-                           myn.nature = json.typeStuff.nature[0];
-                           myn.binary = json.typeStuff.binary[0];
-                           
-                           myn.minimum = json.sumStats.min[0];
-                           myn.median = json.sumStats.median[0];
-                           myn.mode=(json.sumStats.mode[0]).toString();
-                           myn.mean=json.sumStats.mean[0];
-                           myn.invalid=json.sumStats.invalid[0];
-                           myn.valid=json.sumStats.valid[0];
-                           myn.standardDeviation=json.sumStats.sd[0];
-                           myn.maximum=json.sumStats.max[0];
-                           myn.freqmode=json.sumStats.freqmode[0];
-                           myn.freqfewest=json.sumStats.freqfewest[0];
-                           myn.freqmid=json.sumStats.freqmid[0];
-                           myn.fewest=(json.sumStats.fewest[0]).toString();
-                           myn.mid=(json.sumStats.mid[0]).toString();
-                           myn.uniques=json.sumStats.uniques[0];
-                           myn.herfindahl=json.sumStats.herfindahl[0];
-                           
-                           var dataArray = [{varname: myn.name, properties: preprocess[myn.name]}];
-                           if(dataArray[0].properties.type === "continuous") {
-                            densityNode(dataArray[0], myn);
-                           }
-                           else if (dataArray[0].properties.type === "bar") {
-                            barsNode(dataArray[0], myn);
-                           }
-                           
-                           fakeClick();
-                           populatePopover();
-                           panelPlots();
-                        });
+            
+            d3.json(json.url, function(error, json) {
+                        if (error) return console.warn(error);
+                        var jsondata = json;
+                    
+                        for(var key in jsondata) {
+                            var myIndex = findNodeIndex(key);
+                            jQuery.extend(true, allNodes[myIndex], jsondata[key]);
+                    
+                            if(allNodes[myIndex].plottype === "continuous") {
+                                densityNode(allNodes[myIndex]);
+                            }
+                            else if (allNodes[myIndex].plottype === "bar") {
+                                barsNode(allNodes[myIndex]);
+                            }
+                        }
+                    
+                        fakeClick();
+                        populatePopover();
+                        panelPlots();
+                    console.log(allNodes[myIndex]);
+                    });
         }
         else {
         
@@ -1746,25 +1712,47 @@ function transform(n,t, typeTransform) {
             rCall[0] = json.call;
             var newVar = rCall[0][0];
             trans.push(newVar);
-            readPreprocess(json.url, p=preprocess, v=newVar, callback=mycallback);
-        
-            function mycallback() {
-                scaffoldingPush(rCall[0]);
-                valueKey.push(newVar);
-                nodes.push(findNode(newVar));
-                fakeClick();
-                panelPlots();
-            }
+            
+            d3.json(json.url, function(error, json) {
+                    if (error) return console.warn(error);
+                    var jsondata = json;
+                    
+                    for(var key in jsondata) {
+                        var myIndex = findNodeIndex(key);
+                    if(typeof myIndex !== "undefined") {
+                        alert("Invalid transformation: this variable name already exists.");
+                        return;
+                    }
+                    // add transformed variable to the current space
+                    var i = allNodes.length;
+                    var obj1 = {id:i, reflexive: false, "name": key, "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: [.6, .2, .9, .8, .1, .3, .4], "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false, "defaultInterval":jsondata[key]["interval"], "defaultNumchar":jsondata[key]["numchar"], "defaultNature":jsondata[key]["nature"], "defaultBinary":jsondata[key]["binary"]};
+                    
+                    jQuery.extend(true, obj1, jsondata[key]);
+                    allNodes.push(obj1);
+
+                    scaffoldingPush(rCall[0]);
+                    valueKey.push(newVar);
+                    nodes.push(allNodes[i]);
+                    fakeClick();
+                    panelPlots();
+
+                    if(allNodes[i].plottype === "continuous") {
+                        densityNode(allNodes[i]);
+                    }
+                        else if (allNodes[i].plottype === "bar") {
+                        barsNode(allNodes[i]);
+                        }
+                    }//for
+                    
+                    
+                    });
         
             // update the log
             logArray.push("transform: ".concat(rCall[0]));
             showLog();
         
-            // add transformed variable to the current space
-            var i = allNodes.length;
-            allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
-                          "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
-        
+                    // NOTE: below is the carousel portion that needs to be revised as of May 29 2015
+            
             // add transformed variable to all spaces
             // check if myspace callHistory contains a subset
             for(var k0=0; k0<callHistory.length; k0++) {
@@ -1804,8 +1792,8 @@ function transform(n,t, typeTransform) {
                         spaces[j].logArray.push("transform: ".concat(rCall[0]));
                         readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
                     
-                        spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
-                        "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                        spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "min":json.sumStats.min[0], "median":json.sumStats.median[0], "sd":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                        "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "max":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
                     }
                     function offspaceFail(btn) {
                         alert("transform fail");
@@ -1817,8 +1805,8 @@ function transform(n,t, typeTransform) {
                 spaces[j].callHistory.push({func:"transform", zvars:n, transform:t});
                 spaces[j].logArray.push("transform: ".concat(rCall[0]));
 
-                spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "minimum":json.sumStats.min[0], "median":json.sumStats.median[0], "standardDeviation":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
-                "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "maximum":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
+                spaces[j].allNodes.push({id:i, reflexive: false, "name": rCall[0][0], "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "interval":json.types.interval[0], "numchar":json.types.numchar[0], "nature":json.types.nature[0], "binary":json.types.binary[0], "defaultInterval":json.types.interval[0], "defaultNumchar":json.types.numchar[0], "defaultNature":json.types.nature[0], "defaultBinary":json.types.binary[0], "min":json.sumStats.min[0], "median":json.sumStats.median[0], "sd":json.sumStats.sd[0], "mode":(json.sumStats.mode[0]).toString(), "freqmode":json.sumStats.freqmode[0],"fewest":(json.sumStats.fewest[0]).toString(), "freqfewest":json.sumStats.freqfewest[0], "mid":(json.sumStats.mid[0]).toString(), "freqmid":json.sumStats.freqmid[0], "uniques":json.sumStats.uniques[0], "herfindahl":json.sumStats.herfindahl[0],
+                "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "max":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
             
                 readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
             }
@@ -2173,21 +2161,21 @@ function tabRight(tabid) {
 
 
 function varSummary(d) {
-    console.log(d);
+
     var rint = d3.format("r");
 
-    var summarydata = [],
-    tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
-    t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.standardDeviation).toPrecision(4).toString(),(+d.minimum).toPrecision(4).toString(),(+d.maximum).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
-    i, j;
-
-    for (i = 0; i < t1.length; i++) {
-        if(t2[i]=="NaN" | t2[i]=="NA") continue;
-        tmpDataset=[];
-        tmpDataset.push(t1[i]);
-        tmpDataset.push(t2[i]);
-        summarydata.push(tmpDataset);
-    };
+        var summarydata = [],
+        tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
+        t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
+        i, j;
+        
+        for (i = 0; i < t1.length; i++) {
+            if(t2[i]=="NaN" | t2[i]=="NA" | t2[i]=="") continue;
+            tmpDataset=[];
+            tmpDataset.push(t1[i]);
+            tmpDataset.push(t2[i]);
+            summarydata.push(tmpDataset);
+        };
 
   //  console.log(summarydata);
     d3.select("#tab3")
@@ -2205,33 +2193,24 @@ function varSummary(d) {
     .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
 //    .style("font-size", "12px");
 
- 
-    var dataArray = [];
-    dataArray.push({varname: d.name, properties: preprocess[d.name]});
-
-    console.log(dataArray);
-    var nameList = new Array;
-    for (var i = 0; i < allNodes.length; i++) {
-      nameList[i] = allNodes[i].name;
-    }
-    var i = nameList.indexOf(d.name);
-
-     if(typeof dataArray[0].properties === "undefined") { // .properties is undefined for some vars
+    
+    if(typeof d.plottype === "undefined") { // .properties is undefined for some vars
         var plotsvg = d3.select("#tab3")
         .selectAll("svg")
         .remove();
     }
-    else if (dataArray[0].properties.type === "continuous") {
-      density(dataArray[0], allNodes[i], div="varSummary");
+    else if (d.plottype === "continuous") {
+        density(d, div="varSummary");
     }
-    else if (dataArray[0].properties.type === "bar") {
-      bars(dataArray[0], allNodes[i], div="varSummary");
+    else if (d.plottype === "bar") {
+        bars(d, div="varSummary");
     }
     else {
-      var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
-      .selectAll("svg")                     
-      .remove();
+        var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
+        .selectAll("svg")
+        .remove();
     };
+
 }
 
 function populatePopover () {
@@ -2275,13 +2254,13 @@ function popoverContent(d) {
     if (d.freqfewest != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
     }
     
-    if (d.standardDeviation != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.standardDeviation).toPrecision(4).toString() + "</p></div></div>";
+    if (d.sd != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.sd).toPrecision(4).toString() + "</p></div></div>";
     }
     
-    if (d.maximum != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.maximum).toPrecision(4).toString() + "</p></div></div>";
+    if (d.max != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.max).toPrecision(4).toString() + "</p></div></div>";
     }
     
-    if (d.minimum != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.minimum).toPrecision(4).toString() + "</p></div></div>";
+    if (d.min != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.min).toPrecision(4).toString() + "</p></div></div>";
     }
     if (d.invalid != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>";
     }
@@ -2312,18 +2291,18 @@ function popupX(d) {
           
           "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
                   
-          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.standardDeviation) + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.sd) + "</p></div></div>" +
   
-          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.maximum) + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.max) + "</p></div></div>" +
           
-          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.minimum) + "</p></div></div>" +
+          "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.min) + "</p></div></div>" +
           
           "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" +
 
           "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>" 
           );
     
-    /*.html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.maximum + "<br>Minimum: " + d.minimum + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.standardDeviation);*/
+    /*.html("Median: " + d.median + "<br>Mode: " + d.mode + "<br>Maximum: " + d.max + "<br>Minimum: " + d.min + "<br>Mean: " + d.mean + "<br>Invalid: " + d.invalid + "<br>Valid: " + d.valid + "<br>Stand Dev: " + d.sd);*/
     
     //d3.select("#tooltip")
     //.style("display", "inline")
@@ -2336,18 +2315,13 @@ function popupX(d) {
 function panelPlots() {
 
     // build arrays from nodes in main
-    var dataArray = [];
     var varArray = [];
     var idArray = [];
     
     for(var j=0; j < nodes.length; j++ ) {
-        dataArray.push({varname: nodes[j].name, properties: preprocess[nodes[j].name]});
         varArray.push(nodes[j].name.replace(/\(|\)/g, ""));
         idArray.push(nodes[j].id);
     }
-    
-    console.log("panelPlots");
-    console.log(dataArray);
     
     //remove all plots, could be smarter here
     d3.select("#setx").selectAll("svg").remove();
@@ -2356,17 +2330,17 @@ function panelPlots() {
     for (var i = 0; i < varArray.length; i++) {
         allNodes[idArray[i]].setxplot=false;
         allNodes[idArray[i]].subsetplot=false;
-            if (dataArray[i].properties.type === "continuous" & allNodes[idArray[i]].setxplot==false) {
+            if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                density(dataArray[i], allNodes[idArray[i]], div="setx");
+                density(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
-                density(dataArray[i], allNodes[idArray[i]], div="subset");
+                density(allNodes[idArray[i]], div="subset");
             }
-            else if (dataArray[i].properties.type === "bar" & allNodes[idArray[i]].setxplot==false) {
+            else if (allNodes[idArray[i]].plottype === "bar" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                bars(dataArray[i], allNodes[idArray[i]], div="setx");
+                bars(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
-                barsSubset(dataArray[i], allNodes[idArray[i]], div="subset");
+                barsSubset(allNodes[idArray[i]]);
             }
         }
     
@@ -2553,7 +2527,7 @@ function subsetSelect(btn) {
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
-        zparams.zplot.push(preprocess[nodes[j].name].type);
+        zparams.zplot.push(allNodes[temp].plottype);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
     
@@ -2562,7 +2536,12 @@ function subsetSelect(btn) {
         return;
     }
     
-    var subsetstuff = {zdataurl:zparams.zdataurl, zvars:zparams.zvars, zsubset:zparams.zsubset, zsessionid:zparams.zsessionid, zplot:zparams.zplot, callHistory:callHistory};
+    var outtypes = [];
+    for(var j=0; j < allNodes.length; j++) {
+        outtypes.push({varnamesTypes:allNodes[j].name, nature:allNodes[j].nature, numchar:allNodes[j].numchar, binary:allNodes[j].binary, interval:allNodes[j].interval});
+    }
+    
+    var subsetstuff = {zdataurl:zparams.zdataurl, zvars:zparams.zvars, zsubset:zparams.zsubset, zsessionid:zparams.zsessionid, zplot:zparams.zplot, callHistory:callHistory, typeStuff:outtypes};
     
     var jsonout = JSON.stringify(subsetstuff);
     //var base = rappURL+"subsetapp?solaJSON="
@@ -2618,35 +2597,6 @@ function subsetSelect(btn) {
         newnavdot.setAttribute("id", selectMe);
         mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
         
-        // assign the post-subset allNodes
-        for(var j=0; j<json.sumstats.varnames.length; j++) {
-            var temp = findNodeIndex(json.sumstats.varnames[j]);
-            allNodes[temp].minimum=json.sumstats.min[j];
-            allNodes[temp].median=json.sumstats.median[j];
-            allNodes[temp].mode=(json.sumstats.mode[j]).toString();
-            allNodes[temp].mean=json.sumstats.mean[j];
-            allNodes[temp].invalid=json.sumstats.invalid[j];
-            allNodes[temp].valid=json.sumstats.valid[j];
-            allNodes[temp].standardDeviation=json.sumstats.sd[j];
-            allNodes[temp].maximum=json.sumstats.max[j];
-            allNodes[temp].freqmode=json.sumstats.freqmode[j];
-            allNodes[temp].freqfewest=json.sumstats.freqfewest[j];
-            allNodes[temp].freqmid=json.sumstats.freqmid[j];
-            allNodes[temp].fewest=(json.sumstats.fewest[j]).toString();
-            allNodes[temp].mid=(json.sumstats.mid[j]).toString();
-            allNodes[temp].uniques=json.sumstats.uniques[j];
-            allNodes[temp].herfindahl=json.sumstats.herfindahl[j];
-
-            allNodes[temp].subsetplot=false;
-            allNodes[temp].subsetrange=["",""];
-            allNodes[temp].setxplot=false;
-            allNodes[temp].setxvals=["",""];
-            
-            if(json.sumstats.valid[j]==0) {
-                grayOuts.push(allNodes[temp].name);
-                allNodes[temp].grayout=true;
-            }
-        }
         
         // this is to be used to gray out and remove listeners for variables that have been subsetted out of the data
         function varOut(v) {
@@ -2676,15 +2626,32 @@ function subsetSelect(btn) {
         .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
         
-       
-        readPreprocess(json.url, p=preprocess, v=null, callback=mycallback);
-
-        function mycallback() {
-            rePlot();
-            populatePopover();
-            layout(v="add");
-        }
         
+        d3.json(json.url, function(error, json) {
+                if (error) return console.warn(error);
+                var jsondata = json;
+                
+                for(var key in jsondata) {
+                    var myIndex = findNodeIndex(key);
+                    jQuery.extend(true, allNodes[myIndex], jsondata[key]);
+                
+                    allNodes[myIndex].subsetplot=false;
+                    allNodes[myIndex].subsetrange=["",""];
+                    allNodes[myIndex].setxplot=false;
+                    allNodes[myIndex].setxvals=["",""];
+                
+                    if(allNodes[myIndex].valid==0) {
+                        grayOuts.push(allNodes[myIndex].name);
+                        allNodes[myIndex].grayout=true;
+                    }
+                }
+            
+                rePlot();
+                populatePopover();
+                layout(v="add");
+                
+                });
+    
         varOut(grayOuts);
     }
     
@@ -2719,7 +2686,7 @@ function readPreprocess(url, p, v, callback) {
 function delSpace() {
     if (spaces.length===0 | (spaces.length===1 & myspace===0)) {return;}
     var lastSpace = false;
-    if(myspace >= spaces.length-1) { console.log("lastspace"); lastSpace=true; }
+    if(myspace >= spaces.length-1) { lastSpace=true; }
     spaces.splice(myspace, 1);
     
     // remove current whitespace

@@ -64,24 +64,6 @@ data.app <- function(env){
               result <- list(sessionid=myid)
           }
   }
-  
-  if(!warning){
-      tryCatch({
-          if(production){
-              mydata <- readData(sessionid=myid,logfile=mylogfile)
-          }else{
-              mydata <- read.delim("../data/fearonLaitin.tsv")
-          }
-          
-        types <- typeHell(mydata)
-        sumstats <- calcSumStats(mydata, types)
-        result$sumstats <- sumstats
-        result$types <- types
-        
-        }, error=function(e) {
-            result <<- list(warning="Error: Cannot calculate summary statistics or variable types in rookdata.R")
-    })
-  }
 
     print(result)
     if(production){

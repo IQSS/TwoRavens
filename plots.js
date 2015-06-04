@@ -1,6 +1,6 @@
 // function to use d3 to graph density plots with preprocessed data
 
-function density(data, node, div) {
+function density(node, div) {
     var mydiv;
   
     if(div=="subset") {
@@ -16,13 +16,13 @@ function density(data, node, div) {
         return (alert("Error: incorrect div selected for plots"));
     }
     
-    var yVals = data.properties.y;
-    var xVals = data.properties.x;
+    var yVals = node.ploty;
+    var xVals = node.plotx;
 
     // an array of objects
     var data2 = [];
-    for(var i = 0; i < data.properties.x.length; i++) {
-        data2.push({x:data.properties.x[i], y:data.properties.y[i]});
+    for(var i = 0; i < node.plotx.length; i++) {
+        data2.push({x:node.plotx[i], y:node.ploty[i]});
     }
     
     data2.forEach(function(d) {
@@ -101,7 +101,7 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          return data.varname.toString().concat(mydiv.substr(1));
+          return node.name.toString().concat(mydiv.substr(1));
           })
     .style("width", 300) //setting height to the height of #main.left
     .style("height", 200)
@@ -111,7 +111,7 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          var myname = data.varname.toString();
+          var myname = node.name.toString();
           myname = myname.replace(/\(|\)/g, "");
           return myname.concat("_",mydiv.substr(1), "_", node.id);
           })
@@ -136,7 +136,7 @@ if(mydiv=="#tab3"){
     .attr("y", 0-(margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
-    .text(data.varname);
+    .text(node.name);
     
     // add brush if subset
     if(mydiv=="#tab2") {
@@ -182,11 +182,11 @@ if(mydiv=="#tab3"){
         var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
         var lineData = new Array;
 
-        var zLower = -1*(d3.min(xVals)-node.mean)/node.standardDeviation;  // zscore of lower bound
-        var zUpper =(d3.max(xVals)-node.mean)/node.standardDeviation;      // zscore of upper bound
+        var zLower = -1*(d3.min(xVals)-node.mean)/node.sd;  // zscore of lower bound
+        var zUpper =(d3.max(xVals)-node.mean)/node.sd;      // zscore of upper bound
 
         for (var i = 0; i < zUpper; i++) {
-            lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
+            lineData = [{ "x": x(+node.mean + i*node.sd),   "y": height*.7},  { "x": x(+node.mean+ i*node.sd),  "y": height*.9}];
             plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
             .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
@@ -195,7 +195,7 @@ if(mydiv=="#tab3"){
         }
 
         for (var i = 1; i < zLower; i++) {
-            lineData = [{ "x": x(+node.mean - i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean- i*node.standardDeviation),  "y": height*.9}];
+            lineData = [{ "x": x(+node.mean - i*node.sd),   "y": height*.7},  { "x": x(+node.mean- i*node.sd),  "y": height*.9}];
             plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
             .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
@@ -274,7 +274,7 @@ if(mydiv=="#tab3"){
             }
             else {
                 var m = +node.mean;
-                var sd = +node.standardDeviation;
+                var sd = +node.sd;
                 var zScore = (value - m)/sd;          // z-score
                 var zRound = Math.round(zScore);      // nearest integer z-score
                 if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
@@ -314,7 +314,7 @@ if(mydiv=="#tab3"){
             }
             else {
                 var m = +node.mean;
-                var sd = +node.standardDeviation;
+                var sd = +node.sd;
                 var zScore = (value - m)/sd;          // z-score
                 var zRound = Math.round(zScore);      // nearest integer z-score
                 if( .1 > Math.abs(zRound - zScore)) { // snap to integer z-score
@@ -333,14 +333,14 @@ if(mydiv=="#tab3"){
 }
 
 
-function bars(data, node, div) {
+function bars(node, div) {
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
     var plotXaxis = true;
 
     // Data
-    var keys = Object.keys(data.properties.values);
+    var keys = Object.keys(node.plotvalues);
     var yVals = new Array;
     var xVals = new Array;
     var yValKey = new Array;
@@ -348,8 +348,8 @@ function bars(data, node, div) {
     if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
-            if(data.properties.values[keys[i]]==0) {continue;}
-            yVals[xi] = data.properties.values[keys[i]];
+            if(node.plotvalues[keys[i]]==0) {continue;}
+            yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
             yValKey.push({y:yVals[xi], x:keys[i] });
             xi = xi+1;
@@ -359,7 +359,7 @@ function bars(data, node, div) {
     }
     else {
         for (var i = 0; i < keys.length; i++) {
-            yVals[i] = data.properties.values[keys[i]];
+            yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
         }
     }
@@ -370,10 +370,7 @@ function bars(data, node, div) {
     var maxX = d3.max(xVals);
    
     var mydiv;
-    if(div=="subset") {
-        mydiv = "#tab2";
-    }
-    else if(div=="setx") {
+    if(div=="setx") {
         mydiv = "#setx";
     }
     else if(div=="varSummary") {
@@ -397,7 +394,7 @@ function bars(data, node, div) {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
     }
-    else if (mydiv=="#tab2" | mydiv=="#setx"){
+    else if (mydiv=="#setx"){
         width = 200;
         height = 120;
     }
@@ -452,7 +449,7 @@ if(mydiv=="#tab3"){
     var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          return data.varname.toString().concat(mydiv.substr(1));
+          return node.name.toString().concat(mydiv.substr(1));
           })
     .style("width", 300) //setting height to the height of #main.left
     .style("height", 200)
@@ -463,7 +460,7 @@ else {
 var plotsvg = d3.select(mydiv)
     .append("svg")
     .attr("id", function(){
-          var myname = data.varname.toString();
+          var myname = node.name.toString();
           myname = myname.replace(/\(|\)/g, "");
           return myname.concat("_",mydiv.substr(1), "_", node.id);
           })
@@ -502,26 +499,7 @@ plotsvg.selectAll("rect")
     .attr("y", 0-(margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
-    .text(data.varname);
-
-
-    // add brush if subset
-    if(mydiv=="#tab2") {
-        plotsvg.append("text")
-        .attr("id", "range")
-        .attr("x", 25)
-        .attr("y", height+40)
-        .text(function() {
-              return("Range: ".concat(Math.round(d3.min(xVals)), " to ", Math.round(d3.max(xVals))));
-              });
-        
-        plotsvg.append("g")
-        .attr("class", "x brush")
-        .call(brush)
-        .selectAll("rect")
-        .attr("height", height);
-    }
-
+    .text(node.name);
 
     if(mydiv=="#setx") {
         plotsvg.append("text")
@@ -555,11 +533,11 @@ plotsvg.selectAll("rect")
         var colSeq = [ "#A2CD5A","orange","red"];  // will cycle through color sequence, and then repeat last color
         var lineData = new Array;
 
-        var zLower = -1*(minX-node.mean)/node.standardDeviation;  // zscore of lower bound
-        var zUpper =(maxX-node.mean)/node.standardDeviation;      // zscore of upper bound
+        var zLower = -1*(minX-node.mean)/node.sd;  // zscore of lower bound
+        var zUpper =(maxX-node.mean)/node.sd;      // zscore of upper bound
 
         for (var i = 0; i < zUpper; i++) {
-            lineData = [{ "x": x(+node.mean + i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean+ i*node.standardDeviation),  "y": height*.9}];
+            lineData = [{ "x": x(+node.mean + i*node.sd),   "y": height*.7},  { "x": x(+node.mean+ i*node.sd),  "y": height*.9}];
             plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
             .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
@@ -568,7 +546,7 @@ plotsvg.selectAll("rect")
         }
 
         for (var i = 1; i < zLower; i++) {
-            lineData = [{ "x": x(+node.mean - i*node.standardDeviation),   "y": height*.7},  { "x": x(+node.mean- i*node.standardDeviation),  "y": height*.9}];
+            lineData = [{ "x": x(+node.mean - i*node.sd),   "y": height*.7},  { "x": x(+node.mean- i*node.sd),  "y": height*.9}];
             plotsvg.append("path")
             .attr("d", lineFunction([lineData[0],lineData[1]]))
             .attr("stroke", colSeq[d3.min([i,colSeq.length-1])])
@@ -640,28 +618,6 @@ plotsvg.selectAll("rect")
 
     // brushing functions
     function brushed() {
-        if(mydiv=="#tab2") {
-            var brushLow = new Number;
-            var brushHigh = new Number;
-
-            if(brush.empty()) {
-                node.subsetrange=["", ""]; 
-            } 
-            else { 
-                brushLow= Math.round(brush.extent()[0]);
-                brushHigh=Math.round(brush.extent()[1]);
-                if(brushHigh > maxX){
-                    brushHigh=maxX;
-                };    
-                node.subsetrange=[brushLow,brushHigh];
-            };
-            plotsvg.select("text#range")
-            .text(function() {
-                if(brush.empty()) {return("Range: ".concat(minX, " to ", maxX));}
-                else {return("Range: ".concat(brushLow, " to ", brushHigh));}
-                });
-        } 
-        else if(mydiv=="#setx") {
             var value = brush.extent()[0];
             var s = 6;
             
@@ -680,7 +636,7 @@ plotsvg.selectAll("rect")
             }
             else {
                 var m = +node.mean;
-                var sd = +node.standardDeviation;
+                var sd = +node.sd;
                 var zScore = (value - m)/sd;                    // z-score
                 var zRound = Math.round(zScore);                // nearest integer z-score
                 if (.1 > Math.abs( Math.round(value) - value)){ // snap to integer
@@ -702,8 +658,7 @@ plotsvg.selectAll("rect")
                     return("x: ".concat(twoSF(invx(xpos))));
                   }
                 });
-            node.setxvals[1]=twoSF(invx(xpos));                              
-        }
+            node.setxvals[1]=twoSF(invx(xpos));
     }
  
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
@@ -725,7 +680,7 @@ plotsvg.selectAll("rect")
             }
             else {
                 var m = +node.mean;
-                var sd = +node.standardDeviation;
+                var sd = +node.sd;
                 var zScore = (value - m)/sd;                     // z-score
                 var zRound = Math.round(zScore);                 // nearest integer z-score
                 if (.1 > Math.abs( Math.round(value) - value)){  // snap to integer
@@ -752,7 +707,7 @@ plotsvg.selectAll("rect")
 
 }
 
-function barsSubset(data, node) {
+function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
     if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
         node.subsetrange=[];
@@ -764,12 +719,12 @@ function barsSubset(data, node) {
     var plotXaxis = true;
     
     // Variable name
-    var myname = data.varname.toString();
+    var myname = node.name.toString();
     myname = myname.replace(/\(|\)/g, "");
 
     
     // Data
-    var keys = Object.keys(data.properties.values);
+    var keys = Object.keys(node.plotvalues);
     var yVals = new Array;
     var xVals = new Array;
     var yValKey = new Array;
@@ -777,8 +732,8 @@ function barsSubset(data, node) {
     if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
-            if(data.properties.values[keys[i]]==0) {continue;}
-            yVals[xi] = data.properties.values[keys[i]];
+            if(node.plotvalues[keys[i]]==0) {continue;}
+            yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
             yValKey.push({y:yVals[xi], x:keys[i] });
             xi = xi+1;
@@ -788,7 +743,7 @@ function barsSubset(data, node) {
     }
     else {
         for (var i = 0; i < keys.length; i++) {
-            yVals[i] = data.properties.values[keys[i]];
+            yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
         }
     }
@@ -948,7 +903,7 @@ function barsSubset(data, node) {
     .attr("y", 0-(margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
-    .text(data.varname);
+    .text(myname);
     
     plotsvg.append("text")
     .attr("id", "selectrange")
@@ -973,12 +928,12 @@ function barsSubset(data, node) {
 }
 
 
-function densityNode(data, node, obj) {
+function densityNode(node, obj) {
 
-    var myname = data.varname.toString().concat("nodeplot");
+    var myname = node.name.toString().concat("nodeplot");
     
     if(typeof obj === "undefined") {
-        var obj = document.getElementById(data.varname.toString()+"biggroup");
+        var obj = document.getElementById(node.name.toString()+"biggroup");
         
         // if obj contains an svg element, remove it. this removes any plot inside the node
         if(d3.select(obj).selectAll("svg")[0].length>0) {
@@ -987,13 +942,13 @@ function densityNode(data, node, obj) {
     }
 
     
-    var yVals = data.properties.y;
-    var xVals = data.properties.x;
+    var yVals = node.ploty;
+    var xVals = node.plotx;
     
     // an array of objects
     var data2 = [];
-    for(var i = 0; i < data.properties.x.length; i++) {
-        data2.push({x:data.properties.x[i], y:data.properties.y[i]});
+    for(var i = 0; i < node.plotx.length; i++) {
+        data2.push({x:node.plotx[i], y:node.ploty[i]});
     }
     
     data2.forEach(function(d) {
@@ -1039,12 +994,12 @@ function densityNode(data, node, obj) {
     .attr("d", area);
 }
 
-function barsNode(data, node, obj) {
-    console.log(data);
-    var myname = data.varname.toString().concat("nodeplot");
+function barsNode(node, obj) {
+    
+    var myname = node.name.toString().concat("nodeplot");
     
     if(typeof obj === "undefined") {
-        var obj = document.getElementById(data.varname.toString()+"biggroup");
+        var obj = document.getElementById(node.name.toString()+"biggroup");
         
         // if obj contains an svg element, remove it. this removes any plot inside the node
         if(d3.select(obj).selectAll("svg")[0].length>0) {
@@ -1058,7 +1013,7 @@ function barsNode(data, node, obj) {
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
     
     // Data
-    var keys = Object.keys(data.properties.values);
+    var keys = Object.keys(node.plotvalues);
     var yVals = new Array;
     var xVals = new Array;
     var yValKey = new Array;
@@ -1066,8 +1021,8 @@ function barsNode(data, node, obj) {
     if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
-            if(data.properties.values[keys[i]]==0) {continue;}
-            yVals[xi] = data.properties.values[keys[i]];
+            if(node.plotvalues[keys[i]]==0) {continue;}
+            yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
             yValKey.push({y:yVals[xi], x:keys[i] });
             xi = xi+1;
@@ -1077,7 +1032,7 @@ function barsNode(data, node, obj) {
     }
     else {
         for (var i = 0; i < keys.length; i++) {
-            yVals[i] = data.properties.values[keys[i]];
+            yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
         }
     }

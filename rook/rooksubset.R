@@ -19,7 +19,6 @@ subset.app <- function(env){
     
     print(class(everything$callHistory))
     
-    result <- list()
     warning<-FALSE
     
     if(!warning){
@@ -65,6 +64,14 @@ subset.app <- function(env){
     }
     
     if(!warning){
+        typeStuff <- everything$typeStuff
+        if(!is.list(typeStuff) | (is.null(typeStuff$varnamesTypes) | is.null(typeStuff$interval) | is.null(typeStuff$numchar) | is.null(typeStuff$nature) | is.null(typeStuff$binary))){
+            warning<-TRUE
+            result<-list(warning="typeStuff is not a list or one of the necessary elements---varnames, interval, numchar, nature, binary---is null.")
+        }
+    }
+    
+    if(!warning){
         history <- everything$callHistory
         if(is.null(history)){
             warning<-TRUE
@@ -84,8 +91,6 @@ subset.app <- function(env){
         
         ## 2. perform current subset and out appropriate metadata
         usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
-        types <- typeHell(usedata)
-        sumstats <- calcSumStats(usedata,types)
         
         call <- ""
         for(i in 1:length(myvars)) {
@@ -101,12 +106,9 @@ subset.app <- function(env){
         }
     
         # send preprocess new usedata and receive url with location
-        purl <- pCall(data=usedata, production, sessionid=mysessionid)
+        purl <- pCall(data=usedata, production, sessionid=mysessionid, types=typeStuff)
         
-        result$sumstats <- sumstats
-        result$url <- purl
-        result$call <- call
-        result<- jsonlite:::toJSON(result)
+        result <- jsonlite:::toJSON(list(url=purl, call=call))
     },
     error=function(err){
         warning <<- TRUE

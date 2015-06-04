@@ -70,7 +70,7 @@
         </ol>
 
         <a href="#main" id="carouselLeft" style="z-index:7; margin-top:-.625em;" data-slide="prev" title="Scroll carousel left" onclick="$(this).parent('#main').removeClass('rightCarousel').addClass('leftCarousel');"><span class="glyphicon glyphicon-chevron-left"></span></a>
-
+ 
         <a href="#main" id="carouselRight" style="z-index:7; margin-top:-.625em;" data-slide="next" title="Scroll carousel right" onclick="$(this).parent('#main').removeClass('leftCarousel').addClass('rightCarousel');"><span class="glyphicon glyphicon-chevron-right"></span></a>
         
         <!-- Carousel items -->
@@ -123,7 +123,7 @@
         
         <div id="logdiv" class="logbox panel panel-default" style="display:none">
             <div class="panel-heading">
-                <h3 class="panel-title">Log <span id="logicon" class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLog" href="#collapseLog" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
+                <h3 class="panel-title">History <span id="logicon" class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLog" href="#collapseLog" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
             </div>
             <div id="collapseLog" class="panel-collapse collapse in">
               <div class="panel-body">
@@ -226,7 +226,7 @@
       }
       else {
         right();
-      }
+        }
     });
   
     /* SLIDE ON CLICK */
