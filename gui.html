@@ -59,10 +59,13 @@
               </div>
           </div>
       </nav>
-    
+
+    <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide">
+
+ <!--
     <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide" data-ride="carousel">
         
-        <!-- LINKED CAROUSEL NAV -->
+       LINKED CAROUSEL NAV
         <ol class="carousel-indicators">
             <li id="delete"><a href="#delete" title="Delete Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
             <li data-target="#main" data-slide-to="m0" class="active" id="navdot0"></li>
@@ -184,11 +187,6 @@
              </div>
          </div>
          
-          <!-- <ul class="nav nav-tabs nav-justified">
-              <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
-              <li><a id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</a></li>
-              <li><a id="btnResults" onclick="resultsView();">Results</a></li>
-          </ul> -->
 
             <div class="row-fluid">
                 <div id="rightpanelcontent">
@@ -212,42 +210,6 @@
 
 <script>
     
-    /* initially hide panels */
-//    $('#panel2').hide();
-
-    // invoke the carousel
-    $('#main').carousel({
-        interval: false /* AUTOPLAY REMOVED */
-    });
-    // after carousel rotates, trigger left/right functions
-    $('#main').on('slid.bs.carousel', function () {
-      if($('#main').hasClass('leftCarousel')){
-        left();
-      }
-      else {
-        right();
-        }
-    });
-  
-    /* SLIDE ON CLICK */
-  
-    $('ol.carousel-linked-nav > li > a').click(function() {
-       // grab href, remove pound sign, convert to number
-       var item = Number($(this).attr('href').substring(1));
-       
-       // slide to number -1 (account for zero indexing)
-       $('#main').carousel(item - 1);
-       
-       // remove current active class
-       $('ol.carousel-linked-nav li.active').removeClass('active');
-       
-       // add active class to just clicked on item
-       $(this).parent().addClass('active');
-       
-       // don't follow the link
-       return false;
-     });
-
   // Open/Close Panels
   $('#leftpanel span').click(function(){
       closeLeftPanel();

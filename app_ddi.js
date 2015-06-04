@@ -1649,6 +1649,7 @@ function transform(n,t, typeTransform) {
     
     var outtypes = {varnamesTypes:n, interval:myn.interval, numchar:myn.numchar, nature:myn.nature, binary:myn.binary};
     
+    console.log(myn);
     // if typeTransform but we already have the metadata
     if(typeTransform) {
         if(myn.nature=="nominal" & typeof myn.plotvalues !=="undefined") {
@@ -1666,6 +1667,7 @@ function transform(n,t, typeTransform) {
             return;
         }
     }
+     
     
     //package the output as JSON
     var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory, typeTransform:typeTransform, typeStuff:outtypes};
@@ -1755,6 +1757,7 @@ function transform(n,t, typeTransform) {
             logArray.push("transform: ".concat(rCall[0]));
             showLog();
         
+            /*
                     // NOTE: below is the carousel portion that needs to be revised as of May 29 2015
             
             // add transformed variable to all spaces
@@ -1813,7 +1816,7 @@ function transform(n,t, typeTransform) {
                 "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "max":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
             
                 readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
-            }
+            }   */
         }
     }
     
@@ -2198,10 +2201,12 @@ function varSummary(d) {
 //    .style("font-size", "12px");
 
     
+    var plotsvg = d3.select("#tab3")
+    .selectAll("svg")
+    .remove();
+    
     if(typeof d.plottype === "undefined") { // .properties is undefined for some vars
-        var plotsvg = d3.select("#tab3")
-        .selectAll("svg")
-        .remove();
+        return;
     }
     else if (d.plottype === "continuous") {
         density(d, div="varSummary");
@@ -2531,6 +2536,14 @@ function subsetSelect(btn) {
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
+        if(zparams.zsubset[j].length>0) {
+            if(zparams.zsubset[j][0]!="") {
+                zparams.zsubset[j][0] = Number(zparams.zsubset[j][0]);
+            }
+            if(zparams.zsubset[j][1]!="") {
+                zparams.zsubset[j][1] = Number(zparams.zsubset[j][1]);
+            }
+        }
         zparams.zplot.push(allNodes[temp].plottype);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
@@ -2566,6 +2579,7 @@ function subsetSelect(btn) {
         var rCall = [];
         rCall[0] = json.call;
         
+        
         // store contents of the pre-subset space
         zPop();
         var myNodes = jQuery.extend(true, [], allNodes);
@@ -2584,22 +2598,22 @@ function subsetSelect(btn) {
         selectMe = "#whitespace".concat(myspace);
         d3.select(selectMe).remove();
         
-        selectMe = "navdot".concat(myspace);
-        var mynavdot = document.getElementById(selectMe);
-        mynavdot.removeAttribute("class");
+       // selectMe = "navdot".concat(myspace);
+       // var mynavdot = document.getElementById(selectMe);
+       // mynavdot.removeAttribute("class");
         
         myspace = spaces.length;
         callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
         
         
-        selectMe = "navdot".concat(myspace-1);
-        mynavdot = document.getElementById(selectMe);
+      //  selectMe = "navdot".concat(myspace-1);
+      //  mynavdot = document.getElementById(selectMe);
         
-        var newnavdot = document.createElement("li");
-        newnavdot.setAttribute("class", "active");
-        selectMe = "navdot".concat(myspace);
-        newnavdot.setAttribute("id", selectMe);
-        mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+     //   var newnavdot = document.createElement("li");
+     //   newnavdot.setAttribute("class", "active");
+    //    selectMe = "navdot".concat(myspace);
+    //    newnavdot.setAttribute("id", selectMe);
+    //    mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
         
         
         // this is to be used to gray out and remove listeners for variables that have been subsetted out of the data
@@ -2637,6 +2651,12 @@ function subsetSelect(btn) {
                 
                 for(var key in jsondata) {
                     var myIndex = findNodeIndex(key);
+                
+                    allNodes[myIndex].plotx=undefined;
+                    allNodes[myIndex].ploty=undefined;
+                    allNodes[myIndex].plotvalues=undefined;
+                    allNodes[myIndex].plottype="";
+
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
                 
                     allNodes[myIndex].subsetplot=false;
@@ -2686,7 +2706,7 @@ function readPreprocess(url, p, v, callback) {
             });
 }
 
-
+/*
 function delSpace() {
     if (spaces.length===0 | (spaces.length===1 & myspace===0)) {return;}
     var lastSpace = false;
@@ -2966,6 +2986,7 @@ function right() {
   //  event.preventDefault();
 }
 
+*/
 
 function about() {
     $('#about').show();
