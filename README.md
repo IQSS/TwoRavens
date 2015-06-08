@@ -5,7 +5,7 @@
 Project page and publications available at: 
 http://datascience.iq.harvard.edu/about-tworavens
 
-To demo TwoRavens using replication data from Fearon and Laitin's 2003 article, **Ethnicity, Insurgency, and Civil War**:
+To demo TwoRavens using replication data from Fearon and Laitin's 2003 article, *Ethnicity, Insurgency, and Civil War*:
 https://dataverse-demo.iq.harvard.edu/dataexplore/gui.html?dfId=470&
 
 <br><br>
