@@ -153,7 +153,9 @@ buildFormula<-function(dv, linkagelist, varnames=NULL, nomvars){
 
 pCall <- function(data,production,sessionid, types) {
     pjson<-preprocess(testdata=data, types=types)
-   
+    print("new preprocess metadata: ")
+    print(pjson)
+    
     if(production){
         subsetfile <- paste("/var/www/html/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=subsetfile)
@@ -239,6 +241,15 @@ transform <- function(data, func) {
     x <- gsub("_plus_", "+", x)
     x <- paste("data[,1] <- ", x)
     print(x)
+    
+    if(substr(func,1,3)=="log") {
+        if(min(data[,1])<0) {
+            data[,1] <- data[,1] + -1*min(data[,1])
+        }
+        if(any(data[,1]==0)) {
+            data[,1] <- data[,1] + .0001
+        }
+    }
     eval(parse(text=x))
     return(data)
 }
