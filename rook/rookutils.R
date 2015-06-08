@@ -243,10 +243,10 @@ transform <- function(data, func) {
     print(x)
     
     if(substr(func,1,3)=="log") {
-        if(min(data[,1])<0) {
+        if(any(data[,1]<0, na.rm=TRUE)) {
             data[,1] <- data[,1] + -1*min(data[,1])
         }
-        if(any(data[,1]==0)) {
+        if(any(data[,1]==0, na.rm=TRUE)) {
             data[,1] <- data[,1] + .0001
         }
     }
