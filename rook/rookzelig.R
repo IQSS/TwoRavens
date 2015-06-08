@@ -191,7 +191,7 @@ zelig.app <- function(env){
             }
             
             # zplots() recreates Zelig plots
-            images <- zplots(s.out, plotpath, mymodelcount, mysessionid)
+            images <- zplots(s.out, plotpath, mymodelcount, mysessionid, production=production)
             write("plot(s.out)",mylogfile,append=TRUE)
 
             if(length(images)>0){
