@@ -330,7 +330,7 @@ function scaffolding(callback) {
     .attr("id", "tInput")
     .attr("class", "form-control")
     .attr("type", "text")
-    .attr("value", "R call: func(var)");
+    .attr("value", "Variable transformation");
 
     // the variable dropdown
     d3.select("#transformations")

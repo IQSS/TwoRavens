@@ -54,7 +54,7 @@
                   <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                   <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-left:2.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
 
-                  <div id="transformations" class="transformTool">
+                  <div id="transformations" class="transformTool" title="Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you could enter 'log(d)' or 'd^2'.">
                   </div>
               </div>
           </div>
@@ -81,8 +81,8 @@
         </div>
         
         <div id="spacetools" class="spaceTool" style="z-index:16;">
-            <button class="btn btn-default" id="btnForce" title="Force" onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
-            <button class="btn btn-default" id="btnEraser" title="Erase" onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
+            <button class="btn btn-default" id="btnForce" title="Pin the variable pebbles to the page." onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
+            <button class="btn btn-default" id="btnEraser" title="Wipe all variables from the modeling space." onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
         </div>
         
         <div id="legend" class="legendary panel panel-default" style="display:none">
@@ -135,7 +135,7 @@
         </div>
         
         <div id="ticker" style="position:fixed;height:50px;width:100%;background:#F9F9F9;bottom:0;">
-            <a href="somelink" target="_blank" id="logID">Save log to file.</a>
+            <a href="somelink" target="_blank" id="logID">Replication</a>
         </div>
         
         <!--<div id="tooltip" style="display: none;">
@@ -152,10 +152,10 @@
             
             <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
                 <div class="btn-group" style="margin-left:0;">
-                    <button type="button" class="btn active" id="btnVariables" onclick="tabLeft('tab1');">Variables</button>
+                    <button type="button" class="btn active" id="btnVariables" title="Click variable name to add or remove the variable pebble from the modeling space." onclick="tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnSubset" onclick="tabLeft('tab2');">Subset</button>
                 </div>
-                <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right; margin-right:10px" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
+                <button type="button" class="btn btn-default ladda-button" id="btnSelect" title="Subset data by the intersection of all selected values." style="display:none; float:right; margin-right:10px" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
             </div>
             <div class="row-fluid">
                 <div id="leftpanelcontent">
@@ -182,7 +182,7 @@
          <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
              <div class="btn-group" style="margin-right:0;">
                  <button type="button" class="btn active" id="btnModels" onclick="tabRight('btnModels');">Models</button>
-                 <button type="button" class="btn btn-default" id="btnSetx" onclick="tabRight('btnSetx');">Set Covar.</button>
+                 <button type="button" class="btn btn-default" id="btnSetx" title="Select values at which to simulate quantities of interest (Zelig's setx function)." onclick="tabRight('btnSetx');">Set Covar.</button>
                  <button type="button" class="btn btn-default" id="btnResults" onclick="tabRight('btnResults');">Results</button>
              </div>
          </div>

@@ -397,7 +397,7 @@ logSessionInfo <- function(logfile, sessionid, cite){
     print(sessionInfo())
     sink()
     
-    write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
+    write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Please download rookutils.R from https://github.com/IQSS/TwoRavens/tree/master/rook and ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
 }
 
 
