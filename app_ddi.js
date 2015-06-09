@@ -795,6 +795,8 @@ function layout(v) {
             });
         
         // add arc tags
+        // NOTE: this block of code has been commented out to remove the "cross section" and "time series" arc tags. These tags are functioning as intended, but they do not, at present, do anything to change the statistical model or variables. To avoid confusion when using TwoRavens, they have been dropped. To add them back in, simply uncomment the block below.
+        /*
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -885,7 +887,7 @@ function layout(v) {
               return "#csArc".concat(d.id);
               })
         .text("Cross Sec");
-
+*/
         
         g.append("path")
         .attr("id", function(d){
