@@ -707,6 +707,8 @@ plotsvg.selectAll("rect")
 
 }
 
+// Note: in barsSubset there are a few if else blocks that have been commented out. uncommenting these blocks will return the
+// format of the axis and "value: frequency" to the previous format 
 function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
     if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
@@ -729,7 +731,7 @@ function barsSubset(node) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    if(node.nature==="nominal") {
+  //  if(node.nature==="nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
             if(node.plotvalues[keys[i]]==0) {continue;}
@@ -740,15 +742,17 @@ function barsSubset(node) {
         }
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
-    }
-    else {
+   // }
+  /*  else {
         for (var i = 0; i < keys.length; i++) {
             yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
         }
-    }
+    } */
     
-    if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
+    //if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {
+        plotXaxis=false;
+    //}
     
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
@@ -859,17 +863,17 @@ function barsSubset(node) {
         .text(function() {
               if(node.subsetrange.length==0) {return("Selected: all values");}
               else {
-                if(node.numchar==="character") {
+             //   if(node.numchar==="character") {
                     var a = node.subsetrange;
                     var selecteds = new Array;
                     a.forEach(function(val) {
                         selecteds.push(yValKey[val].x);
                     })
                     return("Selected: "+selecteds);
-                }
-                else {
-                    return("Selected: ".concat(node.subsetrange));
-                }
+             //   }
+             //   else {
+             //       return("Selected: ".concat(node.subsetrange));
+             //   }
               }
               });
         
@@ -880,6 +884,13 @@ function barsSubset(node) {
         .text(function(){
               var out = yValKey[i].x + ": " + yValKey[i].y;
               return(out);
+              });
+        })
+    .on("mouseout", function() {
+        var i = this.getAttribute("name");
+        plotsvg.select("text#mymouseover")
+        .text(function(){
+                return("Value: Frequency");
               });
         });
     
@@ -894,7 +905,7 @@ function barsSubset(node) {
         .attr("x", 25)
         .attr("y", height+20)
         .text(function() {
-              return("");
+              return("Value: Frequency");
               });
     }
         
@@ -912,17 +923,17 @@ function barsSubset(node) {
     .text(function() {
           if(node.subsetrange.length==0) {return("Selected: all values");}
           else {
-            if(node.numchar==="character") {
+           // if(node.numchar==="character") {
                 var a = node.subsetrange;
                 var selecteds = new Array;
                 a.forEach(function(val) {
                     selecteds.push(yValKey[val].x);
                     })
                 return("Selected: "+selecteds);
-            }
-            else {
-                return("Selected: ".concat(node.subsetrange));
-            }
+           // }
+           // else {
+           //     return("Selected: ".concat(node.subsetrange));
+           // }
           }
         });
 }
