@@ -508,7 +508,7 @@ plotsvg.selectAll("rect")
         .attr("y", height+40)
         .text(function() {
               if (node.numchar==="character") {
-                return("x: "+yValKey[Math.trunc(yValKey.length/2)].x);
+                return("x: "+yValKey[Math.round(yValKey.length/2)].x);
               }
               else {return("x: ".concat(Math.round(node.mean)));}
               });
@@ -519,7 +519,7 @@ plotsvg.selectAll("rect")
         .attr("y", height+50)
         .text(function() {
               if (node.numchar==="character") {
-                return("x1: "+yValKey[Math.trunc(yValKey.length/2)].x);
+                return("x1: "+yValKey[Math.round(yValKey.length/2)].x);
               }
               else {return("x1: ".concat(Math.round(node.mean)));}
               });
@@ -583,7 +583,7 @@ plotsvg.selectAll("rect")
             var s=6;
               if(node.setxvals[0]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.trunc(xVals.length/2));
+                    var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
               }
@@ -601,7 +601,7 @@ plotsvg.selectAll("rect")
             var s=6;
               if(node.setxvals[1]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.trunc(xVals.length/2));
+                    var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
               }
@@ -652,7 +652,7 @@ plotsvg.selectAll("rect")
             plotsvg.select("text#range")
             .text(function() {
                   if(node.numchar==="character") {
-                    return("x: "+yValKey[Math.trunc(invx(xpos))].x);
+                    return("x: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
                     return("x: ".concat(twoSF(invx(xpos))));
@@ -696,7 +696,7 @@ plotsvg.selectAll("rect")
             plotsvg.select("text#range2")
             .text(function() {
                   if(node.numchar==="character") {
-                    return("x1: "+yValKey[Math.trunc(invx(xpos))].x);
+                    return("x1: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
                     return("x1: ".concat(twoSF(invx(xpos))));
