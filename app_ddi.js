@@ -254,6 +254,10 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       .html(dataname);
                       
                       $('#cite div.panel-body').text(zparams.zdatacite);
+
+                      // Put dataset name, from meta-data, into page title
+                      d3.select("title").html("TwoRavens " +dataname)
+                      //d3.select("#title").html("blah");
                       
                       // temporary values for hold that correspond to histogram bins
                       hold = [.6, .2, .9, .8, .1, .3, .4];
