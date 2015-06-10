@@ -34,13 +34,12 @@
     <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
               </span>
-              <div class="navbar-header" >
+              <div class="navbar-header" id="navbarheader">
                   <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em" onmouseover="about();" onmouseout="closeabout();">
                       
                   <div id="about" class="panel panel-default" style="position:absolute; left:140px; width:380px; display:none; z-index:50;">
                     <div class="panel-body"> </div>
                   </div>
-                  
               </div>
               
               <div class="field" id="dataField" style="text-align:center; margin-top:0.5em">
@@ -210,7 +209,7 @@
 
 <script>
     
-  // Open/Close Panels
+// Open/Close Panels
   $('#leftpanel span').click(function(){
       closeLeftPanel();
   });
