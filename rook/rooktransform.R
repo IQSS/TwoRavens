@@ -37,6 +37,7 @@ transform.app <- function(env){
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            #mydata <- read.delim("../data/FL_insurance_sample.tab.tsv")
             #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 	}
