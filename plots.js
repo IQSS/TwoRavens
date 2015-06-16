@@ -508,7 +508,8 @@ plotsvg.selectAll("rect")
         .attr("y", height+40)
         .text(function() {
               if (node.numchar==="character") {
-                return("x: "+yValKey[Math.round(yValKey.length/2)].x);
+                var t = Math.round(yValKey.length/2)-1;
+                return("x: "+yValKey[t].x);
               }
               else {return("x: ".concat(Math.round(node.mean)));}
               });
@@ -519,7 +520,8 @@ plotsvg.selectAll("rect")
         .attr("y", height+50)
         .text(function() {
               if (node.numchar==="character") {
-                return("x1: "+yValKey[Math.round(yValKey.length/2)].x);
+                var t = Math.round(yValKey.length/2)-1;
+                return("x1: "+yValKey[t].x);
               }
               else {return("x1: ".concat(Math.round(node.mean)));}
               });
@@ -583,7 +585,7 @@ plotsvg.selectAll("rect")
             var s=6;
               if(node.setxvals[0]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2));
+                    var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
               }
@@ -601,7 +603,7 @@ plotsvg.selectAll("rect")
             var s=6;
               if(node.setxvals[1]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2));
+                    var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
               }
