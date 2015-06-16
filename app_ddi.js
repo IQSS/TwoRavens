@@ -1958,10 +1958,10 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     xhr.onerror = function() {
         // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
         if(xhr.status==0) {
-            alert('There was an error making hte request. xmlhttprequest status is 0.');
+            alert('There was an error making the request. xmlhttprequest status is 0.');
         }
         else if(xhr.readyState!=4) {
-            alert('There was an error making hte request. xmlhttprequest readystate is not 4.');
+            alert('There was an error making the request. xmlhttprequest readystate is not 4.');
         }
         else {
             alert('Woops, there was an error making the request.');
