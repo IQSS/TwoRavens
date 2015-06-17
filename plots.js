@@ -507,11 +507,11 @@ plotsvg.selectAll("rect")
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              if (node.numchar==="character") {
+              if (node.nature==="nominal") {
                 var t = Math.round(yValKey.length/2)-1;
                 return("x: "+yValKey[t].x);
               }
-              else {return("x: ".concat(Math.round(node.mean)));}
+              else {return("x: ".concat((+node.mean).toPrecision(4).toString()));}
               });
         
         plotsvg.append("text")
@@ -519,11 +519,11 @@ plotsvg.selectAll("rect")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-              if (node.numchar==="character") {
+              if (node.nature==="nominal") {
                 var t = Math.round(yValKey.length/2)-1;
                 return("x1: "+yValKey[t].x);
               }
-              else {return("x1: ".concat(Math.round(node.mean)));}
+              else {return("x1: ".concat((+node.mean).toPrecision(4).toString()));}
               });
 
         // create tick marks at all zscores in the bounds of the data
@@ -584,7 +584,7 @@ plotsvg.selectAll("rect")
         .attr("points", function(d){
             var s=6;
               if(node.setxvals[0]=="") {
-                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
+                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
                     var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
@@ -602,7 +602,7 @@ plotsvg.selectAll("rect")
         .attr("points", function(d){
             var s=6;
               if(node.setxvals[1]=="") {
-                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
+                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
                     var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
@@ -653,14 +653,15 @@ plotsvg.selectAll("rect")
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                  if(node.numchar==="character") {
+                  if(node.nature==="nominal") {
                     return("x: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
-                    return("x: ".concat(twoSF(invx(xpos))));
+              //      return("x: ".concat(twoSF(invx(xpos))));
+                  return("x: ".concat(+(invx(xpos)).toPrecision(4).toString()));
                   }
                 });
-            node.setxvals[1]=twoSF(invx(xpos));
+            node.setxvals[1]=+(invx(xpos)).toPrecision(4);
     }
  
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
@@ -697,20 +698,19 @@ plotsvg.selectAll("rect")
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                  if(node.numchar==="character") {
+                  if(node.nature==="nominal") {
                     return("x1: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
-                    return("x1: ".concat(twoSF(invx(xpos))));
+                    return("x1: ".concat(+(invx(xpos)).toPrecision(4).toString()));
                   }
                 });
-            node.setxvals[1]=twoSF(invx(xpos));                      
+            node.setxvals[1]=+(invx(xpos)).toPrecision(4);                      
     }
 
 }
 
-// Note: in barsSubset there are a few if else blocks that have been commented out. uncommenting these blocks will return the
-// format of the axis and "value: frequency" to the previous format 
+// function that draws the barplots in the subset tab
 function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
     if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
@@ -733,25 +733,21 @@ function barsSubset(node) {
     var xVals = new Array;
     var yValKey = new Array;
     
-  //  if(node.nature==="nominal") {
-        var xi = 0;
-        for (var i = 0; i < keys.length; i++) {
-            if(node.plotvalues[keys[i]]==0) {continue;}
-            yVals[xi] = node.plotvalues[keys[i]];
-            xVals[xi] = xi;
-            yValKey.push({y:yVals[xi], x:keys[i] });
-            xi = xi+1;
-        }
+    
+    
+    var xi = 0;
+    for (var i = 0; i < keys.length; i++) {
+        if(node.plotvalues[keys[i]]==0) {continue;}
+        yVals[xi] = node.plotvalues[keys[i]];
+        xVals[xi] = xi;
+        yValKey.push({y:yVals[xi], x:keys[i] });
+        xi = xi+1;
+    }
+    if(node.nature==="nominal") { // if nominal, orders bars left to right, highest frequency to lowest
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
-   // }
-  /*  else {
-        for (var i = 0; i < keys.length; i++) {
-            yVals[i] = node.plotvalues[keys[i]];
-            xVals[i] = Number(keys[i]);
-        }
-    } */
-    
+    }
+ 
     //if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {
         plotXaxis=false;
     //}
