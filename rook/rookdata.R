@@ -9,7 +9,9 @@
 data.app <- function(env){
 
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
-
+    warning<-FALSE
+    result <- list()
+    
     if(production){
         sink(file = stderr(), type = "output")
     }
@@ -17,11 +19,17 @@ data.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
-    print(everything)
+    valid <- jsonlite::validate(request$POST()$solaJSON)
+    print(valid)
+    if(!valid) {
+        warning <- TRUE
+        result <- list(warning="The request is not valid json. Check for special characters.")
+    }
     
-    warning<-FALSE
-    result <- list()
+    if(!warning) {
+        everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+        print(everything)
+    }
   
   if(!warning){
       dataurl=everything$zdataurl

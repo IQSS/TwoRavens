@@ -212,6 +212,7 @@ if (ddiurl) {
     // the app, in the data directory:
     // metadataurl="data/qog137.xml"; // quality of government
     metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+    //metadataurl="data/BP.formatted-ddi.xml";
     //metadataurl="data/FL_insurance_sample-ddi.xml";
     //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
     //metadataurl="data/19.xml"; // Fearon from DVN Demo
@@ -246,8 +247,19 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var vars = xml.documentElement.getElementsByTagName("var");
                       var temp = xml.documentElement.getElementsByTagName("fileName");
                       zparams.zdata = temp[0].childNodes[0].nodeValue;
+                      
+                      // function to clean the citation so that the POST is valid json
+                      function cleanstring(s) {
+                        s=s.replace(/\&/g, "and");
+                        s=s.replace(/\;/g, ",");
+                        s=s.replace(/\%/g, "-");
+                        return s;
+                      }
+                      
                       var cite = xml.documentElement.getElementsByTagName("biblCit");
                       zparams.zdatacite=cite[0].childNodes[0].nodeValue;
+                      zparams.zdatacite=cleanstring(zparams.zdatacite);
+                      
                       
                       // dataset name trimmed to 12 chars
                       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
@@ -286,7 +298,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       };
                       //,
                       
-                        console.log(allNodes);
+                     //   console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
