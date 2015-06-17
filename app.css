@@ -150,7 +150,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     height:578px;
     position:absolute;top:10px;right:10px;
     background:#F9F9F9;
-    padding-left:16px;padding-right:0;padding-top:25; 
+    padding-left:16px;padding-right:0;padding-top:0; 
     z-index:25;
 }
 #rightpanel #rightContentArea div {display:none;}
