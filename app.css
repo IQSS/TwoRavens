@@ -103,7 +103,10 @@ text.id {
     height:600px;
 }
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: calc(100% - 300px);}
-#main.svg-leftpanel.svg-rightpanel svg {width: calc(100% - 300px);}
+#main.svg-leftpanel.svg-rightpanel svg {width: 100%;}   /*  Was: calc(100% - 300px);} /*
+/* Above change fixes issue when screen gets very small, and left margin is fixed at 300px, obscuring centeral display, while left tab is shrinking below 300px */
+
+
 /* #main.svg-marg-left svg {margin-left:0px;}
 #main.svg-marg-right svg {margin-right:0px;} */
 
@@ -179,7 +182,7 @@ div.sidepanel div.panelbar span {
 #main {
     border:1px solid #ADADAD;
     width: 100%;
-    margin-bottom:160px;
+    margin-bottom:50px;   /* This is the hard coded height of the ticker div.  Was 160px; which gave too much padding and empty bottom space.*/
     position: relative;
 }
 
