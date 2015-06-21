@@ -164,6 +164,7 @@
                             <p style="padding:.5em 1em;">Select a variable from within the visualization in the center panel to view its summary statistics.</p>
                         </div>
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -176,13 +177,15 @@
               <h3 class="panel-title">Model Selection</h3>
           </div>
          
-         <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
+        <!-- <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;"> -->
+        <!-- The following is fix for the longstanding button wrapping problem on small screens -->
+        <div class="btn-group btn-group-justified" role="group" style="margin-top:.5em;">   
              <div class="btn-group" style="margin-right:0;">
-                 <button type="button" class="btn active" id="btnModels" onclick="tabRight('btnModels');">Models</button>
-                 <button type="button" class="btn btn-default" id="btnSetx" onclick="tabRight('btnSetx');">Set Covar.</button>
-                 <button type="button" class="btn btn-default" id="btnResults" onclick="tabRight('btnResults');">Results</button>
+                 <button type="button" class="btn active" id="btnModels" onclick="tabRight('btnModels');" style="width: 33%">Models</button>
+                 <button type="button" class="btn btn-default" id="btnSetx" onclick="tabRight('btnSetx');" style="width: 34%">Set Covar.</button>
+                 <button type="button" class="btn btn-default" id="btnResults" onclick="tabRight('btnResults');" style="width: 33%">Results</button>
              </div>
-         </div>
+        </div> 
          
           <!-- <ul class="nav nav-tabs nav-justified">
               <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
