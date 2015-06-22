@@ -84,7 +84,7 @@
         
         <div id="legend" class="legendary panel panel-default" style="display:none">
             <div class="panel-heading">
-                <h3 class="panel-title">Legend  <span class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLegend"
+                <h3 class="panel-title">Legend  <span class="glyphicon glyphicon-large glyphicon-chevron-down pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLegend"
                 href="#collapseLegend" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
             </div>
             <div id="collapseLegend" class="panel-collapse collapse in">
@@ -147,7 +147,7 @@
                 <h3 class="panel-title">Data Selection</h3>
             </div>
             
-            <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;">
+            <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;"> 
                 <div class="btn-group" style="margin-left:0;">
                     <button type="button" class="btn active" id="btnVariables" onclick="tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnSubset" onclick="tabLeft('tab2');">Subset</button>
@@ -179,12 +179,12 @@
          
         <!-- <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;"> -->
         <!-- The following is fix for the longstanding button wrapping problem on small screens -->
-        <div class="btn-group btn-group-justified" role="group" style="margin-top:.5em;">   
-             <div class="btn-group" style="margin-right:0;">
+        <div class="btn-group btn-group-justified" role="group" style="margin-top:.5em;" aria-label="...">   
+             <!--<div class="btn-group" style="margin-right:0;"> -->
                  <button type="button" class="btn active" id="btnModels" onclick="tabRight('btnModels');" style="width: 33%">Models</button>
                  <button type="button" class="btn btn-default" id="btnSetx" onclick="tabRight('btnSetx');" style="width: 34%">Set Covar.</button>
                  <button type="button" class="btn btn-default" id="btnResults" onclick="tabRight('btnResults');" style="width: 33%">Results</button>
-             </div>
+             <!-- </div> -->
         </div> 
          
           <!-- <ul class="nav nav-tabs nav-justified">
