@@ -211,7 +211,8 @@ if (ddiurl) {
     // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
     // the app, in the data directory:
     // metadataurl="data/qog137.xml"; // quality of government
-    metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+    //metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+    metadataurl="data/tbtest.xml"  // TB dataset
     //metadataurl="data/BP.formatted-ddi.xml";
     //metadataurl="data/FL_insurance_sample-ddi.xml";
     //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
@@ -233,7 +234,8 @@ if (dataurl) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-    pURL = "data/fearonLaitinNewPreprocess3.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
+    //pURL = "data/fearonLaitinNewPreprocess3.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
+    pURL = "data/tbtest.json";  // TB dataset
     //pURL = "data/FL_insurance_sample.tab.json";
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
