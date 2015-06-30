@@ -16,6 +16,7 @@ function density(node, div) {
         return (alert("Error: incorrect div selected for plots"));
     }
     
+    //what is this?
     var yVals = node.ploty;
     var xVals = node.plotx;
 
@@ -26,7 +27,7 @@ function density(node, div) {
     }
     
     data2.forEach(function(d) {
-                  d.x = +d.x;
+                  d.x = +d.x; //?
                   d.y = +d.y;
                   });
 
@@ -66,6 +67,7 @@ function density(node, div) {
     .domain([d3.min(yVals), d3.max(yVals)])
     .range([height, 0]);
     
+    
     var xAxis = d3.svg.axis()
     .scale(x)
     .ticks(5)
@@ -93,10 +95,10 @@ function density(node, div) {
 
 // This is cumbersome to treat "tab3" differently, but works for now.
 //  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
-if(mydiv=="#tab3"){
+if(mydiv=="#tab3"){ 
     var plotsvg = d3.select(mydiv)
     .selectAll("svg")
-    .remove();
+    .remove(); 
 
     var plotsvg = d3.select(mydiv)
     .append("svg")
@@ -480,14 +482,33 @@ plotsvg.selectAll("rect")
        .attr("y", function(d) {
         return y(maxY - d);  
         })
-       .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
+       .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar //sort(x)
        .attr("height", function(d) {
         return y(d);  
         })
-       .attr("fill", "#1f77b4")
+      .attr("fill", "#1f77b4")
+        //.attr("fill", "yellow")
        ;
-
-    if(plotXaxis) {
+    
+    plotsvg.selectAll("line")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + (x(minX + 0.5 - 2*barPadding))
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        })     
+       .attr("x2", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + (x(minX + 0.5 - 2*barPadding))/2
+        })
+         .attr("y2", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        })   ;
+        
+        if(plotXaxis) {
         plotsvg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
