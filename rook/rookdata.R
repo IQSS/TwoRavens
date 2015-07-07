@@ -64,7 +64,7 @@ data.app <- function(env){
               tryCatch({
                   dataurl.NoAPIToken<-sub("?key=.*$", "key=", dataurl )  # Truncate the dataurl at "key=" to avoid copying any Sword APIToken
                   if(!identical(dataurl,noAPIToken)){
-                      write("A Dataverse APIToken has been removed from the file URL provided to keep your Dataverse login secure.\nIf this Dataverse has restricted access you will need to append a valid APIToken for this replication file to work automatically.\nSee http://guides.dataverse.org/en/latest/api/index.html \n",logfile,append=TRUE)
+                      write("A Dataverse API token has been removed from the file URL provided to keep your Dataverse login secure.\nIf this Dataverse has restricted access you will need to append a valid API token for this replication file to work automatically.\nSee http://guides.dataverse.org/en/latest/api/index.html \n",logfile,append=TRUE)
                   }
                   download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl",extra=c("--insecure"))
                   write(deparse(bquote(download.file(.(dataurl.NoAPIToken),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
