@@ -66,8 +66,8 @@ data.app <- function(env){
                   if(!identical(dataurl,noAPIToken)){
                       write("A Dataverse APIToken has been removed from the file URL provided to keep your Dataverse login secure.\nIf this Dataverse has restricted access you will need to append a valid APIToken for this replication file to work automatically.\nSee http://guides.dataverse.org/en/latest/api/index.html \n",logfile,append=TRUE)
                   }
-                  download.file(dataurl.NoAPIToken,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl",extra=c("--insecure"))
-                  write(deparse(bquote(download.file(.(dataurl),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
+                  download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl",extra=c("--insecure"))
+                  write(deparse(bquote(download.file(.(dataurl.NoAPIToken),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
                   result <- list(sessionid=myid)
               }, error=function(e) {
                   result <<- list(warning="Error: Cannot download from Dataverse.") # if the url is not readable, NULL
