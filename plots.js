@@ -16,7 +16,6 @@ function density(node, div) {
         return (alert("Error: incorrect div selected for plots"));
     }
     
-    //what is this?
     var yVals = node.ploty;
     var xVals = node.plotx;
 
@@ -27,7 +26,29 @@ function density(node, div) {
     }
     
     data2.forEach(function(d) {
-                  d.x = +d.x; //?
+                  d.x = +d.x;
+                  d.y = +d.y;
+                  });
+    
+    //stores values for upper bound
+    var upperError = [];
+    for(var i = 0; i < node.plotx.length; i++) {
+        upperError.push({x:node.plotx[i], y:1.1*node.ploty[i]});
+    }
+    
+    upperError.forEach(function(d) {
+                  d.x = +d.x;
+                  d.y = +d.y;
+                  });
+    
+    // stores values for lower bound
+    var lowerError = [];
+    for(var i = 0; i < node.plotx.length; i++) {
+        lowerError.push({x:node.plotx[i], y:0.9*node.ploty[i]});
+    }
+    
+    lowerError.forEach(function(d) {
+                  d.x = +d.x;
                   d.y = +d.y;
                   });
 
@@ -93,39 +114,51 @@ function density(node, div) {
     .y1(function(d) { return y(d.y); });
 
 
-// This is cumbersome to treat "tab3" differently, but works for now.
-//  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
-if(mydiv=="#tab3"){ 
-    var plotsvg = d3.select(mydiv)
-    .selectAll("svg")
-    .remove(); 
+    // This is cumbersome to treat "tab3" differently, but works for now.
+    //  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
+    if(mydiv=="#tab3"){ 
+        var plotsvg = d3.select(mydiv)
+        .selectAll("svg")
+        .remove(); 
 
-    var plotsvg = d3.select(mydiv)
-    .append("svg")
-    .attr("id", function(){
-          return node.name.toString().concat(mydiv.substr(1));
-          })
-    .style("width", 300) //setting height to the height of #main.left
-    .style("height", 200)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-}else{
-    var plotsvg = d3.select(mydiv)
-    .append("svg")
-    .attr("id", function(){
-          var myname = node.name.toString();
-          myname = myname.replace(/\(|\)/g, "");
-          return myname.concat("_",mydiv.substr(1), "_", node.id);
-          })
-    .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
-    .style("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-};
+        var plotsvg = d3.select(mydiv)
+        .append("svg")
+        .attr("id", function(){
+              return node.name.toString().concat(mydiv.substr(1));
+              })
+        .style("width", 300) //setting height to the height of #main.left
+        .style("height", 200)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    }else{
+        var plotsvg = d3.select(mydiv)
+        .append("svg")
+        .attr("id", function(){
+              var myname = node.name.toString();
+              myname = myname.replace(/\(|\)/g, "");
+              return myname.concat("_",mydiv.substr(1), "_", node.id);
+              })
+        .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+        .style("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    };
  
+    //add upper bound
+    plotsvg.append("path")
+    .datum(upperError)
+    .attr("class", "upperError")
+    .attr("d", area);
+    
     plotsvg.append("path")
     .datum(data2)
     .attr("class", "area")
+    .attr("d", area);
+    
+    //add lower bound
+    plotsvg.append("path")
+    .datum(lowerError)
+    .attr("class", "lowerError")
     .attr("d", area);
     
     plotsvg.append("g")
@@ -236,8 +269,8 @@ if(mydiv=="#tab3"){
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[1]=="") {var xnm=x(node.mean);}
-              else {var xnm=x(node.setxvals[1])};
+            if(node.setxvals[1]=="") {var xnm=x(node.mean);}
+            else {var xnm=x(node.setxvals[1])};
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
     }
 
@@ -248,11 +281,10 @@ if(mydiv=="#tab3"){
         .text(function() {
               if(brush.empty()) {return("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));}
               else {return("Range: ".concat((brush.extent()[0]).toPrecision(4), " to ", (brush.extent()[1]).toPrecision(4)));}
-              });
-        
+        });
+            
             if((brush.extent()[0]).toPrecision(4) != (brush.extent()[1]).toPrecision(4)) {
-                node.subsetrange=[(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)];
-            }
+                node.subsetrange=[(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)];}
             else {
                 node.subsetrange=["", ""];
             }
@@ -293,9 +325,6 @@ if(mydiv=="#tab3"){
             node.setxvals[1]=(invx(xpos)).toPrecision(4);
         }
     }
-
-
-
     
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
             var value = brush2.extent()[0];
@@ -332,7 +361,7 @@ if(mydiv=="#tab3"){
                 return("x1: ".concat((invx(xpos)).toPrecision(4)));});
             node.setxvals[1]=(invx(xpos)).toPrecision(4);
     }
-}
+} //end function density
 
 
 function bars(node, div) {
@@ -439,76 +468,120 @@ function bars(node, div) {
     .on("brush", brushed2);
 
 
-//Create SVG element
+    //Create SVG element
 
-// This is cumbersome to treat "tab3" differently, but works for now.
-//  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
-if(mydiv=="#tab3"){              
+    // This is cumbersome to treat "tab3" differently, but works for now.
+    //  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
+    if(mydiv=="#tab3"){              
     var plotsvg = d3.select(mydiv)
-    .selectAll("svg")
-    .remove();
+        .selectAll("svg")
+        .remove();
 
-    var plotsvg = d3.select(mydiv)
-    .append("svg")
-    .attr("id", function(){
-          return node.name.toString().concat(mydiv.substr(1));
-          })
-    .style("width", 300) //setting height to the height of #main.left
-    .style("height", 200)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-}
-else {
-var plotsvg = d3.select(mydiv)
-    .append("svg")
-    .attr("id", function(){
-          var myname = node.name.toString();
-          myname = myname.replace(/\(|\)/g, "");
-          return myname.concat("_",mydiv.substr(1), "_", node.id);
-          })
-    .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
-    .style("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");    
-};
+        var plotsvg = d3.select(mydiv)
+        .append("svg")
+        .attr("id", function(){
+              return node.name.toString().concat(mydiv.substr(1));
+        })
+        .style("width", 300) //setting height to the height of #main.left
+        .style("height", 200)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    }
+    else {
+        var plotsvg = d3.select(mydiv)
+        .append("svg")
+        .attr("id", function(){
+            var myname = node.name.toString();
+            myname = myname.replace(/\(|\)/g, "");
+            return myname.concat("_",mydiv.substr(1), "_", node.id);
+        })
+        .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+        .style("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");    
+    };
 
-plotsvg.selectAll("rect")
-       .data(yVals)
-       .enter()
-       .append("rect")
-       .attr("x", function(d, i) {
-        return x(xVals[i]-0.5+barPadding);  
-        })     
-       .attr("y", function(d) {
-        return y(maxY - d);  
-        })
-       .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar //sort(x)
-       .attr("height", function(d) {
-        return y(d);  
-        })
-      .attr("fill", "#1f77b4")
-        //.attr("fill", "yellow")
-       ;
+    var rectWidth = x(minX + 0.5 - 2*barPadding); //the "width" is the coordinate of the end of the first bar
     
-    plotsvg.selectAll("line")
+    plotsvg.selectAll("rect")
+    .data(yVals)
+    .enter()
+    .append("rect")
+    .attr("x", function(d, i) {
+        return x(xVals[i]-0.5+barPadding); 
+    })     
+    .attr("y", function(d) {
+        return y(maxY - d);  
+    }) 
+    .attr("width", rectWidth)
+    .attr("height", function(d) {
+        return y(d);  
+    })
+    .attr("fill", "#1f77b4");
+    
+    // draw error bars
+    if (yVals.length <= 20) { //do not display error bars if the number of bins exceeds 20
+        plotsvg.selectAll("line")
         .data(yVals)
         .enter()
         .append("line")
         .style("stroke", "black")
         .attr("x1", function(d, i){
-            return x(xVals[i]-0.5+barPadding) + (x(minX + 0.5 - 2*barPadding))
+            return x(xVals[i]-0.5+barPadding) + rectWidth/2
         })
         .attr("y1", function(d) {
             return y(maxY - d) - .1*y(d);  
         })     
-       .attr("x2", function(d, i){
-            return x(xVals[i]-0.5+barPadding) + (x(minX + 0.5 - 2*barPadding))/2
+        .attr("x2", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + rectWidth/2
         })
-         .attr("y2", function(d) {
+        .attr("y2", function(d) {
             return y(maxY - d) + .1*y(d);  
-        })   ;
-        
-        if(plotXaxis) {
+        }) 
+    
+        //draw top ticks on error bars
+        //need to fix the height of the graphs - the tops of error bars are getting cut off
+        plotsvg.selectAll(".topTick")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .attr("class", "topTick")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        })     
+        .attr("x2", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
+        })
+        .attr("y2", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        });
+    
+        // draw bottom ticks of error bars
+        plotsvg.selectAll(".bottomTick")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .attr("class", "bottomTick")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        })    
+        .attr("x2", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
+        })
+        .attr("y2", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        }) 
+    };
+
+    if(plotXaxis) {
         plotsvg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
@@ -528,22 +601,22 @@ plotsvg.selectAll("rect")
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              if (node.numchar==="character") {
+            if (node.numchar==="character") {
                 return("x: "+yValKey[Math.round(yValKey.length/2)].x);
-              }
-              else {return("x: ".concat(Math.round(node.mean)));}
-              });
+            }
+            else {return("x: ".concat(Math.round(node.mean)));}
+        });
         
         plotsvg.append("text")
         .attr("id", "range2")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-              if (node.numchar==="character") {
+            if (node.numchar==="character") {
                 return("x1: "+yValKey[Math.round(yValKey.length/2)].x);
               }
-              else {return("x1: ".concat(Math.round(node.mean)));}
-              });
+            else {return("x1: ".concat(Math.round(node.mean)));}
+        });
 
         // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
@@ -602,13 +675,13 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[0]=="") {
+            if(node.setxvals[0]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
                     var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
-              }
-              else {var xnm=x(node.setxvals[0])};
+            }
+            else {var xnm=x(node.setxvals[0])};
             return (xnm-s)+","+(-s)+" "+(xnm+s)+","+(-s)+" "+xnm+","+(s*1.3);}); 
 
         var slider2 = plotsvg.append("g")
@@ -620,13 +693,13 @@ plotsvg.selectAll("rect")
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[1]=="") {
+            if(node.setxvals[1]=="") {
                 if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
                     var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
-              }
-              else {var xnm=x(node.setxvals[1])};
+            }
+            else {var xnm=x(node.setxvals[1])};
             return (xnm-s)+","+s+" "+(xnm+s)+","+s+" "+xnm+","+(-s*1.3);}); 
     }
 
@@ -672,10 +745,10 @@ plotsvg.selectAll("rect")
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                  if(node.numchar==="character") {
+                if(node.numchar==="character") {
                     return("x: "+yValKey[Math.round(invx(xpos))].x);
-                  }
-                  else {
+                }
+                else {
                     return("x: ".concat(twoSF(invx(xpos))));
                   }
                 });
@@ -725,8 +798,7 @@ plotsvg.selectAll("rect")
                 });
             node.setxvals[1]=twoSF(invx(xpos));                      
     }
-
-}
+} //end function bars
 
 function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
@@ -815,14 +887,14 @@ function barsSubset(node) {
     
     //Create SVG element
     
-          var plotsvg = d3.select(mydiv)
-        .append("svg")
-        .attr("id", function(){
-                    return myname.concat("_",mydiv.substr(1), "_", node.id);
-              })
-        .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
+    var plotsvg = d3.select(mydiv)
+    .append("svg")
+    .attr("id", function(){
+                return myname.concat("_",mydiv.substr(1), "_", node.id);
+          })
+    .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
     .style("height", height + margin.top + margin.bottom)
-        .append("g")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
     var freq = plotsvg.selectAll("g.freq")
@@ -831,78 +903,78 @@ function barsSubset(node) {
     .attr("class", "freq")
     .attr("name", function(d,i) {
           return myname.concat(gname[i]);
-          });
+    });
     
     rect = freq.selectAll("rect")
     .data(Object)
-    .enter().append("rect")
-    .attr("class", "bar")
-    .attr("name", function(d, i) {
-          return xVals[i];
-          })
-    .attr("x", function(d, i) {
-          return x(xVals[i]-0.5+barPadding);
-          })
-    .attr("y", function(d) {
-          return y(d.y0);
-          })
-    .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
-    .attr("height", function(d) {
-          return y(d.y1);
-          })
-    .style("fill", function(d,i){
-           if(node.subsetrange.length>0 & d.col===d3Color & $.inArray(xVals[i].toString(), node.subsetrange)>-1) {
-            return selVarColor;
-           }
-           else {return d.col;}
-          })
-    .on("click", function(){
-        var selectMe = this;
-        var selectName = this.getAttribute("name");
-        if(this.parentNode.getAttribute("name")==myname.concat("subsetno")) {
-            selectMe = $('[name="' + myname.concat("subsetyes") + '"]').children('[name="' + selectName + '"]')[0];
-        }
-        d3.select(selectMe)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("name", function(d, i) {
+              return xVals[i];
+              })
+        .attr("x", function(d, i) {
+              return x(xVals[i]-0.5+barPadding);
+              })
+        .attr("y", function(d) {
+              return y(d.y0);
+              })
+        .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
+        .attr("height", function(d) {
+              return y(d.y1);
+              })
         .style("fill", function(d,i){
-               var myCol="";
-               if(this.style.fill===selVarColor) {
+           if(node.subsetrange.length>0 & d.col===d3Color & $.inArray(xVals[i].toString(), node.subsetrange)>-1) {
+               return selVarColor;
+           }
+           else {
+               return d.col; 
+           }
+        })
+        .on("click", function(){
+            var selectMe = this;
+            var selectName = this.getAttribute("name");
+            if(this.parentNode.getAttribute("name")==myname.concat("subsetno")) {
+                selectMe = $('[name="' + myname.concat("subsetyes") + '"]').children('[name="' + selectName + '"]')[0];
+            }
+            d3.select(selectMe)
+            .style("fill", function(d,i){
+                var myCol="";
+                if(this.style.fill===selVarColor) {
                     var myindex = node.subsetrange.indexOf(this.getAttribute("name"));
                     node.subsetrange.splice(myindex, 1);
                     myCol=d3Color;
-               }
-               else {
+                } else {
                     node.subsetrange.push(this.getAttribute("name"));
                     myCol=selVarColor;
-               }
-               return myCol;
-               });
-        plotsvg.select("text#selectrange")
-        .text(function() {
-              if(node.subsetrange.length==0) {return("Selected: all values");}
-              else {
-                if(node.numchar==="character") {
-                    var a = node.subsetrange;
-                    var selecteds = new Array;
-                    a.forEach(function(val) {
-                        selecteds.push(yValKey[val].x);
-                    })
-                    return("Selected: "+selecteds);
                 }
-                else {
-                    return("Selected: ".concat(node.subsetrange));
-                }
-              }
-              });
-        
-        })
-    .on("mouseover", function(){
-        var i = this.getAttribute("name");
-        plotsvg.select("text#mymouseover")
-        .text(function(){
-              var out = yValKey[i].x + ": " + yValKey[i].y;
-              return(out);
-              });
-        });
+                return myCol;
+            });
+            plotsvg.select("text#selectrange")
+                .text(function() {
+                    if(node.subsetrange.length==0) {return("Selected: all values");}
+                    else {
+                        if(node.numchar==="character") {
+                            var a = node.subsetrange;
+                            var selecteds = new Array;
+                            a.forEach(function(val) {
+                                selecteds.push(yValKey[val].x);
+                            })
+                            return("Selected: "+selecteds);
+                        }
+                        else {
+                            return("Selected: ".concat(node.subsetrange));
+                        }
+                      }
+                  });
+            })
+        .on("mouseover", function(){
+            var i = this.getAttribute("name");
+            plotsvg.select("text#mymouseover")
+            .text(function(){
+                  var out = yValKey[i].x + ": " + yValKey[i].y;
+                  return(out);
+                  });
+            });
     
     if(plotXaxis) {
         plotsvg.append("g")
@@ -946,7 +1018,7 @@ function barsSubset(node) {
             }
           }
         });
-}
+} //end function bar subset
 
 
 function densityNode(node, obj) {
@@ -1013,7 +1085,7 @@ function densityNode(node, obj) {
     .datum(data2)
     .attr("class", "area")
     .attr("d", area);
-}
+} //end function densityNode
 
 function barsNode(node, obj) {
     
@@ -1112,6 +1184,6 @@ function barsNode(node, obj) {
           })
     .attr("fill", "#1f77b4");
     
-}
+} //end function barsNode
 
 
