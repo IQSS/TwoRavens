@@ -350,3 +350,13 @@ td {
 
 #carouselLeft {position:absolute;top:50%;left:calc(16px + 20%);z-index:30;font-size:2em;}
 #carouselRight {position:absolute;top:50%;right:calc(16px + 20%);z-index:30;font-size:2em;}
+
+.lowerError {
+    fill: LightSteelBlue;
+    stroke-width: 0;
+}
+
+.upperError {
+    fill: #2d5474;
+    stroke-width: 0; 
+}
