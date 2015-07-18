@@ -23,10 +23,16 @@ if(production && fileid=="") {
     throw new Error("Error: No fileid has been provided.");
 }
 
-if (!hostname && !production) {
-       hostname="localhost:8080";
-} else if (!hostname && production) {
-    hostname="dataverse-demo.iq.harvard.edu"; //this will change when/if the production host changes
+var dataverseurl="";
+
+if (hostname) {
+    dataverseurl="https://"+hostname;
+} else {
+    if (production) {
+        dataverseurl="%PRODUCTION_DATAVERSE_URL%";
+    } else {
+        dataverseurl="http://localhost:8080";
+    }
 }
 
 if (fileid && !dataurl) {
@@ -34,7 +40,7 @@ if (fileid && !dataurl) {
     // a dataverse and cook a standard dataverse data access url,
     // with the fileid supplied and the hostname we have
     // either supplied or configured:
-    dataurl = "https://"+hostname+"/api/access/datafile/"+fileid;
+    dataurl = dataverseurl+"/api/access/datafile/"+fileid;
     dataurl = dataurl+"?key="+apikey;
     // (it is also possible to supply dataurl to the script directly, 
     // as an argument -- L.A.)
@@ -206,7 +212,7 @@ if (ddiurl) {
     // file id supplied; we're going to cook a standard dataverse
     // metadata url, with the file id provided and the hostname
     // supplied or configured:
-    metadataurl="https://"+hostname+"/api/meta/datafile/"+fileid;
+    metadataurl=dataverseurl+"/api/meta/datafile/"+fileid;
 } else {
     // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
     // the app, in the data directory:
