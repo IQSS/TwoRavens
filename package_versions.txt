@@ -1,0 +1,5 @@
+Zelig           5.0.5
+Rook            1.1.1
+rjson           0.2.13
+jsonlite        0.9.16
+DescTools       0.99.11
