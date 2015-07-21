@@ -74,7 +74,7 @@ var estimated=false;
 var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
 var selectLadda = Ladda.create(document.getElementById("btnSelect"));
 var rightClickLast = false;
-
+var rightClickLast2 = false;
 
 // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
@@ -456,8 +456,8 @@ function scaffolding(callback) {
     .attr("data-trigger", "hover")
     .attr("data-placement", "right")
     .attr("data-html", "true")
-    .attr("onmouseover", "$(this).popover('toggle');")
-    .attr("onmouseout", "$(this).popover('toggle');")
+ //   .attr("onmouseover", "$(this).popover('toggle');")
+ //   .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
     
     d3.select("#models")
@@ -482,8 +482,8 @@ function scaffolding(callback) {
     .attr("data-trigger", "hover")
     .attr("data-placement", "top")
     .attr("data-html", "true")
-    .attr("onmouseover", "$(this).popover('toggle');")
-    .attr("onmouseout", "$(this).popover('toggle');")
+ //   .attr("onmouseover", "$(this).popover('toggle');")
+ //   .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Model Description")
     .attr("data-content", function(d){
           return mods[d];
@@ -627,7 +627,7 @@ function layout(v) {
     
     //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
-    .on("mouseover", function(d) {
+ /*   .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         $("body div.popover")
         .addClass("variables");
@@ -637,7 +637,7 @@ function layout(v) {
     .on("mouseout", function() {
         //Remove the tooltip
         //d3.select("#tooltip").style("display", "none");
-        })
+        }) */
     .on("click", function varClick(){
         if(allNodes[findNodeIndex(this.id)].grayout) {return null;}
         d3.select(this)
@@ -689,13 +689,13 @@ function layout(v) {
         });
         
     d3.select("#models").selectAll("p") // models tab
-    .on("mouseover", function(d) {
+ /*   .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         })
     .on("mouseout", function() {
         //Remove the tooltip
         //d3.select("#tooltip").style("display", "none");
-        })
+        }) */
         //  d3.select("#Display_content")
         .on("click", function(){
             var myColor = d3.select(this).style('background-color');
@@ -914,7 +914,7 @@ function layout(v) {
         .attr("d", arc3)
         .style("fill", dvColor)
         .attr("fill-opacity", 0)
-        .on('mouseover', function(d){
+     /*   .on('mouseover', function(d){
             d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
             .duration(100);
@@ -929,7 +929,7 @@ function layout(v) {
             d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", 0)
             .delay(100)
             .duration(500);
-            })
+            }) */
         .on('click', function(d){
             setColors(d, dvColor);
             legend(dvColor);
@@ -955,7 +955,7 @@ function layout(v) {
         .attr("d", arc4)
         .style("fill", nomColor)
         .attr("fill-opacity", 0)
-        .on('mouseover', function(d){
+     /*   .on('mouseover', function(d){
             if(d.defaultNumchar=="character") {return;}
             d3.select(this).transition()  .attr("fill-opacity", .3)
             .delay(0)
@@ -972,7 +972,7 @@ function layout(v) {
             d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", 0)
             .delay(100)
             .duration(500);
-            })
+            })  */
         .on('click', function(d){
             if(d.defaultNumchar=="character") {return;}
             setColors(d, nomColor);
@@ -1003,7 +1003,7 @@ function layout(v) {
         .style('stroke', function(d) {
                return d3.rgb(d.strokeColor).toString(); })
         .classed('reflexive', function(d) { return d.reflexive; })
-        .on('mouseover', function(d) {
+    /*    .on('mouseover', function(d) {
        //     if(!mousedown_node || d === mousedown_node) return;
             })
         .on('mouseout', function(d) {
@@ -1011,18 +1011,19 @@ function layout(v) {
             // unenlarge target node
             //tooltip.style("visibility", "hidden");
         //    d3.select(this).attr('transform', '');
-            })
+            }) */
   //      .on('mousedown', function(d) {
    //         })
-        .on('dblclick', function(d){
-            d3.event.stopPropagation(); // stop click from bubbling
-            summaryHold = true;
+     //   .on('dblclick', function(d){
+     //       d3.event.stopPropagation(); // stop click from bubbling
+     //       summaryHold = true;
 //            document.getElementById('transformations').setAttribute("style", "display:block");
-            })
+       //     })
         .on('contextmenu', function(d) { // right click on node
             d3.event.preventDefault();
             d3.event.stopPropagation(); // stop right click from bubbling
             rightClickLast=true;
+            rightClickLast2=true;
             
             mousedown_node = d;
             if(mousedown_node === selected_node) selected_node = null;
@@ -1105,8 +1106,80 @@ function layout(v) {
         
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
+        // this code needs to be cleaned up
         g.selectAll("circle.node")
-        .on("mouseover", function(d) {
+        .on("click", function(d) {
+            var t = document.getElementById("dvArc".concat(d.id)).getAttribute("fill-opacity");
+            console.log(t);
+            console.log(rightClickLast2);
+            if(rightClickLast2) {
+                rightClickLast2=false;
+                return;
+            }
+            if(t==0) {
+            d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+            .delay(0)
+            .duration(100);
+            if(d.defaultNumchar=="numeric") {
+            d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+            .delay(0)
+            .duration(100);
+            }
+            d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+            .delay(0)
+            .duration(100);
+            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+            .delay(0)
+            .duration(100);
+            }
+            else {
+            d3.select("#csArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#csText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#timeArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#timeText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#dvArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#dvText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#nomArc".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            d3.select("#nomText".concat(d.id)).transition()
+            .attr("fill-opacity", 0)
+            .delay(100)
+            .duration(500);
+            }
+            });
+     /*   .on("mouseover", function(d) {
             tabLeft("tab3");
             varSummary(d);
             document.getElementById('transformations').setAttribute("style", "display:block");
@@ -1181,7 +1254,7 @@ function layout(v) {
 
 
             });
-        
+        */
         // populating transformation dropdown
         var t = [];
         for(var j =0; j < nodes.length; j++ ) {
@@ -1584,8 +1657,8 @@ function viz(m) {
           if(isNaN(myNum)) { return d;}
           return myNum.toPrecision(3);
           })
-    .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
-    .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
+  //  .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
+  //  .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
     
     d3.select("#resultsView")
     .append("p")
@@ -1866,8 +1939,8 @@ function scaffoldingPush(v) { // adding a variable to the variable list after a 
         .attr("data-trigger", "hover")
         .attr("data-placement", "right")
         .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
+    //    .attr("onmouseover", "$(this).popover('toggle');")
+    //    .attr("onmouseout", "$(this).popover('toggle');")
         .attr("data-original-title", "Summary Statistics")
         .on("click", function varClick(){ // we've added a new variable, so we need to add the listener
             d3.select(this)
@@ -2217,8 +2290,8 @@ function varSummary(d) {
     .data(function(d){return d;})
     .enter().append("td")
     .text(function(d){return d;})
-    .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
-    .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
+ //   .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) // for no discernable reason
+ //   .on("mouseout", function(){d3.select(this).style("background-color", "#F9F9F9")}) ;  //(but maybe we'll think of one)
 //    .style("font-size", "12px");
 
     

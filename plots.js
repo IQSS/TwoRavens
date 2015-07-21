@@ -838,6 +838,16 @@ function barsSubset(node) {
            else {return d.col;}
           })
     .on("click", function(){
+        
+        // moved this from mouseover below to click to account for no mouseover
+        var i = this.getAttribute("name");
+        plotsvg.select("text#mymouseover")
+        .text(function(){
+              var out = yValKey[i].x + ": " + yValKey[i].y;
+              return(out);
+              });
+
+        
         var selectMe = this;
         var selectName = this.getAttribute("name");
         if(this.parentNode.getAttribute("name")==myname.concat("subsetno")) {
@@ -876,7 +886,7 @@ function barsSubset(node) {
               });
         
         })
-    .on("mouseover", function(){
+  /*  .on("mouseover", function(){
         var i = this.getAttribute("name");
         plotsvg.select("text#mymouseover")
         .text(function(){
@@ -890,7 +900,7 @@ function barsSubset(node) {
         .text(function(){
                 return("Value: Frequency");
               });
-        });
+        }) */;
     
     if(plotXaxis) {
         plotsvg.append("g")
