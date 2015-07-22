@@ -917,7 +917,9 @@ function layout(v) {
         .style("fill", timeColor)
         .attr("fill-opacity", 0)
         .on('click', function(d){
-            console.log(d);
+            
+            var t = document.getElementById("timeArc".concat(d.id)).getAttribute("fill-opacity");
+            if(t==0) {return;}
             
             // fade out
             tagOut(d);
@@ -977,6 +979,10 @@ function layout(v) {
             .duration(500);
             }) */
         .on('click', function(d){
+            
+            var t = document.getElementById("dvArc".concat(d.id)).getAttribute("fill-opacity");
+            if(t==0) {return;}
+
             tagOut(d);
             setColors(d, dvColor);
             legend(dvColor);
@@ -1021,6 +1027,10 @@ function layout(v) {
             .duration(500);
             })  */
         .on('click', function(d){
+            
+            var t = document.getElementById("nomArc".concat(d.id)).getAttribute("fill-opacity");
+            if(t==0) {return;}
+
             if(d.defaultNumchar=="character") {return;}
             tagOut(d);
             setColors(d, nomColor);
