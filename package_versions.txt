@@ -1,5 +1,14 @@
+R2HTML
+VGAM
+AER
+dplyr
+quantreg
+geepack
+maxLik
+Amelia
 Zelig           5.0.5
 Rook            1.1.1
-rjson           0.2.13
 jsonlite        0.9.16
+rjson           0.2.13
+devtools
 DescTools       0.99.11
