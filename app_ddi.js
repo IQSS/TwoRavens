@@ -768,7 +768,8 @@ function layout(v) {
                     links.splice(j,1);
                 }
             }
-        });
+            });
+        
         
         // remove old links
         path.exit().remove();
@@ -907,6 +908,51 @@ function layout(v) {
         .text("Cross Sec");
 */
         
+        // added this for drawing arrows
+        g.append("path")
+        .attr("d", arc1)
+        .attr("id", function(d){
+              return "timeArc".concat(d.id);
+              })
+        .style("fill", timeColor)
+        .attr("fill-opacity", 0)
+        .on('click', function(d){
+            console.log(d);
+            
+            // fade out
+            tagOut(d);
+
+            // do what right click does
+            rightClickLast=true;
+            rightClickLast2=true;
+            
+            mousedown_node = d;
+            if(mousedown_node === selected_node) selected_node = null;
+            else selected_node = mousedown_node;
+            selected_link = null;
+            
+            // reposition drag line
+            drag_line
+            .style('marker-end', 'url(#end-arrow)')
+            .classed('hidden', false)
+            .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+            
+            svg.on('mousemove', mousemove);
+            restart();
+            });
+        g.append("text")
+        .attr("id", function(d){
+              return "timeText".concat(d.id);
+              })
+        .attr("x", 6)
+        .attr("dy", 11.5)
+        .attr("fill-opacity", 0)
+        .append("textPath")
+        .attr("xlink:href", function(d){
+              return "#timeArc".concat(d.id);
+              })
+        .text("Connect");
+        
         g.append("path")
         .attr("id", function(d){
               return "dvArc".concat(d.id);
@@ -931,6 +977,7 @@ function layout(v) {
             .duration(500);
             }) */
         .on('click', function(d){
+            tagOut(d);
             setColors(d, dvColor);
             legend(dvColor);
             restart();
@@ -975,6 +1022,7 @@ function layout(v) {
             })  */
         .on('click', function(d){
             if(d.defaultNumchar=="character") {return;}
+            tagOut(d);
             setColors(d, nomColor);
             legend(nomColor);
             restart();
@@ -1019,7 +1067,8 @@ function layout(v) {
      //       summaryHold = true;
 //            document.getElementById('transformations').setAttribute("style", "display:block");
        //     })
-        .on('contextmenu', function(d) { // right click on node
+      /*  .on('contextmenu', function(d) { // right click on node
+            console.log(d);
             d3.event.preventDefault();
             d3.event.stopPropagation(); // stop right click from bubbling
             rightClickLast=true;
@@ -1038,14 +1087,14 @@ function layout(v) {
             
             svg.on('mousemove', mousemove);
             restart();
-            })
+            })   */
         .on('mouseup', function(d) {
             d3.event.stopPropagation(); // stop mouseup from bubbling
             
-            if(rightClickLast) {
-                rightClickLast=false;
-                return;
-            }
+          //  if(rightClickLast) {
+            //    rightClickLast=false;
+           //     return;
+           // }
            
             if(!mousedown_node) return;
             
@@ -1110,73 +1159,15 @@ function layout(v) {
         g.selectAll("circle.node")
         .on("click", function(d) {
             var t = document.getElementById("dvArc".concat(d.id)).getAttribute("fill-opacity");
-            console.log(t);
-            console.log(rightClickLast2);
             if(rightClickLast2) {
                 rightClickLast2=false;
                 return;
             }
             if(t==0) {
-            d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
-            .delay(0)
-            .duration(100);
-            d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
-            .delay(0)
-            .duration(100);
-            if(d.defaultNumchar=="numeric") {
-            d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
-            .delay(0)
-            .duration(100);
-            d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
-            .delay(0)
-            .duration(100);
-            }
-            d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
-            .delay(0)
-            .duration(100);
-            d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .5)
-            .delay(0)
-            .duration(100);
-            d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
-            .delay(0)
-            .duration(100);
-            d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .5)
-            .delay(0)
-            .duration(100);
+                tagIn(d);
             }
             else {
-            d3.select("#csArc".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#csText".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#timeArc".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#timeText".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#dvArc".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#dvText".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#nomArc".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
-            d3.select("#nomText".concat(d.id)).transition()
-            .attr("fill-opacity", 0)
-            .delay(100)
-            .duration(500);
+                tagOut(d);
             }
             });
      /*   .on("mouseover", function(d) {
@@ -3155,6 +3146,82 @@ function reWriteLog() {
           });
 }
 
+function tagIn(d) {
+    
+    document.getElementById('transformations').setAttribute("style", "display:block");
+    tabLeft("tab3");
+    varSummary(d);
+    var select = document.getElementById("transSel");
+    select.selectedIndex = d.id;
+    transformVar = valueKey[d.id];
+    
+    
+    
+    d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    .delay(0)
+    .duration(100);
+    d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    .delay(0)
+    .duration(100);
+    if(d.defaultNumchar=="numeric") {
+        d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+        .delay(0)
+        .duration(100);
+        d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+        .delay(0)
+        .duration(100);
+    }
+    d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    .delay(0)
+    .duration(100);
+    d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    .delay(0)
+    .duration(100);
+    d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    .delay(0)
+    .duration(100);
+    d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    .delay(0)
+    .duration(100);
+}
+
+function tagOut(d) {
+    
+    tabLeft(lefttab);
+    
+    d3.select("#csArc".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#csText".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#timeArc".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#timeText".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#dvArc".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#dvText".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#nomArc".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+    d3.select("#nomText".concat(d.id)).transition()
+    .attr("fill-opacity", 0)
+    .delay(100)
+    .duration(500);
+}
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
