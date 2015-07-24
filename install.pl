@@ -268,5 +268,5 @@ system ("chown -R apache " . $CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'});
 
 print "\n\nGreat. You should now have a working TwoRavens installation!\n";
 print "\nThe application URL is \n";
-print $RAPACHEURL . "/dataexplore\n\n";
+print $RAPACHEURL . "/dataexplore/gui.html\n\n";
 
