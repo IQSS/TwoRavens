@@ -3167,30 +3167,30 @@ function tagIn(d) {
     
     
     
-    d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    d3.select("#dvArc".concat(d.id)).transition()  .attr("fill-opacity", .4)
     .delay(0)
     .duration(100);
-    d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    d3.select("#dvText".concat(d.id)).transition()  .attr("fill-opacity", .85)
     .delay(0)
     .duration(100);
     if(d.defaultNumchar=="numeric") {
-        d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+        d3.select("#nomArc".concat(d.id)).transition()  .attr("fill-opacity", .4)
         .delay(0)
         .duration(100);
-        d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+        d3.select("#nomText".concat(d.id)).transition()  .attr("fill-opacity", .85)
         .delay(0)
         .duration(100);
     }
-    d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    d3.select("#csArc".concat(d.id)).transition()  .attr("fill-opacity", .4)
     .delay(0)
     .duration(100);
-    d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    d3.select("#csText".concat(d.id)).transition()  .attr("fill-opacity", .85)
     .delay(0)
     .duration(100);
-    d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .1)
+    d3.select("#timeArc".concat(d.id)).transition()  .attr("fill-opacity", .4)
     .delay(0)
     .duration(100);
-    d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .5)
+    d3.select("#timeText".concat(d.id)).transition()  .attr("fill-opacity", .85)
     .delay(0)
     .duration(100);
 }
