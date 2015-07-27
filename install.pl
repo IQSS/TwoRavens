@@ -34,9 +34,9 @@ my %CONFIG_DEFAULTS = (
     'APACHE_CONFIG_DIRECTORY', '/etc/httpd',
     'APACHE_WEB_DIRECTORY',    '/var/www/html',
     'HOST_DNS_ADDRESS',        $hostname_from_cmdline,
-    'HOST_PORT',               8181,
-    'HOST_PROTOCOL',           'https',
-    'DATAVERSE_URL',           'https://' . $hostname_from_cmdline
+    'HOST_PORT',               80,
+    'HOST_PROTOCOL',           'http',
+    'DATAVERSE_URL',           'http://' . $hostname_from_cmdline . ':8080'
 
 );
 
