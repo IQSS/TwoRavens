@@ -352,37 +352,16 @@ td {
 #carouselRight {position:absolute;top:50%;right:calc(16px + 20%);z-index:30;font-size:2em;}
 
 .lowerError {
-    /*fill: #2d6ca2;*/
     fill: #4682b4;
-
-    /*fill: darkgrey;*/
-    /*stroke-width: 1;
-    stroke-color: black;*/
 }
 
 .upperError {
-    /*fill: #2d5474;*/
   fill: silver;
-    /*fill: #ffbf87;*/
-
-  /*fill: grey;*/
-  /*fill:#b2b2ff;*/
   fill-opacity: 0.65;
-  /*stroke-width: 1;
-  stroke-color: black;*/
 }
 
 .line {
-  /*fill: #80A0BB;*/
-  /*fill: #7D9CB7;*/
-
-  /*fill: #2d6ca2;*/
   fill: #4682b4;
-
-  /*fill: silver;*/
-  /*fill: #2d6ca2;*/
-  /*fill: grey;*/
-  /*fill-opacity: 0.3;*/
 }
 
 .nofill {
