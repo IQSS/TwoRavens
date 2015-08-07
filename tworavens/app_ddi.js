@@ -17,7 +17,6 @@
 
 
 var production=false;
-var private=true;
 
 if(production && fileid=="") {
     alert("Error: No fileid has been provided.");
@@ -284,7 +283,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
                       };
                       //,
-                        console.log("we are here");
+                      
                         console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
@@ -2171,17 +2170,11 @@ function varSummary(d) {
 
         var summarydata = [],
         tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
-        t2 = [(+d.mean).toPrecision(4).toString() ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
+        t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
         i, j;
-        if (private) {
-          if (d.meanCI) {
-          t2 = [(+d.mean).toPrecision(4).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(4).toString() + " - " + (+d.meanCI.upperBound).toPrecision(4).toString() + ")" ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
-        i, j;
-      } 
-        }
-                
+        
         for (i = 0; i < t1.length; i++) {
-            if(t2[i].indexOf("NaN") > -1 | t2[i]=="NA" | t2[i]=="") continue;
+            if(t2[i]=="NaN" | t2[i]=="NA" | t2[i]=="") continue;
             tmpDataset=[];
             tmpDataset.push(t1[i]);
             tmpDataset.push(t2[i]);
@@ -2189,7 +2182,7 @@ function varSummary(d) {
         };
 
   //  console.log(summarydata);
-    d3.select("#tab3") //tab when you mouseover a pebble
+    d3.select("#tab3")
     .select("p")
     .html("<center><b>" +d.name+ "</b><br><i>" +d.labl+ "</i></center>")
     .append("table")
@@ -2211,10 +2204,10 @@ function varSummary(d) {
         .remove();
     }
     else if (d.plottype === "continuous") {
-        density(d, div="varSummary", private);
+        density(d, div="varSummary");
     }
     else if (d.plottype === "bar") {
-        bars(d, div="varSummary", private);
+        bars(d, div="varSummary");
     }
     else {
         var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
@@ -2242,14 +2235,7 @@ function popoverContent(d) {
     if(d.labl != "") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
     }
     
-    if (d.mean != "NA") { 
-      outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() 
-      if (private) {
-        if (d.meanCI) {
-        outtext += " (" + (+d.meanCI.lowerBound).toPrecision(4).toString() + " - " + (+d.meanCI.upperBound).toPrecision(4).toString() + ")"
-      }
-    }
-      outtext += "</p></div></div>";
+    if (d.mean != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() + "</p></div></div>";
     }
     
     if (d.median != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
@@ -2350,13 +2336,13 @@ function panelPlots() {
         allNodes[idArray[i]].subsetplot=false;
             if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                density(allNodes[idArray[i]], div="setx", private);
+                density(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
-                density(allNodes[idArray[i]], div="subset", private);
+                density(allNodes[idArray[i]], div="subset");
             }
             else if (allNodes[idArray[i]].plottype === "bar" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                bars(allNodes[idArray[i]], div="setx", private);
+                bars(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
                 barsSubset(allNodes[idArray[i]]);
             }
