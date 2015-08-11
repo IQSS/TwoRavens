@@ -263,7 +263,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       // temporary values for hold that correspond to histogram bins
                       hold = [.6, .2, .9, .8, .1, .3, .4];
                       var myvalues = [0, 0, 0, 0, 0];
-                      
+                      console.log("GOT HERE A");
+                      console.log(vars);
                       for (i=0;i<vars.length;i++) {
                       
                       valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -284,7 +285,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
                       };
                       //,
-                        console.log("we are here");
+                        console.log("allnodes");
                         console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
@@ -1740,7 +1741,7 @@ function transform(n,t, typeTransform) {
                     nodes.push(allNodes[i]);
                     fakeClick();
                     panelPlots();
-
+                    
                     if(allNodes[i].plottype === "continuous") {
                         densityNode(allNodes[i]);
                     }
@@ -1749,7 +1750,7 @@ function transform(n,t, typeTransform) {
                         }
                     }//for
                     
-                    
+
                     });
         
             // update the log
@@ -2175,7 +2176,8 @@ function varSummary(d) {
         i, j;
         if (private) {
           if (d.meanCI) {
-          t2 = [(+d.mean).toPrecision(4).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(4).toString() + " - " + (+d.meanCI.upperBound).toPrecision(4).toString() + ")" ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
+            t1 = ["Mean:", "Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
+          t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")" ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
         i, j;
       } 
         }
@@ -2243,10 +2245,13 @@ function popoverContent(d) {
     }
     
     if (d.mean != "NA") { 
-      outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() 
+      outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"  
+      if (!private) {
+        outtext += (+d.mean).toPrecision(4).toString()
+      }
       if (private) {
         if (d.meanCI) {
-        outtext += " (" + (+d.meanCI.lowerBound).toPrecision(4).toString() + " - " + (+d.meanCI.upperBound).toPrecision(4).toString() + ")"
+        outtext += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
       }
     }
       outtext += "</p></div></div>";
@@ -2693,6 +2698,8 @@ function readPreprocess(url, p, v, callback) {
             for(var key in jsondata) {
                 p[key] = jsondata[key];
             }
+            console.log("we're here")
+            console.log(p);
             
             if(typeof callback === "function") {
                 callback();
