@@ -17,7 +17,7 @@
 
 
 var production=false;
-var private=true;
+var private=false;
 
 if(production && fileid=="") {
     alert("Error: No fileid has been provided.");
@@ -232,7 +232,7 @@ if (dataurl) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-    pURL = "data/fearonLaitinNewPreprocess3.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
+    pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
 
@@ -2689,9 +2689,17 @@ function readPreprocess(url, p, v, callback) {
             if (error) return console.warn(error);
             var jsondata = json;
             
+            console.log("inside readPreprocess function");
+            console.log(jsondata);
+            console.log(jsondata["variables"]);
+
+            if(jsondata.dataset.private){
+              private = jsondata["dataset"]["private"];
+            };
+
             //copying the object
-            for(var key in jsondata) {
-                p[key] = jsondata[key];
+            for(var key in jsondata["variables"]) {
+                p[key] = jsondata["variables"][key];
             }
             
             if(typeof callback === "function") {
