@@ -1,7 +1,7 @@
 // function to use d3 to graph density plots with preprocessed data
 function density(node, div, private) {
     var mydiv;
-  
+
     if(div=="subset") {
         mydiv = "#tab2";
     }
@@ -394,6 +394,10 @@ function bars(node, div, private) {
     // Data
     var keys = Object.keys(node.plotvalues);
     var yVals = new Array;
+    var ciUpperVals = new Array;
+    var ciLowerVals = new Array;
+    var ciSize;
+
     var xVals = new Array;
     var yValKey = new Array;
     
@@ -403,21 +407,46 @@ function bars(node, div, private) {
             if(node.plotvalues[keys[i]]==0) {continue;}
             yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
+            if (private) {
+                if (node.plotvaluesCI) {
+                    ciLowerVals[xi] = node.plotValuesCI.lowerBound[keys[i]];
+                    ciUpperVals[xi] = node.plotValuesCI.upperBound[keys[i]];
+                    }
+                    ciSize = ciUpperVals[xi] - ciLowerVals[xi];        
+                };
+            
             yValKey.push({y:yVals[xi], x:keys[i] });
             xi = xi+1;
         }
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
+        ciUpperVals.sort(function(a,b){return b.y-a.y}); // ?
+        ciLowerVals.sort(function(a,b){return b.y-a.y}); // ?
     }
     else {
         for (var i = 0; i < keys.length; i++) {
+            console.log("plotvalues in bars");
+            console.log(node);
             yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
+              if (private) {
+                if (node.plotvaluesCI) {
+                    ciLowerVals[i] = node.plotvaluesCI.lowerBound[keys[i]];
+                    ciUpperVals[i] = node.plotvaluesCI.upperBound[keys[i]];
+                }
+                ciSize = ciUpperVals[i] - ciLowerVals[i];     
+            }
         }
     }
     
     if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     var maxY = d3.max(yVals); // in the future, set maxY to the value of the maximum confidence limit
+   if (private){
+       if(node.plotvaluesCI){
+           var maxCI = d3.max(ciUpperVals);
+           maxY = maxCI;
+       };
+   };
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
    
@@ -464,7 +493,8 @@ function bars(node, div, private) {
     .domain([0, width]);
     
     var y = d3.scale.linear()
-    .domain([0, maxY])   
+    // .domain([0, maxY])   
+     .domain([0, maxY]) 
     .range([0, height]);
     
     var xAxis = d3.svg.axis()
@@ -543,9 +573,9 @@ function bars(node, div, private) {
     
     // draw error bars, threshold line and extra bin
     if (private) {
-        if (yVals.length <= 20) { //do not display vertical portions of error bars if the number of bins exceeds 20
+        if (yVals.length <= 20) {
             plotsvg.selectAll("line")
-            .data(yVals)
+            .data(ciUpperVals)
             .enter()
             .append("line")
             .style("stroke", "black")
@@ -553,19 +583,21 @@ function bars(node, div, private) {
                 return x(xVals[i]-0.5+barPadding) + rectWidth/2
             })
             .attr("y1", function(d) {
-                return y(maxY - d) - .1*y(d);  
+                return y(maxY - d);  
             })     
             .attr("x2", function(d, i){
                 return x(xVals[i]-0.5+barPadding) + rectWidth/2
             })
             .attr("y2", function(d) {
-                return y(maxY - d) + .1*y(d);  
+                y2 = y(maxY - d + ciSize);
+                if (y2 >= y(maxY)) { return y(maxY);}
+                else return y2; 
             }) 
 
             //draw top ticks on error bars
             //need to fix the height of the graphs - the tops of error bars are getting cut off
             plotsvg.selectAll(".topTick")
-            .data(yVals)
+            .data(ciUpperVals)
             .enter()
             .append("line")
             .attr("class", "topTick")
@@ -578,7 +610,7 @@ function bars(node, div, private) {
                 }            
             })
             .attr("y1", function(d) {
-                return y(maxY - d) - .1*y(d);  
+                return y(maxY - d);  
             })     
             .attr("x2", function(d, i){
                  if (yVals.length > 20) {
@@ -588,12 +620,12 @@ function bars(node, div, private) {
                 }
             })
             .attr("y2", function(d) {
-                return y(maxY - d) - .1*y(d);  
+                return y(maxY - d);  
             });
         
             // draw bottom ticks of error bars
             plotsvg.selectAll(".bottomTick")
-            .data(yVals)
+            .data(ciLowerVals)
             .enter()
             .append("line")
             .attr("class", "bottomTick")
@@ -606,7 +638,7 @@ function bars(node, div, private) {
                 }            
             })
             .attr("y1", function(d) {
-                return y(maxY - d) + .1*y(d);  
+                return y(maxY - d);  
             })    
             .attr("x2", function(d, i){
                  if (yVals.length > 20) {
@@ -616,7 +648,7 @@ function bars(node, div, private) {
                 }
             })
             .attr("y2", function(d) {
-                return y(maxY - d) + .1*y(d);  
+                return y(maxY - d);  
             }) 
        } 
        else {

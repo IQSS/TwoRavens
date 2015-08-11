@@ -263,8 +263,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       // temporary values for hold that correspond to histogram bins
                       hold = [.6, .2, .9, .8, .1, .3, .4];
                       var myvalues = [0, 0, 0, 0, 0];
-                      console.log("GOT HERE A");
-                      console.log(vars);
+                      // console.log("GOT HERE A");
+                      // console.log(vars);
                       for (i=0;i<vars.length;i++) {
                       
                       valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -285,8 +285,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
                       };
                       //,
-                        console.log("allnodes");
-                        console.log(allNodes);
+                        // console.log("allnodes");
+                        // console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -2355,6 +2355,7 @@ function panelPlots() {
         allNodes[idArray[i]].subsetplot=false;
             if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
+                console.log(private);
                 density(allNodes[idArray[i]], div="setx", private);
                 allNodes[idArray[i]].subsetplot=true;
                 density(allNodes[idArray[i]], div="subset", private);
@@ -2706,8 +2707,8 @@ function readPreprocess(url, p, v, callback) {
             for(var key in jsondata["variables"]) {
                 p[key] = jsondata["variables"][key];
             }
-            console.log("we're here")
-            console.log(p);
+            // console.log("we're here")
+            // console.log(p);
             
             if(typeof callback === "function") {
                 callback();
