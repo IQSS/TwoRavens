@@ -1,6 +1,6 @@
 {
   "dataset": {
-    "private": "true"
+    "private": true
   },
   "variables": {
     "ccode": {
