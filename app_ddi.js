@@ -2246,13 +2246,10 @@ function popoverContent(d) {
     
     if (d.mean != "NA") { 
       outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"  
-      if (!private) {
-        outtext += (+d.mean).toPrecision(4).toString()
-      }
-      if (private) {
-        if (d.meanCI) {
+      if (private && d.meanCI) {
         outtext += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
-      }
+      } else {
+      outtext += (+d.mean).toPrecision(4).toString()
     }
       outtext += "</p></div></div>";
     }
