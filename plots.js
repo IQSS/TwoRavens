@@ -484,9 +484,15 @@ function bars(node, div, private) {
         height = 0.25 * (height - margin.top - margin.bottom);
     };
     
-    var x = d3.scale.linear()
-    .domain([ minX-0.5 , maxX+0.5])  
-    .range([0, width]);
+    if (private && node.stabilityBin) {
+        var x = d3.scale.linear()
+        .domain([ minX-0.5 , maxX+1.5])  
+        .range([0, width]);
+    } else {
+        var x = d3.scale.linear()
+        .domain([ minX-0.5 , maxX+0.5])  
+        .range([0, width]);
+    }
 
     var invx = d3.scale.linear()
     .range([ minX-0.5 , maxX+0.5])  
@@ -572,7 +578,7 @@ function bars(node, div, private) {
 
     
     // draw error bars, threshold line and extra bin
-    if (private) {
+    if (private ) {
         if (yVals.length <= 20) {
             plotsvg.selectAll("line")
             .data(ciUpperVals)
@@ -672,23 +678,32 @@ function bars(node, div, private) {
   
     //if statement for stability histograms
         //extra stability bin
-        var excl = 30;
-        plotsvg.append("rect")
-        .attr("x", x(maxX+0.5-barPadding))
-        .attr("y", y(maxY) - excl)
-        .attr("width", rectWidth)
-        .attr("height", excl)
-        .attr("fill", "silver")
+        if (node.stabilityBin) {
+            plotsvg.append("rect")
+            .attr("x", x(maxX+0.5-barPadding))
+            .attr("y", y(maxY) - node.stabilityBin)
+            .attr("width", rectWidth)
+            .attr("height", node.stabilityBin)
+            .attr("fill", "silver")
+        }
 
         //threshold line
-        // var threshold = 25; 
-        
-        // plotsvg.append("line")
-        // .style("stroke", "black")
-        // .attr("x1", x(minX-0.5+barPadding))
-        // .attr("y1", y(maxY) - threshold)
-        // .attr("x2", x(maxX+0.5-barPadding)+rectWidth)
-        // .attr("y2", y(maxY) - threshold) 
+        if (node.threshold) {
+            plotsvg.append("line")
+            .style("stroke", "black")
+            .attr("x1", x(minX-0.5+barPadding))
+            .attr("y1", y(maxY) - node.threshold)
+            .attr("x2", function() {
+                console.log("stabilityBin");
+                console.log(node.stabilityBin);
+                if (node.stabilityBin) {
+                    return x(maxX+0.5-barPadding)+rectWidth;
+                } else {
+                    return x(maxX+0.5-barPadding);
+                }
+            })
+            .attr("y2", y(maxY) - node.threshold) 
+        }
     }
     
    
