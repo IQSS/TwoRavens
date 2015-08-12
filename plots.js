@@ -30,27 +30,31 @@ function density(node, div, private) {
                   });
     
     if (private) {
-        //stores values for upper bound
-        var upperError = [];
-        for(var i = 0; i < node.plotx.length; i++) {
-            upperError.push({x:node.plotx[i], y:1.1*node.ploty[i]});
-        }
-    
-        upperError.forEach(function(d) {
-                      d.x = +d.x;
-                      d.y = +d.y;
-                      });
+        if (node.plotCI) {
+            //stores values for upper bound
+            var upperError = [];
+            for(var i = 0; i < node.plotx.length; i++) {
+                upperError.push({x:node.plotx[i], y:node.plotCI.upperBound[i]});
+            }
         
-        // stores values for lower bound
-        var lowerError = [];
-        for(var i = 0; i < node.plotx.length; i++) {
-            lowerError.push({x:node.plotx[i], y:0.9*node.ploty[i]});
-        }
-        
-        lowerError.forEach(function(d) {
-                      d.x = +d.x;
-                      d.y = +d.y;
-                      });
+            upperError.forEach(function(d) {
+                          d.x = +d.x;
+                          d.y = +d.y;
+                          });
+            
+            // stores values for lower bound
+            var lowerError = [];
+            for(var i = 0; i < node.plotx.length; i++) {
+                lowerError.push({x:node.plotx[i], y:node.plotCI.lowerBound[i]});
+            }
+            
+            lowerError.forEach(function(d) {
+                          d.x = +d.x;
+                          d.y = +d.y;
+                          });
+            console.log("upperError");
+            console.log(upperError);
+    }
     }
 
     var tempWidth = d3.select(mydiv).style("width")
@@ -156,7 +160,7 @@ function density(node, div, private) {
         .attr("class", "area")
         .attr("d", area);   
     
-    if (private) {
+    if (private && node.plotCI) {
         //add upper bound
         plotsvg.append("path")
         .attr("class", "upperError")
@@ -164,7 +168,7 @@ function density(node, div, private) {
         .attr("d", area);
     }
 
-    if (private) {  
+    if (private && node.plotCI) {  
         //add lower bound
         plotsvg.append("path")
         .attr("class", "lowerError")
