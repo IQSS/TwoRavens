@@ -7,7 +7,7 @@
 ##
 
 
-modulesPath<-("./PrivacyFunctions/")
+modulesPath<-("./privacyfunctions/")
 
 source(paste(modulesPath,"DPutilities.R", sep=""))
 source(paste(modulesPath,"GetFunctions.R", sep=""))
