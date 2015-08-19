@@ -1,11 +1,12 @@
 ##
 ##  rooksource.R
 ##
-##  3/3/15
+##  8/19/15
 ##
 
 
 production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+addPrivacy<-TRUE      ## Toggle:  TRUE - Add .apps for differential privacy, FALSE - Do not add privacy .apps
 
 
 if(production){
@@ -67,7 +68,6 @@ if(!production){
 
     R.server <- Rhttpd$new()
 
-
     cat("Type:", typeof(R.server), "Class:", class(R.server))
     R.server$add(app = File$new(getwd()), name = "pic_dir")
     print(R.server)
@@ -86,6 +86,10 @@ source("rooktransform.R")
 source("rookzelig.R")
 source("rookutils.R")
 source("rookdata.R")
+if(addPrivacy){
+    source("rookprivate.R")
+}
+
 
 if(production){
     sink()
@@ -96,6 +100,11 @@ if(!production){
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
     R.server$add(app = data.app, name="dataapp")
+    ## These add the .apps for the privacy budget allocator interface
+    if(addPrivacy){
+        R.server$add(app = privateStatistics.app, name="privateStatistics")
+        R.server$add(app = privateStatistics.app, name="privateAccuracies")
+    }
     #   R.server$add(app = selector.app, name="selectorapp")
     print(R.server)
 }
