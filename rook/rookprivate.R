@@ -45,7 +45,9 @@ privateStatistics.app <-function(env){
         globals <- everything$globals	# dictionary of global parameters eps, del, beta
       									# and eventually n. 
         #data <- GET_THIS_FROM_DATAVERSE(fileid)
+        print(data)
         metadata <- calculate_stats(data, df, globals)
+
         result <- jsonlite:::toJSON(metadata, digits=8)
     }else{
         result<- jsonlite:::toJSON(message)
@@ -53,6 +55,7 @@ privateStatistics.app <-function(env){
 
     print(result)
     cat("\n")
+    
     if(production){
         sink()
     }
@@ -81,7 +84,7 @@ privateAccuracies.app <- function(env){
     
     ## Run some checking on the inputs to make valid and can go ahead
     warning<-FALSE
-    message<-"Somethine went wrong"
+    message<-"Something went wrong"
     
     #first check contents of everything. then unpack them
     if(is.null(everything)){
