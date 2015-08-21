@@ -59,7 +59,7 @@ get_accuracies <- function(metadata, n, Beta){
 			bins <- as.numeric(metadata$Number_of_bins[i])
 			#new_acc <- histogram$getAccuracy(bins, n, eps_i, del_i, Beta) 
 			#with new histogram code: changed 8/8/14
-			new_acc <- histogram$getAccuracy(TRUE, n, eps_i, del_i, Beta)[1] #returns pair of accs
+			new_acc <- Histogram.getAccuracy(TRUE, n, eps_i, del_i, Beta)[1] #returns pair of accs
 		}	
 		
 		else if(stat == "covariance"){
@@ -138,7 +138,7 @@ get_parameters <- function(new_accuracy, i, metadata, n, Beta){
 		bins <- as.numeric(metadata$Number_of_bins[i])
 		#new_eps <- histogram$getParameters(bins, n, del_i, new_accuracy, Beta)	
 		#with new histogram code: changed 8/8/14
-		new_eps <- histogram$getParameters(TRUE, n, del_i, new_accuracy, Beta) 
+		new_eps <- Histogram.getParameters(TRUE, n, del_i, new_accuracy, Beta)
 	}	
 	
 	else if(stat == "covariance"){
