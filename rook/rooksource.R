@@ -51,6 +51,20 @@ if (!production) {
 library(Zelig)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
+modulesPath<-("./privacyfunctions/")
+
+source(paste(modulesPath,"DPutilities.R", sep=""))
+source(paste(modulesPath,"GetFunctions.R", sep=""))
+source(paste(modulesPath,"update_parameters.R", sep=""))
+source(paste(modulesPath,"Calculate_stats.R", sep=""))
+source(paste(modulesPath,"Histogramnew.R", sep=""))
+source(paste(modulesPath,"CompositionTheorems.R", sep=""))
+source(paste(modulesPath,"DP_Quantiles.R", sep=""))
+source(paste(modulesPath,"DP_Means.R", sep=""))
+source(paste(modulesPath,"CreateXML.R", sep=""))
+
+
+
 if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
@@ -102,8 +116,8 @@ if(!production){
     R.server$add(app = data.app, name="dataapp")
     ## These add the .apps for the privacy budget allocator interface
     if(addPrivacy){
-        R.server$add(app = privateStatistics.app, name="privateStatistics")
-        R.server$add(app = privateStatistics.app, name="privateAccuracies")
+        R.server$add(app = privateStatistics.app, name="privateStatisticsapp")
+        R.server$add(app = privateAccuracies.app, name="privateAccuraciesapp")
     }
     #   R.server$add(app = selector.app, name="selectorapp")
     print(R.server)

@@ -7,18 +7,6 @@
 ##
 
 
-modulesPath<-("./privacyfunctions/")
-
-source(paste(modulesPath,"DPutilities.R", sep=""))
-source(paste(modulesPath,"GetFunctions.R", sep=""))
-source(paste(modulesPath,"update_parameters.R", sep=""))
-source(paste(modulesPath,"Calculate_stats.R", sep=""))
-source(paste(modulesPath,"Histogramnew.R", sep=""))
-source(paste(modulesPath,"CompositionTheorems.R", sep=""))
-source(paste(modulesPath,"DP_Quantiles.R", sep=""))
-source(paste(modulesPath,"DP_Means.R", sep=""))
-source(paste(modulesPath,"CreateXML.R", sep=""))
-
 
 
 privateStatistics.app <-function(env){
