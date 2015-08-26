@@ -10,7 +10,7 @@
 
 
 privateStatistics.app <-function(env){
-	print("Entered Submit app")
+
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
 
     if(production){
@@ -55,7 +55,7 @@ privateStatistics.app <-function(env){
 
 
 privateAccuracies.app <- function(env){
-	print("Entered Accuracies app")
+
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
     
     if(production){
