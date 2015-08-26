@@ -51,9 +51,9 @@ if (!production) {
 library(Zelig)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
-modulesPath<-("./privacyfunctions/")
+modulesPath<-paste(getwd(),"/privacyfunctions/",sep="")
 
-source(paste(modulesPath,"DPutilities.R", sep=""))
+source(paste(modulesPath,"DPUtilities.R", sep=""))
 source(paste(modulesPath,"GetFunctions.R", sep=""))
 source(paste(modulesPath,"update_parameters.R", sep=""))
 source(paste(modulesPath,"Calculate_stats.R", sep=""))
