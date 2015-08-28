@@ -135,10 +135,7 @@ update_parameters <- function(params, index, eps, del){
 		if(is.na(test_eps)){
 			return("error")
 		}
-		
-
-		# If you want to look under the hood
-		
+				
 		# Reset upper and lower bounds of the search depending on outcome of test_eps
 		if(test_eps < eps){
 			l <- r
@@ -149,19 +146,19 @@ update_parameters <- function(params, index, eps, del){
 		
 		##Else if using optimal composition approximation (Jack & Salil work):
 
-        #'  what was this character doing here?
-		isDP <- isDP(test_params, eps, del)
-		if(is.na(isDP)){
-			return("error")
-		}
+        #
+        #isDP <- isDP(test_params, eps, del)
+        #if(is.na(isDP)){
+            #return("error")
+            #}
 		# Reset upper and lower bounds of the search depending on outcome of test_eps
-		if(isDP){
-			l <- r
-		}
-		else if(!isDP){
-			u <- r
-		}
-        #'  what was this character doing here?
+        #if(isDP){
+            #l <- r
+            #}
+        #else if(!isDP){
+            #	u <- r
+            #}
+        #
 		iteration <- iteration + 1
 	}
 	return(test_params)
