@@ -39,10 +39,6 @@ update_parameters <- function(params, index, eps, del){
 	
 	# k is the total number of calls the user wishes to make to a DP algorithm
 	k <- length(params[ , 1])
-		#print(params)
-		#print(index)
-		#print(eps)
-		#print(del)
 	# If we are only calculating one statistic, just allocate the whole budget to that.
 	if(k == 1){
 		params[1,1] <- eps
@@ -142,15 +138,6 @@ update_parameters <- function(params, index, eps, del){
 		
 
 		# If you want to look under the hood
-		'
-		cat("\niteration: ", iteration)
-		cat("\nr: ",r)
-		cat("\nu: ",u)
-		cat("\nl: ",l)
-		cat("\ntest_eps: ",test_eps)
-		cat("\ntest_parameters:\n")
-		print(test_params)
-		'
 		
 		# Reset upper and lower bounds of the search depending on outcome of test_eps
 		if(test_eps < eps){
@@ -162,7 +149,7 @@ update_parameters <- function(params, index, eps, del){
 		
 		##Else if using optimal composition approximation (Jack & Salil work):
 
-		'
+        #'  what was this character doing here?
 		isDP <- isDP(test_params, eps, del)
 		if(is.na(isDP)){
 			return("error")
@@ -174,7 +161,7 @@ update_parameters <- function(params, index, eps, del){
 		else if(!isDP){
 			u <- r
 		}
-		'
+        #'  what was this character doing here?
 		iteration <- iteration + 1
 	}
 	return(test_params)

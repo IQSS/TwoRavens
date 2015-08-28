@@ -116,8 +116,6 @@ get_parameters <- function(new_accuracy, i, metadata, n, Beta){
 	
 	# pull together relevant information for the get_parameter calls
 	del_i <- as.numeric(metadata$Delta[i])
-	print("metadata:")
-	print(metadata)
 	stat <- tolower(metadata$Statistic[i])
 	new_accuracy <- as.numeric(new_accuracy)
 

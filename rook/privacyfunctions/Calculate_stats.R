@@ -56,7 +56,6 @@ calculate_stats <- function(data, df, globals, fakebinlist = c()){
 	if(is.na(df$Variable[nrow(df)])){
 		df <- df[1:(nrow(df) -1 ), ]
 	}
-	print(df)
 	
 	#initialize storage of calculated stats
 	variables <- unique(df$Variable)
@@ -129,8 +128,6 @@ calculate_stats <- function(data, df, globals, fakebinlist = c()){
 		
 	}
 
-
-print(stats)
 xml <- create_xml(stats,df,globals)
 return(xml)
 }

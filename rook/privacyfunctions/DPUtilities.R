@@ -66,7 +66,6 @@ GUI <- function(df, x, y, btn, globals){
 			return_accuracies <- get_accuracies(df, n, Beta)
 			if(class(return_accuracies) == "character" && return_accuracies == "error"){
 				message <-"Error in get_accuracies: statistic not found or Beta invalid"
-				print(message)
 				return(message)
 			}
 		
@@ -86,7 +85,6 @@ GUI <- function(df, x, y, btn, globals){
 		#if btn isn't recognized
 		else{
 			message <- "Button is not recognized"
-			print(message)
 			return(message)
 	    }
 	  }   
@@ -116,7 +114,6 @@ GUI <- function(df, x, y, btn, globals){
 		# If all of the other accuracy values are being held fixed by the user, report this error
 		if(sum(df$Hold) == nrow(df) - 1 && df$Hold[index] == 0){
 			message <- "Cannot edit an accuracy value when every other accuracy is fixed"
-			print(message)
 			return(message)
 		}
 		
@@ -127,7 +124,6 @@ GUI <- function(df, x, y, btn, globals){
 		# Check if get_parameters returned an error
 		if(class(attempted_eps) == "character" && attempted_eps == "error"){
 			message <- "No statistic specified"
-			print(message)
 			return(message)
 		}
 		
@@ -144,7 +140,6 @@ GUI <- function(df, x, y, btn, globals){
 
 	if(class(new_params) == "character" && new_params == "error"){
 		message <- "Cannot give statistic that accuracy value. Try removing holds on other variables."
-		print(message)
 		return(message)
 		
 	}
@@ -157,8 +152,7 @@ GUI <- function(df, x, y, btn, globals){
 	
 	if(class(return_accuracies) == "character" && return_accuracies == "error"){
 			message <- "Error in get_accuracies: statistic not found" 
-			print(message)
-			return(message)		
+			return(message)
 	}
 	
 	# If no error, set new accuracy values	
