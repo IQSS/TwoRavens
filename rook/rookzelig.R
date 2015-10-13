@@ -8,7 +8,9 @@
 zelig.app <- function(env){
     
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
-    
+    warning<-FALSE  
+    result <-list()
+
     if(production){
         sink(file = stderr(), type = "output")
     }
@@ -16,15 +18,18 @@ zelig.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-        
-    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+    valid <- jsonlite::validate(request$POST()$solaJSON)
+    print(valid)
+    if(!valid) {
+        warning <- TRUE
+        result <- list(warning="The request is not valid json. Check for special characters.")
+    }
     
-
-    print(everything)
-
-    warning<-FALSE  # Probably should replace cumbersome "warning" flag with terminate function, or while/break
-    result <-list()
-
+    if(!warning) {
+        everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+        print(everything)
+    }
+    
 	if(!warning){
 		mydv <- everything$zdv
         if(length(mydv) == 0){
@@ -191,7 +196,7 @@ zelig.app <- function(env){
             }
             
             # zplots() recreates Zelig plots
-            images <- zplots(s.out, plotpath, mymodelcount, mysessionid)
+            images <- zplots(s.out, plotpath, mymodelcount, mysessionid, production=production)
             write("plot(s.out)",mylogfile,append=TRUE)
 
             if(length(images)>0){

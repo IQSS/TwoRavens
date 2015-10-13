@@ -731,22 +731,24 @@ function bars(node, div, private) {
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-            if (node.numchar==="character") {
-                return("x: "+yValKey[Math.round(yValKey.length/2)].x);
-            }
-            else {return("x: ".concat(Math.round(node.mean)));}
-        });
+              if (node.nature==="nominal") {
+                var t = Math.round(yValKey.length/2)-1;
+                return("x: "+yValKey[t].x);
+              }
+              else {return("x: ".concat((+node.mean).toPrecision(4).toString()));}
+              });
         
         plotsvg.append("text")
         .attr("id", "range2")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-            if (node.numchar==="character") {
-                return("x1: "+yValKey[Math.round(yValKey.length/2)].x);
+              if (node.nature==="nominal") {
+                var t = Math.round(yValKey.length/2)-1;
+                return("x1: "+yValKey[t].x);
               }
-            else {return("x1: ".concat(Math.round(node.mean)));}
-        });
+              else {return("x1: ".concat((+node.mean).toPrecision(4).toString()));}
+              });
 
         // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
@@ -805,9 +807,9 @@ function bars(node, div, private) {
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-            if(node.setxvals[0]=="") {
-                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2));
+              if(node.setxvals[0]=="") {
+                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
             }
@@ -823,9 +825,9 @@ function bars(node, div, private) {
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-            if(node.setxvals[1]=="") {
-                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2));
+              if(node.setxvals[1]=="") {
+                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.round(xVals.length/2)-1);
                 }
                 else {var xnm=x(node.mean);}
             }
@@ -875,14 +877,15 @@ function bars(node, div, private) {
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                if(node.numchar==="character") {
+                  if(node.nature==="nominal") {
                     return("x: "+yValKey[Math.round(invx(xpos))].x);
-                }
-                else {
-                    return("x: ".concat(twoSF(invx(xpos))));
+                  }
+                  else {
+              //      return("x: ".concat(twoSF(invx(xpos))));
+                  return("x: ".concat(+(invx(xpos)).toPrecision(4).toString()));
                   }
                 });
-            node.setxvals[1]=twoSF(invx(xpos));
+            node.setxvals[1]=+(invx(xpos)).toPrecision(4);
     }
  
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
@@ -919,17 +922,18 @@ function bars(node, div, private) {
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                  if(node.numchar==="character") {
+                  if(node.nature==="nominal") {
                     return("x1: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
-                    return("x1: ".concat(twoSF(invx(xpos))));
+                    return("x1: ".concat(+(invx(xpos)).toPrecision(4).toString()));
                   }
                 });
-            node.setxvals[1]=twoSF(invx(xpos));                      
+            node.setxvals[1]=+(invx(xpos)).toPrecision(4);                      
     }
 } //end function bars
 
+// function that draws the barplots in the subset tab
 function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
     if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
@@ -952,26 +956,24 @@ function barsSubset(node) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    if(node.nature==="nominal") {
-        var xi = 0;
-        for (var i = 0; i < keys.length; i++) {
-            if(node.plotvalues[keys[i]]==0) {continue;}
-            yVals[xi] = node.plotvalues[keys[i]];
-            xVals[xi] = xi;
-            yValKey.push({y:yVals[xi], x:keys[i] });
-            xi = xi+1;
-        }
+    
+    
+    var xi = 0;
+    for (var i = 0; i < keys.length; i++) {
+        if(node.plotvalues[keys[i]]==0) {continue;}
+        yVals[xi] = node.plotvalues[keys[i]];
+        xVals[xi] = xi;
+        yValKey.push({y:yVals[xi], x:keys[i] });
+        xi = xi+1;
+    }
+    if(node.nature==="nominal") { // if nominal, orders bars left to right, highest frequency to lowest
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
     }
-    else {
-        for (var i = 0; i < keys.length; i++) {
-            yVals[i] = node.plotvalues[keys[i]];
-            xVals[i] = Number(keys[i]);
-        }
-    }
-    
-    if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
+ 
+    //if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {
+        plotXaxis=false;
+    //}
     
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
@@ -1076,35 +1078,43 @@ function barsSubset(node) {
                 } else {
                     node.subsetrange.push(this.getAttribute("name"));
                     myCol=selVarColor;
-                }
-                return myCol;
-            });
-            plotsvg.select("text#selectrange")
-                .text(function() {
-                    if(node.subsetrange.length==0) {return("Selected: all values");}
-                    else {
-                        if(node.numchar==="character") {
-                            var a = node.subsetrange;
-                            var selecteds = new Array;
-                            a.forEach(function(val) {
-                                selecteds.push(yValKey[val].x);
-                            })
-                            return("Selected: "+selecteds);
-                        }
-                        else {
-                            return("Selected: ".concat(node.subsetrange));
-                        }
-                      }
-                  });
-            })
-        .on("mouseover", function(){
-            var i = this.getAttribute("name");
-            plotsvg.select("text#mymouseover")
-            .text(function(){
-                  var out = yValKey[i].x + ": " + yValKey[i].y;
-                  return(out);
-                  });
-            });
+               }
+               return myCol;
+               });
+        plotsvg.select("text#selectrange")
+        .text(function() {
+              if(node.subsetrange.length==0) {return("Selected: all values");}
+              else {
+             //   if(node.numchar==="character") {
+                    var a = node.subsetrange;
+                    var selecteds = new Array;
+                    a.forEach(function(val) {
+                        selecteds.push(yValKey[val].x);
+                    })
+                    return("Selected: "+selecteds);
+             //   }
+             //   else {
+             //       return("Selected: ".concat(node.subsetrange));
+             //   }
+              }
+              });
+        
+        })
+    .on("mouseover", function(){
+        var i = this.getAttribute("name");
+        plotsvg.select("text#mymouseover")
+        .text(function(){
+              var out = yValKey[i].x + ": " + yValKey[i].y;
+              return(out);
+              });
+        })
+    .on("mouseout", function() {
+        var i = this.getAttribute("name");
+        plotsvg.select("text#mymouseover")
+        .text(function(){
+                return("Value: Frequency");
+              });
+        });
     
     if(plotXaxis) {
         plotsvg.append("g")
@@ -1117,7 +1127,7 @@ function barsSubset(node) {
         .attr("x", 25)
         .attr("y", height+20)
         .text(function() {
-              return("");
+              return("Value: Frequency");
               });
     }
         
@@ -1135,17 +1145,17 @@ function barsSubset(node) {
     .text(function() {
           if(node.subsetrange.length==0) {return("Selected: all values");}
           else {
-            if(node.numchar==="character") {
+           // if(node.numchar==="character") {
                 var a = node.subsetrange;
                 var selecteds = new Array;
                 a.forEach(function(val) {
                     selecteds.push(yValKey[val].x);
                     })
                 return("Selected: "+selecteds);
-            }
-            else {
-                return("Selected: ".concat(node.subsetrange));
-            }
+           // }
+           // else {
+           //     return("Selected: ".concat(node.subsetrange));
+           // }
           }
         });
 } //end function bar subset

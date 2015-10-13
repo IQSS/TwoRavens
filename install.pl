@@ -25,7 +25,7 @@ my @CONFIG_VARIABLES = (
     'APACHE_WEB_DIRECTORY',
     'HOST_DNS_ADDRESS',
     'HOST_PORT',
-    'HOST_HTTPS',
+    'HOST_PROTOCOL',
     'DATAVERSE_URL'
 );
 
@@ -34,9 +34,9 @@ my %CONFIG_DEFAULTS = (
     'APACHE_CONFIG_DIRECTORY', '/etc/httpd',
     'APACHE_WEB_DIRECTORY',    '/var/www/html',
     'HOST_DNS_ADDRESS',        $hostname_from_cmdline,
-    'HOST_PORT',               443,
-    'HOST_PROTOCOL',           'https',
-    'DATAVERSE_URL',           'https://' . $hostname_from_cmdline
+    'HOST_PORT',               80,
+    'HOST_PROTOCOL',           'http',
+    'DATAVERSE_URL',           'http://' . $hostname_from_cmdline . ':8080'
 
 );
 
@@ -75,10 +75,8 @@ for my $ENTRY (@CONFIG_VARIABLES) {
     print "[" . $CONFIG_DEFAULTS{$ENTRY} . "] ";
 
     my $user_entry;
-#    unless ($yes) {
-        $user_entry = <>;
-        chop $user_entry;
-#    }
+    $user_entry = <>;
+    chop $user_entry;
 
     if ($ENTRY eq "HOST_PROTOCOL") {
 	while (($user_entry ne "") && ($user_entry ne "http") && ($user_entry ne "https")) {
@@ -97,6 +95,8 @@ for my $ENTRY (@CONFIG_VARIABLES) {
 	    unless ($tmpwd eq $user_entry) {
 		$CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} = $tmpwd;
 	    }
+	    # TODO: 
+	    # Check that this IS the directory where the script is running.
 	}
     }
     print "\n";
@@ -145,19 +145,21 @@ if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'}
 for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R"  ) {
     print "Configuring script " . $rFile . "...\n";
 
-    unless ( -f $rFile ) {
-	print "\nWARNING: Can't find " . $rFile . "!\n";
+    my $rFilePath = "./rook/" . $rFile; 
+
+    unless ( -f $rFilePath ) {
+	print "\nWARNING: Can't find " . $rFilePath . "!\n";
 	print "(are you running the installer in the right directory?)\n";
     }
 
-    open RFILEIN, $rFile || die $@;
-    open RFILEOUT, '>' . $rFile . ".tmp" || die $@;
+    open RFILEIN, $rFilePath || die $@;
+    open RFILEOUT, '>' . $rFilePath . ".tmp" || die $@;
 
     while (<RFILEIN>) {
 	# production toggle:
 	s/production\<\-FALSE/production\<\-TRUE/g;
 	# rApache url:
-        s/https:\/\/dataverse-internal.iq.harvard.edu/$RAPACHEURL/g;
+        s/https:\/\/dataverse-demo.iq.harvard.edu/$RAPACHEURL/g;
 	# working directory:
 	s/\/usr\/local\/glassfish4\/glassfish\/domains\/domain1\/docroot\/dataexplore/$CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'}/g;
 	print RFILEOUT $_;
@@ -166,7 +168,7 @@ for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "ro
     close RFILEIN;
     close RFILEOUT;
 
-    system ("mv " . $rFile . ".tmp " . $rFile);
+    system ("/bin/mv " . $rFilePath . ".tmp " . $rFilePath);
 }
 
 
@@ -193,7 +195,7 @@ unless ( -d $CONFIG_DEFAULTS{'APACHE_CONFIG_DIRECTORY'} ) {
 if ($CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'} eq "/var/www/html/dataexplore") {
     # simply copy the supplied .conf file into the Apache conf.d directory:
 
-    system ("cp " . $RAPACHE_CONFIG_FILE . " " . $CONFIG_DEFAULTS{'APACHE_CONFIG_DIRECTORY'} . "/conf.d");
+    system ("/bin/cp " . $RAPACHE_CONFIG_FILE . " " . $CONFIG_DEFAULTS{'APACHE_CONFIG_DIRECTORY'} . "/conf.d");
 } else { 
     # we have to filter the supplied file and insert the correct directory name:
 
@@ -218,12 +220,12 @@ system ("service httpd restart");
 print "\nCreating application directories on the filesystem...\n";
 
 
-for my $webDir ( "pic_dir", "preprocess_dir" ) {
-    system ("mkdir --parents " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/" . $webDir);
-    system ("chown -R apache " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/". $webDir);
+for my $webDir ( "pic_dir", "preprocess_dir", "log_dir" ) {
+    system ("mkdir --parents " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/custom/" . $webDir);
+    system ("chown -R apache " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/custom/". $webDir);
 
-    unless ( -d $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/". $webDir) {
-	print "\nWARNING: Failed to create directory: " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/". $webDir . "!\n";
+    unless ( -d $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/custom/". $webDir) {
+	print "\nWARNING: Was unable to create the directory: " . $CONFIG_DEFAULTS{'APACHE_WEB_DIRECTORY'} . "/". $webDir . "!\n";
 	exit 0; 
     }
 }
@@ -250,14 +252,14 @@ while (<WEBAPPFILEIN>) {
     # rApache url:
     s/http:\/\/0.0.0.0:8000\/custom\//$RAPACHEURL\/custom\//g;
     # dataverse url: 
-    s/localhost:8080/$CONFIG_DEFAULTS{'DATAVERSE_URL'}/g;
+    s/%PRODUCTION_DATAVERSE_URL%/$CONFIG_DEFAULTS{'DATAVERSE_URL'}/g;
     print WEBAPPFILEOUT $_;
 }
 
 close WEBAPPFILEIN;
 close WEBAPPFILEOUT;
 
-system ("mv " . $TwoRavensWebApp . ".tmp " . $TwoRavensWebApp);
+system ("/bin/mv " . $TwoRavensWebApp . ".tmp " . $TwoRavensWebApp);
 
 
 # 5. Chown the TwoRavens directory to user Apache:
@@ -265,3 +267,6 @@ system ("mv " . $TwoRavensWebApp . ".tmp " . $TwoRavensWebApp);
 system ("chown -R apache " . $CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'});
 
 print "\n\nGreat. You should now have a working TwoRavens installation!\n";
+print "\nThe application URL is \n";
+print $RAPACHEURL . "/dataexplore/gui.html\n\n";
+

@@ -153,7 +153,9 @@ buildFormula<-function(dv, linkagelist, varnames=NULL, nomvars){
 
 pCall <- function(data,production,sessionid, types) {
     pjson<-preprocess(testdata=data, types=types)
-   
+    print("new preprocess metadata: ")
+    print(pjson)
+    
     if(production){
         subsetfile <- paste("/var/www/html/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=subsetfile)
@@ -239,6 +241,15 @@ transform <- function(data, func) {
     x <- gsub("_plus_", "+", x)
     x <- paste("data[,1] <- ", x)
     print(x)
+    
+    if(substr(func,1,3)=="log") {
+        if(any(data[,1]<0, na.rm=TRUE)) {
+            data[,1] <- data[,1] + -1*min(data[,1])
+        }
+        if(any(data[,1]==0, na.rm=TRUE)) {
+            data[,1] <- data[,1] + .0001
+        }
+    }
     eval(parse(text=x))
     return(data)
 }
@@ -298,9 +309,9 @@ executeHistory <- function (history, data) {
 
 
 # Code mostly from Zelig's plots.R function plot.qi(). Eventually, Zelig will implement a more general solution where each plot is stored in the Zelig object.
-zplots <- function(obj, path, mymodelcount, mysessionid){
+zplots <- function(obj, path, mymodelcount, mysessionid, production){
     
-    writeplot <- function(exec, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles) {
+    writeplot <- function(exec, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production) {
         qicount <<- qicount+1
         qicount<-qicount+1
         
@@ -333,37 +344,37 @@ zplots <- function(obj, path, mymodelcount, mysessionid){
     # Plot each simulation
     if(length(obj$sim.out$x$pv)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x$pv[[1]], main = titles$pv, col = color.x, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(length(obj$sim.out$x1$pv)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$pv[[1]], main = titles$pv1, col = color.x1, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(length(obj$sim.out$x$ev)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x$ev[[1]], main = titles$ev, col = color.x, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(length(obj$sim.out$x1$ev)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$ev[[1]], main = titles$ev1, col = color.x1, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(length(obj$sim.out$x1$fd)>0) {
         execMe <- "Zelig::simulations.plot(obj$sim.out$x1$fd[[1]], main = titles$fd, col = color.mixed, line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(both.pv.exist) {
         execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$pv[[1]], y1=obj$sim.out$x1$pv[[1]], main = \"Comparison of Y|X and Y|X1\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
     
     if(both.ev.exist) {
         execMe <- "Zelig::simulations.plot(y=obj$sim.out$x$ev[[1]], y1=obj$sim.out$x1$ev[[1]], main = \"Comparison of E(Y|X) and E(Y|X1)\", col = paste(c(color.x, color.x1), \"80\", sep=\"\"), line.col = \"black\")"
-        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles)
+        writeplot(execMe, path, mymodelcount, mysessionid, qicount, color.x, color.x1, color.mixed, titles, production)
     }
  
     return(imageVector)
@@ -386,7 +397,7 @@ logSessionInfo <- function(logfile, sessionid, cite){
     print(sessionInfo())
     sink()
     
-    write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
+    write(paste("\n\nReplication code for TwoRavens session ",sessionid,". Note that unless your session information is identical to that described above, it is not guaranteed the results will be identical. Please download rookutils.R from https://github.com/IQSS/TwoRavens/tree/master/rook and ensure that you have rookutils.R in your working directory.\n\nlibrary(Rook)\nlibrary(rjson)\nlibrary(jsonlite)\nlibrary(devtools)\ninstall_github(\"IQSS/Zelig\")\nlibrary(Zelig)\nsource(rookutils.R)\n\n",sep=""),logfile,append=TRUE)
 }
 
 

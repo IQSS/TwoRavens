@@ -9,6 +9,7 @@
 transform.app <- function(env){
 
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
+    warning<-FALSE
 
     if(production){
         sink(file = stderr(), type = "output")
@@ -17,10 +18,17 @@ transform.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
-    print(everything)
+    valid <- jsonlite::validate(request$POST()$solaJSON)
+    print(valid)
+    if(!valid) {
+        warning <- TRUE
+        result <- list(warning="The request is not valid json. Check for special characters.")
+    }
     
-    warning<-FALSE
+    if(!warning) {
+        everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+        print(everything)
+    }
     
     if(!warning){
         mysessionid <- everything$zsessionid
@@ -37,6 +45,7 @@ transform.app <- function(env){
         }else{
             #mydata <- read.delim("../data/session_affinity_scores_un_67_02132013-cow.tab")
             mydata <- read.delim("../data/fearonLaitin.tsv")
+            #mydata <- read.delim("../data/FL_insurance_sample.tab.tsv")
             #mydata <- read.delim("../data/QualOfGovt.tsv")
         }
 	}

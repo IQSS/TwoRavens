@@ -9,7 +9,9 @@
 data.app <- function(env){
 
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
-
+    warning<-FALSE
+    result <- list()
+    
     if(production){
         sink(file = stderr(), type = "output")
     }
@@ -17,11 +19,17 @@ data.app <- function(env){
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
     
-    everything <- jsonlite::fromJSON(request$POST()$solaJSON)
-    print(everything)
+    valid <- jsonlite::validate(request$POST()$solaJSON)
+    print(valid)
+    if(!valid) {
+        warning <- TRUE
+        result <- list(warning="The request is not valid json. Check for special characters.")
+    }
     
-    warning<-FALSE
-    result <- list()
+    if(!warning) {
+        everything <- jsonlite::fromJSON(request$POST()$solaJSON)
+        print(everything)
+    }
   
   if(!warning){
       dataurl=everything$zdataurl
@@ -54,8 +62,12 @@ data.app <- function(env){
           #mydata<-tryCatch(expr=read.delim(file=dataurl), error=function(e) NULL)  # if data is not readable, NULL
           if(production) {
               tryCatch({
+                  dataurl.NoAPIToken<-sub("?key=.*$", "key=", dataurl )  # Truncate the dataurl at "key=" to avoid copying any Sword APIToken
+                  if(!identical(dataurl,dataurl.NoAPIToken)){
+                      write("A Dataverse API token has been removed from the file URL provided to keep your Dataverse login secure.\nIf this Dataverse has restricted access you will need to append a valid API token for this replication file to work automatically.\nSee http://guides.dataverse.org/en/latest/api/index.html \n",logfile,append=TRUE)
+                  }
                   download.file(dataurl,destfile = paste("/tmp/data_",myid,".tab",sep=""),method="curl",extra=c("--insecure"))
-                  write(deparse(bquote(download.file(.(dataurl),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
+                  write(deparse(bquote(download.file(.(dataurl.NoAPIToken),destfile = .(paste("data_",myid,".tab",sep="")),method="curl",extra=c("--insecure")))),logfile,append=TRUE)
                   result <- list(sessionid=myid)
               }, error=function(e) {
                   result <<- list(warning="Error: Cannot download from Dataverse.") # if the url is not readable, NULL
