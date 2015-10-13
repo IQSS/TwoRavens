@@ -352,19 +352,11 @@ td {
 #carouselRight {position:absolute;top:50%;right:calc(16px + 20%);z-index:30;font-size:2em;}
 
 .lowerError {
-    fill: #4682b4;
+    fill: LightSteelBlue;
+    stroke-width: 0;
 }
 
 .upperError {
-  fill: silver;
-  fill-opacity: 0.65;
+    fill: #2d5474;
+    stroke-width: 0; 
 }
-
-.line {
-  fill: #4682b4;
-}
-
-.nofill {
-  fill: none;
-}
-
