@@ -16,12 +16,12 @@ if(production){
 }
 
 if(production) {
-    setwd("/usr/local/glassfish4/glassfish/domains/domain1/docroot/dataexplore/rook")
+    setwd("/var/www/html/dataexplore/rook")
 }
 
 
 if(!production){
-   packageList<-c("VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools")
+   packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
