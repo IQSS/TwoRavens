@@ -51,7 +51,7 @@ if (!production) {
     // base URL for the R apps:
     var rappURL = "http://0.0.0.0:8000/custom/";
 } else {
-    var rappURL = "https://dataverse-demo.iq.harvard.edu/custom/"; //this will change when/if the production host changes
+    var rappURL = "https://beta.dataverse.org/custom/"; //this will change when/if the production host changes
 }
 
 // space index
