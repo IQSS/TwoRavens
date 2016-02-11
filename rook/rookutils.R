@@ -159,7 +159,7 @@ pCall <- function(data,production,sessionid, types) {
     if(production){
         subsetfile <- paste("/var/www/html/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=subsetfile)
-        url <- paste("https://beta.dataverse.edu/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
+        url <- paste("https://beta.dataverse.org/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
     }else{
         url <- paste("data/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=paste("../",url, sep=""))
