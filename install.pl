@@ -142,7 +142,7 @@ if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'}
     $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
 }
 
-for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R"  ) {
+for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R", "rookutils.R" ) {
     print "Configuring script " . $rFile . "...\n";
 
     my $rFilePath = "./rook/" . $rFile; 
