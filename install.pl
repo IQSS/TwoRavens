@@ -142,7 +142,7 @@ if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'}
     $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
 }
 
-for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R"  ) {
+for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R", "rookutils.R" ) {
     print "Configuring script " . $rFile . "...\n";
 
     my $rFilePath = "./rook/" . $rFile; 
@@ -250,7 +250,7 @@ while (<WEBAPPFILEIN>) {
     # production toggle: 
     $_="var production=true;\n" if /^var production=false/;
     # rApache url:
-    s/http:\/\/0.0.0.0:8000\/custom\//$RAPACHEURL\/custom\//g;
+    s/https:\/\/dataverse-demo.iq.harvard.edu\/custom\//$RAPACHEURL\/custom\//g;
     # dataverse url: 
     s/%PRODUCTION_DATAVERSE_URL%/$CONFIG_DEFAULTS{'DATAVERSE_URL'}/g;
     print WEBAPPFILEOUT $_;
