@@ -66,8 +66,11 @@ var logArray = [];
 var tempWidth = d3.select("#main.left").style("width")
 var width = tempWidth.substring(0,(tempWidth.length-2));
 
-var tempHeight = d3.select("#main.left").style("height")
-var height = tempHeight.substring(0,(tempHeight.length-2));
+/*var tempHeight = d3.select("#main.left").style("height")
+var height = tempHeight.substring(0,(tempHeight.length-2));*/
+
+var height = $(window).height() -120;  // Hard coding for header and footer and bottom margin.
+
 
 var forcetoggle=["true"];
 var estimated=false;
@@ -1266,6 +1269,7 @@ function layout(v) {
     svg.attr('id', function(){
              return "whitespace".concat(myspace);
              })
+    .attr('height', height)
     .on('mousedown', function() {
            mousedown(this);
            })
