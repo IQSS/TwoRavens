@@ -8,14 +8,6 @@ svg {
   user-select: none;
 }
 
-
-/*html, body {
-   height: 100%;
-   width: 100%;
-   margin: 0;
-   padding: 0;
-}*/
-
 #subset {
   /*position: absolute;*/
   float:left;margin-right:.5em;
@@ -102,7 +94,7 @@ text.id {
 
 .left {
     width: 33.3%;
-    height: 100%; /*700px;*/
+    height: 100%; /*was 600px;*/
     box-sizing: border-box; margin: 0;
     overflow:scroll;
 }
