@@ -1,7 +1,8 @@
 // function to use d3 to graph density plots with preprocessed data
-function density(node, div, private) {
-    var mydiv;
 
+function density(node, div) {
+    var mydiv;
+  
     if(div=="subset") {
         mydiv = "#tab2";
     }
@@ -29,33 +30,27 @@ function density(node, div, private) {
                   d.y = +d.y;
                   });
     
-    if (private) {
-        if (node.plotCI) {
-            //stores values for upper bound
-            var upperError = [];
-            for(var i = 0; i < node.plotx.length; i++) {
-                upperError.push({x:node.plotx[i], y:node.plotCI.upperBound[i]});
-            }
-        
-            upperError.forEach(function(d) {
-                          d.x = +d.x;
-                          d.y = +d.y;
-                          });
-            
-            // stores values for lower bound
-            var lowerError = [];
-            for(var i = 0; i < node.plotx.length; i++) {
-                lowerError.push({x:node.plotx[i], y:node.plotCI.lowerBound[i]});
-            }
-            
-            lowerError.forEach(function(d) {
-                          d.x = +d.x;
-                          d.y = +d.y;
-                          });
-            console.log("upperError");
-            console.log(upperError);
+    //stores values for upper bound
+    var upperError = [];
+    for(var i = 0; i < node.plotx.length; i++) {
+        upperError.push({x:node.plotx[i], y:1.1*node.ploty[i]});
     }
+    
+    upperError.forEach(function(d) {
+                  d.x = +d.x;
+                  d.y = +d.y;
+                  });
+    
+    // stores values for lower bound
+    var lowerError = [];
+    for(var i = 0; i < node.plotx.length; i++) {
+        lowerError.push({x:node.plotx[i], y:0.9*node.ploty[i]});
     }
+    
+    lowerError.forEach(function(d) {
+                  d.x = +d.x;
+                  d.y = +d.y;
+                  });
 
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0,(tempWidth.length-2));
@@ -118,12 +113,6 @@ function density(node, div, private) {
     .y0(height)
     .y1(function(d) { return y(d.y); });
 
-    var line = d3.svg.line()
-    .x(function(d) { return x(d.x); })
-    .y(function(d) { return y(d.y); })
-    .interpolate("monotone");
-
-
 
     // This is cumbersome to treat "tab3" differently, but works for now.
     //  tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
@@ -154,49 +143,35 @@ function density(node, div, private) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     };
+ 
+    //add upper bound
+    plotsvg.append("path")
+    .datum(upperError)
+    .attr("class", "upperError")
+    .attr("d", area);
     
-        plotsvg.append("path")
-        .datum(data2)
-        .attr("class", "area")
-        .attr("d", area);   
+    plotsvg.append("path")
+    .datum(data2)
+    .attr("class", "area")
+    .attr("d", area);
     
-    if (private && node.plotCI) {
-        //add upper bound
-        plotsvg.append("path")
-        .attr("class", "upperError")
-        .datum(upperError)
-        .attr("d", area);
-    }
-
-    if (private && node.plotCI) {  
-        //add lower bound
-        plotsvg.append("path")
-        .attr("class", "lowerError")
-        .datum(lowerError)
-        .attr("d", area);
-    }
-     
-//uncomment if you want the black line   
-    // if (private) {
-    //         plotsvg.append("path")
-    //         .attr("class", "nofill")
-    //         .attr("d", line(data2))
-    //         .attr("stroke", "black")
-    //         .attr("stroke-width", 1.5)
-    //     } 
-
-
-        plotsvg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+    //add lower bound
+    plotsvg.append("path")
+    .datum(lowerError)
+    .attr("class", "lowerError")
+    .attr("d", area);
     
-        plotsvg.append("text")
-        .attr("x", (width / 2))
-        .attr("y", 0-(margin.top / 2))
-        .attr("text-anchor", "middle")
-        .style("font-size", "12px")
-        .text(node.name);
+    plotsvg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+ 
+    plotsvg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0-(margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text(node.name);
     
     // add brush if subset
     if(mydiv=="#tab2") {
@@ -389,7 +364,7 @@ function density(node, div, private) {
 } //end function density
 
 
-function bars(node, div, private) {
+function bars(node, div) {
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
@@ -398,10 +373,6 @@ function bars(node, div, private) {
     // Data
     var keys = Object.keys(node.plotvalues);
     var yVals = new Array;
-    var ciUpperVals = new Array;
-    var ciLowerVals = new Array;
-    var ciSize;
-
     var xVals = new Array;
     var yValKey = new Array;
     
@@ -411,46 +382,21 @@ function bars(node, div, private) {
             if(node.plotvalues[keys[i]]==0) {continue;}
             yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
-            if (private) {
-                if (node.plotvaluesCI) {
-                    ciLowerVals[xi] = node.plotValuesCI.lowerBound[keys[i]];
-                    ciUpperVals[xi] = node.plotValuesCI.upperBound[keys[i]];
-                    }
-                    ciSize = ciUpperVals[xi] - ciLowerVals[xi];        
-                };
-            
             yValKey.push({y:yVals[xi], x:keys[i] });
             xi = xi+1;
         }
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
-        ciUpperVals.sort(function(a,b){return b.y-a.y}); // ?
-        ciLowerVals.sort(function(a,b){return b.y-a.y}); // ?
     }
     else {
         for (var i = 0; i < keys.length; i++) {
-            console.log("plotvalues in bars");
-            console.log(node);
             yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
-              if (private) {
-                if (node.plotvaluesCI) {
-                    ciLowerVals[i] = node.plotvaluesCI.lowerBound[keys[i]];
-                    ciUpperVals[i] = node.plotvaluesCI.upperBound[keys[i]];
-                }
-                ciSize = ciUpperVals[i] - ciLowerVals[i];     
-            }
         }
     }
     
     if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     var maxY = d3.max(yVals); // in the future, set maxY to the value of the maximum confidence limit
-   if (private){
-       if(node.plotvaluesCI){
-           var maxCI = d3.max(ciUpperVals);
-           maxY = maxCI;
-       };
-   };
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
    
@@ -488,23 +434,16 @@ function bars(node, div, private) {
         height = 0.25 * (height - margin.top - margin.bottom);
     };
     
-    if (private && node.stabilityBin) {
-        var x = d3.scale.linear()
-        .domain([ minX-0.5 , maxX+1.5])  
-        .range([0, width]);
-    } else {
-        var x = d3.scale.linear()
-        .domain([ minX-0.5 , maxX+0.5])  
-        .range([0, width]);
-    }
+    var x = d3.scale.linear()
+    .domain([ minX-0.5 , maxX+0.5])  
+    .range([0, width]);
 
     var invx = d3.scale.linear()
     .range([ minX-0.5 , maxX+0.5])  
     .domain([0, width]);
     
     var y = d3.scale.linear()
-    // .domain([0, maxY])   
-     .domain([0, maxY]) 
+    .domain([0, maxY])   
     .range([0, height]);
     
     var xAxis = d3.svg.axis()
@@ -579,138 +518,199 @@ function bars(node, div, private) {
         return y(d);  
     })
     .attr("fill", "#1f77b4");
+    
+    // draw error bars
+    if (yVals.length <= 20) { //do not display error bars if the number of bins exceeds 20
+        plotsvg.selectAll("line")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        })     
+        .attr("x2", function(d, i){
+            return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        })
+        .attr("y2", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        }) 
+   };
+    
+        //draw top ticks on error bars
+        //need to fix the height of the graphs - the tops of error bars are getting cut off
+        plotsvg.selectAll(".topTick")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .attr("class", "topTick")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            if (yVals.length > 20) {
+                return x(xVals[i]-0.5+barPadding)//make tick bigger to increase visibility
+            } else {
+               return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth 
+            }            
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        })     
+        .attr("x2", function(d, i){
+             if (yVals.length > 20) {
+                return x(xVals[i]-0.5+barPadding) + rectWidth //make tick bigger to increase visibility
+            } else {
+                return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
+            }
+        })
+        .attr("y2", function(d) {
+            return y(maxY - d) - .1*y(d);  
+        });
+    
+        // draw bottom ticks of error bars
+        plotsvg.selectAll(".bottomTick")
+        .data(yVals)
+        .enter()
+        .append("line")
+        .attr("class", "bottomTick")
+        .style("stroke", "black")
+        .attr("x1", function(d, i){
+            if (yVals.length > 20) {
+                return x(xVals[i]-0.5+barPadding)//make tick bigger to increase visibility
+            } else {
+               return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth 
+            }            
+        })
+        .attr("y1", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        })    
+        .attr("x2", function(d, i){
+             if (yVals.length > 20) {
+                return x(xVals[i]-0.5+barPadding) + rectWidth //make tick bigger to increase visibility
+            } else {
+                return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
+            }
+        })
+        .attr("y2", function(d) {
+            return y(maxY - d) + .1*y(d);  
+        }) 
+
+        //second option for dense histograms
+        //     var num = yVals.length/20 //for every num bins, display an error bar
+
+        //     plotsvg.selectAll("line")
+        //     .data(yVals)
+        //     .enter()
+        //     .append("line")
+        //     .style("stroke", "black")
+        //     .attr("x1", function(d, i){
+        //        if (yVals.length > 20) {
+        //           if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        //           } 
+        //      } else {
+        //         return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        //      }
+        //     })
+        //     .attr("y1", function(d) {
+        //         return y(maxY - d) - .1*y(d);  
+        //     })     
+        //     .attr("x2", function(d, i){
+        //         if (yVals.length > 20) {
+        //           if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        //         }
+        //     } else {
+        //         return x(xVals[i]-0.5+barPadding) + rectWidth/2
+        //     }
+        //     })
+        //     .attr("y2", function(d) {
+        //         return y(maxY - d) + .1*y(d);  
+        //     }) 
+       
+    
+        // //draw top ticks on error bars
+        // //need to fix the height of the graphs - the tops of error bars are getting cut off
+        // plotsvg.selectAll(".topTick")
+        // .data(yVals)
+        // .enter()
+        // .append("line")
+        // .attr("class", "topTick")
+        // .style("stroke", "black")
+        // .attr("x1", function(d, i){
+        //     if (yVals.length > 20) {
+        //         if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) - 1
+        //         }
+        //     } else {
+        //         return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth
+        //     }
+                      
+        // })
+        // .attr("y1", function(d) {
+        //     return y(maxY - d) - .1*y(d);  
+        // })     
+        // .attr("x2", function(d, i){
+        //     if (yVals.length > 20) {
+        //         if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) + rectWidth + 1}
+        //     } else {
+        //         return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth 
+        //     }
+            
+        // })
+        // .attr("y2", function(d) {
+        //     return y(maxY - d) - .1*y(d);  
+        // });
+    
+        // // draw bottom ticks of error bars
+        // plotsvg.selectAll(".bottomTick")
+        // .data(yVals)
+        // .enter()
+        // .append("line")
+        // .attr("class", "bottomTick")
+        // .style("stroke", "black")
+        // .attr("x1", function(d, i){
+        //     if (yVals.length > 20) {
+        //         if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) - 1
+        //         }
+        //     } else {
+        //         return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth
+        //     }           
+        // })
+        // .attr("y1", function(d) {
+        //     return y(maxY - d) + .1*y(d);  
+        // })    
+        // .attr("x2", function(d, i){
+        //     if (yVals.length > 20) {
+        //         if (i%num <= 1) {
+        //             return x(xVals[i]-0.5+barPadding) + rectWidth + 1}
+        //     } else {
+        //         return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth 
+        //     }
+            
+        // })
+        // .attr("y2", function(d) {
+        //     return y(maxY - d) + .1*y(d);  
+        // }) 
 
     
-    // draw error bars, threshold line and extra bin
-    if (private ) {
-        if (yVals.length <= 20) {
-            plotsvg.selectAll("line")
-            .data(ciUpperVals)
-            .enter()
-            .append("line")
-            .style("stroke", "black")
-            .attr("x1", function(d, i){
-                return x(xVals[i]-0.5+barPadding) + rectWidth/2
-            })
-            .attr("y1", function(d) {
-                return y(maxY - d);  
-            })     
-            .attr("x2", function(d, i){
-                return x(xVals[i]-0.5+barPadding) + rectWidth/2
-            })
-            .attr("y2", function(d) {
-                y2 = y(maxY - d + ciSize);
-                if (y2 >= y(maxY)) { return y(maxY);}
-                else return y2; 
-            }) 
-
-            //draw top ticks on error bars
-            //need to fix the height of the graphs - the tops of error bars are getting cut off
-            plotsvg.selectAll(".topTick")
-            .data(ciUpperVals)
-            .enter()
-            .append("line")
-            .attr("class", "topTick")
-            .style("stroke", "black")
-            .attr("x1", function(d, i){
-                if (yVals.length > 20) {
-                    return x(xVals[i]-0.5+barPadding)//make tick bigger to increase visibility
-                } else {
-                   return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth 
-                }            
-            })
-            .attr("y1", function(d) {
-                return y(maxY - d);  
-            })     
-            .attr("x2", function(d, i){
-                 if (yVals.length > 20) {
-                    return x(xVals[i]-0.5+barPadding) + rectWidth //make tick bigger to increase visibility
-                } else {
-                    return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
-                }
-            })
-            .attr("y2", function(d) {
-                return y(maxY - d);  
-            });
-        
-            // draw bottom ticks of error bars
-            plotsvg.selectAll(".bottomTick")
-            .data(ciLowerVals)
-            .enter()
-            .append("line")
-            .attr("class", "bottomTick")
-            .style("stroke", "black")
-            .attr("x1", function(d, i){
-                if (yVals.length > 20) {
-                    return x(xVals[i]-0.5+barPadding)
-                } else {
-                   return x(xVals[i]-0.5+barPadding) + 0.4*rectWidth 
-                }            
-            })
-            .attr("y1", function(d) {
-                return y(maxY - d);  
-            })    
-            .attr("x2", function(d, i){
-                 if (yVals.length > 20) {
-                    return x(xVals[i]-0.5+barPadding) + rectWidth
-                } else {
-                    return x(xVals[i]-0.5+barPadding) + 0.6*rectWidth
-                }
-            })
-            .attr("y2", function(d) {
-                return y(maxY - d);  
-            }) 
-       } 
-       else {
-           plotsvg.selectAll(".denseError")
-            .data(yVals)
-            .enter()
-            .append("rect")
-            .attr("class", "denseError")
-            .attr("x", function(d, i) {
-                return x(xVals[i]-0.5+barPadding); 
-            })     
-            .attr("y", function(d) {
-                return y(maxY - d) - .1*y(d);  
-            }) 
-            .attr("width", rectWidth)
-            .attr("height", function(d) {
-                return (y(maxY - d) + .1*y(d))-(y(maxY - d) - .1*y(d));  
-            })
-            .attr("fill", "silver");
-        }
-  
-    //if statement for stability histograms
-        //extra stability bin
-        if (node.stabilityBin) {
-            plotsvg.append("rect")
-            .attr("x", x(maxX+0.5-barPadding))
-            .attr("y", y(maxY) - node.stabilityBin)
-            .attr("width", rectWidth)
-            .attr("height", node.stabilityBin)
-            .attr("fill", "silver")
-        }
-
-        //threshold line
-        if (node.threshold) {
-            plotsvg.append("line")
-            .style("stroke", "black")
-            .attr("x1", x(minX-0.5+barPadding))
-            .attr("y1", y(maxY) - node.threshold)
-            .attr("x2", function() {
-                console.log("stabilityBin");
-                console.log(node.stabilityBin);
-                if (node.stabilityBin) {
-                    return x(maxX+0.5-barPadding)+rectWidth;
-                } else {
-                    return x(maxX+0.5-barPadding);
-                }
-            })
-            .attr("y2", y(maxY) - node.threshold) 
-        }
-    }
     
-   
+    // draw threshold line
+    // var threshold = 10; 
+    
+    // plotsvg.append("line")
+    // .style("stroke", "black")
+    // .attr("x1", x(minX))
+    // .attr("y1", y(maxY) - threshold)
+    // .attr("x2", x(maxX))
+    // .attr("y2", y(maxY) - threshold) 
+    
+    
+
     if(plotXaxis) {
         plotsvg.append("g")
         .attr("class", "x axis")
@@ -731,24 +731,22 @@ function bars(node, div, private) {
         .attr("x", 25)
         .attr("y", height+40)
         .text(function() {
-              if (node.nature==="nominal") {
-                var t = Math.round(yValKey.length/2)-1;
-                return("x: "+yValKey[t].x);
-              }
-              else {return("x: ".concat((+node.mean).toPrecision(4).toString()));}
-              });
+            if (node.numchar==="character") {
+                return("x: "+yValKey[Math.round(yValKey.length/2)].x);
+            }
+            else {return("x: ".concat(Math.round(node.mean)));}
+        });
         
         plotsvg.append("text")
         .attr("id", "range2")
         .attr("x", 25)
         .attr("y", height+50)
         .text(function() {
-              if (node.nature==="nominal") {
-                var t = Math.round(yValKey.length/2)-1;
-                return("x1: "+yValKey[t].x);
+            if (node.numchar==="character") {
+                return("x1: "+yValKey[Math.round(yValKey.length/2)].x);
               }
-              else {return("x1: ".concat((+node.mean).toPrecision(4).toString()));}
-              });
+            else {return("x1: ".concat(Math.round(node.mean)));}
+        });
 
         // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
@@ -807,9 +805,9 @@ function bars(node, div, private) {
         .attr("transform", "translate(0," + height*.7 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[0]=="") {
-                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2)-1);
+            if(node.setxvals[0]=="") {
+                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
             }
@@ -825,9 +823,9 @@ function bars(node, div, private) {
         .attr("transform", "translate(0," + height*.9 + ")")
         .attr("points", function(d){
             var s=6;
-              if(node.setxvals[1]=="") {
-                if(node.nature=="nominal") { // if nominal, use the median frequency as the position for the setx slider
-                    var xnm = x(Math.round(xVals.length/2)-1);
+            if(node.setxvals[1]=="") {
+                if(node.nature=="nominal") { // if this variable is a character, use the median frequency as the position for the setx slider
+                    var xnm = x(Math.round(xVals.length/2));
                 }
                 else {var xnm=x(node.mean);}
             }
@@ -877,15 +875,14 @@ function bars(node, div, private) {
                 return (xpos-s)+","+(-s)+" "+(xpos+s)+","+(-s)+" "+xpos+","+(s*1.3);}); 
             plotsvg.select("text#range")
             .text(function() {
-                  if(node.nature==="nominal") {
+                if(node.numchar==="character") {
                     return("x: "+yValKey[Math.round(invx(xpos))].x);
-                  }
-                  else {
-              //      return("x: ".concat(twoSF(invx(xpos))));
-                  return("x: ".concat(+(invx(xpos)).toPrecision(4).toString()));
+                }
+                else {
+                    return("x: ".concat(twoSF(invx(xpos))));
                   }
                 });
-            node.setxvals[1]=+(invx(xpos)).toPrecision(4);
+            node.setxvals[1]=twoSF(invx(xpos));
     }
  
     function brushed2() {   // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
@@ -922,18 +919,17 @@ function bars(node, div, private) {
                 return (xpos-s)+","+s+" "+(xpos+s)+","+s+" "+xpos+","+(-s*1.3);}); 
             plotsvg.select("text#range2")
             .text(function() {
-                  if(node.nature==="nominal") {
+                  if(node.numchar==="character") {
                     return("x1: "+yValKey[Math.round(invx(xpos))].x);
                   }
                   else {
-                    return("x1: ".concat(+(invx(xpos)).toPrecision(4).toString()));
+                    return("x1: ".concat(twoSF(invx(xpos))));
                   }
                 });
-            node.setxvals[1]=+(invx(xpos)).toPrecision(4);                      
+            node.setxvals[1]=twoSF(invx(xpos));                      
     }
 } //end function bars
 
-// function that draws the barplots in the subset tab
 function barsSubset(node) {
     // if untouched, set node.subsetrange to an empty array, meaning all values selected by default
     if(node.subsetrange[0]=="" & node.subsetrange[1]=="") {
@@ -956,24 +952,26 @@ function barsSubset(node) {
     var xVals = new Array;
     var yValKey = new Array;
     
-    
-    
-    var xi = 0;
-    for (var i = 0; i < keys.length; i++) {
-        if(node.plotvalues[keys[i]]==0) {continue;}
-        yVals[xi] = node.plotvalues[keys[i]];
-        xVals[xi] = xi;
-        yValKey.push({y:yVals[xi], x:keys[i] });
-        xi = xi+1;
-    }
-    if(node.nature==="nominal") { // if nominal, orders bars left to right, highest frequency to lowest
+    if(node.nature==="nominal") {
+        var xi = 0;
+        for (var i = 0; i < keys.length; i++) {
+            if(node.plotvalues[keys[i]]==0) {continue;}
+            yVals[xi] = node.plotvalues[keys[i]];
+            xVals[xi] = xi;
+            yValKey.push({y:yVals[xi], x:keys[i] });
+            xi = xi+1;
+        }
         yValKey.sort(function(a,b){return b.y-a.y}); // array of objects, each object has y, the same as yVals, and x, the category
         yVals.sort(function(a,b){return b-a}); // array of y values, the height of the bars
     }
- 
-    //if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {
-        plotXaxis=false;
-    //}
+    else {
+        for (var i = 0; i < keys.length; i++) {
+            yVals[i] = node.plotvalues[keys[i]];
+            xVals[i] = Number(keys[i]);
+        }
+    }
+    
+    if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     
     var maxY = d3.max(yVals);
     var minX = d3.min(xVals);
@@ -1078,43 +1076,35 @@ function barsSubset(node) {
                 } else {
                     node.subsetrange.push(this.getAttribute("name"));
                     myCol=selVarColor;
-               }
-               return myCol;
-               });
-        plotsvg.select("text#selectrange")
-        .text(function() {
-              if(node.subsetrange.length==0) {return("Selected: all values");}
-              else {
-             //   if(node.numchar==="character") {
-                    var a = node.subsetrange;
-                    var selecteds = new Array;
-                    a.forEach(function(val) {
-                        selecteds.push(yValKey[val].x);
-                    })
-                    return("Selected: "+selecteds);
-             //   }
-             //   else {
-             //       return("Selected: ".concat(node.subsetrange));
-             //   }
-              }
-              });
-        
-        })
-    .on("mouseover", function(){
-        var i = this.getAttribute("name");
-        plotsvg.select("text#mymouseover")
-        .text(function(){
-              var out = yValKey[i].x + ": " + yValKey[i].y;
-              return(out);
-              });
-        })
-    .on("mouseout", function() {
-        var i = this.getAttribute("name");
-        plotsvg.select("text#mymouseover")
-        .text(function(){
-                return("Value: Frequency");
-              });
-        });
+                }
+                return myCol;
+            });
+            plotsvg.select("text#selectrange")
+                .text(function() {
+                    if(node.subsetrange.length==0) {return("Selected: all values");}
+                    else {
+                        if(node.numchar==="character") {
+                            var a = node.subsetrange;
+                            var selecteds = new Array;
+                            a.forEach(function(val) {
+                                selecteds.push(yValKey[val].x);
+                            })
+                            return("Selected: "+selecteds);
+                        }
+                        else {
+                            return("Selected: ".concat(node.subsetrange));
+                        }
+                      }
+                  });
+            })
+        .on("mouseover", function(){
+            var i = this.getAttribute("name");
+            plotsvg.select("text#mymouseover")
+            .text(function(){
+                  var out = yValKey[i].x + ": " + yValKey[i].y;
+                  return(out);
+                  });
+            });
     
     if(plotXaxis) {
         plotsvg.append("g")
@@ -1127,7 +1117,7 @@ function barsSubset(node) {
         .attr("x", 25)
         .attr("y", height+20)
         .text(function() {
-              return("Value: Frequency");
+              return("");
               });
     }
         
@@ -1145,17 +1135,17 @@ function barsSubset(node) {
     .text(function() {
           if(node.subsetrange.length==0) {return("Selected: all values");}
           else {
-           // if(node.numchar==="character") {
+            if(node.numchar==="character") {
                 var a = node.subsetrange;
                 var selecteds = new Array;
                 a.forEach(function(val) {
                     selecteds.push(yValKey[val].x);
                     })
                 return("Selected: "+selecteds);
-           // }
-           // else {
-           //     return("Selected: ".concat(node.subsetrange));
-           // }
+            }
+            else {
+                return("Selected: ".concat(node.subsetrange));
+            }
           }
         });
 } //end function bar subset
@@ -1318,7 +1308,7 @@ function barsNode(node, obj) {
     .attr("y", function(d) {
           return y(maxY - d);
           })
-    .attr("width", x(minX + 0.5 - 2*barPadding))  // the "width" is the coordinate of the end of the first bar
+    .attr("width", x(minX + 0.5 - 2*barPadding) )  // the "width" is the coordinate of the end of the first bar
     .attr("height", function(d) {
           return y(d);
           })

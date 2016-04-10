@@ -34,12 +34,13 @@
     <nav id="option" class="navbar navbar-default" role="navigation">
           <div>
               </span>
-              <div class="navbar-header" id="navbarheader">
+              <div class="navbar-header" >
                   <img src="images/TwoRavens.png" alt="TwoRavens" width="100" style="margin-left:2em;margin-top:-0.5em" onmouseover="about();" onmouseout="closeabout();">
                       
                   <div id="about" class="panel panel-default" style="position:absolute; left:140px; width:380px; display:none; z-index:50;">
                     <div class="panel-body"> </div>
                   </div>
+                  
               </div>
               
               <div class="field" id="dataField" style="text-align:center; margin-top:0.5em">
@@ -53,18 +54,15 @@
                   <button class="btn btn-default ladda-button navbar-right" style="margin-left:2em;margin-right:1em;" id="btnEstimate" onclick="estimate('btnEstimate')" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label">Estimate</span></button>
                   <button class="btn btn-default navbar-right" id="btnReset" title="Reset" onclick="reset()" style="margin-left:2.0em;"><span style="font-size:1em;color:#818181; pointer-events:none;" class="glyphicon glyphicon-repeat"></span></button>
 
-                  <div id="transformations" class="transformTool" title="Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you could enter 'log(d)' or 'd^2'.">
+                  <div id="transformations" class="transformTool">
                   </div>
               </div>
           </div>
       </nav>
-
-    <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide">
-
- <!--
+    
     <div id="main" class="left svg-leftpanel svg-rightpanel carousel slide" data-ride="carousel">
         
-       LINKED CAROUSEL NAV
+        <!-- LINKED CAROUSEL NAV -->
         <ol class="carousel-indicators">
             <li id="delete"><a href="#delete" title="Delete Workspace" onclick="event.preventDefault();"><span class="glyphicon glyphicon-minus" onclick="delSpace();"></span></a></li>
             <li data-target="#main" data-slide-to="m0" class="active" id="navdot0"></li>
@@ -80,8 +78,8 @@
         </div>
         
         <div id="spacetools" class="spaceTool" style="z-index:16;">
-            <button class="btn btn-default" id="btnForce" title="Pin the variable pebbles to the page." onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
-            <button class="btn btn-default" id="btnEraser" title="Wipe all variables from the modeling space." onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
+            <button class="btn btn-default" id="btnForce" title="Force" onclick="forceSwitch()"><span class="glyphicon glyphicon-pushpin"></span></button>
+            <button class="btn btn-default" id="btnEraser" title="Erase" onclick="erase()"><span class="glyphicon glyphicon-magnet"></span></button>
         </div>
         
         <div id="legend" class="legendary panel panel-default" style="display:none">
@@ -125,7 +123,7 @@
         
         <div id="logdiv" class="logbox panel panel-default" style="display:none">
             <div class="panel-heading">
-                <h3 class="panel-title">History <span id="logicon" class="glyphicon glyphicon-large glyphicon-chevron-down pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLog" href="#collapseLog" onclick="$(this).toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');"></span></h3>
+                <h3 class="panel-title">History <span id="logicon" class="glyphicon glyphicon-large glyphicon-chevron-up pull-right" style="cursor: pointer; cursor: hand;" data-toggle="collapse" data-target="#collapseLog" href="#collapseLog" onclick="$(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');"></span></h3>
             </div>
             <div id="collapseLog" class="panel-collapse collapse in">
               <div class="panel-body">
@@ -134,7 +132,7 @@
         </div>
         
         <div id="ticker" style="position:fixed;height:50px;width:100%;background:#F9F9F9;bottom:0;">
-            <a href="somelink" target="_blank" id="logID">Replication</a>
+            <a href="somelink" target="_blank" id="logID">Save log to file.</a>
         </div>
         
         <!--<div id="tooltip" style="display: none;">
@@ -151,10 +149,10 @@
             
             <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;"> 
                 <div class="btn-group" style="margin-left:0;">
-                    <button type="button" class="btn active" id="btnVariables" title="Click variable name to add or remove the variable pebble from the modeling space." onclick="tabLeft('tab1');">Variables</button>
+                    <button type="button" class="btn active" id="btnVariables" onclick="tabLeft('tab1');">Variables</button>
                     <button type="button" class="btn btn-default" id="btnSubset" onclick="tabLeft('tab2');">Subset</button>
                 </div>
-                <button type="button" class="btn btn-default ladda-button" id="btnSelect" title="Subset data by the intersection of all selected values." style="display:none; float:right; margin-right:10px" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
+                <button type="button" class="btn btn-default ladda-button" id="btnSelect" style="display:none; float:right; margin-right:10px" onclick="subsetSelect('btnSelect');" data-spinner-color="#000000" data-style="zoom-in"><span class="ladda-label" style="pointer-events:none;">Select</span></button>
             </div>
             <div class="row-fluid">
                 <div id="leftpanelcontent">
@@ -179,7 +177,6 @@
               <h3 class="panel-title">Model Selection</h3>
           </div>
          
-
         <!-- <div class="btn-toolbar" role="toolbar" style="margin-left:.5em;margin-top:.5em;"> -->
         <!-- The following is fix for the longstanding button wrapping problem on small screens -->
         <div class="btn-group btn-group-justified" role="group" style="margin-top:.5em;" aria-label="...">   
@@ -190,6 +187,11 @@
              <!-- </div> -->
         </div> 
          
+          <!-- <ul class="nav nav-tabs nav-justified">
+              <li class="active"><a id="btnModels" onclick="righttab='models'; setxOff(); tabRight('btnModels');">Models</a></li>
+              <li><a id="btnSetx" onclick="righttab='setx'; setx(); tabRight('btnSetx');">Set Covar.</a></li>
+              <li><a id="btnResults" onclick="resultsView();">Results</a></li>
+          </ul> -->
 
             <div class="row-fluid">
                 <div id="rightpanelcontent">
@@ -213,7 +215,43 @@
 
 <script>
     
-// Open/Close Panels
+    /* initially hide panels */
+//    $('#panel2').hide();
+
+    // invoke the carousel
+    $('#main').carousel({
+        interval: false /* AUTOPLAY REMOVED */
+    });
+    // after carousel rotates, trigger left/right functions
+    $('#main').on('slid.bs.carousel', function () {
+      if($('#main').hasClass('leftCarousel')){
+        left();
+      }
+      else {
+        right();
+        }
+    });
+  
+    /* SLIDE ON CLICK */
+  
+    $('ol.carousel-linked-nav > li > a').click(function() {
+       // grab href, remove pound sign, convert to number
+       var item = Number($(this).attr('href').substring(1));
+       
+       // slide to number -1 (account for zero indexing)
+       $('#main').carousel(item - 1);
+       
+       // remove current active class
+       $('ol.carousel-linked-nav li.active').removeClass('active');
+       
+       // add active class to just clicked on item
+       $(this).parent().addClass('active');
+       
+       // don't follow the link
+       return false;
+     });
+
+  // Open/Close Panels
   $('#leftpanel span').click(function(){
       closeLeftPanel();
   });

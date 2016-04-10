@@ -94,13 +94,13 @@ text.id {
 
 .left {
     width: 33.3%;
-    height: 100%; /*was 600px;*/
+    height:600px;
     box-sizing: border-box; margin: 0;
     overflow:scroll;
 }
 #main svg {
     width:100%;
-    height:100%;   /*was 600px;*/
+    height:600px;
 }
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: 100%;} /* This is size when left/right panel minimized. Was: calc(100% - 300px);}*/
 #main.svg-leftpanel.svg-rightpanel svg {width: 100%;}   /*  Was: calc(100% - 300px);} /*
@@ -132,7 +132,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #leftpanel {
     border:1px solid #ADADAD;
     width: 20%;
-    height:calc(100% - 17px);
+    height:578px;
     position:absolute;top:10px;left:10px;
     background:#F9F9F9;
     padding-right:16px;padding-left:0;padding-top:0;
@@ -147,7 +147,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #rightpanel {
     border:1px solid #ADADAD;
     width:20%;
-    height:calc(100% - 17px);
+    height:578px;
     position:absolute;top:10px;right:10px;
     background:#F9F9F9;
     padding-left:16px;padding-right:0;padding-top:0; 
@@ -352,19 +352,11 @@ td {
 #carouselRight {position:absolute;top:50%;right:calc(16px + 20%);z-index:30;font-size:2em;}
 
 .lowerError {
-    fill: #4682b4;
+    fill: LightSteelBlue;
+    stroke-width: 0;
 }
 
 .upperError {
-  fill: silver;
-  fill-opacity: 0.65;
+    fill: #2d5474;
+    stroke-width: 0; 
 }
-
-.line {
-  fill: #4682b4;
-}
-
-.nofill {
-  fill: none;
-}
-

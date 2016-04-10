@@ -159,7 +159,7 @@ pCall <- function(data,production,sessionid, types) {
     if(production){
         subsetfile <- paste("/var/www/html/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=subsetfile)
-        url <- paste("https://dataverse-demo.iq.harvard.edu/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
+        url <- paste("https://beta.dataverse.org/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
     }else{
         url <- paste("data/preprocessSubset_",sessionid,".txt",sep="")
         write(pjson,file=paste("../",url, sep=""))
@@ -320,7 +320,7 @@ zplots <- function(obj, path, mymodelcount, mysessionid, production){
         dev.off()
         
         if(production){
-            imageVector[[qicount]]<<-paste("https://dataverse-demo.iq.harvard.edu/custom/pic_dir/", mysessionid,"_",mymodelcount,qicount,".png", sep = "")
+            imageVector[[qicount]]<<-paste("https://beta.dataverse.org/custom/pic_dir/", mysessionid,"_",mymodelcount,qicount,".png", sep = "")
         }else{
             imageVector[[qicount]]<<-paste(R.server$full_url("pic_dir"), "/output",mymodelcount,qicount,".png", sep = "")
         }

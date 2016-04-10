@@ -17,23 +17,16 @@
 
 
 var production=false;
-var private=false;
 
 if(production && fileid=="") {
     alert("Error: No fileid has been provided.");
     throw new Error("Error: No fileid has been provided.");
 }
 
-var dataverseurl="";
-
-if (hostname) {
-    dataverseurl="https://"+hostname;
-} else {
-    if (production) {
-        dataverseurl="%PRODUCTION_DATAVERSE_URL%";
-    } else {
-        dataverseurl="http://localhost:8080";
-    }
+if (!hostname && !production) {
+       hostname="localhost:8080";
+} else if (!hostname && production) {
+    hostname="dataverse-demo.iq.harvard.edu"; //this will change when/if the production host changes
 }
 
 if (fileid && !dataurl) {
@@ -41,7 +34,7 @@ if (fileid && !dataurl) {
     // a dataverse and cook a standard dataverse data access url,
     // with the fileid supplied and the hostname we have
     // either supplied or configured:
-    dataurl = dataverseurl+"/api/access/datafile/"+fileid;
+    dataurl = "https://"+hostname+"/api/access/datafile/"+fileid;
     dataurl = dataurl+"?key="+apikey;
     // (it is also possible to supply dataurl to the script directly, 
     // as an argument -- L.A.)
@@ -51,7 +44,7 @@ if (!production) {
     // base URL for the R apps:
     var rappURL = "http://0.0.0.0:8000/custom/";
 } else {
-    var rappURL = "https://beta.dataverse.org/custom/"; //this will change when/if the production host changes
+    var rappURL = "https://dataverse-demo.iq.harvard.edu/custom/"; //this will change when/if the production host changes
 }
 
 // space index
@@ -67,11 +60,8 @@ var logArray = [];
 var tempWidth = d3.select("#main.left").style("width")
 var width = tempWidth.substring(0,(tempWidth.length-2));
 
-/*var tempHeight = d3.select("#main.left").style("height")
-var height = tempHeight.substring(0,(tempHeight.length-2));*/
-
-var height = $(window).height() -120;  // Hard coding for header and footer and bottom margin.
-
+var tempHeight = d3.select("#main.left").style("height")
+var height = tempHeight.substring(0,(tempHeight.length-2));
 
 var forcetoggle=["true"];
 var estimated=false;
@@ -201,7 +191,7 @@ $('#collapseLog').on('hidden.bs.collapse', function () {
 
 // text for the about box
 // note that .textContent is the new way to write text to a div
-$('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
+$('#about div.panel-body').text('The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
 
 
@@ -216,15 +206,12 @@ if (ddiurl) {
     // file id supplied; we're going to cook a standard dataverse
     // metadata url, with the file id provided and the hostname
     // supplied or configured:
-    metadataurl=dataverseurl+"/api/meta/datafile/"+fileid;
+    metadataurl="https://"+hostname+"/api/meta/datafile/"+fileid;
 } else {
     // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
     // the app, in the data directory:
     // metadataurl="data/qog137.xml"; // quality of government
-    //metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
-    metadataurl="data/PUMS5small-ddi.xml"; // This is California PUMS subset
-    //metadataurl="data/BP.formatted-ddi.xml";
-    //metadataurl="data/FL_insurance_sample-ddi.xml";
+    metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
     //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
     //metadataurl="data/19.xml"; // Fearon from DVN Demo
     //metadataurl="data/76.xml"; // Collier from DVN Demo
@@ -244,10 +231,7 @@ if (dataurl) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-    //pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
-    pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
-    //pURL = "data/FL_insurance_sample.tab.json";
-
+    pURL = "data/fearonLaitinNewPreprocess3.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
 }
 
@@ -260,19 +244,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var vars = xml.documentElement.getElementsByTagName("var");
                       var temp = xml.documentElement.getElementsByTagName("fileName");
                       zparams.zdata = temp[0].childNodes[0].nodeValue;
-                      
-                      // function to clean the citation so that the POST is valid json
-                      function cleanstring(s) {
-                        s=s.replace(/\&/g, "and");
-                        s=s.replace(/\;/g, ",");
-                        s=s.replace(/\%/g, "-");
-                        return s;
-                      }
-                      
                       var cite = xml.documentElement.getElementsByTagName("biblCit");
                       zparams.zdatacite=cite[0].childNodes[0].nodeValue;
-                      zparams.zdatacite=cleanstring(zparams.zdatacite);
-                      
                       
                       // dataset name trimmed to 12 chars
                       var dataname = zparams.zdata.replace( /\.(.*)/, "") ;  // regular expression to drop any file extension
@@ -289,8 +262,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       // temporary values for hold that correspond to histogram bins
                       hold = [.6, .2, .9, .8, .1, .3, .4];
                       var myvalues = [0, 0, 0, 0, 0];
-                      // console.log("GOT HERE A");
-                      // console.log(vars);
+                      
                       for (i=0;i<vars.length;i++) {
                       
                       valueKey[i] = vars[i].attributes.name.nodeValue;
@@ -310,7 +282,9 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
                       allNodes.push(obj1);
                       };
-
+                      //,
+                      
+                        console.log(allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -354,7 +328,7 @@ function scaffolding(callback) {
     .attr("id", "tInput")
     .attr("class", "form-control")
     .attr("type", "text")
-    .attr("value", "Variable transformation");
+    .attr("value", "R call: func(var)");
 
     // the variable dropdown
     d3.select("#transformations")
@@ -819,8 +793,6 @@ function layout(v) {
             });
         
         // add arc tags
-        // NOTE: this block of code has been commented out to remove the "cross section" and "time series" arc tags. These tags are functioning as intended, but they do not, at present, do anything to change the statistical model or variables. To avoid confusion when using TwoRavens, they have been dropped. To add them back in, simply uncomment the block below.
-        /*
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -911,7 +883,7 @@ function layout(v) {
               return "#csArc".concat(d.id);
               })
         .text("Cross Sec");
-*/
+
         
         g.append("path")
         .attr("id", function(d){
@@ -1272,7 +1244,6 @@ function layout(v) {
     svg.attr('id', function(){
              return "whitespace".concat(myspace);
              })
-    .attr('height', height)
     .on('mousedown', function() {
            mousedown(this);
            })
@@ -1541,6 +1512,7 @@ function viz(m) {
         zfig.setAttribute('width', 200);
         zfig.setAttribute('height', 200);
         document.getElementById("resultsView").appendChild(zfig);
+        //            filelist.push(json[i]);
     }
     
    // var rCall = [];
@@ -1677,7 +1649,6 @@ function transform(n,t, typeTransform) {
     
     var outtypes = {varnamesTypes:n, interval:myn.interval, numchar:myn.numchar, nature:myn.nature, binary:myn.binary};
     
-    console.log(myn);
     // if typeTransform but we already have the metadata
     if(typeTransform) {
         if(myn.nature=="nominal" & typeof myn.plotvalues !=="undefined") {
@@ -1695,7 +1666,6 @@ function transform(n,t, typeTransform) {
             return;
         }
     }
-     
     
     //package the output as JSON
     var transformstuff = {zdataurl:dataurl, zvars:n, zsessionid:zparams.zsessionid, transform:t, callHistory:callHistory, typeTransform:typeTransform, typeStuff:outtypes};
@@ -1769,7 +1739,7 @@ function transform(n,t, typeTransform) {
                     nodes.push(allNodes[i]);
                     fakeClick();
                     panelPlots();
-                    
+
                     if(allNodes[i].plottype === "continuous") {
                         densityNode(allNodes[i]);
                     }
@@ -1778,14 +1748,13 @@ function transform(n,t, typeTransform) {
                         }
                     }//for
                     
-
+                    
                     });
         
             // update the log
             logArray.push("transform: ".concat(rCall[0]));
             showLog();
         
-            /*
                     // NOTE: below is the carousel portion that needs to be revised as of May 29 2015
             
             // add transformed variable to all spaces
@@ -1844,7 +1813,7 @@ function transform(n,t, typeTransform) {
                 "valid":json.sumStats.valid[0], "mean":json.sumStats.mean[0], "max":json.sumStats.max[0], "invalid":json.sumStats.invalid[0], "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false});
             
                 readPreprocess(json.url, p=spaces[j].preprocess, v=newVar, callback=null);
-            }   */
+            }
         }
     }
     
@@ -2201,18 +2170,11 @@ function varSummary(d) {
 
         var summarydata = [],
         tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
-        t2 = [(+d.mean).toPrecision(4).toString() ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
+        t2 = [(+d.mean).toPrecision(4).toString(),(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
         i, j;
-        if (private) {
-          if (d.meanCI) {
-            t1 = ["Mean:", "Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
-          t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")" ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
-        i, j;
-      } 
-        }
-                
+        
         for (i = 0; i < t1.length; i++) {
-            if(t2[i].indexOf("NaN") > -1 | t2[i]=="NA" | t2[i]=="") continue;
+            if(t2[i]=="NaN" | t2[i]=="NA" | t2[i]=="") continue;
             tmpDataset=[];
             tmpDataset.push(t1[i]);
             tmpDataset.push(t2[i]);
@@ -2220,7 +2182,7 @@ function varSummary(d) {
         };
 
   //  console.log(summarydata);
-    d3.select("#tab3") //tab when you mouseover a pebble
+    d3.select("#tab3")
     .select("p")
     .html("<center><b>" +d.name+ "</b><br><i>" +d.labl+ "</i></center>")
     .append("table")
@@ -2236,18 +2198,16 @@ function varSummary(d) {
 //    .style("font-size", "12px");
 
     
-    var plotsvg = d3.select("#tab3")
-    .selectAll("svg")
-    .remove();
-    
     if(typeof d.plottype === "undefined") { // .properties is undefined for some vars
-        return;
+        var plotsvg = d3.select("#tab3")
+        .selectAll("svg")
+        .remove();
     }
     else if (d.plottype === "continuous") {
-        density(d, div="varSummary", private);
+        density(d, div="varSummary");
     }
     else if (d.plottype === "bar") {
-        bars(d, div="varSummary", private);
+        bars(d, div="varSummary");
     }
     else {
         var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
@@ -2275,14 +2235,7 @@ function popoverContent(d) {
     if(d.labl != "") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
     }
     
-    if (d.mean != "NA") { 
-      outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"  
-      if (private && d.meanCI) {
-        outtext += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
-      } else {
-      outtext += (+d.mean).toPrecision(4).toString()
-    }
-      outtext += "</p></div></div>";
+    if (d.mean != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.mean).toPrecision(4).toString() + "</p></div></div>";
     }
     
     if (d.median != "NA") { outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
@@ -2383,14 +2336,13 @@ function panelPlots() {
         allNodes[idArray[i]].subsetplot=false;
             if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                console.log(private);
-                density(allNodes[idArray[i]], div="setx", private);
+                density(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
-                density(allNodes[idArray[i]], div="subset", private);
+                density(allNodes[idArray[i]], div="subset");
             }
             else if (allNodes[idArray[i]].plottype === "bar" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                bars(allNodes[idArray[i]], div="setx", private);
+                bars(allNodes[idArray[i]], div="setx");
                 allNodes[idArray[i]].subsetplot=true;
                 barsSubset(allNodes[idArray[i]]);
             }
@@ -2579,14 +2531,6 @@ function subsetSelect(btn) {
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
-        if(zparams.zsubset[j].length>0) {
-            if(zparams.zsubset[j][0]!="") {
-                zparams.zsubset[j][0] = Number(zparams.zsubset[j][0]);
-            }
-            if(zparams.zsubset[j][1]!="") {
-                zparams.zsubset[j][1] = Number(zparams.zsubset[j][1]);
-            }
-        }
         zparams.zplot.push(allNodes[temp].plottype);
         if(zparams.zsubset[j][1] != "") {subsetEmpty=false;} //only need to check one
     }
@@ -2622,7 +2566,6 @@ function subsetSelect(btn) {
         var rCall = [];
         rCall[0] = json.call;
         
-        
         // store contents of the pre-subset space
         zPop();
         var myNodes = jQuery.extend(true, [], allNodes);
@@ -2641,22 +2584,22 @@ function subsetSelect(btn) {
         selectMe = "#whitespace".concat(myspace);
         d3.select(selectMe).remove();
         
-       // selectMe = "navdot".concat(myspace);
-       // var mynavdot = document.getElementById(selectMe);
-       // mynavdot.removeAttribute("class");
+        selectMe = "navdot".concat(myspace);
+        var mynavdot = document.getElementById(selectMe);
+        mynavdot.removeAttribute("class");
         
         myspace = spaces.length;
         callHistory.push({func:"subset", zvars:jQuery.extend(true, [],zparams.zvars), zsubset:jQuery.extend(true, [],zparams.zsubset), zplot:jQuery.extend(true, [],zparams.zplot)});
         
         
-      //  selectMe = "navdot".concat(myspace-1);
-      //  mynavdot = document.getElementById(selectMe);
+        selectMe = "navdot".concat(myspace-1);
+        mynavdot = document.getElementById(selectMe);
         
-     //   var newnavdot = document.createElement("li");
-     //   newnavdot.setAttribute("class", "active");
-    //    selectMe = "navdot".concat(myspace);
-    //    newnavdot.setAttribute("id", selectMe);
-    //    mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
+        var newnavdot = document.createElement("li");
+        newnavdot.setAttribute("class", "active");
+        selectMe = "navdot".concat(myspace);
+        newnavdot.setAttribute("id", selectMe);
+        mynavdot.parentNode.insertBefore(newnavdot, mynavdot.nextSibling);
         
         
         // this is to be used to gray out and remove listeners for variables that have been subsetted out of the data
@@ -2694,12 +2637,6 @@ function subsetSelect(btn) {
                 
                 for(var key in jsondata) {
                     var myIndex = findNodeIndex(key);
-                
-                    allNodes[myIndex].plotx=undefined;
-                    allNodes[myIndex].ploty=undefined;
-                    allNodes[myIndex].plotvalues=undefined;
-                    allNodes[myIndex].plottype="";
-
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
                 
                     allNodes[myIndex].subsetplot=false;
@@ -2738,20 +2675,10 @@ function readPreprocess(url, p, v, callback) {
             if (error) return console.warn(error);
             var jsondata = json;
             
-            console.log("inside readPreprocess function");
-            console.log(jsondata);
-            console.log(jsondata["variables"]);
-
-            if(jsondata.dataset.private){
-              private = jsondata["dataset"]["private"];
-            };
-
             //copying the object
-            for(var key in jsondata["variables"]) {
-                p[key] = jsondata["variables"][key];
+            for(var key in jsondata) {
+                p[key] = jsondata[key];
             }
-            // console.log("we're here")
-            // console.log(p);
             
             if(typeof callback === "function") {
                 callback();
@@ -2759,7 +2686,7 @@ function readPreprocess(url, p, v, callback) {
             });
 }
 
-/*
+
 function delSpace() {
     if (spaces.length===0 | (spaces.length===1 & myspace===0)) {return;}
     var lastSpace = false;
@@ -3039,7 +2966,6 @@ function right() {
   //  event.preventDefault();
 }
 
-*/
 
 function about() {
     $('#about').show();
