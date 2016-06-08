@@ -368,3 +368,14 @@ td {
   fill: none;
 }
 
+
+
+#searchvar{
+  background: #fff url(icoX.gif) no-repeat right -10px center;
+  border: 1px solid #999;
+  padding: 3px 18px 3px 4px;     /* Use the same right padding (18) in jQ! */
+  border-radius: 3px;
+  transition: background 0.4s;
+}
+#searchvar.x  { background-position: right 5px center; } /* (jQ) Show icon */
+#searchvar.onX{ cursor: pointer; }     
