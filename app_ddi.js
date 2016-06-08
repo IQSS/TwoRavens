@@ -221,8 +221,8 @@ if (ddiurl) {
     // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
     // the app, in the data directory:
     // metadataurl="data/qog137.xml"; // quality of government
-    //metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
-    metadataurl="data/PUMS5small-ddi.xml"; // This is California PUMS subset
+    metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+    //metadataurl="data/PUMS5small-ddi.xml"; // This is California PUMS subset
     //metadataurl="data/BP.formatted-ddi.xml";
     //metadataurl="data/FL_insurance_sample-ddi.xml";
     //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
@@ -244,8 +244,8 @@ if (dataurl) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-    //pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
-    pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
+    pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
+    //pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
     //pURL = "data/FL_insurance_sample.tab.json";
 
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
@@ -558,42 +558,78 @@ function scaffolding(callback) {
         callback(); // this calls layout() because at this point all scaffolding is up and ready
     }
 }
-
-
+/*
+$("#clearbtn").click(function() {
+	$("#searchvar").val('').focus();
+	restart();
+	updatedata(valueKey);
+	//scaffolding(callback);
+	});
+*/
+$("#searchvar").ready(function(){
+	$("#searchvar").val('');
+	
+});
 	//Rohit Bhattacharjee
+   //to add a clear button in the search barS
+   
+ function tog(v){
+	return v?'addClass':'removeClass';
+} 
+
+$(document).on('input', '#searchvar', function() {
+    $(this)[tog(this.value)]('x');
+}).on('mousemove', '.x', function(e) {
+    $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');   
+}).on('click', '.onX', function(){
+    $(this).removeClass('x onX').val('').focus();
+	updatedata(valueKey,1);
+});
+
+
+  
    
 	var flag=0;
 	var srchid=[];
-	$("#searchvar").on("keydown",function search(e) {
-    if(e.keyCode == 13) {
+	var vkey=[];
+	$("#searchvar").on("keyup",function search(e) {
+    //if(e.keyCode == 13) {
 		var k=0;
-		 var vkey=[];
+		  vkey=[];
 		 srchid=[];
-		//alert($(this).val());
-		//alert(allNodes[3]["name"].indexOf($(this).val()));
+		if($(this).val()=='')
+			srchid=[];
 		for(var i=0;i<allNodes.length;i++)
 		{
-			if(allNodes[i]["name"].indexOf($(this).val())!=-1)
+			if((allNodes[i]["name"].indexOf($(this).val())!=-1))
 			{	
-				//console.log("entering for if");
 				srchid[k]=i;
 				
 			k=k+1;}
 		}
+		for(var i=0;i<allNodes.length;i++)
+		{
+			if((allNodes[i]["labl"].indexOf($(this).val())!=-1) && ($.inArray(i, srchid)==-1))
+			{	
+				
+				srchid[k]=i;
+				
+			k=k+1;}
+		}
+		
 		console.log(srchid);
+		lngth=srchid.length;
 	if(k==0){
-			alert("Variable Not Found!");
-			return;
+			vkey=valueKey;
+			//srchid=[];
+			//alert("Variable Not Found!");
+			//return;
 	}
 	else{
 			
 				flag=1;
 				vkey=[];
-			//	srchid=findNodeIndex($(this).val());
-				//if(srchid!= -1){
-				
-				//vkey[k]=valueKey[srchid];
-				//k=k+1;
+			
 				k=0;
 				var i=0;
 				for( i=0;i<srchid.length;i++)	{
@@ -612,30 +648,28 @@ function scaffolding(callback) {
 				
 				}
 				}
-		//alert($(this).val());
-		console.log("vkey after: "+vkey);
-        //alert(srchid);
-		//repopulate();
-		//valueKey=vkey;
-		//console.log("valuekey"+valueKey);
-	updatedata(vkey);
-	//layout();
-	//else{alert("not found!");}
-	//console.log("vkey"+vkey);
-      //  alert(srchid);
-		//repopulate();
-		//valueKey=vkey;
-		//console.log("valuekey"+valueKey);
-				  //  }
-		}
+				
+		console.log("vkey Length: "+vkey.length);
+		console.log("valueKey length: "+valueKey.length);
+        
+	updatedata(vkey,0);
+	//}
 });
 
-	function updatedata(value)
+	function updatedata(value,flag)
 	{
 	var clr='#000000' ;
 	console.log("updatedata() called");
-	
+	var nodename=[];
+	var bordercol='#000000';
+	var borderstyle='solid';
+	for(var i=0;i<nodes.length;i++)
+	{
+		nodename[i]=nodes[i].name;
+	}
+	console.log("Name of Nodes: "+nodename);
 	d3.select("#tab1").selectAll("p").data(valueKey).remove();
+	
 	
 	d3.select("#tab1").selectAll("p")
 		//do something with this..
@@ -648,9 +682,15 @@ function scaffolding(callback) {
 			  }) // perhapse ensure this id is unique by adding '_' to the front?
 		.text(function(d){return d;})
 		.style('background-color',function(d) {
-			   if(findNodeIndex(d) > 2) {return varColor;}
+			  if($.inArray(findNode(d).name,nodename)==-1) {return varColor;}
+			  // if(findNodeIndex(d) > 2) {return varColor;}
 			  // else if(findNodeIndex(d)==srchid){return clr; }
 			   else {return hexToRgba(selVarColor);}
+			   }).style('border-style',function(d){
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==0){return borderstyle;}
+			   })
+			   .style('border-color',function(d){
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==0){return bordercol;}
 			   })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
@@ -685,7 +725,7 @@ var circle = svg.append('svg:g').selectAll('g');
         mouseup_node = null;
 
 	function layout(v) {
-	
+	console.log("Layout Called");
     var myValues=[];
     nodes = [];
     links = [];
@@ -992,8 +1032,8 @@ var circle = svg.append('svg:g').selectAll('g');
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
 } 		// end layout
-
-
+//nodes
+//console.log("nodes: "+nodes);
 function mousedown(d) {
         // prevent I-bar on drag
         d3.event.preventDefault();
@@ -1657,12 +1697,16 @@ function mousedown(d) {
                 return varColor;
                }
                });
+			   shownodes();
         panelPlots();
         restart();
         });
 	}
-		
-		
+		console.log("Search ID at start: "+srchid);
+		function shownodes()
+		{
+			console.log("nodes:"+nodes[0]);
+		}
 		
 // returns id
 var findNodeIndex = function(nodeName) {
@@ -2330,6 +2374,11 @@ function createCORSRequest(method, url, callback) {
 // Make the actual CORS request.
 function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     var xhr = createCORSRequest('POST', url);
+	 //if (isLocalHost()){
+    //if (typeof(netscape) != 'undefined' && typeof(netscape.security) != 'undefined'){
+     // netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+    //}
+	//}
     if (!xhr) {
         alert('CORS not supported');
         return;
@@ -2340,7 +2389,7 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     xhr.onload = function() {
         
       var text = xhr.responseText;
-      //console.log("text ", text);
+      //console.log("text ", xhr.status);
         
         try {
             var json = JSON.parse(text);   // should wrap in try / catch
@@ -3507,4 +3556,4 @@ function fakeClick() {
     .classed('active', false); // remove active class
 }
 
-
+ 
