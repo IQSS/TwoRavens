@@ -29,6 +29,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
         types$nature <- defaulttypes$defaultNature
         types$binary <- defaulttypes$defaultBinary
         types$interval <- defaulttypes$defaultInterval
+        types$time <- defaulttypes$defaultTime
         types <- c(types, defaulttypes)
     }else{ # types have been passed, so filling in the default type fields and accounting for the possibility that the types that have been passed are ordered differently than the default types
         for(i in 1:length(types$varnamesTypes)) {
@@ -37,6 +38,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
             types$defaultNature[i] <- defaulttypes$defaultNature[t]
             types$defaultBinary[i] <- defaulttypes$defaultBinary[t]
             types$defaultInterval[i] <- defaulttypes$defaultInterval[t]
+            types$defaultTime[i] <- defaulttypes$defaultTime[t]
         }
     }
     
@@ -170,12 +172,13 @@ calcSumStats <- function(data, types) {
 typeGuess <- function(data) {
     
     k <- ncol(data)
-    out<-list(varnamesTypes=colnames(data), defaultInterval=as.vector(rep(NA,length.out=k)), defaultNumchar=as.vector(rep(NA,length.out=k)), defaultNature=as.vector(rep(NA,length.out=k)), defaultBinary=as.vector(rep("no",length.out=k)))
+    out<-list(varnamesTypes=colnames(data), defaultInterval=as.vector(rep(NA,length.out=k)), defaultNumchar=as.vector(rep(NA,length.out=k)), defaultNature=as.vector(rep(NA,length.out=k)), defaultBinary=as.vector(rep("no",length.out=k)), defaultTime=as.vector(rep("no",length.out=k)))
     
     numchar.values <- c("numeric", "character")
     interval.values <- c("continuous", "discrete")
     nature.values <- c("nominal", "ordinal", "interval", "ratio", "percent", "other")
     binary.values <- c("yes", "no")
+    time.values <- c("yes", "no")
     
     
     Decimal <-function(x){
@@ -202,10 +205,19 @@ typeGuess <- function(data) {
         }
     }
     
+    # Time() takes a column of data x and returns "yes" or "no" for whether x is some unit of time
+    Time <- function(x){
+        # eventually, this should test the variable against known time formats
+        return("no")
+    }
+    
     
     for(i in 1:k){
         
         v<- data[,i]
+        
+        # time
+        out$defaultTime[i] <- Time(v)
         
         # if variable is a factor or logical, return character
         if(is.factor(v) | is.logical(v)) {
