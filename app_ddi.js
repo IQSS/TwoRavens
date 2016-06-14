@@ -244,8 +244,9 @@ if (dataurl) {
     // app in the "data" directory:
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-    pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
-    //pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
+    //pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
+    pURL = "data/fearonLaitinPreprocess4.json";
+	//pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
     //pURL = "data/FL_insurance_sample.tab.json";
 
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
@@ -315,7 +316,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
 					 
                       };
-						console.log("YO!!!!!!",allNodes[findNodeIndex("income")]);
+						//console.log("YO!!!!!!",allNodes[findNodeIndex("ccode")]);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -391,8 +392,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
 function scaffolding(callback) {
-	console.log("scaffolding called");
-	console.log(valueKey);
+	//console.log("scaffolding called");
+	//console.log(valueKey);
     // establishing the transformation element
     d3.select("#transformations")
     .append("input")
@@ -617,7 +618,7 @@ $(document).on('input', '#searchvar', function() {
 			k=k+1;}
 		}
 		
-		console.log(srchid);
+		//console.log(srchid);
 		lngth=srchid.length;
 	if(k==0){
 			vkey=valueKey;
@@ -636,8 +637,8 @@ $(document).on('input', '#searchvar', function() {
 					vkey[i]=valueKey[srchid[i]];
 				
 				}
-				console.log("value of i= " + i);
-				console.log("vkey before  " + vkey);
+				//console.log("value of i= " + i);
+				//console.log("vkey before  " + vkey);
 				
 				for(var j=0;j<valueKey.length;j++){
 					
@@ -649,8 +650,8 @@ $(document).on('input', '#searchvar', function() {
 				}
 				}
 				
-		console.log("vkey Length: "+vkey.length);
-		console.log("valueKey length: "+valueKey.length);
+		//console.log("vkey Length: "+vkey.length);
+		//console.log("valueKey length: "+valueKey.length);
         
 	updatedata(vkey,0);
 	//}
@@ -659,7 +660,7 @@ $(document).on('input', '#searchvar', function() {
 	function updatedata(value,flag)
 	{
 	var clr='#000000' ;
-	console.log("updatedata() called");
+	//console.log("updatedata() called");
 	var nodename=[];
 	var bordercol='#000000';
 	var borderstyle='solid';
@@ -667,7 +668,7 @@ $(document).on('input', '#searchvar', function() {
 	{
 		nodename[i]=nodes[i].name;
 	}
-	console.log("Name of Nodes: "+nodename);
+	//console.log("Name of Nodes: "+nodename);
 	d3.select("#tab1").selectAll("p").data(valueKey).remove();
 	
 	
@@ -701,21 +702,25 @@ $(document).on('input', '#searchvar', function() {
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
 	//
-	console.log("d3 enter called");
+	//console.log("d3 enter called");
 	
 	fakeClick();
-	restart();
+	//restart();
 	populatePopover();
 	addlistener(nodes);
 
 	//callback=layout();
-	console.log("d3 exit called");
+	//console.log("d3 exit called");
 	}
 	//Rohit Bhattacharjee
 
 var circle = svg.append('svg:g').selectAll('g');
  var path = svg.append('svg:g').selectAll('path');
- 
+    
+	
+	// line displayed when dragging new nodes
+       
+		
 	//ROHIT BHATTACHARJEE
 	// mouse event vars
         var selected_node = null,
@@ -725,7 +730,9 @@ var circle = svg.append('svg:g').selectAll('g');
         mouseup_node = null;
 
 	function layout(v) {
-	console.log("Layout Called");
+	
+	
+	//console.log("Layout Called");
     var myValues=[];
     nodes = [];
     links = [];
@@ -818,9 +825,9 @@ var circle = svg.append('svg:g').selectAll('g');
         .style('fill', '#000');
 
         // line displayed when dragging new nodes
-        var drag_line = svg.append('svg:path')
-        .attr('class', 'link dragline hidden')
-        .attr('d', 'M0,0L0,0');
+     //   var drag_line = svg.append('svg:path')
+       // .attr('class', 'link dragline hidden')
+        //.attr('d', 'M0,0L0,0');
         
         // handles to link and node element groups
        // var path = svg.append('svg:g').selectAll('path');
@@ -937,7 +944,9 @@ var circle = svg.append('svg:g').selectAll('g');
 	//}
 	//
         
-		
+	var drag_line = svg.append('svg:path')
+        .attr('class', 'link dragline hidden')
+        .attr('d', 'M0,0L0,0');	
 		
     d3.select("#models").selectAll("p") // models tab
     .on("mouseover", function(d) {
@@ -972,138 +981,10 @@ var circle = svg.append('svg:g').selectAll('g');
     // update graph (called when needed)
 	//restart();
 	//ROHIT BHATTACHARJEE RESTART FUNCTION
-      //end restart function
-    
-    //ROHIT BHATTACHARJEE MOUSE FUNCTIONS
-  // function mousedown(d) {
-  //     // prevent I-bar on drag
-  //     d3.event.preventDefault();
-  //     
-  //     // because :active only works in WebKit?
-  //     svg.classed('active', true);
-  //     
-  //     if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
-  //         return;
-  //     }
-  //     
-  //     restart();
-  // }
-  // 
-  // function mousemove(d) {
-  //     if(!mousedown_node) return;
-  //     
-  //     // update drag line
-  //     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-  // }
-  // 
-  // function mouseup(d) {
-  //     if(mousedown_node) {
-  //         // hide drag line
-  //         drag_line
-  //         .classed('hidden', true)
-  //         .style('marker-end', '');
-  //     }
-  //     // because :active only works in WebKit?
-  //     svg.classed('active', false);
-  // 
-  //     // clear mouse event vars
-  //     resetMouseVars();
-  // }
-    
-    // app starts here
-   
-    svg.attr('id', function(){
-             return "whitespace".concat(myspace);
-             })
-    .attr('height', height)
-    .on('mousedown', function() {
-           mousedown(this);
-           })
-    .on('mouseup', function() {
-        mouseup(this);
-        });
-    
-    d3.select(window)
-    .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
-        $('#transList').fadeOut(100);
-        $('#transSel').fadeOut(100);
-        });
-    
-    restart(); // this is the call the restart that initializes the force.layout()
-    fakeClick();
-} 		// end layout
-//nodes
-//console.log("nodes: "+nodes);
-function mousedown(d) {
-        // prevent I-bar on drag
-        d3.event.preventDefault();
-        
-        // because :active only works in WebKit?
-        svg.classed('active', true);
-        
-        if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
-            return;
-        }
-        
-        restart();
-    }
-    
-    function mousemove(d) {
-        if(!mousedown_node) return;
-        
-        // update drag line
-        drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-    }
-    
-    function mouseup(d) {
-        if(mousedown_node) {
-            // hide drag line
-            drag_line
-            .classed('hidden', true)
-            .style('marker-end', '');
-        }
-        // because :active only works in WebKit?
-        svg.classed('active', false);
-    
-        // clear mouse event vars
-        resetMouseVars();
-    }
-    
-	
-//Rohit BHATTACHARJEE circle
-//circle = svg.append('svg:g').selectAll('g');
-
-//Rohit BHATTACHARJEE TICK
- // update force layout (called automatically each iteration)
-        function tick() {
-            // draw directed edges with proper padding from node centers
-            path.attr('d', function(d) {
-                      var deltaX = d.target.x - d.source.x,
-                      deltaY = d.target.y - d.source.y,
-                      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-                      normX = deltaX / dist,
-                      normY = deltaY / dist,
-                      sourcePadding = d.left ? allR+5 : allR,
-                      targetPadding = d.right ? allR+5 : allR,
-                      sourceX = d.source.x + (sourcePadding * normX),
-                      sourceY = d.source.y + (sourcePadding * normY),
-                      targetX = d.target.x - (targetPadding * normX),
-                      targetY = d.target.y - (targetPadding * normY);
-                      return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-                      });
-            
-            //  if(forcetoggle){
-            circle.attr('transform', function(d) {
-                        return 'translate(' + d.x + ',' + d.y + ')';
-                        });
-            //  };
-            
-        }
-	//ROHIT BHATTACHARJEE RESTART
 	function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
-		var force=forced3layout(nodes, links,  width,  height, tick);
+		//var force=forced3layout(nodes, links,  width,  height, tick);
         circle.call(force.drag);
         if(forcetoggle[0]==="true")
         {
@@ -1195,7 +1076,7 @@ function mousedown(d) {
         
         // add arc tags
         // NOTE: this block of code has been commented out to remove the "cross section" and "time series" arc tags. These tags are functioning as intended, but they do not, at present, do anything to change the statistical model or variables. To avoid confusion when using TwoRavens, they have been dropped. To add them back in, simply uncomment the block below.
-        /*
+        
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -1225,6 +1106,16 @@ function mousedown(d) {
         .on('click', function(d){
             setColors(d, timeColor);
             legend(timeColor);
+			if(confirm("Do you want to tag this variable as a time variable?")==true)
+			{
+				console.log(d.name);
+				console.log(allNodes[findNodeIndex(d.name)].time);
+				allNodes[findNodeIndex(d.name)].time="yes";
+				console.log(allNodes[findNodeIndex(d.name)].time);
+				console.log(allNodes);
+			}
+			else("dont tag it");
+			//Window.confirm("Do you want to tag this variable as a time variable?");
             restart();
             });
         g.append("text")
@@ -1241,7 +1132,7 @@ function mousedown(d) {
         .text("Time");
         
 
-        
+        /*
         g.append("path")
         .attr("id", function(d){
               return "csArc".concat(d.id);
@@ -1473,7 +1364,9 @@ function mousedown(d) {
             
             resetMouseVars();
             restart();
-            });
+			//forced3layout(nodes, links,  width,  height, tick);
+            
+			});
         
        
         // show node Names
@@ -1604,7 +1497,140 @@ function mousedown(d) {
         // remove old nodes
         circle.exit().remove();
         force.start();
+    }//end restart function
+    
+    //ROHIT BHATTACHARJEE MOUSE FUNCTIONS
+  // function mousedown(d) {
+  //     // prevent I-bar on drag
+  //     d3.event.preventDefault();
+  //     
+  //     // because :active only works in WebKit?
+  //     svg.classed('active', true);
+  //     
+  //     if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
+  //         return;
+  //     }
+  //     
+  //     restart();
+  // }
+  // 
+  // function mousemove(d) {
+  //     if(!mousedown_node) return;
+  //     
+  //     // update drag line
+  //     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+  // }
+  // 
+  // function mouseup(d) {
+  //     if(mousedown_node) {
+  //         // hide drag line
+  //         drag_line
+  //         .classed('hidden', true)
+  //         .style('marker-end', '');
+  //     }
+  //     // because :active only works in WebKit?
+  //     svg.classed('active', false);
+  // 
+  //     // clear mouse event vars
+  //     resetMouseVars();
+  // }
+    
+		
+function mousedown(d) {
+        // prevent I-bar on drag
+        d3.event.preventDefault();
+        
+        // because :active only works in WebKit?
+        svg.classed('active', true);
+        
+        if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
+            return;
+        }
+        
+        restart();
     }
+    
+    function mousemove(d) {
+        if(!mousedown_node) return;
+        
+        // update drag line
+        drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+    }
+    
+    function mouseup(d) {
+        if(mousedown_node) {
+            // hide drag line
+            drag_line
+            .classed('hidden', true)
+            .style('marker-end', '');
+        }
+        // because :active only works in WebKit?
+        //svg.classed('active', false);
+    
+        // clear mouse event vars
+        resetMouseVars();
+    }
+    
+    // app starts here
+   
+    svg.attr('id', function(){
+             return "whitespace".concat(myspace);
+             })
+    .attr('height', height)
+    .on('mousedown', function() {
+           mousedown(this);
+           })
+    .on('mouseup', function() {
+        mouseup(this);
+        });
+    
+    d3.select(window)
+    .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
+        $('#transList').fadeOut(100);
+        $('#transSel').fadeOut(100);
+        });
+    
+    restart(); // this is the call the restart that initializes the force.layout()
+    fakeClick();
+} 		// end layout
+//nodes
+//console.log("nodes: "+nodes);
+
+ 
+		
+	
+	
+//Rohit BHATTACHARJEE circle
+//circle = svg.append('svg:g').selectAll('g');
+
+//Rohit BHATTACHARJEE TICK
+ // update force layout (called automatically each iteration)
+        function tick() {
+            // draw directed edges with proper padding from node centers
+            path.attr('d', function(d) {
+                      var deltaX = d.target.x - d.source.x,
+                      deltaY = d.target.y - d.source.y,
+                      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+                      normX = deltaX / dist,
+                      normY = deltaY / dist,
+                      sourcePadding = d.left ? allR+5 : allR,
+                      targetPadding = d.right ? allR+5 : allR,
+                      sourceX = d.source.x + (sourcePadding * normX),
+                      sourceY = d.source.y + (sourcePadding * normY),
+                      targetX = d.target.x - (targetPadding * normX),
+                      targetY = d.target.y - (targetPadding * normY);
+                      return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+                      });
+            
+            //  if(forcetoggle){
+            circle.attr('transform', function(d) {
+                        return 'translate(' + d.x + ',' + d.y + ')';
+                        });
+            //  };
+            
+        }
+	//ROHIT BHATTACHARJEE RESTART
+	
 
 
 
@@ -1702,11 +1728,8 @@ function mousedown(d) {
         restart();
         });
 	}
-		console.log("Search ID at start: "+srchid);
-		function shownodes()
-		{
-			console.log("nodes:"+nodes[0]);
-		}
+		//console.log("Search ID at start: "+srchid);
+		
 		
 // returns id
 var findNodeIndex = function(nodeName) {
