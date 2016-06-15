@@ -728,7 +728,7 @@ var circle = svg.append('svg:g').selectAll('g');
         mousedown_link = null,
         mousedown_node = null,
         mouseup_node = null;
-
+var force;
 	function layout(v) {
 	
 	
@@ -787,7 +787,8 @@ var circle = svg.append('svg:g').selectAll('g');
 	//Rohit Bhattacharjee FORCE D3
 	// init D3 force layout 
 	
-		var force=forced3layout(nodes, links, width, height,tick);
+		//var 
+		force=forced3layout(nodes, links, width, height,tick);
 		// init D3 force layout
 		//function forced3layout(var nodes, var links, var width, var height)
         //var force = d3.layout.force()
@@ -944,10 +945,10 @@ var circle = svg.append('svg:g').selectAll('g');
 	//}
 	//
         
-	var drag_line = svg.append('svg:path')
-        .attr('class', 'link dragline hidden')
-        .attr('d', 'M0,0L0,0');	
-		
+	//var drag_line = svg.append('svg:path')
+    //    .attr('class', 'link dragline hidden')
+    //    .attr('d', 'M0,0L0,0');	
+	//	
     d3.select("#models").selectAll("p") // models tab
     .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
@@ -981,7 +982,79 @@ var circle = svg.append('svg:g').selectAll('g');
     // update graph (called when needed)
 	//restart();
 	//ROHIT BHATTACHARJEE RESTART FUNCTION
-	function restart() {
+	//end restart function
+    
+    //ROHIT BHATTACHARJEE MOUSE FUNCTIONS
+  // function mousedown(d) {
+  //     // prevent I-bar on drag
+  //     d3.event.preventDefault();
+  //     
+  //     // because :active only works in WebKit?
+  //     svg.classed('active', true);
+  //     
+  //     if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
+  //         return;
+  //     }
+  //     
+  //     restart();
+  // }
+  // 
+  // function mousemove(d) {
+  //     if(!mousedown_node) return;
+  //     
+  //     // update drag line
+  //     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+  // }
+  // 
+  // function mouseup(d) {
+  //     if(mousedown_node) {
+  //         // hide drag line
+  //         drag_line
+  //         .classed('hidden', true)
+  //         .style('marker-end', '');
+  //     }
+  //     // because :active only works in WebKit?
+  //     svg.classed('active', false);
+  // 
+  //     // clear mouse event vars
+  //     resetMouseVars();
+  // }
+    
+		
+
+    
+    // app starts here
+   
+    svg.attr('id', function(){
+             return "whitespace".concat(myspace);
+             })
+    .attr('height', height)
+    .on('mousedown', function() {
+           mousedown(this);
+           })
+    .on('mouseup', function() {
+        mouseup(this);
+        });
+    
+    d3.select(window)
+    .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
+        $('#transList').fadeOut(100);
+        $('#transSel').fadeOut(100);
+        });
+    
+    restart(); // this is the call the restart that initializes the force.layout()
+    fakeClick();
+} 		// end layout
+//nodes
+//console.log("nodes: "+nodes);
+
+ 
+		
+	
+	
+//Rohit BHATTACHARJEE circle
+//circle = svg.append('svg:g').selectAll('g');
+function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
 		//var force=forced3layout(nodes, links,  width,  height, tick);
@@ -1112,7 +1185,28 @@ var circle = svg.append('svg:g').selectAll('g');
 				console.log(allNodes[findNodeIndex(d.name)].time);
 				allNodes[findNodeIndex(d.name)].time="yes";
 				console.log(allNodes[findNodeIndex(d.name)].time);
-				console.log(allNodes);
+				//console.log(allNodes);
+				var jsonallnodes=JSON.stringify(allNodes);
+				console.log(jsonallnodes);
+				 $.ajax({
+						type: 'POST',
+						url: 'http://localhost:8888/new/new.json',
+						data: jsonallnodes,
+						async: true,
+						contentType: "application/json",
+						dataType: 'json',
+						success: AjaxSucceeded,
+						error: AjaxFailed
+
+					});
+					function AjaxSucceeded(result) {
+    alert("hello");
+    alert(result.d);
+}
+function AjaxFailed(result) {
+    alert("hello1");
+    alert(result.status + ' ' + result.statusText);
+}
 			}
 			else("dont tag it");
 			//Window.confirm("Do you want to tag this variable as a time variable?");
@@ -1497,45 +1591,41 @@ var circle = svg.append('svg:g').selectAll('g');
         // remove old nodes
         circle.exit().remove();
         force.start();
-    }//end restart function
-    
-    //ROHIT BHATTACHARJEE MOUSE FUNCTIONS
-  // function mousedown(d) {
-  //     // prevent I-bar on drag
-  //     d3.event.preventDefault();
-  //     
-  //     // because :active only works in WebKit?
-  //     svg.classed('active', true);
-  //     
-  //     if(d3.event.ctrlKey || mousedown_node || mousedown_link) {
-  //         return;
-  //     }
-  //     
-  //     restart();
-  // }
-  // 
-  // function mousemove(d) {
-  //     if(!mousedown_node) return;
-  //     
-  //     // update drag line
-  //     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-  // }
-  // 
-  // function mouseup(d) {
-  //     if(mousedown_node) {
-  //         // hide drag line
-  //         drag_line
-  //         .classed('hidden', true)
-  //         .style('marker-end', '');
-  //     }
-  //     // because :active only works in WebKit?
-  //     svg.classed('active', false);
-  // 
-  //     // clear mouse event vars
-  //     resetMouseVars();
-  // }
-    
-		
+    }
+//Rohit BHATTACHARJEE TICK
+ // update force layout (called automatically each iteration)
+        function tick() {
+            // draw directed edges with proper padding from node centers
+            path.attr('d', function(d) {
+                      var deltaX = d.target.x - d.source.x,
+                      deltaY = d.target.y - d.source.y,
+                      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+                      normX = deltaX / dist,
+                      normY = deltaY / dist,
+                      sourcePadding = d.left ? allR+5 : allR,
+                      targetPadding = d.right ? allR+5 : allR,
+                      sourceX = d.source.x + (sourcePadding * normX),
+                      sourceY = d.source.y + (sourcePadding * normY),
+                      targetX = d.target.x - (targetPadding * normX),
+                      targetY = d.target.y - (targetPadding * normY);
+                      return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+                      });
+            
+            //  if(forcetoggle){
+            circle.attr('transform', function(d) {
+                        return 'translate(' + d.x + ',' + d.y + ')';
+                        });
+            //  };
+            
+        }
+	//ROHIT BHATTACHARJEE RESTART
+	
+
+
+var drag_line = svg.append('svg:path')
+      .attr('class', 'link dragline hidden')
+       .attr('d', 'M0,0L0,0');
+
 function mousedown(d) {
         // prevent I-bar on drag
         d3.event.preventDefault();
@@ -1570,72 +1660,6 @@ function mousedown(d) {
         // clear mouse event vars
         resetMouseVars();
     }
-    
-    // app starts here
-   
-    svg.attr('id', function(){
-             return "whitespace".concat(myspace);
-             })
-    .attr('height', height)
-    .on('mousedown', function() {
-           mousedown(this);
-           })
-    .on('mouseup', function() {
-        mouseup(this);
-        });
-    
-    d3.select(window)
-    .on('click',function(){  //NOTE: all clicks will bubble here unless event.stopPropagation()
-        $('#transList').fadeOut(100);
-        $('#transSel').fadeOut(100);
-        });
-    
-    restart(); // this is the call the restart that initializes the force.layout()
-    fakeClick();
-} 		// end layout
-//nodes
-//console.log("nodes: "+nodes);
-
- 
-		
-	
-	
-//Rohit BHATTACHARJEE circle
-//circle = svg.append('svg:g').selectAll('g');
-
-//Rohit BHATTACHARJEE TICK
- // update force layout (called automatically each iteration)
-        function tick() {
-            // draw directed edges with proper padding from node centers
-            path.attr('d', function(d) {
-                      var deltaX = d.target.x - d.source.x,
-                      deltaY = d.target.y - d.source.y,
-                      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-                      normX = deltaX / dist,
-                      normY = deltaY / dist,
-                      sourcePadding = d.left ? allR+5 : allR,
-                      targetPadding = d.right ? allR+5 : allR,
-                      sourceX = d.source.x + (sourcePadding * normX),
-                      sourceY = d.source.y + (sourcePadding * normY),
-                      targetX = d.target.x - (targetPadding * normX),
-                      targetY = d.target.y - (targetPadding * normY);
-                      return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-                      });
-            
-            //  if(forcetoggle){
-            circle.attr('transform', function(d) {
-                        return 'translate(' + d.x + ',' + d.y + ')';
-                        });
-            //  };
-            
-        }
-	//ROHIT BHATTACHARJEE RESTART
-	
-
-
-
-
-
 
 
 
@@ -1723,7 +1747,7 @@ function mousedown(d) {
                 return varColor;
                }
                });
-			   shownodes();
+			   
         panelPlots();
         restart();
         });
