@@ -584,22 +584,32 @@ $(document).on('input', '#searchvar', function() {
     $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');   
 }).on('click', '.onX', function(){
     $(this).removeClass('x onX').val('').focus();
-	updatedata(valueKey,1);
+	updatedata(valueKey,0);
 });
 
 
   
    
-	var flag=0;
+	
 	var srchid=[];
 	var vkey=[];
 	$("#searchvar").on("keyup",function search(e) {
-    //if(e.keyCode == 13) {
+    //if(e.keyCode == 8 ) {
+		
+		
+	//}
+	var flag=0;
 		var k=0;
 		  vkey=[];
 		 srchid=[];
-		if($(this).val()=='')
+		 
+		 if($(this).val()===''){
 			srchid=[];
+			flag=0;
+			updatedata(valueKey,flag);
+			return;
+		}
+		
 		for(var i=0;i<allNodes.length;i++)
 		{
 			if((allNodes[i]["name"].indexOf($(this).val())!=-1))
@@ -653,7 +663,7 @@ $(document).on('input', '#searchvar', function() {
 		//console.log("vkey Length: "+vkey.length);
 		//console.log("valueKey length: "+valueKey.length);
         
-	updatedata(vkey,0);
+	updatedata(vkey,flag);
 	//}
 });
 
@@ -688,10 +698,10 @@ $(document).on('input', '#searchvar', function() {
 			  // else if(findNodeIndex(d)==srchid){return clr; }
 			   else {return hexToRgba(selVarColor);}
 			   }).style('border-style',function(d){
-				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==0){return borderstyle;}
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return borderstyle;}
 			   })
 			   .style('border-color',function(d){
-				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==0){return bordercol;}
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return bordercol;}
 			   })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
@@ -1149,7 +1159,7 @@ function restart() {
         
         // add arc tags
         // NOTE: this block of code has been commented out to remove the "cross section" and "time series" arc tags. These tags are functioning as intended, but they do not, at present, do anything to change the statistical model or variables. To avoid confusion when using TwoRavens, they have been dropped. To add them back in, simply uncomment the block below.
-        
+       /* 
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
