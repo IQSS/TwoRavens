@@ -498,8 +498,7 @@ function scaffolding(callback) {
 
 		// populating the variable list in the left panel
 		
-		d3.select("#tab1").selectAll("p")
-		//do something with this..
+		d3.select("#tab1").selectAll("p") 			//do something with this..
 		.data(valueKey)
 		.enter()
 		.append("p")
@@ -595,8 +594,9 @@ $(document).on('input', '#searchvar', function() {
 	var vkey=[];
 	$("#searchvar").on("keyup",function search(e) {
     //if(e.keyCode == 8 ) {
+		//d3.select("#tab1").selectAll("p")
 		
-		
+		$("#tab1").children().popover('hide');
 	//}
 	var flag=0;
 		var k=0;
@@ -716,7 +716,9 @@ $(document).on('input', '#searchvar', function() {
 	
 	fakeClick();
 	//restart();
+	$("#tab1").children().popover('hide');
 	populatePopover();
+	//$("#tab1").children().popover('toggle');
 	addlistener(nodes);
 
 	//callback=layout();
