@@ -24,7 +24,8 @@ subset.app <- function(env){
     
     if(!warning) {
         everything <- jsonlite::fromJSON(request$POST()$solaJSON)
-        print(everything)
+       # print("value of Everything")
+          print(everything)
     }
     
     print(class(everything$callHistory))
@@ -114,6 +115,8 @@ subset.app <- function(env){
             }
         }
     
+      #  print("rohit types")
+       # print(typeStuff)
         # send preprocess new usedata and receive url with location
         purl <- pCall(data=usedata, production, sessionid=mysessionid, types=typeStuff)
         

@@ -189,6 +189,8 @@ subsetData <- function(data, sub, varnames, plot){
     fdata<-data # not sure if this is necessary, but just to be sure that the subsetData function doesn't overwrite global mydata
     fdata$flag <- 0
     skip <- ""
+   # print("Value of fdata")
+   # print(fdata)
     for(i in 1:length(varnames)){
         t <-  sub[[i]]   # under rjson was: unlist(sub[i])
         p <- plot[i]
@@ -222,6 +224,8 @@ subsetData <- function(data, sub, varnames, plot){
         }
     }
     fdata$flag<-NULL
+    #print("Value of fdata now")
+    #print(fdata)
     return(fdata)
 }
 

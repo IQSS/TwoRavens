@@ -14,6 +14,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     
     if(!is.null(testdata)){
         mydata<-testdata
+       
     }else if(!is.null(filename)){
         mydata<-tryCatch(expr=read.delim(file=filename), error=function(e) NULL)
     }else{
@@ -21,10 +22,13 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
         mydata<-tryCatch(expr=read.delim(file=path), error=function(e) NULL)
         #mydata<-getDataverse(hostname=hostname, fileid=fileid) #could use this function if we set up a common set of utilities with the rook code.
     }
+   
     
     defaulttypes <- typeGuess(mydata)
+    
     # Note: types can be passed directly to preprocess, as would be the case if a TwoRavens user tagged a variable as "nominal"
     if(is.null(types)) { # no types have been passed, so simply copying the defaults into the type fields
+      
         types$numchar <- defaulttypes$defaultNumchar
         types$nature <- defaulttypes$defaultNature
         types$binary <- defaulttypes$defaultBinary
@@ -32,7 +36,8 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
         types$time <- defaulttypes$defaultTime
         types <- c(types, defaulttypes)
     }else{ # types have been passed, so filling in the default type fields and accounting for the possibility that the types that have been passed are ordered differently than the default types
-        for(i in 1:length(types$varnamesTypes)) {
+     
+      for(i in 1:length(types$varnamesTypes)) {
             t <- which(defaulttypes$varnamesTypes==types$varnamesTypes[i])
             types$defaultNumchar[i] <- defaulttypes$defaultNumchar[t]
             types$defaultNature[i] <- defaulttypes$defaultNature[t]
@@ -111,6 +116,7 @@ calcSumStats <- function(data, types) {
         
         v <- data[,i]
         nc <- types$numchar[which(types$varnamesTypes==out$varnamesSumStat[i])]
+        
         nat <- types$nature[which(types$varnamesTypes==out$varnamesSumStat[i])]
         
         # this drops the factor
@@ -172,8 +178,9 @@ calcSumStats <- function(data, types) {
 typeGuess <- function(data) {
     
     k <- ncol(data)
-    out<-list(varnamesTypes=colnames(data), defaultInterval=as.vector(rep(NA,length.out=k)), defaultNumchar=as.vector(rep(NA,length.out=k)), defaultNature=as.vector(rep(NA,length.out=k)), defaultBinary=as.vector(rep("no",length.out=k)), defaultTime=as.vector(rep("no",length.out=k)))
     
+    out<-list(varnamesTypes=colnames(data), defaultInterval=as.vector(rep(NA,length.out=k)), defaultNumchar=as.vector(rep(NA,length.out=k)), defaultNature=as.vector(rep(NA,length.out=k)), defaultBinary=as.vector(rep("no",length.out=k)), defaultTime=as.vector(rep("no",length.out=k)))
+  
     numchar.values <- c("numeric", "character")
     interval.values <- c("continuous", "discrete")
     nature.values <- c("nominal", "ordinal", "interval", "ratio", "percent", "other")

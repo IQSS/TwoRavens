@@ -99,6 +99,7 @@ source("rooktransform.R")
 source("rookzelig.R")
 source("rookutils.R")
 source("rookdata.R")
+source("rookwrite.R")
 if(addPrivacy){
     source("rookprivate.R")
 }
@@ -113,7 +114,9 @@ if(!production){
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
     R.server$add(app = data.app, name="dataapp")
-    ## These add the .apps for the privacy budget allocator interface
+    R.server$add(app = write.app, name="writeapp")
+    
+        ## These add the .apps for the privacy budget allocator interface
     if(addPrivacy){
         R.server$add(app = privateStatistics.app, name="privateStatisticsapp")
         R.server$add(app = privateAccuracies.app, name="privateAccuraciesapp")

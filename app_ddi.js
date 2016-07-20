@@ -158,6 +158,7 @@ var valueKey = [];
 var lablArray = [];
 var hold = [];
 var allNodes = [];
+var newallNodes=[];
 var allResults = [];
 var subsetNodes = [];
 var links = [];
@@ -245,7 +246,42 @@ if (dataurl) {
     //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
    // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
     //pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
-    pURL = "data/fearonLaitinPreprocess4.json";
+    purltest="data/newdataRohit/FearonLatin_Rohit.json"
+    //This is testing whether a newer json file exists or not. if yes, we will use that file, else use the default file
+   var test=UrlExists(purltest);
+   if(test==true)
+   	pURL = purltest;
+   else
+   	pURL = "data/fearonLaitinPreprocess4.json";
+   
+   console.log("yo value of test",test);
+   /*$.ajax({
+    url:purltest,
+    type:'HEAD',
+    error: function()
+    {
+    	console.log("error");
+    	pURL = "data/fearonLaitinPreprocess4.json";
+        //file not exists
+    },
+    success: function()
+    {
+    	console.log("success");
+    	pURL = purltest;
+        //file exists
+    }
+	});*/
+		function UrlExists(url)
+		{
+		    var http = new XMLHttpRequest();
+		    http.open('HEAD', url, false);
+		    http.send();
+		    return http.status!=404;
+		}
+    //pURL = "data/fearonLaitinPreprocess4.json";
+	
+    console.log(purltest);
+    console.log(pURL);	
 	//pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
     //pURL = "data/FL_insurance_sample.tab.json";
 
@@ -316,7 +352,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
 					 
                       };
-						//console.log("YO!!!!!!",allNodes[findNodeIndex("ccode")]);
+						console.log("YO!!!!!!",allNodes[findNodeIndex("year")].strokeWidth);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -1063,6 +1099,10 @@ var force;
  
 		
 	
+        $(document).ready(function(){
+
+        		$("#btnSave").hide();
+        });
 	
 //Rohit BHATTACHARJEE circle
 //circle = svg.append('svg:g').selectAll('g');
@@ -1161,7 +1201,7 @@ function restart() {
         
         // add arc tags
         // NOTE: this block of code has been commented out to remove the "cross section" and "time series" arc tags. These tags are functioning as intended, but they do not, at present, do anything to change the statistical model or variables. To avoid confusion when using TwoRavens, they have been dropped. To add them back in, simply uncomment the block below.
-       /* 
+       
         g.append("path")
         .attr("d", arc1)
         .attr("id", function(d){
@@ -1188,41 +1228,65 @@ function restart() {
             .delay(100)
             .duration(500);
             })
-        .on('click', function(d){
+        .on('click', function(d){ //this event changes the all nodes time value
+        	//console.log("Alllnodes before:",allNodes[findNodeIndex(d.name)].strokeWidth);
             setColors(d, timeColor);
+            //console.log("Alllnodes after:",allNodes[findNodeIndex(d.name)].strokeWidth);
             legend(timeColor);
+			if(allNodes[findNodeIndex(d.name)].time==="no"){
 			if(confirm("Do you want to tag this variable as a time variable?")==true)
 			{
+				newallNodes=allNodes;
+
 				console.log(d.name);
 				console.log(allNodes[findNodeIndex(d.name)].time);
+				//if(allNodes[findNodeIndex(d.name)].time==="no")
 				allNodes[findNodeIndex(d.name)].time="yes";
+				
+				
 				console.log(allNodes[findNodeIndex(d.name)].time);
+				console.log(newallNodes[findNodeIndex(d.name)].time);
+				
 				//console.log(allNodes);
-				var jsonallnodes=JSON.stringify(allNodes);
-				console.log(jsonallnodes);
-				 $.ajax({
-						type: 'POST',
-						url: 'http://localhost:8888/new/new.json',
-						data: jsonallnodes,
-						async: true,
-						contentType: "application/json",
-						dataType: 'json',
-						success: AjaxSucceeded,
-						error: AjaxFailed
-
-					});
-					function AjaxSucceeded(result) {
-    alert("hello");
-    alert(result.d);
-}
-function AjaxFailed(result) {
-    alert("hello1");
-    alert(result.status + ' ' + result.statusText);
-}
+				if(allNodes===newallNodes){
+					console.log("true");
+					$("#btnSave").show();
+				}
+				else
+					console.log("False");
+			
 			}
 			else("dont tag it");
+		}
+			else{
+
+					if(confirm("This Variable is tagged as a time variable. Do you want to untag it?")==true)
+			{
+				newallNodes=allNodes;
+
+				console.log(d.name);
+				console.log(allNodes[findNodeIndex(d.name)].time);
+				
+				allNodes[findNodeIndex(d.name)].time="no";
+				
+				console.log(allNodes[findNodeIndex(d.name)].time);
+				console.log(newallNodes[findNodeIndex(d.name)].time);
+				
+				//console.log(allNodes);
+				if(allNodes===newallNodes){
+					console.log("true");
+					$("#btnSave").show();
+				}
+				else
+					console.log("False");
+			
+			}
+			else("dont tag it");
+
+			}
 			//Window.confirm("Do you want to tag this variable as a time variable?");
             restart();
+            //console.log("Alllnodes after restart:",allNodes[findNodeIndex(d.name)].strokeWidth);
             });
         g.append("text")
         .attr("id", function(d){
@@ -1630,9 +1694,62 @@ function AjaxFailed(result) {
             //  };
             
         }
-	//ROHIT BHATTACHARJEE RESTART
 	
 
+	//ROHIT BHATTACHARJEE Write to JSON Function, to write new metadata file after the user has tagged a variable as a time variable
+	function writetojson(btn){
+		
+		//var jsonallnodes=JSON.stringify(allNodes);
+				
+    var outtypes = [];
+    for(var j=0; j < allNodes.length; j++) {
+        outtypes.push({varnamesTypes:allNodes[j].name, nature:allNodes[j].nature, numchar:allNodes[j].numchar, binary:allNodes[j].binary, interval:allNodes[j].interval,time:allNodes[j].time});
+    }
+
+    console.log("Outtypes:"+outtypes);
+		writeout={outtypes:outtypes}
+				writeoutjson=JSON.stringify(writeout);
+				//console.log(jsonallnodes);
+				urlcall = rappURL+"writeapp"; 
+
+				//base.concat(jsonout);
+    	function cleanstring(s) {
+                        s=s.replace(/\&/g, "and");
+                        s=s.replace(/\;/g, ",");
+                        s=s.replace(/\%/g, "-");
+                        return s;
+                      }
+                      var properjson=cleanstring(writeoutjson);
+
+    var solajsonout = "solaJSON="+properjson;
+//console.log(properjson);
+
+function writesuccess(btn,json){
+
+	selectLadda.stop();
+	// $("#btnVariables").trigger("click"); // programmatic clicks
+      //  $("#btnModels").trigger("click");
+      $('#btnSave').hide();
+
+
+
+
+}
+
+function writefail(btn)
+{
+	selectLadda.stop();
+
+}
+
+selectLadda.start();
+
+console.log("inside write json length:"+solajsonout.length);
+makeCorsRequest(urlcall, btn, writesuccess, writefail, solajsonout);
+
+
+}
+//end of write to json
 
 var drag_line = svg.append('svg:path')
       .attr('class', 'link dragline hidden')
@@ -1712,23 +1829,43 @@ function mousedown(d) {
 										//Remove the tooltip
 											//d3.select("#tooltip").style("display", "none");
         })
+
+        
     .on("click", function varClick(){
         if(allNodes[findNodeIndex(this.id)].grayout) {return null;}
-	
+		//console.log("value of the selected node",allNodes[findNodeIndex(this.name)].strokeWidth);
+		 if(allNodes[findNodeIndex(this.id)].time==="yes")
+				{console.log("Rohit inside iffff");
+			//this.strokeWidth='1';
+			setColors(allNodes[findNodeIndex(this.id)], timeColor);
+			//restart();	
+		}
+
         d3.select(this)
         .style('background-color',function(d) {
                var myText = d3.select(this).text();
                var myColor = d3.select(this).style('background-color');
                var mySC = allNodes[findNodeIndex(myText)].strokeColor;
+               //if(allNodes[findNodeIndex(this.id)].time==="yes"){
+               
+
+               	console.log("inside SC wala if");
+               //	SC=timeColor;
                
                zparams.zvars = []; //empty the zvars array
-               if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
+               if(d3.rgb(myColor).toString() === varColor.toString()) {	// we are adding a var
+               
                 if(nodes.length==0) {
                     nodes.push(findNode(myText));
                     nodes[0].reflexive=true;
                 }
+                
                 else {nodes.push(findNode(myText));}
+                	
+
+
                 return hexToRgba(selVarColor);
+
                }
                else { // dropping a variable
             
@@ -1745,7 +1882,9 @@ function mousedown(d) {
                     if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
                 }
                 else if(mySC==timeColor) {
+                	console.log("entering some if");
                     var timeIndex = zparams.ztime.indexOf(myText);
+                    console.log("Timeindex=",timeIndex);
                     if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
                 }
                else if(mySC==nomColor) {
@@ -1753,7 +1892,7 @@ function mousedown(d) {
                     if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
                }
 
-                nodeReset(allNodes[findNodeIndex(myText)]);
+               // nodeReset(allNodes[findNodeIndex(myText)]);
                 borderState();
                legend();
                 return varColor;
@@ -2423,7 +2562,10 @@ function createCORSRequest(method, url, callback) {
         // CORS not supported.
         xhr = null;
     }
-//    xhr.setRequestHeader('Content-Type', 'text/plain');
+  // xhr.setRequestHeader('Content-Type', 'text/json');
+//xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+    
+
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     return xhr;
     
@@ -2433,11 +2575,7 @@ function createCORSRequest(method, url, callback) {
 // Make the actual CORS request.
 function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     var xhr = createCORSRequest('POST', url);
-	 //if (isLocalHost()){
-    //if (typeof(netscape) != 'undefined' && typeof(netscape.security) != 'undefined'){
-     // netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
-    //}
-	//}
+	console.log("inside cors json size:"+jsonstring.length);
     if (!xhr) {
         alert('CORS not supported');
         return;
@@ -2448,7 +2586,7 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     xhr.onload = function() {
         
       var text = xhr.responseText;
-      //console.log("text ", xhr.status);
+      //console.log("text ", text);
         
         try {
             var json = JSON.parse(text);   // should wrap in try / catch
@@ -2927,8 +3065,16 @@ function hexToRgba(hex) {
 
 // function takes a node and a color and updates zparams
 function setColors (n, c) {
-    
+    console.log("inside setColor: n=",n);
+   if(c==timeColor){
+
+
+   	console.log("setcolor called");}
+
+    console.log("strokewidth:",n.strokeWidth);
+
     if(n.strokeWidth=='1') { // adding time, cs, dv, nom to a node with no stroke
+    	console.log("inside strokewidth if");
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
@@ -2943,6 +3089,9 @@ function setColors (n, c) {
             zparams.zcross.push(n.name);
         }
         else if(timeColor==c) {
+        	console.log("insode ztime if");
+        	console.log("name zparam=	",n.name);
+        	console.log("zparams time array",zparams.time);
             zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
             zparams.ztime.push(n.name);
         }
@@ -3019,6 +3168,8 @@ function setColors (n, c) {
             }
         }
     }
+    console.log("Zparams after setcolors:",zparams);
+     
 }
 
 
@@ -3173,14 +3324,21 @@ function subsetSelect(btn) {
         d3.json(json.url, function(error, json) {
                 if (error) return console.warn(error);
                 var jsondata = json;
-                
+                console.log(jsondata);
                 for(var key in jsondata) {
                     var myIndex = findNodeIndex(key);
-                
+                	//console.log("Key Value:"+key);
+                	//console.log("My index:"+myIndex);
+                	//console.log("Node Index"+findNodeIndex(key));
                     allNodes[myIndex].plotx=undefined;
                     allNodes[myIndex].ploty=undefined;
                     allNodes[myIndex].plotvalues=undefined;
                     allNodes[myIndex].plottype="";
+                    //allNodes[myIndex].plotx=null;
+                    //allNodes[myIndex].ploty=null;
+                    //allNodes[myIndex].plotvalues=null;
+                    //allNodes[myIndex].plottype="";
+
 
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
                 
@@ -3216,6 +3374,7 @@ function subsetSelect(btn) {
 
 function readPreprocess(url, p, v, callback) {
     //console.log(url);
+    console.log("purl:",url);
     d3.json(url, function(error, json) {
             if (error) return console.warn(error);
             var jsondata = json;
