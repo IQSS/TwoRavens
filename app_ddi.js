@@ -347,6 +347,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var obj1 = {id:i, reflexive: false, "name": valueKey[i], "labl": lablArray[i], data: [5,15,20,0,5,15,20], count: hold, "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false};
                       
                       jQuery.extend(true, obj1, preprocess[valueKey[i]]);
+                      allNodesColors(obj1);
                       
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
                       allNodes.push(obj1);
@@ -545,8 +546,9 @@ function scaffolding(callback) {
 		.text(function(d){return d;})
 		.style('background-color',function(d) {
 			   if(findNodeIndex(d) > 2) {return varColor;}
-			   else {return hexToRgba(selVarColor);}
-			   })
+			   else {
+                return hexToRgba(allNodes[findNodeIndex(d)].strokeColor);}
+               })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
     .attr("data-trigger", "hover")
@@ -3216,6 +3218,15 @@ function tagColors (n, c) {
     }
     else {
         baseSet(n,c);
+    }
+}
+
+function allNodesColors(n) {
+    if(n.nature=="nominal") {
+        n.strokeColor=nomColor;
+    }
+    if(n.time=="yes") {
+        n.strokeColor=timeColor;
     }
 }
 
