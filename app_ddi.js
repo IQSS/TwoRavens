@@ -353,6 +353,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
 					 
                       };
 						console.log("YO!!!!!!",allNodes[findNodeIndex("year")].strokeWidth);
+                      console.log("allNodes: ", allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -1833,13 +1834,6 @@ function mousedown(d) {
         
     .on("click", function varClick(){
         if(allNodes[findNodeIndex(this.id)].grayout) {return null;}
-		//console.log("value of the selected node",allNodes[findNodeIndex(this.name)].strokeWidth);
-		 if(allNodes[findNodeIndex(this.id)].time==="yes")
-				{console.log("Rohit inside iffff");
-			//this.strokeWidth='1';
-			setColors(allNodes[findNodeIndex(this.id)], timeColor);
-			//restart();	
-		}
 
         d3.select(this)
         .style('background-color',function(d) {
@@ -1847,7 +1841,7 @@ function mousedown(d) {
                var myColor = d3.select(this).style('background-color');
                var mySC = allNodes[findNodeIndex(myText)].strokeColor;
                //if(allNodes[findNodeIndex(this.id)].time==="yes"){
-               
+               var myNode = allNodes[findNodeIndex(this.id)];
 
                	console.log("inside SC wala if");
                //	SC=timeColor;
@@ -1862,9 +1856,14 @@ function mousedown(d) {
                 
                 else {nodes.push(findNode(myText));}
                 	
-
-
-                return hexToRgba(selVarColor);
+               if(myNode.time==="yes") {
+                    console.log("Rohit inside iffff");
+                    //this.strokeWidth='1';
+                    baseColors(myNode, timeColor);
+                    return hexToRgba(timeColor);}
+               else {
+                    return hexToRgba(selVarColor);
+               }
 
                }
                else { // dropping a variable
@@ -3172,6 +3171,31 @@ function setColors (n, c) {
      
 }
 
+//function baseColors is called when a variable is added to the modeling space AND that variable contains a 'tag-able' property that will change the appears of the pebble--examples include 'time', 'nominal', and 'dv'
+function baseColors (n, c) {
+        n.strokeWidth = '4';
+        n.strokeColor = c;
+        n.nodeCol = taggedColor;
+        fakeClick();
+        if(dvColor==c) {
+            // check if array, if not, make it an array
+            //  console.log(Object.prototype.toString.call(zparams.zdv));
+            zparams.zdv = Object.prototype.toString.call(zparams.zdv) == "[object Array]" ? zparams.zdv : [];
+            zparams.zdv.push(n.name);
+        }
+        else if(csColor==c) {
+            zparams.zcross = Object.prototype.toString.call(zparams.zcross) == "[object Array]" ? zparams.zcross : [];
+            zparams.zcross.push(n.name);
+        }
+        else if(timeColor==c) {
+            zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
+            zparams.ztime.push(n.name);
+        }
+        else if(nomColor==c) {
+            zparams.znom = Object.prototype.toString.call(zparams.znom) == "[object Array]" ? zparams.znom : [];
+            zparams.znom.push(n.name);
+        }
+}
 
 function borderState () {
     if(zparams.zdv.length>0) {$('#dvButton .rectColor svg circle').attr('stroke', dvColor);}
