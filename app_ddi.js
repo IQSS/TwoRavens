@@ -3221,6 +3221,7 @@ function tagColors (n, c) {
     }
 }
 
+// function that takes a node and rewrites strokeColor to match the property
 function allNodesColors(n) {
     if(n.nature=="nominal") {
         n.strokeColor=nomColor;
