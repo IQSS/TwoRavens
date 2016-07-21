@@ -825,6 +825,7 @@ var force;
             alert("There are zero variables in the metadata.");
             return;
         }
+        tagColors(nodes, false);
     }
     
     panelPlots(); // after nodes is populated, add subset and setx panels
@@ -1857,10 +1858,13 @@ function mousedown(d) {
                 else {nodes.push(findNode(myText));}
                 	
                if(myNode.time==="yes") {
-                    console.log("Rohit inside iffff");
-                    //this.strokeWidth='1';
-                    baseColors(myNode, timeColor);
-                    return hexToRgba(timeColor);}
+                    tagColors(myNode, timeColor);
+                    return hexToRgba(timeColor);
+               }
+               else if(myNode.nature==="nominal") {
+                    tagColors(myNode, nomColor);
+                    return hexToRgba(nomColor);
+               }
                else {
                     return hexToRgba(selVarColor);
                }
@@ -3171,8 +3175,10 @@ function setColors (n, c) {
      
 }
 
-//function baseColors is called when a variable is added to the modeling space AND that variable contains a 'tag-able' property that will change the appears of the pebble--examples include 'time', 'nominal', and 'dv'
-function baseColors (n, c) {
+//function tagColors is called when a variable is added to the modeling space AND that variable contains a 'tag-able' property that will change the appears of the pebble--examples include 'time', 'nominal', and 'dv'. Set c to false if passing more than one node in n, as would be done  through scaffolding when initially called.
+function tagColors (n, c) {
+    
+    function baseSet(n, c) {
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
@@ -3195,6 +3201,22 @@ function baseColors (n, c) {
             zparams.znom = Object.prototype.toString.call(zparams.znom) == "[object Array]" ? zparams.znom : [];
             zparams.znom.push(n.name);
         }
+    }
+    
+    if(c===false) {
+        for (i = 0; i < n.length; i++) {
+            myNode = n[i];
+            if(myNode.time==="yes") {
+                baseSet(myNode, timeColor);
+            }
+            else if(myNode.nature==="nominal") {
+                baseSet(myNode, nomColor);
+            }
+        }
+    }
+    else {
+        baseSet(n,c);
+    }
 }
 
 function borderState () {
