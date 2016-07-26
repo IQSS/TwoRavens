@@ -1421,7 +1421,31 @@ function restart() {
             })
         .on('click', function(d){
             if(d.defaultNumchar=="character") {return;}
-            setColors(d, nomColor);
+            else if(d.defaultNumchar=="numeric" && d.nature!="nominal"){
+            	if(confirm("Do you want to tag this variable as a nominal?")==true)
+            	{
+            		setColors(d, nomColor);
+            		allNodes[findNodeIndex(d.name)].nature="nominal";
+            		$("#btnSave").show();
+
+
+            	}
+            	else("dont tag it");
+
+            }
+        	else if(d.defaultNumchar=="numeric" && d.nature=="nominal"){
+				if(confirm("This variable is tagged as a nominal variable. Do you want to untag it?")==true)
+            	{
+            		setColors(d, nomColor);
+            		allNodes[findNodeIndex(d.name)].nature="ordinal";
+            		$("#btnSave").show();
+
+
+            	}
+            	else("dont tag it")
+
+        	}
+            
             legend(nomColor);
             restart();
             });
