@@ -20,7 +20,7 @@ if(production) {
 }
 
 if(!production){
-    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr")
+    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr","XML")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
