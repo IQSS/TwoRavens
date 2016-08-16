@@ -6,9 +6,10 @@
 
 library(rjson)
 library(DescTools)
+library(XML)
 
 
-preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, filename=NULL){
+preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, filename=NULL,metadataurl=NULL){
     
     histlimit<-13
     
@@ -79,9 +80,34 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     }
     names(hold)<-varnames
     
-    datasetLevelInfo<-list(private=FALSE)    # This signifies that that the metadata summaries are not privacy protecting
+    xmlfile="../data/fearonLaitin.xml"
     
-    ## Construct Metadata file that at highest level has list of dataset-level, and variable-level information
+    #if(file.exists(xmlfile)){
+     if(!is.null(metadataurl)){ 
+      data <- xmlParse(metadataurl)
+      mydata=xmlToList(data)
+      myjsondata=rjson::toJSON(mydata)
+      #write(myjsondata,file="C:/Users/rohit/Personal/R/test.json")
+      testdata=rjson::fromJSON(myjsondata)
+      data1=testdata$stdyDscr
+      data2=testdata$fileDscr
+      
+      dataseinf=list(stdyDscr=data1,fileDscr=data2)
+      datasetLevelInfo<-list(private=FALSE,stdyDscr=data1,fileDscr=data2)
+
+      
+      jsontest<-rjson:::toJSON(datasetLevelInfo)
+    #  write(jsontest,file="test.json")  
+      
+    }
+    
+    else{
+    datasetLevelInfo<-list(private=FALSE,stdyDscr=list(citation=list(titlStmt=list(titl="",IDNo=list("-agency"="","#text"="")),rspStmt=list(Authentry=""),biblcit="")),fileDscr=list("-ID"="",fileTxt=list(fileName="",dimensns=list(caseQnty="",varQnty=""),fileType=""),notes=list("-level"="","-type"="","-subject"="","#text"="")))    # This signifies that that the metadata summaries are not privacy protecting
+    }
+    #datasetitationinfo
+    #jsontest<-rjson:::toJSON(datasetLevelInfo)
+   # write(jsontest,file="test.json")
+      ## Construct Metadata file that at highest level has list of dataset-level, and variable-level information
     largehold<- list(dataset=datasetLevelInfo, variables=hold)
     
     jsonHold<-rjson:::toJSON(largehold)
