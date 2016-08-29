@@ -127,7 +127,7 @@ write.app <- function(env){
         #}
       #}
       
-      #  print("rohit types")
+        print("rohit types")
       # print(typeStuff)
       # send preprocess new usedata and receive url with location
       purl <- pCallwrite(data=mydata, production, sessionid=mysessionid, types=typeStuff)
@@ -141,7 +141,7 @@ write.app <- function(env){
       assign("result", result, envir=globalenv())
     })
   
-#  print("109")
+ print("109")
   print(result)
   if(production){
     sink()
@@ -167,7 +167,7 @@ write.app <- function(env){
   #print("112")
 
   #result<-jsonlite:::toJSON(result)
-  print("Wrote to File");
+  #print("Wrote to File");
   #print(result);
   response$write(result)
   response$finish()
@@ -176,26 +176,22 @@ write.app <- function(env){
 
 
 pCallwrite <- function(data,production,sessionid,types) {
- # print("114")
+  print("114")
   
+  config=jsonlite::fromJSON("config.json")
+  print("115")
   mainDir<-"../data"
-  subDir<-"newdataRohit"
-  
-  #create a new directory for the particular user if it doesnt exist
-  if(!dir.exists(file.path(mainDir, subDir)))
-  { 
-    
-    dir.create(file.path(mainDir, subDir))
-    
-    
-    }
-  
-  
+  print("116")
+  subDir<-config$user
+  print("117")
+  dataname<-config$data
+  print("118")
+
   pjson<-preprocess(testdata=data,types=types)
-  #print("115")
- # print("new preprocess metadata: ")
-  #print("116")
-  #print(pjson)
+  print("119")
+  print("new preprocess metadata: ")
+  print("120")
+ # print(pjson)
   
   
   print("directory name:")
@@ -205,8 +201,11 @@ pCallwrite <- function(data,production,sessionid,types) {
     write(pjson,file=subsetfile)
     url <- paste("https://beta.dataverse.org/custom/preprocess_dir/preprocessSubset_",sessionid,".txt",sep="")
   }else{
-    url <- paste("data/",subDir,"/FearonLatin_Rohit",".json",sep="")
+    url <- paste("users/",subDir,"/",dataname,"preprocess.json",sep="")
+    print("url")
+    print(url)
     write(pjson,file=paste("../",url, sep=""))
+    print("write done")
   }
   return(url)
 }
