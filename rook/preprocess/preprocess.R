@@ -9,9 +9,13 @@ library(DescTools)
 library(XML)
 
 
-preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, filename=NULL,metadataurl=NULL){
+preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, filename=NULL){
     
-    histlimit<-13
+  config=jsonlite::fromJSON("config.json")  
+  metadataurl=config$metadata
+  
+  
+  histlimit<-13
     
     if(!is.null(testdata)){
         mydata<-testdata
@@ -56,7 +60,23 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     varnames<-names(mydata)
     hold<-list()
     count<-0
+    metadataflag<-0
+
     
+    if(!is.null(metadataurl) && metadataurl!="")
+    {
+      metadataflag=1
+
+      data <- xmlParse(metadataurl)
+      mydt=xmlToList(data)
+      myjsondt=rjson::toJSON(mydt)
+      testdt=rjson::fromJSON(myjsondt)
+      StudyDesc=testdt$stdyDscr
+      FileDesc=testdt$fileDscr
+      vars=testdt$dataDscr
+     
+      
+    }
     
     for(i in 1:k){
         nat <- types$nature[which(types$varnamesTypes==varnames[i])]
@@ -76,24 +96,25 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
             output<- table(mydata[,i])
             hold[[i]]<- list(plottype="bar", plotvalues=output)
         }
-        hold[[i]] <- c(hold[[i]],lapply(mySumStats, `[[`,which(mySumStats$varnamesSumStat==varnames[i])),lapply(types, `[[`,which(types$varnamesTypes==varnames[i])))
+        
+        if(metadataflag==1)
+        lablname=vars[i]$var$labl$text
+        else
+          lablname=""
+        
+        hold[[i]] <- c(hold[[i]],labl=lablname,lapply(mySumStats, `[[`,which(mySumStats$varnamesSumStat==varnames[i])),lapply(types, `[[`,which(types$varnamesTypes==varnames[i])))
     }
     names(hold)<-varnames
     
-    xmlfile="../data/fearonLaitin.xml"
+    
     
     #if(file.exists(xmlfile)){
-     if(!is.null(metadataurl)){ 
-      data <- xmlParse(metadataurl)
-      mydata=xmlToList(data)
-      myjsondata=rjson::toJSON(mydata)
-      #write(myjsondata,file="C:/Users/rohit/Personal/R/test.json")
-      testdata=rjson::fromJSON(myjsondata)
-      data1=testdata$stdyDscr
-      data2=testdata$fileDscr
-      
-      dataseinf=list(stdyDscr=data1,fileDscr=data2)
-      datasetLevelInfo<-list(private=FALSE,stdyDscr=data1,fileDscr=data2)
+    #if metadata file URL is given, the metadata flag is 1, and we take dataset info values from the xml meta data file supplied by dataverse.
+    #else, we initialise the keys with blank values.
+    
+    if(metadataflag==1){ 
+     dataseinf=list(stdyDscr=StudyDesc,fileDscr=FileDesc)
+      datasetLevelInfo<-list(private=FALSE,stdyDscr=StudyDesc,fileDscr=FileDesc)
 
       
       jsontest<-rjson:::toJSON(datasetLevelInfo)
@@ -102,11 +123,11 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     }
     
     else{
-    datasetLevelInfo<-list(private=FALSE,stdyDscr=list(citation=list(titlStmt=list(titl="",IDNo=list("-agency"="","#text"="")),rspStmt=list(Authentry=""),biblcit="")),fileDscr=list("-ID"="",fileTxt=list(fileName="",dimensns=list(caseQnty="",varQnty=""),fileType=""),notes=list("-level"="","-type"="","-subject"="","#text"="")))    # This signifies that that the metadata summaries are not privacy protecting
+    datasetLevelInfo<-list(private=FALSE,stdyDscr=list(citation=list(titlStmt=list(titl="",IDNo=list("-agency"="","#text"="")),rspStmt=list(Authentry=""),biblcit="No Data Citation Provided")),fileDscr=list("-ID"="",fileTxt=list(fileName="",dimensns=list(caseQnty="",varQnty=""),fileType=""),notes=list("-level"="","-type"="","-subject"="","#text"="")))    # This signifies that that the metadata summaries are not privacy protecting
     }
     #datasetitationinfo
-    #jsontest<-rjson:::toJSON(datasetLevelInfo)
-   # write(jsontest,file="test.json")
+    jsontest<-rjson:::toJSON(datasetLevelInfo)
+    write(jsontest,file="test.json")
       ## Construct Metadata file that at highest level has list of dataset-level, and variable-level information
     largehold<- list(dataset=datasetLevelInfo, variables=hold)
     
