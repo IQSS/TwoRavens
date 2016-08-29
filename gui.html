@@ -299,14 +299,26 @@
       dataurl=dataurl.substring(0,cindex);
     };
   };
-  
+
+  var username="";
+  if (myurl.indexOf("username=") > 0) {
+    username=myurl.substring(myurl.indexOf("dataurl=")+8);
+    username=username.replace(/%25/g,"%");
+    username=username.replace(/%3A/g,":");
+    username=username.replace(/%2F/g,"/");
+    username=username.indexOf("&");
+    if (cindex > 0) {
+      username=username.substring(0,cindex);
+    };
+  }
+  else{username="rohit";}
 
   console.log("fileid: "+fileid);
   console.log("hostname: "+hostname);
   console.log("apikey: "+apikey);
   console.log("ddiurl: "+ddiurl);
   console.log("dataurl: "+dataurl);
-  
+  console.log("Username:"+username);
 </script>
 <script src="app_ddi.js"></script>
 
