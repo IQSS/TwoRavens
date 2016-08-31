@@ -3396,11 +3396,11 @@ function subsetSelect(btn) {
     urlcall = rappURL+"subsetapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON="+jsonout;
     //console.log("urlcall out: ", urlcall);
-    //console.log("POST out: ", solajsonout);
+    console.log("POST out: ", solajsonout);
     
 
     function subsetSelectSuccess(btn,json) {
-        
+        console.log(json);
         selectLadda.stop(); // stop motion
         $("#btnVariables").trigger("click"); // programmatic clicks
         $("#btnModels").trigger("click");
@@ -3481,7 +3481,7 @@ function subsetSelect(btn) {
                 var jsondata = json;
                 var vars=jsondata["variables"];
                // console.log("jsondata yo");
-               // console.log(jsondata);
+                console.log(jsondata);
                 for(var key in jsondata["variables"]) {
                 
                     var myIndex = findNodeIndex(key);
@@ -3497,9 +3497,7 @@ function subsetSelect(btn) {
                     //allNodes[myIndex].plotvalues=null;
                     //allNodes[myIndex].plottype="";
 
-
-                    jQuery.extend(true, allNodes[myIndex], jsondata[key]);
-                
+                    jQuery.extend(true, allNodes[myIndex], jsondata.variables[key]);
                     allNodes[myIndex].subsetplot=false;
                     allNodes[myIndex].subsetrange=["",""];
                     allNodes[myIndex].setxplot=false;

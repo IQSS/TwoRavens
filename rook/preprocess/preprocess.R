@@ -66,7 +66,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     if(!is.null(metadataurl) && metadataurl!="")
     {
       metadataflag=1
-
+      metadataurl<-sub("~/TwoRavens","..",metadataurl) # note this may not work like this in production
       data <- xmlParse(metadataurl)
       mydt=xmlToList(data)
       myjsondt=rjson::toJSON(mydt)
@@ -74,8 +74,6 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
       StudyDesc=testdt$stdyDscr
       FileDesc=testdt$fileDscr
       vars=testdt$dataDscr
-     
-      
     }
     
     for(i in 1:k){
