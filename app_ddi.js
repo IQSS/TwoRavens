@@ -282,8 +282,8 @@ if (dataurl) {
 		}
     //pURL = "data/fearonLaitinPreprocess4.json";
 	
-    console.log(purltest);
-    console.log(pURL);	
+    //console.log(purltest);
+   // console.log(pURL);	
 	//pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
     //pURL = "data/FL_insurance_sample.tab.json";
 
@@ -352,7 +352,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                      // var cite = xml.documentElement.getElementsByTagName("biblCit");
                       var cite=findValue(jsondata,"biblCit");
                       zparams.zdatacite=cite;//[0].childNodes[0].nodeValue;
-                      console.log("value of zdatacite: ",zparams.zdatacite);
+                     // console.log("value of zdatacite: ",zparams.zdatacite);
                       if(zparams.zdatacite!== undefined){
                         zparams.zdatacite=cleanstring(zparams.zdatacite);
                       }
@@ -418,8 +418,8 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       allNodes.push(obj1);
 					 
                       };
-						//console.log("YO!!!!!!",allNodes[findNodeIndex("year")].strokeWidth);
-                      console.log("allNodes: ", allNodes);
+						
+                      //console.log("allNodes: ", allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
                       d3.json("data/zelig5models.json", function(error, json) {
                               if (error) return console.warn(error);
@@ -737,9 +737,7 @@ $(document).on('input', '#searchvar', function() {
 		lngth=srchid.length;
 	if(k==0){
 			vkey=valueKey;
-			//srchid=[];
-			//alert("Variable Not Found!");
-			//return;
+			
 	}
 	else{
 			
@@ -752,8 +750,6 @@ $(document).on('input', '#searchvar', function() {
 					vkey[i]=valueKey[srchid[i]];
 				
 				}
-				//console.log("value of i= " + i);
-				//console.log("vkey before  " + vkey);
 				
 				for(var j=0;j<valueKey.length;j++){
 					
@@ -765,17 +761,16 @@ $(document).on('input', '#searchvar', function() {
 				}
 				}
 				
-		//console.log("vkey Length: "+vkey.length);
-		//console.log("valueKey length: "+valueKey.length);
+		
         
 	updatedata(vkey,flag);
-	//}
+
 });
 
 	function updatedata(value,flag)
 	{
 	var clr='#000000' ;
-	//console.log("updatedata() called");
+	
 	var nodename=[];
 	var bordercol='#000000';
 	var borderstyle='solid';
@@ -783,7 +778,7 @@ $(document).on('input', '#searchvar', function() {
 	{
 		nodename[i]=nodes[i].name;
 	}
-	//console.log("Name of Nodes: "+nodename);
+	
 	d3.select("#tab1").selectAll("p").data(valueKey).remove();
 	
 	
@@ -799,8 +794,7 @@ $(document).on('input', '#searchvar', function() {
 		.text(function(d){return d;})
 		.style('background-color',function(d) {
 			  if($.inArray(findNode(d).name,nodename)==-1) {return varColor;}
-			  // if(findNodeIndex(d) > 2) {return varColor;}
-			  // else if(findNodeIndex(d)==srchid){return clr; }
+			
 			   else {return hexToRgba(selVarColor);}
 			   }).style('border-style',function(d){
 				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return borderstyle;}
@@ -816,20 +810,18 @@ $(document).on('input', '#searchvar', function() {
     .attr("onmouseover", "$(this).popover('toggle');")
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
-	//
-	//console.log("d3 enter called");
+	
 	
 	fakeClick();
-	//restart();
+	
 	$("#tab1").children().popover('hide');
 	populatePopover();
-	//$("#tab1").children().popover('toggle');
+	
 	addlistener(nodes);
 
-	//callback=layout();
-	//console.log("d3 exit called");
+	
 	}
-	//Rohit Bhattacharjee
+	
 
 var circle = svg.append('svg:g').selectAll('g');
  var path = svg.append('svg:g').selectAll('path');
@@ -849,15 +841,13 @@ var force;
 	function layout(v) {
 	
 	
-	//console.log("Layout Called");
-    var myValues=[];
+	    var myValues=[];
     nodes = [];
     links = [];
     
     if(v === "add" | v === "move") {
       d3.select("#tab1").selectAll("p").style('background-color',varColor);
-      //console.log("inside if: ")
-     // console.log("value of zparams.zvars",zparams.zvars);
+      
         for(var j =0; j < zparams.zvars.length; j++ ) {
             var ii = findNodeIndex(zparams.zvars[j]);
             if(allNodes[ii].grayout) {continue;}
@@ -1311,27 +1301,21 @@ function restart() {
             .duration(500);
             })
         .on('click', function(d){ //this event changes the all nodes time value
-        	//console.log("Alllnodes before:",allNodes[findNodeIndex(d.name)].strokeWidth);
+        	
             setColors(d, timeColor);
-            //console.log("Alllnodes after:",allNodes[findNodeIndex(d.name)].strokeWidth);
+            
             legend(timeColor);
 			if(allNodes[findNodeIndex(d.name)].time==="no"){
 			if(confirm("Do you want to tag this variable as a time variable?")==true)
 			{
 				newallNodes=allNodes;
 
-				//console.log(d.name);
-				//console.log(allNodes[findNodeIndex(d.name)].time);
-				//if(allNodes[findNodeIndex(d.name)].time==="no")
+				
 				allNodes[findNodeIndex(d.name)].time="yes";
 				
 				
-				//console.log(allNodes[findNodeIndex(d.name)].time);
-				//console.log(newallNodes[findNodeIndex(d.name)].time);
-				
-				//console.log(allNodes);
 				if(allNodes===newallNodes){
-					//console.log("true");
+					
 					$("#btnSave").show();
 				}
 				else
@@ -1346,17 +1330,13 @@ function restart() {
 			{
 				newallNodes=allNodes;
 
-				//console.log(d.name);
-				//console.log(allNodes[findNodeIndex(d.name)].time);
+				
 				
 				allNodes[findNodeIndex(d.name)].time="no";
 				
-				//console.log(allNodes[findNodeIndex(d.name)].time);
-				//console.log(newallNodes[findNodeIndex(d.name)].time);
 				
-				//console.log(allNodes);
 				if(allNodes===newallNodes){
-					//console.log("true");
+					
 					$("#btnSave").show();
 				}
 				else
@@ -1366,9 +1346,9 @@ function restart() {
 			else("dont tag it");
 
 			}
-			//Window.confirm("Do you want to tag this variable as a time variable?");
+			
             restart();
-            //console.log("Alllnodes after restart:",allNodes[findNodeIndex(d.name)].strokeWidth);
+           
             });
         g.append("text")
         .attr("id", function(d){
@@ -2207,7 +2187,7 @@ function dataDownload() {
     
     //package the output as JSON
     // add call history and package the zparams object as JSON
-    console.log("inside datadownload, zparams= ",zparams);
+    //console.log("inside datadownload, zparams= ",zparams);
     zparams.zmetadataurl=metadataurl;
     zparams.zusername=username;
     var jsonout = JSON.stringify(zparams);
@@ -2443,10 +2423,11 @@ function transform(n,t, typeTransform) {
             d3.json(json.url, function(error, json) {
                         if (error) return console.warn(error);
                         var jsondata = json;
-                    
-                        for(var key in jsondata) {
+                    	var vars=jsondata["variables"];
+                    	
+                        for(var key in vars) {
                             var myIndex = findNodeIndex(key);
-                            jQuery.extend(true, allNodes[myIndex], jsondata[key]);
+                            jQuery.extend(true, allNodes[myIndex], jsondata.variables[key]);
                     
                             if(allNodes[myIndex].plottype === "continuous") {
                                 densityNode(allNodes[myIndex]);
@@ -2475,8 +2456,9 @@ function transform(n,t, typeTransform) {
             d3.json(json.url, function(error, json) {
                     if (error) return console.warn(error);
                     var jsondata = json;
-                    
-                    for(var key in jsondata) {
+                    //var jsondata = json;
+                    var vars=jsondata["variables"];
+                    for(var key in vars) {
                         var myIndex = findNodeIndex(key);
                     if(typeof myIndex !== "undefined") {
                         alert("Invalid transformation: this variable name already exists.");
@@ -2484,9 +2466,9 @@ function transform(n,t, typeTransform) {
                     }
                     // add transformed variable to the current space
                     var i = allNodes.length;
-                    var obj1 = {id:i, reflexive: false, "name": key, "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: [.6, .2, .9, .8, .1, .3, .4], "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false, "defaultInterval":jsondata[key]["interval"], "defaultNumchar":jsondata[key]["numchar"], "defaultNature":jsondata[key]["nature"], "defaultBinary":jsondata[key]["binary"]};
+                    var obj1 = {id:i, reflexive: false, "name": key, "labl": "transformlabel", data: [5,15,20,0,5,15,20], count: [.6, .2, .9, .8, .1, .3, .4], "nodeCol":colors(i), "baseCol":colors(i), "strokeColor":selVarColor, "strokeWidth":"1", "subsetplot":false, "subsetrange":["", ""],"setxplot":false, "setxvals":["", ""], "grayout":false, "defaultInterval":jsondata.variables[key]["interval"], "defaultNumchar":jsondata.variables[key]["numchar"], "defaultNature":jsondata.variables[key]["nature"], "defaultBinary":jsondata.variables[key]["binary"]};
                     
-                    jQuery.extend(true, obj1, jsondata[key]);
+                    jQuery.extend(true, obj1, jsondata.variables[key]);
                     allNodes.push(obj1);
 
                     scaffoldingPush(rCall[0]);
@@ -2990,7 +2972,9 @@ function populatePopover () {
     
     d3.select("#tab1").selectAll("p")
     .attr("data-content", function(d) {
+    	
           var onNode = findNodeIndex(d);
+        
           return popoverContent(allNodes[onNode]);
           });
 }
@@ -3193,9 +3177,7 @@ function setColors (n, c) {
             zparams.zcross.push(n.name);
         }
         else if(timeColor==c) {
-        	//console.log("insode ztime if");
-        	//console.log("name zparam=	",n.name);
-        	//console.log("zparams time array",zparams.time);
+        	
             zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
             zparams.ztime.push(n.name);
         }
@@ -3395,7 +3377,7 @@ function subsetSelect(btn) {
     //var base = rappURL+"subsetapp?solaJSON="
     urlcall = rappURL+"subsetapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON="+jsonout;
-    //console.log("urlcall out: ", urlcall);
+   
     console.log("POST out: ", solajsonout);
     
 
@@ -3480,8 +3462,8 @@ function subsetSelect(btn) {
                 if (error) return console.warn(error);
                 var jsondata = json;
                 var vars=jsondata["variables"];
-               // console.log("jsondata yo");
-                console.log(jsondata);
+               
+               // console.log(jsondata);
                 for(var key in jsondata["variables"]) {
                 
                     var myIndex = findNodeIndex(key);
@@ -3514,7 +3496,7 @@ function subsetSelect(btn) {
                 layout(v="add");
                 
                 });
-    console.log("vaalue of all nodes after subset:",allNodes);
+  //  console.log("vaalue of all nodes after subset:",allNodes);
         varOut(grayOuts);
     }
     
