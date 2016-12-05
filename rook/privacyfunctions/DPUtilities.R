@@ -10,21 +10,105 @@
 #
 ###
 
-GUI <- function(df, x, y, btn, globals){
+callGUI <- function(dict, indices, stats, metadata, globals, action, var, stat){
+	#save(dict,file="dict.rda")
+	#save(indices,file="indices.rda")
+	df <- convert(dict, indices, stats, metadata)
+	save(df,file="df.rda")
+    #clear any empty rows
+    empty_rows <- -which(is.na(df$Variable))
+    if(length(empty_rows)>0){
+   		df <- df[empty_rows,]
+   	}
+
+	
+	k <- nrow(df)
+	# If we are not computing any statistics yet
+	if(k == 0){
+		return(df)
+	}
+	rownum <- 0
+	if(action == "accuracyEdited"){
+		rownum <- which(df$Variable==var & df$Statistic == stat)
+	}
+	toReturn <- GUI(df, action, globals, rownum)
+	#print(toReturn)
+	#check for errors
+	if(class(toReturn)=="character"){
+		return(toReturn)
+	}
+	else{
+		reteps <- toReturn$Epsilon
+		retacc <- toReturn$Accuracy
+	}
+	for(i in 1:length(reteps)){
+		stat <- df$Statistic[i]
+		var <- df$Variable[i]
+		epsind <- indices[[paste("epsilon_",stat,sep="")]]+1
+		accind <- indices[[paste("accuracy_",stat,sep="")]]+1
+		dict[[var]][epsind] <- reteps[i]
+		dict[[var]][accind] <- retacc[i]
+	}
+	#print(dict)
+	return(dict)
+}
+
+# Function to convert data from web app into the form that the GUI function expects
+convert <- function(dict, indices, stats, metadata){
+	typeindex <- indices$Variable_Type + 1
+	metainds <- as.numeric(indices[metadata])+1
+	content <- c()
+	
+	for(var in names(dict)){
+		varinfo <- dict[[var]]
+		type <- varinfo[typeindex]
+		metas <- varinfo[metainds]
+		# remove following after js auto assigns metadata to bools
+		if(type == "Boolean"){
+			metas[1] <- 0
+			metas[2] <- 1
+			metas[3] <- 2
+			metas[4] <- 1
+			 
+		}
+		
+		# if variable has no metadata, delete it. 
+		# What to do if stats added later don't require metadata?
+		if(sum(metas=="")!=length(metas)){
+			#print(stats)
+			for(stat in stats){
+				ind <- indices[[stat]]+1
+				if(as.numeric(varinfo[ind]) == 2){
+					epsind <- indices[[paste("epsilon_",stat,sep="")]]+1
+					accind <- indices[[paste("accuracy_",stat,sep="")]]+1
+					holdind <- indices[[paste("hold_",stat,sep="")]]+1
+					row <- c(var, type, stat, metas, varinfo[epsind], varinfo[accind], varinfo[holdind])
+					content <- rbind(content,row)
+				}
+			}
+		}
+	}
+
+	df <- data.frame(content, row.names=NULL, stringsAsFactors=FALSE)
+	colnames(df) <- c("Variable", "Type", "Statistic", metadata, "Epsilon", "Accuracy","Hold")
+	return(df)
+}
+
+
+GUI <- function(df, action, globals, rownum=0, printerror=FALSE){
 	 # This is the function that will communicate with the web GUI. 
 	 # It takes in data table in its current state, decides 
 	 # what action needs to be taken, executes that action, and returns the updated table.
 	 #
 	 # Args:
 	 #	df: data structure that the web app will give us. 
-	 #	x: the row number of df that was just edited by the user
-	 #	y: the column number of df that was just edited by the user
-	 #  btn: Identifier telling us what the user most recently changed
+	 #	action: String that indicates the most recent action made by the user
+	 #	rownum: the row number in df that was just edited
 	 #  globals: Vector containing global parameters (eps, del, Beta, and n)
 	 #
 	 # Returns:
 	 #	updated dataframe 
-	 	    
+	 	   
      
      
 	# General workflow is every time a user updates a cell (ie adds/removes a statistic,
@@ -37,109 +121,72 @@ GUI <- function(df, x, y, btn, globals){
 	
     eps <- as.numeric(globals$eps)
     del <- as.numeric(globals$del)
-    Beta <- as.numeric(globals$beta)
+    Beta <- as.numeric(globals$Beta)
     n <- as.numeric(globals$n)
     
-    #clear any empty rows
-    empty_rows <- -which(is.na(df$Variable))
-    if(length(empty_rows)>0){
-   		df <- df[empty_rows,]
-   	}
-    parametersChanged <- FALSE
-    rowDeleted <- FALSE
-    accuracy_edited <- FALSE
-	if(btn != 1){
-		#btn = 1 if the grid was edited. So btn != 1 means a global parameter changed
-		# The parametersChanged toggle is not currently used but could be useful in the future.
-		if(btn == "epsChange"){
-			parametersChanged <- TRUE
-		}
-		
-		else if(btn == "deltaChange"){
-			# these cases are handled separately here (rather than in a single conditional) 
-			# in case we want to handle global eps changes and delta changes differently in the future.
-			parametersChanged <- TRUE
-		}
-		
-		else if(btn == "betaChange"){
+    if(action == "betaChange"){
 			# only need to update accuracies in this case
 			return_accuracies <- get_accuracies(df, n, Beta)
 			if(class(return_accuracies) == "character" && return_accuracies == "error"){
 				message <-"Error in get_accuracies: statistic not found or Beta invalid"
+				if(printerror){
+					print(message)
+				}
 				return(message)
 			}
 		
 			# If no error, set new accuracy values	
 			df$Accuracy <- return_accuracies
 			return(df)
-		}
-		else if(btn == "rowDeleted"){
-			rowDeleted <- TRUE
-		}
-		else if(btn =="Accuracy"){
-			accuracy_edited <- TRUE
-		}
-		else if(btn == "secChange"){
-			#Option available to do something if secrecy of sample is active
-		}
-		#if btn isn't recognized
-		else{
-			message <- "Button is not recognized"
-			return(message)
-	    }
-	  }   
-	
-    index <- 0
+	}  
 
 	k <- nrow(df)
-	# If we are not computing any statistics yet
-	if(k == 0){return(df)}
-	
+		
 	#Create delta column and spread delta_i values evenly
 	df$Delta <- 1 - (1-del)^(1/(2*k))
-	
-	if(!is.null(df$Hold) && length(df$Hold)>1){
-		df$Hold[which(is.na(df$Hold))] <- 0	
-	}
-	else{
-		df$Hold <- c()
-		}
-	
-	if(accuracy_edited){
-		stat <- df$Statistic[x]
-		var_name <- df$Variable[x] 
-	    index <- x
-	
-		
+
+	if(action == "accuracyEdited"){
+		stat <- df$Statistic[rownum]
+		var_name <- df$Variable[rownum] 
+	 
 		# If all of the other accuracy values are being held fixed by the user, report this error
-		if(sum(df$Hold) == nrow(df) - 1 && df$Hold[index] == 0){
+		df$Hold <- as.numeric(df$Hold)
+		if(sum(df$Hold) == nrow(df) - 1 && df$Hold[rownum] == 0){
 			message <- "Cannot edit an accuracy value when every other accuracy is fixed"
+			if(printerror){
+				print(message)
+			}
 			return(message)
 		}
 		
 		# call get_parameters	
-		val <- df[x,y] 
-		attempted_eps <- get_parameters(val, index, df, n, Beta)
+		val <- df$Accuracy[rownum] 
+		attempted_eps <- get_parameters(val, rownum, df, n, Beta)
 
 		# Check if get_parameters returned an error
 		if(class(attempted_eps) == "character" && attempted_eps == "error"){
-			message <- "No statistic specified"
+			message <- "Error retrieving epsilon. No statistic specified"
+			if(printerror){
+				print(message)
+			}
 			return(message)
 		}
 		
 		# If no errors, then set the new epsilon value.
-	    df$Epsilon[index] <- attempted_eps
+	    df$Epsilon[rownum] <- attempted_eps
 	} #end handling of accuracy_edited case now that we have new epsilon value. 
 	
 
 	# Call update_parameters and check for error
-	params <- cbind(df$Epsilon, df$Delta)
-	index <- c(index, which(df$Hold == 1))
-	
-	new_params <- update_parameters(params, index, eps, del)
-
+	params <- cbind(as.numeric(df$Epsilon), as.numeric(df$Delta))
+	hold <- c(rownum, which(df$Hold == 1))
+	new_params <- update_parameters(params, hold, eps, del)
+	#print(new_params)
 	if(class(new_params) == "character" && new_params == "error"){
 		message <- "Cannot give statistic that accuracy value. Try removing holds on other variables."
+		if(printerror){
+			print(message)
+		}
 		return(message)
 		
 	}
@@ -147,12 +194,14 @@ GUI <- function(df, x, y, btn, globals){
 	# If no error, set new privacy parameters and call get_accuracies and check for error
 	df$Epsilon <- new_params[, 1]
 	df$Delta <- new_params[, 2]
-	
 	return_accuracies <- get_accuracies(df, n, Beta)
 	
 	if(class(return_accuracies) == "character" && return_accuracies == "error"){
 			message <- "Error in get_accuracies: statistic not found" 
-			return(message)
+			if(printerror){
+				print(message)
+			}
+			return(message)		
 	}
 	
 	# If no error, set new accuracy values	
@@ -160,12 +209,6 @@ GUI <- function(df, x, y, btn, globals){
 
 	return(df)
 }
-	
-# end GUI function
-
-
-
-
 
 
 

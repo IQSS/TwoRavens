@@ -16,7 +16,7 @@
 # Mean.getAccuracy(eps, del, range, n, beta)
 # Mean.getParameters(acc, del, range, n, beta)
 #
-# ComputeMean(eps, del, data, range)
+# Mean.release(eps, del, data, range)
 ###
 
 ### Dependencies ################################################################
@@ -72,7 +72,7 @@ Mean.release <- function(eps, del, data, range) {
   # Args:
   #   eps: The overall epsilon we want to guarantee
   #   del: The overall delta we want to guarantee
-  #   theData: A vector of data
+  #   data: A vector of data
   #   range: An a priori version of the range
   #
   # Returns:
@@ -91,4 +91,4 @@ Mean.release <- function(eps, del, data, range) {
   params <- list(n=n, eps=eps, del=del, range=range)
 
   return(list(release=returnValue, params=params))
-} # ComputeMean()
+} # Mean.release()

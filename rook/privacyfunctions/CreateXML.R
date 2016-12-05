@@ -4,7 +4,7 @@
 # will have to be modified as dataverse metadata file standards change.
 
 
-create_xml <- function(stats, df,globals){
+create_xml <- function(stats, df, globals, printerror=FALSE){
 	file <- "metadata.xml"
 	file.create(file)
 	
@@ -33,12 +33,19 @@ create_xml <- function(stats, df,globals){
 		hist <- info$hist
 		allStats[["hist"]] <- hist
 		allStats[["bins"]] <- toString(names(hist))
-		if(!is.null(hist)){
-			allStats["mode"]<- which(hist==max(hist))[1] #how to handle multiple modes?
-		}
-		else{
-			allStats["mode"] <- ""
-			}
+		
+		allStats["mode"] = tryCatch({
+		  info$mode
+		}, error = function(e) {
+		  if(printerror){
+		  	print("Error getting max(hist)")
+		  }
+		  allStats["mode"] <- ""
+		})
+		# if ( !is.null(hist) ) {
+		# 	allStats["mode"]<- which(hist==max(hist))[1] #how to handle multiple modes?
+		# } else{ allStats["mode"] <- "" }
+		
 		allStats["vald"] <- n #eventually need to handle missing data
 		allStats["invd"] <- 0
 		allStats["min"] <- df$LowerBound[which(df$Variable == att)[1]]

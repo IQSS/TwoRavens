@@ -81,6 +81,7 @@ build_table <- function(data){
 	Type <- c()
 	Compute_mean <- c()
 	Compute_quantile <- c()
+	Compute_CDF <- c()
 	Compute_histogram <- c()
 	Compute_covariance <- rep(FALSE, times = l)  
 	
@@ -91,11 +92,13 @@ build_table <- function(data){
 				Type <- c(Type, "Boolean")
 				Compute_mean <- c(Compute_mean, FALSE)
 				Compute_quantile <- c(Compute_quantile, FALSE)
+				Compute_CDF <- c(Compute_CDF, FALSE)
 				Compute_histogram <- c(Compute_histogram, TRUE)
 				}
 			else{ Type <- c(Type, "Numerical")
 				  Compute_mean <- c(Compute_mean, TRUE)
 				  Compute_quantile <- c(Compute_quantile, TRUE)
+				  Compute_CDF <- c(Compute_CDF, TRUE)
 				  Compute_histogram <- c(Compute_histogram, FALSE)
 				}
 		}
@@ -103,6 +106,7 @@ build_table <- function(data){
 			Type <- c(Type, "Categorical")
 			Compute_mean <- c(Compute_mean, FALSE)
 			Compute_quantile <- c(Compute_quantile, FALSE)
+			Compute_CDF <- c(Compute_CDF, FALSE)
 			Compute_histogram <- c(Compute_histogram, TRUE)
 		}
 	}
@@ -114,19 +118,22 @@ Granularity <- rep(" ", times = l)
 Number_of_bins <- rep(" ", times = l)
 Mean_accuracy <- rep(" ", times = l)
 Quantile_accuracy <- rep(" ", times = l)
+CDF_accuracy <- rep(" ", times = l)
 Histogram_accuracy <- rep(" ", times = l)
 Covariance_accuracy <- rep(" ", times = l)
 Mean_eps <-  rep(" ", times = l)
 Quant_eps <-  rep(" ", times = l)
+CDF_eps <-  rep(" ", times = l)
 Hist_eps <-  rep(" ", times = l)
 Cov_eps <- rep(" ", times = l)
 Mean_hold <- rep( 0, times = l)
 Quant_hold <- rep(0, times =l)
+CDF_hold <- rep(0, times =l)
 Hist_hold <- rep(0, times =l)
 Cov_hold <- rep(0, times = l)
 
 # make the data frame.
-df <- data.frame(Attribute, Type, Upper, Lower, Granularity, Number_of_bins, Compute_mean, Compute_quantile, Compute_histogram, Compute_covariance, Mean_accuracy, Quantile_accuracy, Histogram_accuracy, Covariance_accuracy, Mean_eps, Quant_eps, Hist_eps, Cov_eps, Mean_hold, Quant_hold, Hist_hold, Cov_hold, stringsAsFactors= FALSE)
+df <- data.frame(Attribute, Type, Upper, Lower, Granularity, Number_of_bins, Compute_mean, Compute_quantile, Compute_CDF, Compute_histogram, Compute_covariance, Mean_accuracy, Quantile_accuracy, CDF_accuracy, Histogram_accuracy, Covariance_accuracy, Mean_eps, Quant_eps, CDF_eps, Hist_eps, Cov_eps, Mean_hold, Quant_hold, CDF_hold, Hist_hold, Cov_hold, stringsAsFactors= FALSE)
 
 return(df)
 	
@@ -175,6 +182,15 @@ convert <- function(df){
 			converted_df <- rbind(converted_df, new_row)	
 		} 
 		
+		if(as.logical(df$Compute_CDF[i]) == 1 && df$Granularity[i] != " " && df$Upper[i] != " " && df$Lower[i] != " "){ 
+			
+			new_row <- data.frame(df[i, ][1:6], Statistic ="CDF", Accuracy = df$CDF_accuracy[i], 
+								  Epsilon = df$CDF_eps[i], Delta = " ", Covariance = 0, Hold = df$CDF_hold[i], 
+								  stringsAsFactors = FALSE)
+								  
+			converted_df <- rbind(converted_df, new_row)	
+		} 
+
 		if(as.logical(df$Compute_histogram[i]) == 1 && df$Number_of_bins[i] != " "){
 			
 			new_row <- data.frame(df[i, ][1:6], Statistic = "histogram", Accuracy = df$Histogram_accuracy[i], 
@@ -234,6 +250,7 @@ convert_back <- function(original, df){
 
 	original$Mean_accuracy <- " "
 	original$Quantile_accuracy <- " "
+	original$CDF_accuracy <- " "
 	original$Histogram_accuracy <- " "
 	original$Covariance_accuracy <- " "
 	original$Mean_eps <- " "
@@ -263,12 +280,17 @@ convert_back <- function(original, df){
 			}
 			
 		}
-		
+
 		if(df$Statistic[i] == "quantile"){
 			original$Quantile_accuracy[orig_index] <- df$Accuracy[i]
 			original$Quant_eps[orig_index] <- df$Epsilon[i]
 		}
 		
+		if(df$Statistic[i] == "CDF"){
+			original$CDF_accuracy[orig_index] <- df$Accuracy[i]
+			original$CDF_eps[orig_index] <- df$Epsilon[i]
+		}
+
 		if(df$Statistic[i] == "histogram"){
 			original$Histogram_accuracy[orig_index] <- df$Accuracy[i]
 			original$Hist_eps[orig_index] <- df$Epsilon[i]
@@ -313,7 +335,7 @@ GUI <- function(df, x, y, val){
      
 	# Determine if we are editing an accuracy value or not:
 	
-    case2 <- c("Mean_accuracy", "Quantile_accuracy", "Histogram_accuracy", "Covariance_accuracy")
+    case2 <- c("Mean_accuracy", "Quantile_accuracy", "CDF_accuracy", "Histogram_accuracy", "Covariance_accuracy")
     case <- 1
     index <- 0
     
@@ -345,6 +367,9 @@ GUI <- function(df, x, y, val){
 		}
 		if(colnames(original_df)[y] == "Quantile_accuracy"){
 			stat <- "quantile"
+		}
+		if(colnames(original_df)[y] == "CDF_accuracy"){
+			stat <- "CDF"
 		}
 		if(colnames(original_df)[y] == "Histogram_accuracy"){
 			stat <- "histogram"
@@ -721,7 +746,26 @@ When finished, type \"done\".")
 
 				next
 			}
-			
+
+			else if(colname == "CDF_accuracy"){
+				
+				df$CDF_hold[x] <- hold
+				temp_df <- convert(df)
+				
+				if(sum(temp_df$Hold) == nrow(temp_df)){
+					
+					print("Cannot place a hold on every accuracy value")
+					df$CDF_hold[x] <- 0
+					
+				}
+				
+				else{
+				pretty_print(temp_df)
+				}
+
+				next
+			}
+
 			else if(colname == "Histogram_accuracy"){
 				
 				df$Hist_hold[x] <- hold
@@ -772,7 +816,7 @@ When finished, type \"done\".")
 		val <- "^bad_string^@"
 		
 		if(colname %in% c("Upper","Lower", "Granularity", "Number_of_bins", "Mean_accuracy", 
-		                  "Quantile_accuracy", "Histogram_accuracy", "Covariance_accuracy")){
+		                  "Quantile_accuracy", "CDF_accuracy", "Histogram_accuracy", "Covariance_accuracy")){
 			
 			#New value must be numeric in this case:
 			if(suppressWarnings(is.na(as.numeric(input3)))){
@@ -789,7 +833,7 @@ When finished, type \"done\".")
 		}
 		
 		#Check if input3 should be boolean
-		if(colname %in% c("Compute_mean", "Compute_quantile", "Compute_histogram", "Compute_covariance")){
+		if(colname %in% c("Compute_mean", "Compute_quantile", "Compute_CDF", "Compute_histogram", "Compute_covariance")){
 			
 			 if(input3 %in% c("true", "1")){
 			 	val <- TRUE
@@ -828,7 +872,7 @@ When finished, type \"done\".")
 		}
 		
 		#Can't edit accuracy that hasn't been set yet
-		if(colname %in% c("Mean_accuracy", "Quantile_accuracy", "Histogram_accuracy", "Covariance_accuracy")){
+		if(colname %in% c("Mean_accuracy", "Quantile_accuracy", "CDF_accuracy", "Histogram_accuracy", "Covariance_accuracy")){
 			
 			if(df[x,y] == " "){
 				print("Cannot edit an accuracy value before it has been set")
@@ -901,26 +945,3 @@ for the nonexistent bins. Otherwise, type \'back\' \n")
 
 # If using fake bin names: pass fakebinlist
 #mylist <- calculate_stats(data, convert(df), n, Beta)
-
-
-	
-	
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
