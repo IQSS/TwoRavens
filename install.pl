@@ -142,7 +142,7 @@ if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'}
     $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
 }
 
-for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "rooktransform.R", "rookselector.R", "rookutils.R" ) {
+for my $rFile ( "rookdata.R", "rookprivate.R", "rookselector.R", "rooksource.R", "rooksubset.R", "rooktransform.R", "rookutils.R", "rookzelig.R", "rookzeligrestart.R" ) {
     print "Configuring script " . $rFile . "...\n";
 
     my $rFilePath = "./rook/" . $rFile; 
@@ -159,7 +159,7 @@ for my $rFile ( "rooksource.R", "rookdata.R", "rookzelig.R", "rooksubset.R", "ro
 	# production toggle:
 	s/production\<\-FALSE/production\<\-TRUE/g;
 	# rApache url:
-        s/https:\/\/dataverse-demo.iq.harvard.edu/$RAPACHEURL/g;
+        s/https:\/\/beta.dataverse.org/$RAPACHEURL/g;
 	# working directory:
 	s/\/usr\/local\/glassfish4\/glassfish\/domains\/domain1\/docroot\/dataexplore/$CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'}/g;
 	print RFILEOUT $_;
