@@ -23,9 +23,10 @@ my @CONFIG_VARIABLES = (
     'TWORAVENS_DIRECTORY',
     'APACHE_CONFIG_DIRECTORY',
     'APACHE_WEB_DIRECTORY',
-    'HOST_DNS_ADDRESS',
-    'HOST_PORT',
-    'HOST_PROTOCOL',
+    'TWORAVENS_URL',
+#    'HOST_DNS_ADDRESS',
+#    'HOST_PORT',
+#    'HOST_PROTOCOL',
     'DATAVERSE_URL'
 );
 
@@ -33,9 +34,10 @@ my %CONFIG_DEFAULTS = (
     'TWORAVENS_DIRECTORY',     '/var/www/html/dataexplore',
     'APACHE_CONFIG_DIRECTORY', '/etc/httpd',
     'APACHE_WEB_DIRECTORY',    '/var/www/html',
-    'HOST_DNS_ADDRESS',        $hostname_from_cmdline,
-    'HOST_PORT',               80,
-    'HOST_PROTOCOL',           'http',
+    'TWORAVENS_URL',           'http://' . $hostname_from_cmdline . ':80',
+#    'HOST_DNS_ADDRESS',        $hostname_from_cmdline,
+#    'HOST_PORT',               80,
+#    'HOST_PROTOCOL',           'http',
     'DATAVERSE_URL',           'http://' . $hostname_from_cmdline . ':8080'
 
 );
@@ -44,10 +46,11 @@ my %CONFIG_PROMPTS = (
     'TWORAVENS_DIRECTORY',     'Directory where TwoRavens is installed',
     'APACHE_CONFIG_DIRECTORY', 'Apache config directory',
     'APACHE_WEB_DIRECTORY',    'Apache Web Root directory',
-    'HOST_DNS_ADDRESS',        'Internet address of the rApache host',
-    'HOST_PORT',               'rApache port number',
-    'HOST_PROTOCOL',           'http or https?',
-    'DATAVERSE_URL',           'URL address of the Dataverdse application, to access files and metadata'
+    'TWORAVENS_URL',           'TwoRavens/rApache URL',
+#    'HOST_DNS_ADDRESS',        'Internet address of the rApache host',
+#    'HOST_PORT',               'rApache port number',
+#    'HOST_PROTOCOL',           'http or https?',
+    'DATAVERSE_URL',           'URL of the Dataverdse application, to access files and metadata'
 
 );
 
@@ -78,9 +81,19 @@ for my $ENTRY (@CONFIG_VARIABLES) {
     $user_entry = <>;
     chop $user_entry;
 
-    if ($ENTRY eq "HOST_PROTOCOL") {
-	while (($user_entry ne "") && ($user_entry ne "http") && ($user_entry ne "https")) {
-	    print "Please enter 'http' or 'https'!\n";
+#    if ($ENTRY eq "HOST_PROTOCOL") {
+#	while (($user_entry ne "") && ($user_entry ne "http") && ($user_entry ne "https")) {
+#	    print "Please enter 'http' or 'https'!\n";
+#	    print "(or ctrl-C to exit the installer)\n";
+#	    $user_entry = <>;
+#	    chop $user_entry;
+#	}
+#    }
+
+    if ($ENTRY eq "TWORAVENS_URL" || $ENTRY eq "DATAVERSE_URL") {
+	while ($user_entry ne "" && !&validate_url($user_entry)) {
+	    print "Sorry, this is not a valid URL!\n";
+	    print "Please enter a valid " . $CONFIG_PROMPTS{$ENTRY} . ".\n";
 	    print "(or ctrl-C to exit the installer)\n";
 	    $user_entry = <>;
 	    chop $user_entry;
@@ -111,14 +124,10 @@ for my $ENTRY (@CONFIG_VARIABLES) {
 }
 
 my $yesno;
-#if ($yes) {
-#    $yesno = "y";
-#}
-#else {
-    print "\nIs this correct? [y/n] ";
-    $yesno = <>;
-    chop $yesno;
-#}
+
+print "\nIs this correct? [y/n] ";
+$yesno = <>;
+chop $yesno;
 
 while ( $yesno ne "y" && $yesno ne "n" ) {
     print "Please enter 'y' or 'n'!\n";
@@ -134,13 +143,17 @@ if ( $yesno eq "n" ) {
 
 # 1. Edit R application sources, make necessary changes:
 
-my $RAPACHEURL = $CONFIG_DEFAULTS{'HOST_PROTOCOL'} . "://" . $CONFIG_DEFAULTS{'HOST_DNS_ADDRESS'};
+#my $RAPACHEURL = $CONFIG_DEFAULTS{'HOST_PROTOCOL'} . "://" . $CONFIG_DEFAULTS{'HOST_DNS_ADDRESS'};
 
-if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'} != 80) {
-    $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
-} elsif ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "https" && $CONFIG_DEFAULTS{'HOST_PORT'} != 443) {
-    $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
-}
+#if ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "http" && $CONFIG_DEFAULTS{'HOST_PORT'} != 80) {
+#    $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
+#} elsif ($CONFIG_DEFAULTS{'HOST_PROTOCOL'} eq "https" && $CONFIG_DEFAULTS{'HOST_PORT'} != 443) {
+#    $RAPACHEURL .= (":" . $CONFIG_DEFAULTS{'HOST_PORT'});
+#}
+
+print "\n\nConfiguring TwoRavens Rook applications...\n";
+
+my $TWORAVENS_URL = $CONFIG_DEFAULTS{'TWORAVENS_URL'};
 
 for my $rFile ( "rookdata.R", "rookprivate.R", "rookselector.R", "rooksource.R", "rooksubset.R", "rooktransform.R", "rookutils.R", "rookzelig.R", "rookzeligrestart.R" ) {
     print "Configuring script " . $rFile . "...\n";
@@ -148,8 +161,9 @@ for my $rFile ( "rookdata.R", "rookprivate.R", "rookselector.R", "rooksource.R",
     my $rFilePath = "./rook/" . $rFile; 
 
     unless ( -f $rFilePath ) {
-	print "\nWARNING: Can't find " . $rFilePath . "!\n";
+	print "\nERROR: Can't find " . $rFilePath . "!\n";
 	print "(are you running the installer in the right directory?)\n";
+	exit 1;
     }
 
     open RFILEIN, $rFilePath || die $@;
@@ -158,9 +172,11 @@ for my $rFile ( "rookdata.R", "rookprivate.R", "rookselector.R", "rooksource.R",
     while (<RFILEIN>) {
 	# production toggle:
 	s/production\<\-FALSE/production\<\-TRUE/g;
-	# rApache url:
-        s/https:\/\/beta.dataverse.org/$RAPACHEURL/g;
-	# working directory:
+	# rApache url for the preprocess/subset directory: 
+	s/\"https*:\/\/[a-zA-Z0-9\.\-]+(:[0-9]+)?\/custom\/preprocess_dir\/preprocessSubset_\"/\"$TWORAVENS_URL\/custom\/preprocess_dir\/preprocessSubset_\"/g;
+	# rApache url for the generated graph images directory: 
+	s/\"https*:\/\/[a-zA-Z0-9\.\-]+(:[0-9]+)?\/custom\/pic_dir\/\"/\"$TWORAVENS_URL\/custom\/pic_dir\/\"/g;
+	# working directory (hard-coded to the Glassfish docroot in the TwoRavens distribution):
 	s/\/usr\/local\/glassfish4\/glassfish\/domains\/domain1\/docroot\/dataexplore/$CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'}/g;
 	print RFILEOUT $_;
     }
@@ -171,6 +187,7 @@ for my $rFile ( "rookdata.R", "rookprivate.R", "rookselector.R", "rooksource.R",
     system ("/bin/mv " . $rFilePath . ".tmp " . $rFilePath);
 }
 
+print "Done!\n";
 
 # 2. Install the rApache config file:
 
@@ -234,25 +251,31 @@ print "OK!\n";
 
 # 4. Edit the JavaScript application file: 
 
+print "\n\nConfiguring TwoRavens JavaScript application...\n";
+
 my $TwoRavensWebApp = "app_ddi.js";
 unless ( -f $TwoRavensWebApp ) {
-    print "\nWARNING: Can't find " . $TwoRavensWebApp . "!\n";
+    print "\nERROR: Can't find " . $TwoRavensWebApp . "!\n";
     print "(are you running the installer in the right directory?)\n";
+    exit 1; 
 }
 
 open WEBAPPFILEIN, $TwoRavensWebApp || die $@;
 open WEBAPPFILEOUT, '>' . $TwoRavensWebApp . ".tmp" || die $@;
 
-my $dataversehostname=$CONFIG_DEFAULTS{'DATAVERSE_URL'};
-$dataversehostname=~s/^https*:\/\///; # TODO: modify tworavens not to default to either protocol.
+my $DATAVERSE_URL = $CONFIG_DEFAULTS{'DATAVERSE_URL'};
 
 while (<WEBAPPFILEIN>) {
     # production toggle: 
     $_="var production=true;\n" if /^var production=false/;
     # rApache url:
-    s/https:\/\/dataverse-demo.iq.harvard.edu\/custom\//$RAPACHEURL\/custom\//g;
+    s/var rappURL = \"https*:\/\/[a-zA-Z0-9\.\-]+(:[0-9]+)?\/custom\/\"/var rappURL = \"$TWORAVENS_URL\/custom\/\"/g;
     # dataverse url: 
-    s/%PRODUCTION_DATAVERSE_URL%/$CONFIG_DEFAULTS{'DATAVERSE_URL'}/g;
+    s/%PRODUCTION_DATAVERSE_URL%/$DATAVERSE_URL/g; 
+    # but, if the installer has already been run, and the template entry 
+    # "%PRODUCTION_DATAVERSE_URL% has already been replaced by a real url - 
+    # let's make sure we find and replace that too:
+    s/dataverseurl=\"https*:\/\/([a-zA-Z0-9\.\-]+)(:[0-9]+)\"/dataverseurl=\"$DATAVERSE_URL\"/g;
     print WEBAPPFILEOUT $_;
 }
 
@@ -261,12 +284,23 @@ close WEBAPPFILEOUT;
 
 system ("/bin/mv " . $TwoRavensWebApp . ".tmp " . $TwoRavensWebApp);
 
+print "Done!\n";
 
 # 5. Chown the TwoRavens directory to user Apache:
+
+print "\n\nSetting the ownership of the TwoRavens directory to user apache...\n";
 
 system ("chown -R apache " . $CONFIG_DEFAULTS{'TWORAVENS_DIRECTORY'});
 
 print "\n\nGreat. You should now have a working TwoRavens installation!\n";
 print "\nThe application URL is \n";
-print $RAPACHEURL . "/dataexplore/gui.html\n\n";
+print $TWORAVENS_URL . "/dataexplore/gui.html\n\n";
 
+sub validate_url {
+    my $url = $_[0];
+
+    return 1 if $url=~/^https*:\/\/[a-zA-Z0-9\.\-]+(:[0-9]+)?$/;
+
+    return 0;
+    
+}
