@@ -89,9 +89,6 @@ do
     fi
 done
 
-exit 0
-
-
 
 echo 
 echo "checking Rserve configuration:" 
