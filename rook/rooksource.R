@@ -34,10 +34,10 @@ if(!production){
 library(Rook)
 library(rjson)
 library(jsonlite)
-library(devtools)
 library(DescTools)
 
 if (!production) {
+    library(devtools)
     if(!("Zelig" %in% rownames(installed.packages()))) {
         install_github("IQSS/Zelig")
     } else if(package_version(packageVersion("Zelig"))$major != 5) {
