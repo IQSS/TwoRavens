@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ my %CONFIG_PROMPTS = (
 #    'HOST_DNS_ADDRESS',        'Internet address of the rApache host',
 #    'HOST_PORT',               'rApache port number',
 #    'HOST_PROTOCOL',           'http or https?',
-    'DATAVERSE_URL',           'URL of the Dataverdse application, to access files and metadata'
+    'DATAVERSE_URL',           'URL of the Dataverse application, to access files and metadata'
 
 );
 
