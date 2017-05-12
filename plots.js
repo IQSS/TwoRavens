@@ -1,5 +1,5 @@
 // function to use d3 to graph density plots with preprocessed data
-function density(node, div, private) {
+function density(node, div, priv) {
     var mydiv;
 
     if(div=="subset") {
@@ -29,7 +29,7 @@ function density(node, div, private) {
                   d.y = +d.y;
                   });
     
-    if (private) {
+    if (priv) {
         if (node.plotCI) {
             //stores values for upper bound
             var upperError = [];
@@ -160,7 +160,7 @@ function density(node, div, private) {
         .attr("class", "area")
         .attr("d", area);   
     
-    if (private && node.plotCI) {
+    if (priv && node.plotCI) {
         //add upper bound
         plotsvg.append("path")
         .attr("class", "upperError")
@@ -168,7 +168,7 @@ function density(node, div, private) {
         .attr("d", area);
     }
 
-    if (private && node.plotCI) {  
+    if (priv && node.plotCI) {  
         //add lower bound
         plotsvg.append("path")
         .attr("class", "lowerError")
@@ -177,7 +177,7 @@ function density(node, div, private) {
     }
      
 //uncomment if you want the black line   
-    // if (private) {
+    // if (priv) {
     //         plotsvg.append("path")
     //         .attr("class", "nofill")
     //         .attr("d", line(data2))
@@ -389,7 +389,7 @@ function density(node, div, private) {
 } //end function density
 
 
-function bars(node, div, private) {
+function bars(node, div, priv) {
     // Histogram spacing
     var barPadding = .015;  // Space between bars 
     var topScale =1.2;      // Multiplicative factor to assign space at top within graph - currently removed from implementation
@@ -411,7 +411,7 @@ function bars(node, div, private) {
             if(node.plotvalues[keys[i]]==0) {continue;}
             yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
-            if (private) {
+            if (priv) {
                 if (node.plotvaluesCI) {
                     ciLowerVals[xi] = node.plotValuesCI.lowerBound[keys[i]];
                     ciUpperVals[xi] = node.plotValuesCI.upperBound[keys[i]];
@@ -433,7 +433,7 @@ function bars(node, div, private) {
             console.log(node);
             yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
-              if (private) {
+              if (priv) {
                 if (node.plotvaluesCI) {
                     ciLowerVals[i] = node.plotvaluesCI.lowerBound[keys[i]];
                     ciUpperVals[i] = node.plotvaluesCI.upperBound[keys[i]];
@@ -445,7 +445,7 @@ function bars(node, div, private) {
     
     if((yVals.length>15 & node.numchar==="numeric") | (yVals.length>5 & node.numchar==="character")) {plotXaxis=false;}
     var maxY = d3.max(yVals); // in the future, set maxY to the value of the maximum confidence limit
-   if (private){
+   if (priv){
        if(node.plotvaluesCI){
            var maxCI = d3.max(ciUpperVals);
            maxY = maxCI;
@@ -488,7 +488,7 @@ function bars(node, div, private) {
         height = 0.25 * (height - margin.top - margin.bottom);
     };
     
-    if (private && node.stabilityBin) {
+    if (priv && node.stabilityBin) {
         var x = d3.scale.linear()
         .domain([ minX-0.5 , maxX+1.5])  
         .range([0, width]);
@@ -582,7 +582,7 @@ function bars(node, div, private) {
 
     
     // draw error bars, threshold line and extra bin
-    if (private ) {
+    if (priv ) {
         if (yVals.length <= 20) {
             plotsvg.selectAll("line")
             .data(ciUpperVals)
