@@ -17,7 +17,7 @@
 
 
 var production=false;
-var private=false;
+var priv=false;
 
 if(production && fileid=="") {
     alert("Error: No fileid has been provided.");
@@ -2203,7 +2203,7 @@ function varSummary(d) {
         tmpDataset = [], t1 = ["Mean:","Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
         t2 = [(+d.mean).toPrecision(4).toString() ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
         i, j;
-        if (private) {
+        if (priv) {
           if (d.meanCI) {
             t1 = ["Mean:", "Median:","Most Freq:","Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:",  "Stand.Dev:","Minimum:","Maximum:","Invalid:","Valid:","Uniques:","Herfindahl:"],
           t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")" ,(+d.median).toPrecision(4).toString(),d.mode,rint(d.freqmode),d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),(+d.sd).toPrecision(4).toString(),(+d.min).toPrecision(4).toString(),(+d.max).toPrecision(4).toString(),rint(d.invalid),rint(d.valid),rint(d.uniques),(+d.herfindahl).toPrecision(4).toString()],
@@ -2244,10 +2244,10 @@ function varSummary(d) {
         return;
     }
     else if (d.plottype === "continuous") {
-        density(d, div="varSummary", private);
+        density(d, div="varSummary", priv);
     }
     else if (d.plottype === "bar") {
-        bars(d, div="varSummary", private);
+        bars(d, div="varSummary", priv);
     }
     else {
         var plotsvg = d3.select("#tab3")      // no graph to draw, but still need to remove previous graph
@@ -2277,7 +2277,7 @@ function popoverContent(d) {
     
     if (d.mean != "NA") { 
       outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"  
-      if (private && d.meanCI) {
+      if (priv && d.meanCI) {
         outtext += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
       } else {
       outtext += (+d.mean).toPrecision(4).toString()
@@ -2383,14 +2383,14 @@ function panelPlots() {
         allNodes[idArray[i]].subsetplot=false;
             if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                console.log(private);
-                density(allNodes[idArray[i]], div="setx", private);
+                console.log(priv);
+                density(allNodes[idArray[i]], div="setx", priv);
                 allNodes[idArray[i]].subsetplot=true;
-                density(allNodes[idArray[i]], div="subset", private);
+                density(allNodes[idArray[i]], div="subset", priv);
             }
             else if (allNodes[idArray[i]].plottype === "bar" & allNodes[idArray[i]].setxplot==false) {
                 allNodes[idArray[i]].setxplot=true;
-                bars(allNodes[idArray[i]], div="setx", private);
+                bars(allNodes[idArray[i]], div="setx", priv);
                 allNodes[idArray[i]].subsetplot=true;
                 barsSubset(allNodes[idArray[i]]);
             }
@@ -2742,8 +2742,8 @@ function readPreprocess(url, p, v, callback) {
             console.log(jsondata);
             console.log(jsondata["variables"]);
 
-            if(jsondata.dataset.private){
-              private = jsondata["dataset"]["private"];
+            if(jsondata.dataset.priv){
+              priv = jsondata["dataset"]["priv"];
             };
 
             //copying the object

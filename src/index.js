@@ -150,7 +150,7 @@ function rightpanel() {
                             "margin-top": ".5em"
                         }
                     }, [
-                        m(".container[;=''][id='resultsView']", {
+                        m(".container[id='resultsView']", {
                             style: {
                                 "width": "80%",
                                 "background-color": "white",
@@ -193,7 +193,12 @@ function rightpanel() {
 }
 
 class Body {
-    view() {
+	oncreate() {
+		require('./script.js');	
+		require('../app_ddi.js');	
+	}
+	
+	view() {
         return m('main',
             m("nav.navbar.navbar-default[id='option'][role='navigation']",
                 m("div", [
@@ -397,11 +402,8 @@ class Body {
                     )
                 ),
                 leftpanel(),
-                rightpanel(),
-                m(".clearfix")
-            ]),
-            m("script", ),
-            m("script[src='app_ddi.js']")
+                rightpanel()
+            ])
         );
     }
 }
