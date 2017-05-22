@@ -4,6 +4,194 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
+function leftpanel() {
+    return m(".sidepanel.container.clearfix[id='leftpanel']", [
+        m(".panelbar[id='toggleLpanelicon']",
+            m("span", [
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;")
+            ])
+        ),
+        m(".panel-heading.text-center[id='leftpaneltitle']",
+            m("h3.panel-title",
+                "Data Selection"
+            )
+        ),
+        m(".btn-toolbar[role='toolbar']", {
+            style: {
+                "margin-left": ".5em",
+                "margin-top": ".5em"
+            }
+        }, [
+            m(".btn-group", {
+                style: {
+                    "margin-left": "0"
+                }
+            }, [
+                m("button.btn.active[id='btnVariables'][onclick='tabLeft(\'tab1\');'][title='Click variable name to add or remove the variable pebble from the modeling space.'][type='button']",
+                    "Variables"
+                ),
+                m("button.btn.btn-default[id='btnSubset'][onclick='tabLeft(\'tab2\');'][type='button']",
+                    "Subset"
+                )
+            ]),
+            m("button.btn.btn-default.ladda-button[data-spinner-color='#000000'][data-style='zoom-in'][id='btnSelect'][onclick='subsetSelect(\'btnSelect\');'][title='Subset data by the intersection of all selected values.'][type='button']", {
+                    style: {
+                        "display": "none",
+                        "float": "right",
+                        "margin-right": "10px"
+                    }
+                },
+                m("span.ladda-label", {
+                        style: {
+                            "pointer-events": "none"
+                        }
+                    },
+                    "Select"
+                )
+            )
+        ]),
+        m(".row-fluid",
+            m("[id='leftpanelcontent']",
+                m("[id='leftContentArea']", {
+                    style: {
+                        "overflow": "scroll",
+                        "height": "488px"
+                    }
+                }, [
+                    m("[id='tab1']", {
+                        style: {
+                            "display": "block",
+                            "padding": "6px 12px",
+                            "text-align": "center"
+                        }
+                    }),
+                    m("[id='tab2']", {
+                        style: {
+                            "display": "none",
+                            "margin-top": ".5em"
+                        }
+                    }, ),
+                    m("[id='tab3']",
+                        m("p", {
+                                style: {
+                                    "padding": ".5em 1em"
+                                }
+                            },
+                            "Select a variable from within the visualization in the center panel to view its summary statistics."
+                        )
+                    )
+                ])
+            )
+        )
+    ]);
+}
+
+function rightpanel() {
+    return m(".sidepanel.container.clearfix[id='rightpanel']", [
+        m(".panelbar[id='toggleRpanelicon']",
+            m("span", [
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;"),
+                m("br"),
+                m.trust("&#9679;")
+            ])
+        ),
+        m(".panel-heading.text-center[id='rightpaneltitle']",
+            m("h3.panel-title",
+                "Model Selection"
+            )
+        ),
+        m(".btn-group.btn-group-justified[aria-label='...'][role='group']", {
+            style: {
+                "margin-top": ".5em"
+            }
+        }, [
+            m("button.btn.active[id='btnModels'][onclick='tabRight(\'btnModels\');'][type='button']", {
+                    style: {
+                        "width": "33%"
+                    }
+                },
+                "Models"
+            ),
+            m("button.btn.btn-default[id='btnSetx'][onclick='tabRight(\'btnSetx\');'][type='button']", {
+                    style: {
+                        "width": "34%"
+                    }
+                },
+                "Set Covar."
+            ),
+            m("button.btn.btn-default[id='btnResults'][onclick='tabRight(\'btnResults\');'][type='button']", {
+                    style: {
+                        "width": "33%"
+                    }
+                },
+                "Results"
+            )
+        ]),
+        m(".row-fluid",
+            m("[id='rightpanelcontent']",
+                m("[id='rightContentArea']", {
+                    style: {
+                        "overflow": "scroll",
+                        "height": "488px"
+                    }
+                }, [
+                    m("[id='results']", {
+                        style: {
+                            "margin-top": ".5em"
+                        }
+                    }, [
+                        m(".container[;=''][id='resultsView']", {
+                            style: {
+                                "width": "80%",
+                                "background-color": "white",
+                                "display": "none",
+                                "float": "right",
+                                "overflow": "auto",
+                                "white-space": "nowrap"
+                            }
+                        }),
+                        m("[id='modelView']", {
+                            style: {
+                                "width": "20%",
+                                "background-color": "white",
+                                "display": "none",
+                                "float": "left"
+                            }
+                        }),
+                        m("p[id='resultsHolder']", {
+                            style: {
+                                "padding": ".5em 1em"
+                            }
+                        })
+                    ]),
+                    m("[id='setx']", {
+                        style: {
+                            "display": "none"
+                        }
+                    }),
+                    m("[id='models']", {
+                        style: {
+                            "display": "block",
+                            "padding": "6px 12px",
+                            "text-align": "center"
+                        }
+                    })
+                ])
+            )
+        )
+    ]);
+}
+
 let body = [
     m("nav.navbar.navbar-default[id='option'][role='navigation']",
         m("div", [
@@ -206,188 +394,8 @@ let body = [
                 "Replication"
             )
         ),
-        m(".sidepanel.container.clearfix[id='leftpanel']", [
-            m(".panelbar[id='toggleLpanelicon']",
-                m("span", [
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;")
-                ])
-            ),
-            m(".panel-heading.text-center[id='leftpaneltitle']",
-                m("h3.panel-title",
-                    "Data Selection"
-                )
-            ),
-            m(".btn-toolbar[role='toolbar']", {
-                style: {
-                    "margin-left": ".5em",
-                    "margin-top": ".5em"
-                }
-            }, [
-                m(".btn-group", {
-                    style: {
-                        "margin-left": "0"
-                    }
-                }, [
-                    m("button.btn.active[id='btnVariables'][onclick='tabLeft(\'tab1\');'][title='Click variable name to add or remove the variable pebble from the modeling space.'][type='button']",
-                        "Variables"
-                    ),
-                    m("button.btn.btn-default[id='btnSubset'][onclick='tabLeft(\'tab2\');'][type='button']",
-                        "Subset"
-                    )
-                ]),
-                m("button.btn.btn-default.ladda-button[data-spinner-color='#000000'][data-style='zoom-in'][id='btnSelect'][onclick='subsetSelect(\'btnSelect\');'][title='Subset data by the intersection of all selected values.'][type='button']", {
-                        style: {
-                            "display": "none",
-                            "float": "right",
-                            "margin-right": "10px"
-                        }
-                    },
-                    m("span.ladda-label", {
-                            style: {
-                                "pointer-events": "none"
-                            }
-                        },
-                        "Select"
-                    )
-                )
-            ]),
-            m(".row-fluid",
-                m("[id='leftpanelcontent']",
-                    m("[id='leftContentArea']", {
-                        style: {
-                            "overflow": "scroll",
-                            "height": "488px"
-                        }
-                    }, [
-                        m("[id='tab1']", {
-                            style: {
-                                "display": "block",
-                                "padding": "6px 12px",
-                                "text-align": "center"
-                            }
-                        }),
-                        m("[id='tab2']", {
-                            style: {
-                                "display": "none",
-                                "margin-top": ".5em"
-                            }
-                        }, ),
-                        m("[id='tab3']",
-                            m("p", {
-                                    style: {
-                                        "padding": ".5em 1em"
-                                    }
-                                },
-                                "Select a variable from within the visualization in the center panel to view its summary statistics."
-                            )
-                        )
-                    ])
-                )
-            )
-        ]),
-        m(".sidepanel.container.clearfix[id='rightpanel']", [
-            m(".panelbar[id='toggleRpanelicon']",
-                m("span", [
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;"),
-                    m("br"),
-                    m.trust("&#9679;")
-                ])
-            ),
-            m(".panel-heading.text-center[id='rightpaneltitle']",
-                m("h3.panel-title",
-                    "Model Selection"
-                )
-            ),
-            m(".btn-group.btn-group-justified[aria-label='...'][role='group']", {
-                style: {
-                    "margin-top": ".5em"
-                }
-            }, [
-                m("button.btn.active[id='btnModels'][onclick='tabRight(\'btnModels\');'][type='button']", {
-                        style: {
-                            "width": "33%"
-                        }
-                    },
-                    "Models"
-                ),
-                m("button.btn.btn-default[id='btnSetx'][onclick='tabRight(\'btnSetx\');'][type='button']", {
-                        style: {
-                            "width": "34%"
-                        }
-                    },
-                    "Set Covar."
-                ),
-                m("button.btn.btn-default[id='btnResults'][onclick='tabRight(\'btnResults\');'][type='button']", {
-                        style: {
-                            "width": "33%"
-                        }
-                    },
-                    "Results"
-                )
-            ]),
-            m(".row-fluid",
-                m("[id='rightpanelcontent']",
-                    m("[id='rightContentArea']", {
-                        style: {
-                            "overflow": "scroll",
-                            "height": "488px"
-                        }
-                    }, [
-                        m("[id='results']", {
-                            style: {
-                                "margin-top": ".5em"
-                            }
-                        }, [
-                            m(".container[;=''][id='resultsView']", {
-                                style: {
-                                    "width": "80%",
-                                    "background-color": "white",
-                                    "display": "none",
-                                    "float": "right",
-                                    "overflow": "auto",
-                                    "white-space": "nowrap"
-                                }
-                            }),
-                            m("[id='modelView']", {
-                                style: {
-                                    "width": "20%",
-                                    "background-color": "white",
-                                    "display": "none",
-                                    "float": "left"
-                                }
-                            }),
-                            m("p[id='resultsHolder']", {
-                                style: {
-                                    "padding": ".5em 1em"
-                                }
-                            })
-                        ]),
-                        m("[id='setx']", {
-                            style: {
-                                "display": "none"
-                            }
-                        }),
-                        m("[id='models']", {
-                            style: {
-                                "display": "block",
-                                "padding": "6px 12px",
-                                "text-align": "center"
-                            }
-                        })
-                    ])
-                )
-            )
-        ]),
+        leftpanel(),
+        rightpanel(),
         m(".clearfix")
     ]),
     m("script", ),
