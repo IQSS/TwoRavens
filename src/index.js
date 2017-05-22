@@ -192,216 +192,218 @@ function rightpanel() {
     ]);
 }
 
-function view() {
-    return [
-        m("nav.navbar.navbar-default[id='option'][role='navigation']",
-            m("div", [
-                m(".navbar-header[id='navbarheader']", [
-                    m("img[alt='TwoRavens'][onmouseout='closeabout();'][onmouseover='about();'][src='images/TwoRavens.png'][width='100']", {
-                        style: {
-                            "margin-left": "2em",
-                            "margin-top": "-0.5em"
-                        }
-                    }),
-                    m(".panel.panel-default[id='about']", {
+class Body {
+    view() {
+        return m('main',
+            m("nav.navbar.navbar-default[id='option'][role='navigation']",
+                m("div", [
+                    m(".navbar-header[id='navbarheader']", [
+                        m("img[alt='TwoRavens'][onmouseout='closeabout();'][onmouseover='about();'][src='images/TwoRavens.png'][width='100']", {
                             style: {
-                                "position": "absolute",
-                                "left": "140px",
-                                "width": "380px",
-                                "display": "none",
-                                "z-index": "50"
+                                "margin-left": "2em",
+                                "margin-top": "-0.5em"
                             }
-                        },
+                        }),
+                        m(".panel.panel-default[id='about']", {
+                                style: {
+                                    "position": "absolute",
+                                    "left": "140px",
+                                    "width": "380px",
+                                    "display": "none",
+                                    "z-index": "50"
+                                }
+                            },
+                            m(".panel-body", )
+                        )
+                    ]),
+                    m(".field[id='dataField']", {
+                        style: {
+                            "text-align": "center",
+                            "margin-top": "0.5em"
+                        }
+                    }, [
+                        m("h4[id='dataName'][onclick='citetoggle=clickcite(citetoggle);'][onmouseout='closecite(citetoggle);'][onmouseover='opencite();']", {
+                                style: {
+                                    "display": "inline"
+                                }
+                            },
+                            "Dataset Name"
+                        ),
+                        m(".panel.panel-default[id='cite']", {
+                                style: {
+                                    "position": "absolute",
+                                    "right": "50%",
+                                    "width": "380px",
+                                    "display": "none",
+                                    "z-index": "50",
+                                    "text-align": "left"
+                                }
+                            },
+                            m(".panel-body", )
+                        ),
+                        m("button.btn.btn-default.ladda-button.navbar-right[data-spinner-color='#000000'][data-style='zoom-in'][id='btnEstimate'][onclick='estimate(\'btnEstimate\')']", {
+                                style: {
+                                    "margin-left": "2em",
+                                    "margin-right": "1em"
+                                }
+                            },
+                            m("span.ladda-label",
+                                "Estimate"
+                            )
+                        ),
+                        m("button.btn.btn-default.navbar-right[id='btnReset'][onclick='reset()'][title='Reset']", {
+                                style: {
+                                    "margin-left": "2.0em"
+                                }
+                            },
+                            m("span.glyphicon.glyphicon-repeat", {
+                                style: {
+                                    "font-size": "1em",
+                                    "color": "#818181",
+                                    "pointer-events": "none"
+                                }
+                            })
+                        ),
+                        m(".transformTool[id='transformations'][title='Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you could enter \'log(d)\' or \'d^2\'.']", )
+                    ])
+                ])
+            ),
+            m(".left.svg-leftpanel.svg-rightpanel.carousel.slide[id='main']", [
+                m(".carousel-inner", ),
+                m(".spaceTool[id='spacetools']", {
+                    style: {
+                        "z-index": "16"
+                    }
+                }, [
+                    m("button.btn.btn-default[id='btnForce'][onclick='forceSwitch()'][title='Pin the variable pebbles to the page.']",
+                        m("span.glyphicon.glyphicon-pushpin")
+                    ),
+                    m("button.btn.btn-default[id='btnEraser'][onclick='erase()'][title='Wipe all variables from the modeling space.']",
+                        m("span.glyphicon.glyphicon-magnet")
+                    )
+                ]),
+                m(".legendary.panel.panel-default[id='legend']", {
+                    style: {
+                        "display": "none"
+                    }
+                }, [
+                    m(".panel-heading",
+                        m("h3.panel-title", [
+                            "Legend  ",
+                            m("span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target='#collapseLegend'][data-toggle='collapse'][href='#collapseLegend'][onclick='$(this).toggleClass(\'glyphicon-chevron-up\').toggleClass(\'glyphicon-chevron-down\');']", {
+                                style: {
+                                    "cursor": "pointer",
+                                    "cursor": "hand"
+                                }
+                            })
+                        ])
+                    ),
+                    m(".panel-collapse.collapse.in[id='collapseLegend']",
+                        m(".panel-body", [
+                            m(".clearfix.hide[id='timeButton']", [
+                                m(".rectColor",
+                                    m("svg", {
+                                            style: {
+                                                "width": "20px",
+                                                "height": "20px"
+                                            }
+                                        },
+                                        m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
+                                    )
+                                ),
+                                m(".rectLabel",
+                                    "Time"
+                                )
+                            ]),
+                            m(".clearfix.hide[id='csButton']", [
+                                m(".rectColor",
+                                    m("svg", {
+                                            style: {
+                                                "width": "20px",
+                                                "height": "20px"
+                                            }
+                                        },
+                                        m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
+                                    )
+                                ),
+                                m(".rectLabel",
+                                    "Cross Sec"
+                                )
+                            ]),
+                            m(".clearfix.hide[id='dvButton']", [
+                                m(".rectColor",
+                                    m("svg", {
+                                            style: {
+                                                "width": "20px",
+                                                "height": "20px"
+                                            }
+                                        },
+                                        m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
+                                    )
+                                ),
+                                m(".rectLabel",
+                                    "Dep Var"
+                                )
+                            ]),
+                            m(".clearfix.hide[id='nomButton']", [
+                                m(".rectColor",
+                                    m("svg", {
+                                            style: {
+                                                "width": "20px",
+                                                "height": "20px"
+                                            }
+                                        },
+                                        m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
+                                    )
+                                ),
+                                m(".rectLabel",
+                                    "Nom Var"
+                                )
+                            ])
+                        ])
+                    )
+                ]),
+                m(".logbox.panel.panel-default[id='logdiv']", {
+                    style: {
+                        "display": "none"
+                    }
+                }, [
+                    m(".panel-heading",
+                        m("h3.panel-title", [
+                            "History ",
+                            m("span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target='#collapseLog'][data-toggle='collapse'][href='#collapseLog'][id='logicon'][onclick='$(this).toggleClass(\'glyphicon-chevron-down\').toggleClass(\'glyphicon-chevron-up\');']", {
+                                style: {
+                                    "cursor": "pointer",
+                                    "cursor": "hand"
+                                }
+                            })
+                        ])
+                    ),
+                    m(".panel-collapse.collapse.in[id='collapseLog']",
                         m(".panel-body", )
                     )
                 ]),
-                m(".field[id='dataField']", {
-                    style: {
-                        "text-align": "center",
-                        "margin-top": "0.5em"
-                    }
-                }, [
-                    m("h4[id='dataName'][onclick='citetoggle=clickcite(citetoggle);'][onmouseout='closecite(citetoggle);'][onmouseover='opencite();']", {
-                            style: {
-                                "display": "inline"
-                            }
-                        },
-                        "Dataset Name"
-                    ),
-                    m(".panel.panel-default[id='cite']", {
-                            style: {
-                                "position": "absolute",
-                                "right": "50%",
-                                "width": "380px",
-                                "display": "none",
-                                "z-index": "50",
-                                "text-align": "left"
-                            }
-                        },
-                        m(".panel-body", )
-                    ),
-                    m("button.btn.btn-default.ladda-button.navbar-right[data-spinner-color='#000000'][data-style='zoom-in'][id='btnEstimate'][onclick='estimate(\'btnEstimate\')']", {
-                            style: {
-                                "margin-left": "2em",
-                                "margin-right": "1em"
-                            }
-                        },
-                        m("span.ladda-label",
-                            "Estimate"
-                        )
-                    ),
-                    m("button.btn.btn-default.navbar-right[id='btnReset'][onclick='reset()'][title='Reset']", {
-                            style: {
-                                "margin-left": "2.0em"
-                            }
-                        },
-                        m("span.glyphicon.glyphicon-repeat", {
-                            style: {
-                                "font-size": "1em",
-                                "color": "#818181",
-                                "pointer-events": "none"
-                            }
-                        })
-                    ),
-                    m(".transformTool[id='transformations'][title='Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you could enter \'log(d)\' or \'d^2\'.']", )
-                ])
-            ])
-        ),
-        m(".left.svg-leftpanel.svg-rightpanel.carousel.slide[id='main']", [
-            m(".carousel-inner", ),
-            m(".spaceTool[id='spacetools']", {
-                style: {
-                    "z-index": "16"
-                }
-            }, [
-                m("button.btn.btn-default[id='btnForce'][onclick='forceSwitch()'][title='Pin the variable pebbles to the page.']",
-                    m("span.glyphicon.glyphicon-pushpin")
+                m("[id='ticker']", {
+                        style: {
+                            "position": "fixed",
+                            "height": "50px",
+                            "width": "100%",
+                            "background": "#F9F9F9",
+                            "bottom": "0"
+                        }
+                    },
+                    m("a[href='somelink'][id='logID'][target='_blank']",
+                        "Replication"
+                    )
                 ),
-                m("button.btn.btn-default[id='btnEraser'][onclick='erase()'][title='Wipe all variables from the modeling space.']",
-                    m("span.glyphicon.glyphicon-magnet")
-                )
+                leftpanel(),
+                rightpanel(),
+                m(".clearfix")
             ]),
-            m(".legendary.panel.panel-default[id='legend']", {
-                style: {
-                    "display": "none"
-                }
-            }, [
-                m(".panel-heading",
-                    m("h3.panel-title", [
-                        "Legend  ",
-                        m("span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target='#collapseLegend'][data-toggle='collapse'][href='#collapseLegend'][onclick='$(this).toggleClass(\'glyphicon-chevron-up\').toggleClass(\'glyphicon-chevron-down\');']", {
-                            style: {
-                                "cursor": "pointer",
-                                "cursor": "hand"
-                            }
-                        })
-                    ])
-                ),
-                m(".panel-collapse.collapse.in[id='collapseLegend']",
-                    m(".panel-body", [
-                        m(".clearfix.hide[id='timeButton']", [
-                            m(".rectColor",
-                                m("svg", {
-                                        style: {
-                                            "width": "20px",
-                                            "height": "20px"
-                                        }
-                                    },
-                                    m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
-                                )
-                            ),
-                            m(".rectLabel",
-                                "Time"
-                            )
-                        ]),
-                        m(".clearfix.hide[id='csButton']", [
-                            m(".rectColor",
-                                m("svg", {
-                                        style: {
-                                            "width": "20px",
-                                            "height": "20px"
-                                        }
-                                    },
-                                    m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
-                                )
-                            ),
-                            m(".rectLabel",
-                                "Cross Sec"
-                            )
-                        ]),
-                        m(".clearfix.hide[id='dvButton']", [
-                            m(".rectColor",
-                                m("svg", {
-                                        style: {
-                                            "width": "20px",
-                                            "height": "20px"
-                                        }
-                                    },
-                                    m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
-                                )
-                            ),
-                            m(".rectLabel",
-                                "Dep Var"
-                            )
-                        ]),
-                        m(".clearfix.hide[id='nomButton']", [
-                            m(".rectColor",
-                                m("svg", {
-                                        style: {
-                                            "width": "20px",
-                                            "height": "20px"
-                                        }
-                                    },
-                                    m("circle[cx='10'][cy='10'][fill='white'][r='9'][stroke='black'][stroke-width='2']")
-                                )
-                            ),
-                            m(".rectLabel",
-                                "Nom Var"
-                            )
-                        ])
-                    ])
-                )
-            ]),
-            m(".logbox.panel.panel-default[id='logdiv']", {
-                style: {
-                    "display": "none"
-                }
-            }, [
-                m(".panel-heading",
-                    m("h3.panel-title", [
-                        "History ",
-                        m("span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target='#collapseLog'][data-toggle='collapse'][href='#collapseLog'][id='logicon'][onclick='$(this).toggleClass(\'glyphicon-chevron-down\').toggleClass(\'glyphicon-chevron-up\');']", {
-                            style: {
-                                "cursor": "pointer",
-                                "cursor": "hand"
-                            }
-                        })
-                    ])
-                ),
-                m(".panel-collapse.collapse.in[id='collapseLog']",
-                    m(".panel-body", )
-                )
-            ]),
-            m("[id='ticker']", {
-                    style: {
-                        "position": "fixed",
-                        "height": "50px",
-                        "width": "100%",
-                        "background": "#F9F9F9",
-                        "bottom": "0"
-                    }
-                },
-                m("a[href='somelink'][id='logID'][target='_blank']",
-                    "Replication"
-                )
-            ),
-            leftpanel(),
-            rightpanel(),
-            m(".clearfix")
-        ]),
-        m("script", ),
-        m("script[src='app_ddi.js']")
-    ];
+            m("script", ),
+            m("script[src='app_ddi.js']")
+        );
+    }
 }
 
-m.render(document.body, view());
+m.mount(document.body, Body);
