@@ -4,6 +4,8 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
+import main from '../app_ddi.js';
+
 function leftpanel() {
     return m(".sidepanel.container.clearfix[id='leftpanel']", [
         m(".panelbar[id='toggleLpanelicon']",
@@ -267,7 +269,9 @@ class Body {
         console.log("apikey: " + apikey);
         console.log("ddiurl: " + ddiurl);
         console.log("dataurl: " + dataurl);
-    }
+    
+		main(fileid, hostname, ddiurl, dataurl);	
+	}
 
     view() {
         return m('main',

@@ -1,3 +1,5 @@
+var d3Color = '#1f77b4';  // d3's default blue
+
 // function to use d3 to graph density plots with preprocessed data
 function density(node, div, priv) {
     var mydiv;
