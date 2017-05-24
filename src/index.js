@@ -4,7 +4,7 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
-import main from '../app_ddi.js';
+import main from './app_ddi.js';
 
 function leftpanel() {
     return m(".sidepanel.container.clearfix[id='leftpanel']", [

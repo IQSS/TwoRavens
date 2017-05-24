@@ -32,16 +32,39 @@ var myspace = 0;
 var forcetoggle = ["true"];
 var priv = false;
 
+var zparams = {
+	zdata: [],
+	zedges: [],
+	ztime: [],
+	znom: [],
+	zcross: [],
+	zmodel: "",
+	zvars: [],
+	zdv: [],
+	zdataurl: "",
+	zsubset: [],
+	zsetx: [],
+	zmodelcount: 0,
+	zplot: [],
+	zsessionid: "",
+	zdatacite: ""
+};
+
+var modelCount = 0;
+var summaryHold = false;
+
 var valueKey = [];
 var allNodes = [];
 var nodes = [];
 var links = [];
 var mods = {};
 
-var svg, width, height, div, obj;
+var svg, width, height, div, obj, rappURL;
 var arc3, arc4;
 
+var dataurl;
 module.exports = function main(fileid, hostname, ddiurl, dataurl) {
+	dataurl = dataurl;
     var production = false;
 
     if (production && fileid == "") {
@@ -50,7 +73,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     }
 
     var dataverseurl = "";
-
     if (hostname) {
         dataverseurl = "https://" + hostname;
     } else if (production) {
@@ -72,9 +94,9 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
 
     // base URL for the R apps:
     if (!production) {
-        var rappURL = "http://0.0.0.0:8000/custom/";
+        rappURL = "http://0.0.0.0:8000/custom/";
     } else {
-        var rappURL = "https://beta.dataverse.org/custom/"; //this will change when/if the production host changes
+        rappURL = "https://beta.dataverse.org/custom/";
     }
 
     svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
@@ -111,31 +133,11 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var lefttab = "tab1"; //global for current tab in left panel
     var righttab = "btnModels"; // global for current tab in right panel
 
-    var zparams = {
-        zdata: [],
-        zedges: [],
-        ztime: [],
-        znom: [],
-        zcross: [],
-        zmodel: "",
-        zvars: [],
-        zdv: [],
-        zdataurl: "",
-        zsubset: [],
-        zsetx: [],
-        zmodelcount: 0,
-        zplot: [],
-        zsessionid: "",
-        zdatacite: ""
-    };
-
-
     //Width and height for histgrams
     var barwidth = 1.3 * allR;
     var barheight = 0.5 * allR;
     var barPadding = 0.35;
     var barnumber = 7;
-
 
     var arc0 = d3.svg.arc()
         .innerRadius(allR + 5)
@@ -161,7 +163,7 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         .startAngle(2.3)
         .endAngle(3.3);
 
-    var arc4 = d3.svg.arc()
+    arc4 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
         .startAngle(4.3)
@@ -174,17 +176,12 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var allResults = [];
     var subsetNodes = [];
     var transformVar = "";
-    var summaryHold = false;
     var selInteract = false;
-    var modelCount = 0;
     var callHistory = []; // unique to the space. saves transform and subset calls.
     var citetoggle = false;
 
-    // arry of objects containing allNode, zparams, transform vars
     var spaces = [];
     var trans = []; //var list for each space contain variables in original data plus trans in that space
-
-    // end of (most) global declarations (minus functions)
 
     // collapsable user log
     $('#collapseLog').on('shown.bs.collapse', function() {
@@ -195,25 +192,20 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
             .text(function(d) {
                 return d;
             });
-        //$("#logicon").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
     });
 
     $('#collapseLog').on('hidden.bs.collapse', function() {
         d3.select("#collapseLog div.panel-body").selectAll("p")
             .remove();
-        //$("#logicon").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
     });
-
 
     // text for the about box
     // note that .textContent is the new way to write text to a div
     $('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
 
-    //
     // read DDI metadata with d3:
     var metadataurl = "";
     if (ddiurl) {
-        // a complete ddiurl is supplied:
         metadataurl = ddiurl;
     } else if (fileid) {
         // file id supplied; we're going to cook a standard dataverse
@@ -221,37 +213,19 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         // supplied or configured:
         metadataurl = dataverseurl + "/api/meta/datafile/" + fileid;
     } else {
-        // neither a full ddi url, nor file id supplied; use one of the sample DDIs that come with
-        // the app, in the data directory:
-        // metadataurl="data/qog137.xml"; // quality of government
-        //metadataurl="data/fearonLaitin.xml"; // This is Fearon Laitin
+        // neither a full ddi url, nor file id supplied
+        // use one of the sample data files distributed with the app in the 'data' directory
         metadataurl = "data/PUMS5small-ddi.xml"; // This is California PUMS subset
-        //metadataurl="data/BP.formatted-ddi.xml";
-        //metadataurl="data/FL_insurance_sample-ddi.xml";
-        //metadataurl="data/strezhnev_voeten_2013.xml";   // This is Strezhnev Voeten
-        //metadataurl="data/19.xml"; // Fearon from DVN Demo
-        //metadataurl="data/76.xml"; // Collier from DVN Demo
-        //metadataurl="data/79.xml"; // two vars from DVN Demo
-        //metadataurl="data/000.xml"; // one var in metadata
-        //metadataurl="data/0000.xml"; // zero vars in metadata
     }
 
-    // Reading the pre-processed metadata:
+    // Reading pre-processed metadata:
     // Pre-processed data:
     var pURL = "";
     if (dataurl) {
-        // data url is supplied
         pURL = dataurl + "&format=prep";
     } else {
-        // no dataurl/file id supplied; use one of the sample data files distributed with the
-        // app in the "data" directory:
-        //pURL = "data/preprocess2429360.txt";   // This is the Strezhnev Voeten JSON data
-        // pURL = "data/fearonLaitin.json";     // This is the Fearon Laitin JSON data
-        //pURL = "data/fearonLaitinNewPreprocess3long.json";     // This is the revised (May 29, 2015) Fearon Laitin JSON data
-        pURL = "data/preprocessPUMS5small.json"; // This is California PUMS subset
-        //pURL = "data/FL_insurance_sample.tab.json";
-
-        // pURL = "data/qog_pp.json";   // This is Qual of Gov
+        // use one of the sample data files distributed with the app in the 'data' directory
+        pURL = "data/preprocessPUMS5small.json"; // California PUMS subset
     }
 
     var preprocess = {};
@@ -275,7 +249,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
             var cite = xml.documentElement.getElementsByTagName("biblCit");
             zparams.zdatacite = cite[0].childNodes[0].nodeValue;
             zparams.zdatacite = cleanstring(zparams.zdatacite);
-
 
             // dataset name trimmed to 12 chars
             var dataname = zparams.zdata.replace(/\.(.*)/, ""); // regular expression to drop any file extension
@@ -366,7 +339,7 @@ function scaffolding(callback) {
         .attr("type", "text")
         .attr("value", "Variable transformation");
 
-    // the variable dropdown
+    // variable dropdown
     d3.select("#transformations")
         .append("ul")
         .attr("id", "transSel")
@@ -376,11 +349,9 @@ function scaffolding(callback) {
         .data(["a", "b"]) //set to variables in model space as they're added
         .enter()
         .append("li")
-        .text(function(d) {
-            return d;
-        });
+        .text(d => d);
 
-    // the function dropdown
+    // function dropdown
     d3.select("#transformations")
         .append("ul")
         .attr("id", "transList")
@@ -390,11 +361,8 @@ function scaffolding(callback) {
         .data(transformList)
         .enter()
         .append("li")
-        .text(function(d) {
-            return d;
-        });
+        .text(d => d);
 
-    //jquery does this well
     $('#tInput').click(function() {
         var t = document.getElementById('transSel').style.display;
         if (t !== "none") { // if variable list is displayed when input is clicked...
@@ -443,7 +411,7 @@ function scaffolding(callback) {
         if ($(this).text() === "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
             selInteract = true;
-            $(this).parent().fadeOut(100);
+            $(this).parent().fandeOut(100);
             $('#transSel').fadeIn(100);
             event.stopPropagation();
             return;
@@ -465,15 +433,12 @@ function scaffolding(callback) {
         .attr("id", function(d) {
             return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
         }) // perhapse ensure this id is unique by adding '_' to the front?
-        .text(function(d) {
-            return d;
-        })
+        .text(d => d)
         .style('background-color', function(d) {
             if (findNodeIndex(d) > 2) {
                 return varColor;
-            } else {
-                return hexToRgba(selVarColor);
             }
+            return hexToRgba(selVarColor);
         })
         .attr("data-container", "body")
         .attr("data-toggle", "popover")
@@ -497,9 +462,7 @@ function scaffolding(callback) {
         .attr("id", function(d) {
             return "_model_".concat(d);
         })
-        .text(function(d) {
-            return d;
-        })
+        .text(d => d)
         .style('background-color', function(d) {
             return varColor;
         })
@@ -585,14 +548,13 @@ function layout(v) {
     panelPlots(); // after nodes is populated, add subset and setx panels
     populatePopover(); // pipes in the summary stats shown on mouseovers
 
-    // init D3 force layout
     var force = d3.layout.force()
         .nodes(nodes)
         .links(links)
         .size([width, height])
         .linkDistance(150)
         .charge(-800)
-        .on('tick', tick); // .start() is important to initialize the layout
+        .on('tick', tick);
 
     // define arrow markers for graph links
     svg.append('svg:defs').append('svg:marker')
@@ -704,7 +666,6 @@ function layout(v) {
                             if (dvIndex > -1) {
                                 zparams.zdv.splice(dvIndex, 1);
                             }
-                            //zparams.zdv="";
                         } else if (mySC == csColor) {
                             var csIndex = zparams.zcross.indexOf(myText);
                             if (csIndex > -1) {
@@ -733,13 +694,6 @@ function layout(v) {
         });
 
     d3.select("#models").selectAll("p") // models tab
-        .on("mouseover", function(d) {
-            // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
-        })
-        .on("mouseout", function() {
-            //Remove the tooltip
-            //d3.select("#tooltip").style("display", "none");
-        })
         //  d3.select("#Display_content")
         .on("click", function() {
             var myColor = d3.select(this).style('background-color');
@@ -789,7 +743,6 @@ function layout(v) {
                 return d.right ? 'url(#end-arrow)' : '';
             });
 
-
         // add new links
         path.enter().append('svg:path')
             .attr('class', 'link')
@@ -837,7 +790,6 @@ function layout(v) {
             });
 
         // add new nodes
-
         var g = circle.enter()
             .append('svg:g')
             .attr("id", function(d) {
@@ -951,7 +903,6 @@ function layout(v) {
             .attr('r', allR)
             .style('pointer-events', 'inherit')
             .style('fill', function(d) {
-                //      return (d === selected_node) ? d3.rgb(d.nodeCol).brighter().toString() : d.nodeCol; })
                 return d.nodeCol;
             })
             .style('opacity', "0.5")
@@ -1054,9 +1005,7 @@ function layout(v) {
             .attr('x', 0)
             .attr('y', 15)
             .attr('class', 'id')
-            .text(function(d) {
-                return d.name;
-            });
+            .text(d => d.name )
 
 
         // show summary stats on mouseover
@@ -1097,7 +1046,6 @@ function layout(v) {
                     .delay(0)
                     .duration(100);
             })
-            // popup(d, xPos, yPos);
 
             .on("mouseout", function(d) {
                 if (summaryHold === false) {
@@ -1182,19 +1130,16 @@ function layout(v) {
         // remove old nodes
         circle.exit().remove();
         force.start();
-    } //end restart function
+    }
 
     function mousedown(d) {
         // prevent I-bar on drag
         d3.event.preventDefault();
-
         // because :active only works in WebKit?
         svg.classed('active', true);
-
         if (d3.event.ctrlKey || mousedown_node || mousedown_link) {
             return;
         }
-
         restart();
     }
 
@@ -1207,7 +1152,6 @@ function layout(v) {
 
     function mouseup(d) {
         if (mousedown_node) {
-            // hide drag line
             drag_line
                 .classed('hidden', true)
                 .style('marker-end', '');
@@ -1240,7 +1184,6 @@ function layout(v) {
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
 } // end layout
-
 
 // returns id
 var findNodeIndex = function(nodeName) {
@@ -1294,9 +1237,7 @@ function zPop() {
     if (dataurl) {
         zparams.zdataurl = dataurl;
     }
-
     zparams.zmodelcount = modelCount;
-
     zparams.zedges = [];
     zparams.zvars = [];
 
@@ -1321,7 +1262,6 @@ function zPop() {
 }
 
 function estimate(btn) {
-
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
@@ -1330,17 +1270,15 @@ function estimate(btn) {
     zPop();
     // write links to file & run R CMD
 
-    //package the output as JSON
+    // package the output as JSON
     // add call history and package the zparams object as JSON
     zparams.callHistory = callHistory;
     var jsonout = JSON.stringify(zparams);
 
-    //var base = rappURL+"zeligapp?solaJSON="
     urlcall = rappURL + "zeligapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
-
 
     zparams.allVars = valueKey.slice(10, 25); // this is because the URL is too long...
     var jsonout = JSON.stringify(zparams);
@@ -1368,10 +1306,8 @@ function estimate(btn) {
         d3.select("#modelView")
             .style("display", "block");
 
-
         // programmatic click on Results button
         $("#btnResults").trigger("click");
-
 
         modelCount = modelCount + 1;
         var model = "Model".concat(modelCount);
@@ -1381,7 +1317,6 @@ function estimate(btn) {
                 .selectAll("p")
                 .style('background-color', hexToRgba(varColor));
         }
-
         modCol();
 
         d3.select("#modelView")
@@ -1393,7 +1328,7 @@ function estimate(btn) {
                 var a = this.style.backgroundColor.replace(/\s*/g, "");
                 var b = hexToRgba(selVarColor).replace(/\s*/g, "");
                 if (a.substr(0, 17) === b.substr(0, 17)) {
-                    return; //escapes the function early if the displayed model is clicked
+                    return; // escapes the function early if the displayed model is clicked
                 }
                 modCol();
                 d3.select(this)
@@ -1428,7 +1363,6 @@ function estimate(btn) {
     makeCorsRequest(urlcall, btn, estimateSuccess, estimateFail, solajsonout);
 }
 
-
 function dataDownload() {
     zPop();
     // write links to file & run R CMD
@@ -1438,7 +1372,6 @@ function dataDownload() {
     var jsonout = JSON.stringify(zparams);
     var btn = "nobutton";
 
-    //var base = rappURL+"zeligapp?solaJSON="
     urlcall = rappURL + "dataapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
@@ -2556,8 +2489,7 @@ function subsetSelect(btn) {
     };
 
     var jsonout = JSON.stringify(subsetstuff);
-    //var base = rappURL+"subsetapp?solaJSON="
-    urlcall = rappURL + "subsetapp"; //base.concat(jsonout);
+    urlcall = rappURL + "subsetapp";
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
