@@ -633,10 +633,6 @@ function layout(v) {
             $("body div.popover div.popover-content")
                 .addClass("form-horizontal");
         })
-        .on("mouseout", function() {
-            //Remove the tooltip
-            //d3.select("#tooltip").style("display", "none");
-        })
         .on("click", function varClick() {
             if (allNodes[findNodeIndex(this.id)].grayout) {
                 return null;
@@ -657,7 +653,6 @@ function layout(v) {
                         }
                         return hexToRgba(selVarColor);
                     } else { // dropping a variable
-
                         nodes.splice(findNode(myText)["index"], 1);
                         spliceLinksForNode(findNode(myText));
 
@@ -1275,7 +1270,7 @@ function estimate(btn) {
     zparams.callHistory = callHistory;
     var jsonout = JSON.stringify(zparams);
 
-    urlcall = rappURL + "zeligapp"; //base.concat(jsonout);
+    var urlcall = rappURL + "zeligapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
@@ -1372,7 +1367,7 @@ function dataDownload() {
     var jsonout = JSON.stringify(zparams);
     var btn = "nobutton";
 
-    urlcall = rappURL + "dataapp"; //base.concat(jsonout);
+    var urlcall = rappURL + "dataapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
@@ -1602,7 +1597,7 @@ function transform(n, t, typeTransform) {
     var jsonout = JSON.stringify(transformstuff);
     //var base = rappURL+"transformapp?solaJSON="
 
-    urlcall = rappURL + "transformapp"; //base.concat(jsonout);
+    var urlcall = rappURL + "transformapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
@@ -2489,7 +2484,7 @@ function subsetSelect(btn) {
     };
 
     var jsonout = JSON.stringify(subsetstuff);
-    urlcall = rappURL + "subsetapp";
+    var urlcall = rappURL + "subsetapp";
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
