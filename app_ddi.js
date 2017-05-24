@@ -17,23 +17,29 @@
 
 var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 var selVarColor = '#fa8072'; //d3.rgb("salmon");
+var dvColor = '#28a4c9';
+var nomColor = '#ff6600';
 
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
+
+// Radius of circle
+var allR = 40;
+
+// space index
+var myspace = 0;
+
+var forcetoggle = ["true"];
+var priv = false;
 
 var valueKey = [];
 var allNodes = [];
 var nodes = [];
 var links = [];
-
-var forcetoggle = ["true"];
 var mods = {};
 
-// space index
-var myspace = 0;
-var svg, width, height, div;
-
-var priv = false;
+var svg, width, height, div, obj;
+var arc3, arc4;
 
 module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var production = false;
@@ -64,8 +70,8 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         // as an argument -- L.A.)
     }
 
+    // base URL for the R apps:
     if (!production) {
-        // base URL for the R apps:
         var rappURL = "http://0.0.0.0:8000/custom/";
     } else {
         var rappURL = "https://beta.dataverse.org/custom/"; //this will change when/if the production host changes
@@ -95,9 +101,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var csColor = '#419641';
 
     var depVar = false;
-    var dvColor = '#28a4c9';
-
-    var nomColor = '#ff6600';
 
     var subsetdiv = false;
     var setxdiv = false;
@@ -127,9 +130,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     };
 
 
-    // Radius of circle
-    var allR = 40;
-
     //Width and height for histgrams
     var barwidth = 1.3 * allR;
     var barheight = 0.5 * allR;
@@ -155,7 +155,7 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         .startAngle(1.1)
         .endAngle(2.2);
 
-    var arc3 = d3.svg.arc()
+    arc3 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
         .startAngle(2.3)
@@ -256,15 +256,15 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
 
     var preprocess = {};
 
-    var url, p, v, callback;
     // this is the function and callback routine that loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
+    var url, p, v, callback;
     readPreprocess(url = pURL, p = preprocess, v = null, callback = function() {
         d3.xml(metadataurl, "application/xml", function(xml) {
             var vars = xml.documentElement.getElementsByTagName("var");
             var temp = xml.documentElement.getElementsByTagName("fileName");
             zparams.zdata = temp[0].childNodes[0].nodeValue;
 
-            // function to clean the citation so that the POST is valid json
+            // clean the citation so that the POST is valid json
             function cleanstring(s) {
                 s = s.replace(/\&/g, "and");
                 s = s.replace(/\;/g, ",");
@@ -287,15 +287,11 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
 
             // Put dataset name, from meta-data, into page title
             d3.select("title").html("TwoRavens " + dataname)
-            //d3.select("#title").html("blah");
 
             // temporary values for hold that correspond to histogram bins
             hold = [.6, .2, .9, .8, .1, .3, .4];
             var myvalues = [0, 0, 0, 0, 0];
-            // console.log("GOT HERE A");
-            // console.log(vars);
             for (var i = 0; i < vars.length; i++) {
-
                 valueKey[i] = vars[i].attributes.name.nodeValue;
 
                 if (vars[i].getElementsByTagName("labl").length === 0) {
@@ -326,10 +322,7 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
                     "setxvals": ["", ""],
                     "grayout": false
                 };
-
                 jQuery.extend(true, obj1, preprocess[valueKey[i]]);
-
-                // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
                 allNodes.push(obj1);
             };
 
@@ -365,7 +358,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
 function scaffolding(callback) {
-
     // establishing the transformation element
     d3.select("#transformations")
         .append("input")
@@ -440,9 +432,6 @@ function scaffolding(callback) {
             if (t === null) {
                 return;
             }
-            //console.log(t);
-            //console.log(t.slice(0, t.length-1));
-            //console.log(t[t.length-1]);
             transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
         }
     });
@@ -530,7 +519,6 @@ function scaffolding(callback) {
         callback(); // this calls layout() because at this point all scaffolding is up and ready
     }
 }
-
 
 function layout(v) {
     var myValues = [];
@@ -669,14 +657,10 @@ function layout(v) {
             return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
         });
 
-        //  if(forcetoggle){
         circle.attr('transform', function(d) {
             return 'translate(' + d.x + ',' + d.y + ')';
         });
-        //  };
-
     }
-
 
     //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
@@ -774,30 +758,19 @@ function layout(v) {
             restart();
         });
 
-
-
-
     // update graph (called when needed)
     function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
-
         circle.call(force.drag);
         if (forcetoggle[0] === "true") {
             force.gravity(0.1);
             force.charge(-800);
             force.linkStrength(1);
-            //  force.resume();
-
-            //  circle
-            //  .on('mousedown.drag', null)
-            //  .on('touchstart.drag', null);
         } else {
             force.gravity(0);
             force.charge(0);
             force.linkStrength(0);
-            //force.stop();
-            //  force.resume();
         }
         force.resume();
 
@@ -855,7 +828,6 @@ function layout(v) {
             })
             .style('fill', function(d) {
                 return d3.rgb(d.nodeCol);
-                //return (d === selected_node) ? d3.rgb(d.nodeCol).brighter() : d3.rgb(d.nodeCol); // IF d is equal to selected_node return brighter color ELSE return normal color
             })
             .style('stroke', function(d) {
                 return (d3.rgb(d.strokeColor));
@@ -989,21 +961,9 @@ function layout(v) {
             .classed('reflexive', function(d) {
                 return d.reflexive;
             })
-            .on('mouseover', function(d) {
-                //     if(!mousedown_node || d === mousedown_node) return;
-            })
-            .on('mouseout', function(d) {
-                //    if(!mousedown_node || d === mousedown_node) return;
-                // unenlarge target node
-                //tooltip.style("visibility", "hidden");
-                //    d3.select(this).attr('transform', '');
-            })
-            //      .on('mousedown', function(d) {
-            //         })
             .on('dblclick', function(d) {
                 d3.event.stopPropagation(); // stop click from bubbling
                 summaryHold = true;
-                //            document.getElementById('transformations').setAttribute("style", "display:block");
             })
             .on('contextmenu', function(d) { // right click on node
                 d3.event.preventDefault();
@@ -1176,8 +1136,6 @@ function layout(v) {
                     .attr("fill-opacity", 0)
                     .delay(100)
                     .duration(500);
-
-
             });
 
         // populating transformation dropdown
@@ -1201,7 +1159,6 @@ function layout(v) {
             });
 
         $('#transSel li').click(function(event) {
-
             // if 'interaction' is the selected function, don't show the function list again
             if (selInteract === true) {
                 var n = $('#tInput').val().concat($(this).text());
@@ -1226,7 +1183,6 @@ function layout(v) {
         circle.exit().remove();
         force.start();
     } //end restart function
-
 
     function mousedown(d) {
         // prevent I-bar on drag
@@ -1264,7 +1220,6 @@ function layout(v) {
     }
 
     // app starts here
-
     svg.attr('id', function() {
             return "whitespace".concat(myspace);
         })
@@ -1310,7 +1265,6 @@ var findNode = function(nodeName) {
     };
 }
 
-
 // function called by force button
 function forceSwitch() {
     if (forcetoggle[0] === "true") {
@@ -1326,7 +1280,6 @@ function forceSwitch() {
         fakeClick();
     }
 }
-
 
 function spliceLinksForNode(node) {
     var toSplice = links.filter(function(l) {
@@ -1350,9 +1303,6 @@ function zPop() {
     for (var j = 0; j < nodes.length; j++) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
-        //var temp = findNodeIndex(nodes[j].name);
-        //console.log("node ",nodes[j].id);
-        //console.log("temp ", temp);
 
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
@@ -1476,9 +1426,6 @@ function estimate(btn) {
 
     estimateLadda.start(); // start spinner
     makeCorsRequest(urlcall, btn, estimateSuccess, estimateFail, solajsonout);
-    //makeCorsRequest(selectorurlcall, btn, selectorSuccess, selectorFail, solajsonout);
-
-
 }
 
 
@@ -1519,8 +1466,6 @@ function dataDownload() {
     makeCorsRequest(urlcall, btn, downloadSuccess, downloadFail, solajsonout);
 }
 
-
-
 function viz(m) {
     var mym = +m.substr(5, 5) - 1;
 
@@ -1545,12 +1490,6 @@ function viz(m) {
         document.getElementById("resultsView").appendChild(zfig);
     }
 
-    // var rCall = [];
-    // rCall[0] = json.call;
-    // logArray.push("estimate: ".concat(rCall[0]));
-    // showLog();
-
-
     // write the results table
     var resultsArray = [];
     for (var key in json.sumInfo) {
@@ -1558,7 +1497,7 @@ function viz(m) {
             continue;
         }
 
-        var obj = json.sumInfo[key];
+        obj = json.sumInfo[key];
         resultsArray.push(obj);
         /* SO says this is important check, but I don't see how it helps here...
          for (var prop in obj) {
@@ -1572,7 +1511,6 @@ function viz(m) {
 
     var table = d3.select("#resultsView")
         .append("p")
-        //    .html("<center><b>Results</b></center>")
         .append("table");
 
     var thead = table.append("thead");
@@ -1617,7 +1555,6 @@ function viz(m) {
 
 // this function parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
 function transParse(n) {
-
     var out2 = [];
     var t2 = n;
     var k2 = 0;
@@ -1674,7 +1611,6 @@ function transParse(n) {
 }
 
 function transform(n, t, typeTransform) {
-
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
@@ -1688,7 +1624,6 @@ function transform(n, t, typeTransform) {
     console.log(t);
 
     var btn = document.getElementById('btnEstimate');
-
 
     var myn = allNodes[findNodeIndex(n[0])];
     if (typeof myn === "undefined") {
@@ -1721,7 +1656,6 @@ function transform(n, t, typeTransform) {
         }
     }
 
-
     //package the output as JSON
     var transformstuff = {
         zdataurl: dataurl,
@@ -1739,8 +1673,6 @@ function transform(n, t, typeTransform) {
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
-
-
 
     function transformSuccess(btn, json) {
         estimateLadda.stop();
@@ -1769,7 +1701,6 @@ function transform(n, t, typeTransform) {
                 console.log(allNodes[myIndex]);
             });
         } else {
-
             callHistory.push({
                 func: "transform",
                 zvars: n,
