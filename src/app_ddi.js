@@ -15,13 +15,19 @@
 // local files if nothing is supplied. 
 // -- L.A.
 
+var production = false;
+
 var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 var selVarColor = '#fa8072'; //d3.rgb("salmon");
 var dvColor = '#28a4c9';
 var nomColor = '#ff6600';
 
+var lefttab = "tab1"; // current tab in left panel
+var righttab = "btnModels"; // current tab in right panel
+
 // transformation toolbar options
 var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
+var transformVar = '';
 
 // Radius of circle
 var allR = 40;
@@ -58,14 +64,15 @@ var allNodes = [];
 var nodes = [];
 var links = [];
 var mods = {};
+var selInteract = false;
+var callHistory = []; // unique to the space. saves transform and subset calls.
 
-var svg, width, height, div, obj, rappURL;
+var svg, width, height, div, obj, rappURL, estimateLadda, selectLadda;
 var arc3, arc4;
 
 var dataurl;
 module.exports = function main(fileid, hostname, ddiurl, dataurl) {
-	dataurl = dataurl;
-    var production = false;
+    dataurl = dataurl;
 
     if (production && fileid == "") {
         alert("Error: No fileid has been provided.");
@@ -109,8 +116,8 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     height = $(window).height() - 120; // Hard coding for header and footer and bottom margin.
 
     var estimated = false;
-    var estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
-    var selectLadda = Ladda.create(document.getElementById("btnSelect"));
+    estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
+    selectLadda = Ladda.create(document.getElementById("btnSelect"));
     var rightClickLast = false;
 
     // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
@@ -129,9 +136,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
 
     var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
     var grayColor = '#c0c0c0';
-
-    var lefttab = "tab1"; //global for current tab in left panel
-    var righttab = "btnModels"; // global for current tab in right panel
 
     //Width and height for histgrams
     var barwidth = 1.3 * allR;
@@ -175,9 +179,6 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var hold = [];
     var allResults = [];
     var subsetNodes = [];
-    var transformVar = "";
-    var selInteract = false;
-    var callHistory = []; // unique to the space. saves transform and subset calls.
     var citetoggle = false;
 
     var spaces = [];
@@ -384,6 +385,8 @@ function scaffolding(callback) {
         return false;
     });
 
+    var n, typeTransform;
+
     $('#tInput').keyup(function(event) {
         var t = document.getElementById('transSel').style.display;
         var t1 = document.getElementById('transList').style.display;
@@ -395,7 +398,7 @@ function scaffolding(callback) {
         }
 
         if (event.keyCode == 13) { // keyup on "Enter"
-            var n = $('#tInput').val();
+            n = $('#tInput').val();
             var t = transParse(n = n);
             if (t === null) {
                 return;
@@ -404,6 +407,7 @@ function scaffolding(callback) {
         }
     });
 
+    var t;
     $('#transList li').click(function(event) {
         var tvar = $('#tInput').val();
 
