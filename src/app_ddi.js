@@ -1,19 +1,15 @@
-//////////
-// Globals
-
 // hostname default - the app will use it to obtain the variable metadata
-// (ddi) and pre-processed data info if the file id is supplied as an 
-// argument (for ex., gui.html?dfId=17), but hostname isn't. 
-// Edit it to suit your installation. 
-// (NOTE that if the file id isn't supplied, the app will default to the 
+// (ddi) and pre-processed data info if the file id is supplied as an
+// argument (for ex., gui.html?dfId=17), but hostname isn't.
+// Edit it to suit your installation.
+// (NOTE that if the file id isn't supplied, the app will default to the
 // local files specified below!)
-// NEW: it is also possible now to supply complete urls for the ddi and 
-// the tab-delimited data file; the parameters are ddiurl and dataurl. 
+// NEW: it is also possible now to supply complete urls for the ddi and
+// the tab-delimited data file; the parameters are ddiurl and dataurl.
 // These new parameters are optional. If they are not supplied, the app
-// will go the old route - will try to cook standard dataverse urls 
-// for both the data and metadata, if the file id is supplied; or the 
-// local files if nothing is supplied. 
-// -- L.A.
+// will go the old route - will try to cook standard dataverse urls
+// for both the data and metadata, if the file id is supplied; or the
+// local files if nothing is supplied.
 
 var production = false;
 
@@ -26,7 +22,7 @@ var lefttab = "tab1"; // current tab in left panel
 var righttab = "btnModels"; // current tab in right panel
 
 // transformation toolbar options
-var transformList = ["log(d)", "exp(d)", "d^2", "sqrt(d)", "interact(d,e)"];
+var transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split();
 var transformVar = '';
 
 // Radius of circle
@@ -70,10 +66,13 @@ var callHistory = []; // unique to the space. saves transform and subset calls.
 var svg, width, height, div, obj, rappURL, estimateLadda, selectLadda;
 var arc3, arc4;
 
-var dataurl;
-module.exports = function main(fileid, hostname, ddiurl, dataurl) {
-    dataurl = dataurl;
+function byId(id) {
+		return document.getElementById(id);
+}
 
+var dataurl;
+export function main(fileid, hostname, ddiurl, dataurl) {
+    dataurl = dataurl;
     if (production && fileid == "") {
         alert("Error: No fileid has been provided.");
         throw new Error("Error: No fileid has been provided.");
@@ -89,22 +88,13 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     }
 
     if (fileid && !dataurl) {
-        // file id supplied; we are going to assume that we are dealing with
-        // a dataverse and cook a standard dataverse data access url,
-        // with the fileid supplied and the hostname we have
-        // either supplied or configured:
+        // file id supplied; assume we are dealing with dataverse and cook a standard dataverse data access url
+        // with the fileid supplied and the hostname we have supplied or configured
         dataurl = dataverseurl + "/api/access/datafile/" + fileid;
         dataurl = dataurl + "?key=" + apikey;
-        // (it is also possible to supply dataurl to the script directly, 
-        // as an argument -- L.A.)
     }
 
-    // base URL for the R apps:
-    if (!production) {
-        rappURL = "http://0.0.0.0:8000/custom/";
-    } else {
-        rappURL = "https://beta.dataverse.org/custom/";
-    }
+    rappURL = (production ? 'https://beta.dataverse.org/' : 'http://0.0.0.0:8000/') + '/custom/';
 
     svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
         .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
@@ -116,21 +106,21 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     height = $(window).height() - 120; // Hard coding for header and footer and bottom margin.
 
     var estimated = false;
-    estimateLadda = Ladda.create(document.getElementById("btnEstimate"));
-    selectLadda = Ladda.create(document.getElementById("btnSelect"));
+    estimateLadda = Ladda.create(byId("btnEstimate"));
+    selectLadda = Ladda.create(byId("btnSelect"));
     var rightClickLast = false;
 
-    // this is the initial color scale that is used to establish the initial colors of the nodes.  allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field.  everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
+    // initial color scale used to establish the initial colors of nodes
+		// allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
+		// everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
     var colors = d3.scale.category20();
 
     var colorTime = false;
     var timeColor = '#2d6ca2';
-
     var colorCS = false;
     var csColor = '#419641';
 
     var depVar = false;
-
     var subsetdiv = false;
     var setxdiv = false;
 
@@ -148,25 +138,21 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         .outerRadius(allR + 20)
         .startAngle(0)
         .endAngle(3.2);
-
     var arc1 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
         .startAngle(0)
         .endAngle(1);
-
     var arc2 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
         .startAngle(1.1)
         .endAngle(2.2);
-
     arc3 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
         .startAngle(2.3)
         .endAngle(3.3);
-
     arc4 = d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
@@ -182,29 +168,23 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
     var citetoggle = false;
 
     var spaces = [];
-    var trans = []; //var list for each space contain variables in original data plus trans in that space
+    var trans = []; // var list for each space contain variables in original data plus trans in that space
 
-    // collapsable user log
-    $('#collapseLog').on('shown.bs.collapse', function() {
+		// collapsable user log
+    $('#collapseLog').on('shown.bs.collapse', () => {
         d3.select("#collapseLog div.panel-body").selectAll("p")
             .data(logArray)
             .enter()
             .append("p")
-            .text(function(d) {
-                return d;
-            });
+            .text(d => d);
     });
-
-    $('#collapseLog').on('hidden.bs.collapse', function() {
+    $('#collapseLog').on('hidden.bs.collapse', () => {
         d3.select("#collapseLog div.panel-body").selectAll("p")
             .remove();
     });
 
-    // text for the about box
-    // note that .textContent is the new way to write text to a div
-    $('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'); //This is the first public release of a new, interactive Web application to explore data, view descriptive statistics, and estimate statistical models.";
-
-    // read DDI metadata with d3:
+    $('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.');
+    // read DDI metadata with d3
     var metadataurl = "";
     if (ddiurl) {
         metadataurl = ddiurl;
@@ -219,22 +199,19 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
         metadataurl = "data/PUMS5small-ddi.xml"; // This is California PUMS subset
     }
 
-    // Reading pre-processed metadata:
-    // Pre-processed data:
+    // read pre-processed metadata and data:
     var pURL = "";
     if (dataurl) {
         pURL = dataurl + "&format=prep";
     } else {
-        // use one of the sample data files distributed with the app in the 'data' directory
         pURL = "data/preprocessPUMS5small.json"; // California PUMS subset
     }
-
     var preprocess = {};
 
-    // this is the function and callback routine that loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
+		// loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
     var url, p, v, callback;
     readPreprocess(url = pURL, p = preprocess, v = null, callback = function() {
-        d3.xml(metadataurl, "application/xml", function(xml) {
+        d3.xml(metadataurl, "application/xml", xml =>  {
             var vars = xml.documentElement.getElementsByTagName("var");
             var temp = xml.documentElement.getElementsByTagName("fileName");
             zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -250,35 +227,27 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
             var cite = xml.documentElement.getElementsByTagName("biblCit");
             zparams.zdatacite = cite[0].childNodes[0].nodeValue;
             zparams.zdatacite = cleanstring(zparams.zdatacite);
-
             // dataset name trimmed to 12 chars
-            var dataname = zparams.zdata.replace(/\.(.*)/, ""); // regular expression to drop any file extension
-            // Put dataset name, from meta-data, into top panel
+            var dataname = zparams.zdata.replace(/\.(.*)/, ""); // drop any file extension
             d3.select("#dataName")
                 .html(dataname);
-
             $('#cite div.panel-body').text(zparams.zdatacite);
 
             // Put dataset name, from meta-data, into page title
             d3.select("title").html("TwoRavens " + dataname)
-
             // temporary values for hold that correspond to histogram bins
             hold = [.6, .2, .9, .8, .1, .3, .4];
             var myvalues = [0, 0, 0, 0, 0];
             for (var i = 0; i < vars.length; i++) {
                 valueKey[i] = vars[i].attributes.name.nodeValue;
-
-                if (vars[i].getElementsByTagName("labl").length === 0) {
-                    lablArray[i] = "no label";
-                } else {
-                    lablArray[i] = vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
-                }
-
+                lablArray[i] = vars[i].getElementsByTagName("labl").length == 0 ?
+										"no label" :
+                		vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
                 var datasetcount = d3.layout.histogram()
                     .bins(barnumber).frequency(false)
                     (myvalues);
-
-                // this creates an object to be pushed to allNodes. this contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
+                // creates an object to be pushed to allNodes
+								// contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
                 var obj1 = {
                     id: i,
                     reflexive: false,
@@ -301,27 +270,22 @@ module.exports = function main(fileid, hostname, ddiurl, dataurl) {
             };
 
             // Reading the zelig models and populating the model list in the right panel.
-            d3.json("data/zelig5models.json", function(error, json) {
-                if (error) return console.warn(error);
-                var jsondata = json;
-
-                console.log("zelig models json: ", jsondata);
+            d3.json("data/zelig5models.json", (err, data) => {
+                if (err)
+										return console.warn(err);
+                console.log("zelig models json: ", data);
                 for (var key in jsondata.zelig5models) {
-                    if (jsondata.zelig5models.hasOwnProperty(key)) {
+                    if (jsondata.zelig5models.hasOwnProperty(key))
                         mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
-                    }
                 }
-
-                d3.json("data/zelig5choicemodels.json", function(error, json) {
-                    if (error) return console.warn(error);
-                    var jsondata = json;
-                    console.log("zelig choice models json: ", jsondata);
+                d3.json("data/zelig5choicemodels.json", (err, data) => {
+                    if (err)
+												return console.warn(err);
+                    console.log("zelig choice models json: ", data);
                     for (var key in jsondata.zelig5choicemodels) {
-                        if (jsondata.zelig5choicemodels.hasOwnProperty(key)) {
+                        if (jsondata.zelig5choicemodels.hasOwnProperty(key))
                             mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
-                        }
                     }
-
                     scaffolding(callback = layout);
                     dataDownload();
                 });
@@ -364,13 +328,13 @@ function scaffolding(callback) {
         .append("li")
         .text(d => d);
 
-    $('#tInput').click(function() {
-        var t = document.getElementById('transSel').style.display;
+    $('#tInput').click(() => {
+        var t = byId('transSel').style.display;
         if (t !== "none") { // if variable list is displayed when input is clicked...
             $('#transSel').fadeOut(100);
             return false;
         }
-        var t1 = document.getElementById('transList').style.display;
+        var t1 = byId('transList').style.display;
         if (t1 !== "none") { // if function list is displayed when input is clicked...
             $('#transList').fadeOut(100);
             return false;
@@ -378,7 +342,6 @@ function scaffolding(callback) {
 
         // highlight the text
         $(this).select();
-
         var pos = $('#tInput').offset();
         pos.top += $('#tInput').width();
         $('#transSel').fadeIn(100);
@@ -387,9 +350,9 @@ function scaffolding(callback) {
 
     var n, typeTransform;
 
-    $('#tInput').keyup(function(event) {
-        var t = document.getElementById('transSel').style.display;
-        var t1 = document.getElementById('transList').style.display;
+    $('#tInput').keyup(event => {
+        var t = byId('transSel').style.display;
+        var t1 = byId('transList').style.display;
 
         if (t !== "none") {
             $('#transSel').fadeOut(100);
@@ -400,17 +363,14 @@ function scaffolding(callback) {
         if (event.keyCode == 13) { // keyup on "Enter"
             n = $('#tInput').val();
             var t = transParse(n = n);
-            if (t === null) {
+            if (t === null)
                 return;
-            }
             transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
         }
     });
 
     var t;
-    $('#transList li').click(function(event) {
-        var tvar = $('#tInput').val();
-
+    $('#transList li').click(event => {
         // if interact is selected, show variable list again
         if ($(this).text() === "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
@@ -421,6 +381,7 @@ function scaffolding(callback) {
             return;
         }
 
+        var tvar = $('#tInput').val();
         var tfunc = $(this).text().replace("d", "_transvar0");
         var tcall = $(this).text().replace("d", tvar);
         $('#tInput').val(tcall);
@@ -434,14 +395,13 @@ function scaffolding(callback) {
         .data(valueKey)
         .enter()
         .append("p")
-        .attr("id", function(d) {
-            return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
-        }) // perhapse ensure this id is unique by adding '_' to the front?
+				// replace non-alphanumerics for selection purposes)
+				// perhaps ensure this id is unique by adding '_' to the front?
+        .attr("id", d => d.replace(/\W/g, "_"))
         .text(d => d)
-        .style('background-color', function(d) {
-            if (findNodeIndex(d) > 2) {
+        .style('background-color', d => {
+            if (findNodeIndex(d) > 2)
                 return varColor;
-            }
             return hexToRgba(selVarColor);
         })
         .attr("data-container", "body")
@@ -457,19 +417,13 @@ function scaffolding(callback) {
         .style('height', 2000)
         .style('overfill', 'scroll');
 
-    var modellist = Object.keys(mods);
-
     d3.select("#models").selectAll("p")
-        .data(modellist)
+        .data(Object.keys(mods))
         .enter()
         .append("p")
-        .attr("id", function(d) {
-            return "_model_".concat(d);
-        })
+        .attr("id", "_model_".concat)
         .text(d => d)
-        .style('background-color', function(d) {
-            return varColor;
-        })
+        .style('background-color', d => varColor)
         .attr("data-container", "body")
         .attr("data-toggle", "popover")
         .attr("data-trigger", "hover")
@@ -478,13 +432,10 @@ function scaffolding(callback) {
         .attr("onmouseover", "$(this).popover('toggle');")
         .attr("onmouseout", "$(this).popover('toggle');")
         .attr("data-original-title", "Model Description")
-        .attr("data-content", function(d) {
-            return mods[d];
-        });
+        .attr("data-content", d => mods[d]);
 
-    if (typeof callback === "function") {
-        callback(); // this calls layout() because at this point all scaffolding is up and ready
-    }
+ // call layout() because at this point all scaffolding is up and ready
+    if (typeof callback === "function") callback();
 }
 
 function layout(v) {
@@ -496,15 +447,12 @@ function layout(v) {
         d3.select("#tab1").selectAll("p").style('background-color', varColor);
         for (var j = 0; j < zparams.zvars.length; j++) {
             var ii = findNodeIndex(zparams.zvars[j]);
-            if (allNodes[ii].grayout) {
+            if (allNodes[ii].grayout)
                 continue;
-            }
             nodes.push(allNodes[ii]);
             var selectMe = zparams.zvars[j].replace(/\W/g, "_");
             selectMe = "#".concat(selectMe);
-            d3.select(selectMe).style('background-color', function() {
-                return hexToRgba(nodes[j].strokeColor);
-            });
+            d3.select(selectMe).style('background-color', () => hexToRgba(nodes[j].strokeColor));
         }
 
         for (var j = 0; j < zparams.zedges.length; j++) {
@@ -608,7 +556,7 @@ function layout(v) {
     // update force layout (called automatically each iteration)
     function tick() {
         // draw directed edges with proper padding from node centers
-        path.attr('d', function(d) {
+        path.attr('d', d => {
             var deltaX = d.target.x - d.source.x,
                 deltaY = d.target.y - d.source.y,
                 dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -622,10 +570,7 @@ function layout(v) {
                 targetY = d.target.y - (targetPadding * normY);
             return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
         });
-
-        circle.attr('transform', function(d) {
-            return 'translate(' + d.x + ',' + d.y + ')';
-        });
+        circle.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
     }
 
     //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
@@ -638,9 +583,8 @@ function layout(v) {
                 .addClass("form-horizontal");
         })
         .on("click", function varClick() {
-            if (allNodes[findNodeIndex(this.id)].grayout) {
+            if (allNodes[findNodeIndex(this.id)].grayout)
                 return null;
-            }
             d3.select(this)
                 .style('background-color', function(d) {
                     var myText = d3.select(this).text();
@@ -694,12 +638,12 @@ function layout(v) {
 
     d3.select("#models").selectAll("p") // models tab
         //  d3.select("#Display_content")
-        .on("click", function() {
+        .on("click", () => {
             var myColor = d3.select(this).style('background-color');
             d3.select("#models").selectAll("p")
                 .style('background-color', varColor);
             d3.select(this)
-                .style('background-color', function(d) {
+                .style('background-color', d =>  {
                     if (d3.rgb(myColor).toString() === varColor.toString()) {
                         zparams.zmodel = d.toString();
                         return hexToRgba(selVarColor);
@@ -1013,8 +957,8 @@ function layout(v) {
             .on("mouseover", function(d) {
                 tabLeft("tab3");
                 varSummary(d);
-                document.getElementById('transformations').setAttribute("style", "display:block");
-                var select = document.getElementById("transSel");
+                byId('transformations').setAttribute("style", "display:block");
+                var select = byId("transSel");
                 select.selectedIndex = d.id;
                 transformVar = valueKey[d.id];
 
@@ -1216,9 +1160,9 @@ function forceSwitch() {
     }
 
     if (forcetoggle[0] === "false") {
-        document.getElementById('btnForce').setAttribute("class", "btn active");
+        byId('btnForce').setAttribute("class", "btn active");
     } else {
-        document.getElementById('btnForce').setAttribute("class", "btn btn-default");
+        byId('btnForce').setAttribute("class", "btn btn-default");
         fakeClick();
     }
 }
@@ -1290,9 +1234,9 @@ function estimate(btn) {
         console.log(allResults);
         console.log("json in: ", json);
 
-        var myparent = document.getElementById("results");
+        var myparent = byId("results");
         if (estimated == false) {
-            myparent.removeChild(document.getElementById("resultsHolder"));
+            myparent.removeChild(byId("resultsHolder"));
         }
 
         estimated = true;
@@ -1383,10 +1327,10 @@ function dataDownload() {
         // set the link URL
         if (production) {
             var logURL = rappURL + "log_dir/log_" + zparams.zsessionid + ".txt";
-            document.getElementById("logID").href = logURL;
+            byId("logID").href = logURL;
         } else {
             var logURL = "rook/log_" + zparams.zsessionid + ".txt";
-            document.getElementById("logID").href = logURL;
+            byId("logID").href = logURL;
         }
 
     }
@@ -1407,7 +1351,7 @@ function viz(m) {
         }
     }
 
-    var myparent = document.getElementById("resultsView");
+    var myparent = byId("resultsView");
     removeKids(myparent);
 
     var json = allResults[mym];
@@ -1419,7 +1363,7 @@ function viz(m) {
         zfig.setAttribute("src", json.images[i]);
         zfig.setAttribute('width', 200);
         zfig.setAttribute('height', 200);
-        document.getElementById("resultsView").appendChild(zfig);
+        byId("resultsView").appendChild(zfig);
     }
 
     // write the results table
@@ -1485,7 +1429,7 @@ function viz(m) {
         });
 }
 
-// this function parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
+// parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
 function transParse(n) {
     var out2 = [];
     var t2 = n;
@@ -1555,7 +1499,7 @@ function transform(n, t, typeTransform) {
     console.log(n);
     console.log(t);
 
-    var btn = document.getElementById('btnEstimate');
+    var btn = byId('btnEstimate');
 
     var myn = allNodes[findNodeIndex(n[0])];
     if (typeof myn === "undefined") {
@@ -1599,9 +1543,7 @@ function transform(n, t, typeTransform) {
         typeStuff: outtypes
     };
     var jsonout = JSON.stringify(transformstuff);
-    //var base = rappURL+"transformapp?solaJSON="
-
-    var urlcall = rappURL + "transformapp"; //base.concat(jsonout);
+    var urlcall = rappURL + "transformapp";
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
@@ -1609,24 +1551,17 @@ function transform(n, t, typeTransform) {
     function transformSuccess(btn, json) {
         estimateLadda.stop();
         console.log("json in: ", json);
-
         if (json.typeTransform[0]) {
-
-            d3.json(json.url, function(error, json) {
-                if (error) return console.warn(error);
+            d3.json(json.url, (error, json) => {
+                if (error)
+										return console.warn(error);
                 var jsondata = json;
-
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
-
-                    if (allNodes[myIndex].plottype === "continuous") {
-                        densityNode(allNodes[myIndex]);
-                    } else if (allNodes[myIndex].plottype === "bar") {
-                        barsNode(allNodes[myIndex]);
-                    }
+                    if (allNodes[myIndex].plottype === "continuous") densityNode(allNodes[myIndex]);
+                    else if (allNodes[myIndex].plottype === "bar") barsNode(allNodes[myIndex]);
                 }
-
                 fakeClick();
                 populatePopover();
                 panelPlots();
@@ -1807,7 +1742,7 @@ function createCORSRequest(method, url, callback) {
         // CORS not supported.
         xhr = null;
     }
-    //    xhr.setRequestHeader('Content-Type', 'text/plain');
+    // xhr.setRequestHeader('Content-Type', 'text/plain');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     return xhr;
 }
@@ -1859,34 +1794,32 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
     xhr.send(jsonstring);
 }
 
-function legend(c) { // this could be made smarter
+function legend(c) {
     if (zparams.ztime.length != 0 | zparams.zcross.length != 0 | zparams.zdv.length != 0 | zparams.znom.length != 0) {
-        document.getElementById("legend").setAttribute("style", "display:block");
+        byId("legend").setAttribute("style", "display:block");
     } else {
-        document.getElementById("legend").setAttribute("style", "display:none");
+        byId("legend").setAttribute("style", "display:none");
     }
-
     if (zparams.ztime.length == 0) {
-        document.getElementById("timeButton").setAttribute("class", "clearfix hide");
+        byId("timeButton").setAttribute("class", "clearfix hide");
     } else {
-        document.getElementById("timeButton").setAttribute("class", "clearfix show");
+        byId("timeButton").setAttribute("class", "clearfix show");
     }
     if (zparams.zcross.length == 0) {
-        document.getElementById("csButton").setAttribute("class", "clearfix hide");
+        byId("csButton").setAttribute("class", "clearfix hide");
     } else {
-        document.getElementById("csButton").setAttribute("class", "clearfix show");
+        byId("csButton").setAttribute("class", "clearfix show");
     }
     if (zparams.zdv.length == 0) {
-        document.getElementById("dvButton").setAttribute("class", "clearfix hide");
+        byId("dvButton").setAttribute("class", "clearfix hide");
     } else {
-        document.getElementById("dvButton").setAttribute("class", "clearfix show");
+        byId("dvButton").setAttribute("class", "clearfix show");
     }
     if (zparams.znom.length == 0) {
-        document.getElementById("nomButton").setAttribute("class", "clearfix hide");
+        byId("nomButton").setAttribute("class", "clearfix hide");
     } else {
-        document.getElementById("nomButton").setAttribute("class", "clearfix show");
+        byId("nomButton").setAttribute("class", "clearfix show");
     }
-
     borderState();
 }
 
@@ -1898,19 +1831,15 @@ function reset() {
 function erase() {
     leftpanelMedium();
     rightpanelMedium();
-    document.getElementById("legend").setAttribute("style", "display:none");
-
+    byId("legend").setAttribute("style", "display:none");
     tabLeft('tab1');
-
-    jQuery.fn.d3Click = function() {
-        this.children().each(function(i, e) {
+    jQuery.fn.d3Click = () => {
+        this.children().each((i, e) => {
             var mycol = d3.rgb(this.style.backgroundColor);
-            if (mycol.toString() === varColor.toString()) {
+            if (mycol.toString() === varColor.toString())
                 return;
-            }
             var evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-
             e.dispatchEvent(evt);
         });
     };
@@ -1941,81 +1870,68 @@ function loadXMLDoc(XMLname) {
     return null;
 }
 
-
-function tabLeft(tab) {
-
+export function tabLeft(tab) {
     if (tab != "tab3") {
         lefttab = tab;
     }
     var tabi = tab.substring(3);
-
-    document.getElementById('tab1').style.display = 'none';
-    document.getElementById('tab2').style.display = 'none';
-    document.getElementById('tab3').style.display = 'none';
-
+    byId('tab1').style.display = 'none';
+    byId('tab2').style.display = 'none';
+    byId('tab3').style.display = 'none';
     if (tab === "tab1") {
         summaryHold = false;
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
-        document.getElementById('btnVariables').setAttribute("class", "btn active");
-        document.getElementById("btnSelect").style.display = 'none';
-
+        byId('btnSubset').setAttribute("class", "btn btn-default");
+        byId('btnVariables').setAttribute("class", "btn active");
+        byId("btnSelect").style.display = 'none';
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
     } else if (tab === "tab2") {
         summaryHold = false;
-        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSubset').setAttribute("class", "btn active");
-
+        byId('btnVariables').setAttribute("class", "btn btn-default");
+        byId('btnSubset').setAttribute("class", "btn active");
         d3.select("#leftpanel")
             .attr("class", function(d) {
                 if (this.getAttribute("class") === "sidepanel container clearfix expandpanel") {
-                    document.getElementById("btnSelect").style.display = 'none';
+                    byId("btnSelect").style.display = 'none';
                     return "sidepanel container clearfix";
                 } else {
-                    document.getElementById("btnSelect").style.display = 'block';
+                    byId("btnSelect").style.display = 'block';
                     return "sidepanel container clearfix expandpanel";
                 }
             });
     } else {
-        document.getElementById('btnSubset').setAttribute("class", "btn btn-default");
-        document.getElementById('btnVariables').setAttribute("class", "btn btn-default");
-
+        byId('btnSubset').setAttribute("class", "btn btn-default");
+        byId('btnVariables').setAttribute("class", "btn btn-default");
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
     }
-
-    document.getElementById(tab).style.display = 'block';
+    byId(tab).style.display = 'block';
 }
 
 function tabRight(tabid) {
-
-    document.getElementById('models').style.display = 'none';
-    document.getElementById('setx').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-
+    byId('models').style.display = 'none';
+    byId('setx').style.display = 'none';
+    byId('results').style.display = 'none';
     if (tabid == "btnModels") {
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        document.getElementById('btnModels').setAttribute("class", "btn active");
-        document.getElementById('models').style.display = 'block';
-
+        byId('btnSetx').setAttribute("class", "btn btn-default");
+        byId('btnResults').setAttribute("class", "btn btn-default");
+        byId('btnModels').setAttribute("class", "btn active");
+        byId('models').style.display = 'block';
         d3.select("#rightpanel")
             .attr("class", "sidepanel container clearfix");
     } else if (tabid == "btnSetx") {
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSetx').setAttribute("class", "btn active");
-        document.getElementById('setx').style.display = 'block';
-
+        byId('btnModels').setAttribute("class", "btn btn-default");
+        byId('btnResults').setAttribute("class", "btn btn-default");
+        byId('btnSetx').setAttribute("class", "btn active");
+        byId('setx').style.display = 'block';
         if (righttab == "btnSetx" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix") {
             toggleR()
         };
     } else if (tabid == "btnResults") {
-        document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-        document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-        document.getElementById('btnResults').setAttribute("class", "btn active");
-        document.getElementById('results').style.display = 'block';
-
+        byId('btnModels').setAttribute("class", "btn btn-default");
+        byId('btnSetx').setAttribute("class", "btn btn-default");
+        byId('btnResults').setAttribute("class", "btn active");
+        byId('results').style.display = 'block';
         if (estimated === false) {
             d3.select("#rightpanel")
                 .attr("class", "sidepanel container clearfix");
@@ -2024,25 +1940,19 @@ function tabRight(tabid) {
         };
     }
 
-    righttab = tabid; // a global that may be of use
-
+    righttab = tabid;
     function toggleR() {
         d3.select("#rightpanel")
-            .attr("class", function(d) {
-                if (this.getAttribute("class") === "sidepanel container clearfix expandpanel") {
+            .attr("class", d => {
+                if (this.getAttribute("class") === "sidepanel container clearfix expandpanel")
                     return "sidepanel container clearfix";
-                } else {
-                    return "sidepanel container clearfix expandpanel";
-                }
+                return "sidepanel container clearfix expandpanel";
             });
     }
 }
 
-
 function varSummary(d) {
-
     var rint = d3.format("r");
-
     var summarydata = [],
         tmpDataset = [],
         t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
@@ -2051,21 +1961,21 @@ function varSummary(d) {
     if (priv) {
         if (d.meanCI) {
             t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
-                t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
-                i, j;
+            t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
+            i, j;
         }
     }
 
     for (i = 0; i < t1.length; i++) {
-        if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "") continue;
+        if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "")
+						continue;
         tmpDataset = [];
         tmpDataset.push(t1[i]);
         tmpDataset.push(t2[i]);
         summarydata.push(tmpDataset);
     };
 
-    //  console.log(summarydata);
-    d3.select("#tab3") //tab when you mouseover a pebble
+    d3.select("#tab3") // tab when you mouseover a pebble
         .select("p")
         .html("<center><b>" + d.name + "</b><br><i>" + d.labl + "</i></center>")
         .append("table")
@@ -2073,33 +1983,21 @@ function varSummary(d) {
         .data(summarydata)
         .enter().append("tr")
         .selectAll("td")
-        .data(function(d) {
-            return d;
-        })
+        .data(d => d)
         .enter().append("td")
-        .text(function(d) {
-            return d;
-        })
-        .on("mouseover", function() {
-            d3.select(this).style("background-color", "aliceblue")
-        }) // for no discernable reason
-        .on("mouseout", function() {
-            d3.select(this).style("background-color", "#F9F9F9")
-        }); //(but maybe we'll think of one)
-    //    .style("font-size", "12px");
-
+        .text(d => d)
+        .on("mouseover", () => d3.select(this).style("background-color", "aliceblue"))
+        .on("mouseout", () => d3.select(this).style("background-color", "#F9F9F9"));
 
     var plotsvg = d3.select("#tab3")
         .selectAll("svg")
         .remove();
 
-    if (typeof d.plottype === "undefined") { // .properties is undefined for some vars
+    if (typeof d.plottype === "undefined") // .properties is undefined for some vars
         return;
-    } else if (d.plottype === "continuous") {
-        density(d, div = "varSummary", priv);
-    } else if (d.plottype === "bar") {
-        bars(d, div = "varSummary", priv);
-    } else {
+    else if (d.plottype === "continuous") density(d, div = "varSummary", priv);
+    else if (d.plottype === "bar") bars(d, div = "varSummary", priv);
+    else {
         var plotsvg = d3.select("#tab3") // no graph to draw, but still need to remove previous graph
             .selectAll("svg")
             .remove();
@@ -2108,22 +2006,15 @@ function varSummary(d) {
 
 function populatePopover() {
     d3.select("#tab1").selectAll("p")
-        .attr("data-content", function(d) {
-            var onNode = findNodeIndex(d);
-            return popoverContent(allNodes[onNode]);
-        });
+        .attr("data-content", d => popoverContent(allNodes[findNodeIndex(d)]));
 }
 
 function popoverContent(d) {
-
     var rint = d3.format("r");
-
     var outtext = "";
-
     if (d.labl != "") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
     }
-
     if (d.mean != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"
         if (priv && d.meanCI) {
@@ -2133,42 +2024,33 @@ function popoverContent(d) {
         }
         outtext += "</p></div></div>";
     }
-
     if (d.median != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
     }
-
     if (d.mode != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Most Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>";
     }
-
     if (d.freqmode != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
     }
-
     if (d.mid != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
     }
-
     if (d.freqmid != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
     }
     if (d.fewest != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Least Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.fewest + "</p></div></div>";
     }
-
     if (d.freqfewest != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
     }
-
     if (d.sd != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.sd).toPrecision(4).toString() + "</p></div></div>";
     }
-
     if (d.max != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.max).toPrecision(4).toString() + "</p></div></div>";
     }
-
     if (d.min != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.min).toPrecision(4).toString() + "</p></div></div>";
     }
@@ -2178,41 +2060,30 @@ function popoverContent(d) {
     if (d.valid != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>";
     }
-
     if (d.uniques != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Uniques</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.uniques) + "</p></div></div>";
     }
     if (d.herfindahl != "NA") {
         outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Herfindahl</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.herfindahl).toPrecision(4).toString() + "</p></div></div>";
     }
-
     return outtext;
 }
 
 function popupX(d) {
-
     var tsf = d3.format(".4r");
     var rint = d3.format("r");
-
     //Create the tooltip label
     d3.select("#tooltip")
         .style("left", tempX + "px")
         .style("top", tempY + "px")
         .select("#tooltiptext")
         .html("<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.mean) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.median) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Mode</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.sd) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.max) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + tsf(d.min) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>" +
-
             "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>"
         );
 }
@@ -2221,7 +2092,6 @@ function panelPlots() {
     // build arrays from nodes in main
     var varArray = [];
     var idArray = [];
-
     for (var j = 0; j < nodes.length; j++) {
         varArray.push(nodes[j].name.replace(/\(|\)/g, ""));
         idArray.push(nodes[j].id);
@@ -2230,7 +2100,6 @@ function panelPlots() {
     //remove all plots, could be smarter here
     d3.select("#setx").selectAll("svg").remove();
     d3.select("#tab2").selectAll("svg").remove();
-
     for (var i = 0; i < varArray.length; i++) {
         allNodes[idArray[i]].setxplot = false;
         allNodes[idArray[i]].subsetplot = false;
@@ -2248,22 +2117,19 @@ function panelPlots() {
         }
     }
 
-
     d3.select("#setx").selectAll("svg")
-        .each(function() {
+        .each(() => {
             d3.select(this);
             var regstr = /(.+)_setx_(\d+)/;
             var myname = regstr.exec(this.id);
             var nodeid = myname[2];
             myname = myname[1];
             var j = varArray.indexOf(myname);
-
             if (j == -1) {
                 allNodes[nodeid].setxplot = false;
                 var temp = "#".concat(myname, "_setx_", nodeid);
                 d3.select(temp)
                     .remove();
-
                 allNodes[nodeid].subsetplot = false;
                 var temp = "#".concat(myname, "_tab2_", nodeid);
                 d3.select(temp)
@@ -2286,13 +2152,11 @@ function leftpanelMedium() {
 // function to convert color codes
 function hexToRgba(hex) {
     var h = hex.replace('#', '');
-
     var bigint = parseInt(h, 16);
     var r = (bigint >> 16) & 255;
     var g = (bigint >> 8) & 255;
     var b = bigint & 255;
     var a = '0.5';
-
     return "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
 
@@ -2333,19 +2197,13 @@ function setColors(n, c) {
 
             if (dvColor == c) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
-                if (dvIndex > -1) {
-                    zparams.zdv.splice(dvIndex, 1);
-                }
+                if (dvIndex > -1) zparams.zdv.splice(dvIndex, 1);
             } else if (csColor == c) {
                 var csIndex = zparams.zcross.indexOf(n.name);
-                if (csIndex > -1) {
-                    zparams.zcross.splice(csIndex, 1);
-                }
+                if (csIndex > -1) zparams.zcross.splice(csIndex, 1);
             } else if (timeColor == c) {
                 var timeIndex = zparams.ztime.indexOf(n.name);
-                if (timeIndex > -1) {
-                    zparams.ztime.splice(timeIndex, 1);
-                }
+                if (timeIndex > -1) zparams.ztime.splice(timeIndex, 1);
             } else if (nomColor == c) {
                 var nomIndex = zparams.znom.indexOf(n.name);
                 if (nomIndex > -1) {
@@ -2357,19 +2215,13 @@ function setColors(n, c) {
         } else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
             if (dvColor == n.strokeColor) {
                 var dvIndex = zparams.zdv.indexOf(n.name);
-                if (dvIndex > -1) {
-                    zparams.zdv.splice(dvIndex, 1);
-                }
+                if (dvIndex > -1) zparams.zdv.splice(dvIndex, 1);
             } else if (csColor == n.strokeColor) {
                 var csIndex = zparams.zcross.indexOf(n.name);
-                if (csIndex > -1) {
-                    zparams.zcross.splice(csIndex, 1);
-                }
+                if (csIndex > -1) zparams.zcross.splice(csIndex, 1);
             } else if (timeColor == n.strokeColor) {
                 var timeIndex = zparams.ztime.indexOf(n.name);
-                if (timeIndex > -1) {
-                    zparams.ztime.splice(timeIndex, 1);
-                }
+                if (timeIndex > -1) zparams.ztime.splice(timeIndex, 1);
             } else if (nomColor == n.strokeColor) {
                 var nomIndex = zparams.znom.indexOf(n.name);
                 if (nomIndex > -1) {
@@ -2382,13 +2234,10 @@ function setColors(n, c) {
             d3.select("#tab1").select("p#".concat(n.name))
                 .style('background-color', hexToRgba(c));
 
-            if (dvColor == c) {
-                zparams.zdv.push(n.name);
-            } else if (csColor == c) {
-                zparams.zcross.push(n.name);
-            } else if (timeColor == c) {
-                zparams.ztime.push(n.name);
-            } else if (nomColor == c) {
+            if (dvColor == c) zparams.zdv.push(n.name);
+            else if (csColor == c) zparams.zcross.push(n.name);
+            else if (timeColor == c) zparams.ztime.push(n.name);
+            else if (nomColor == c) {
                 zparams.znom.push(n.name);
                 allNodes[findNodeIndex(n.name)].nature = "nominal";
                 transform(n.name, t = null, typeTransform = true);
@@ -2431,19 +2280,15 @@ function subsetSelect(btn) {
     if (dataurl) {
         zparams.zdataurl = dataurl;
     }
-
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
-
     zparams.zvars = [];
     zparams.zplot = [];
-
     var subsetEmpty = true;
-
     // is this the same as zPop()?
-    for (var j = 0; j < nodes.length; j++) { //populate zvars and zsubset arrays
+    for (var j = 0; j < nodes.length; j++) { // populate zvars and zsubset arrays
         zparams.zvars.push(nodes[j].name);
         var temp = nodes[j].id;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
@@ -2458,7 +2303,7 @@ function subsetSelect(btn) {
         zparams.zplot.push(allNodes[temp].plottype);
         if (zparams.zsubset[j][1] != "") {
             subsetEmpty = false;
-        } //only need to check one
+        } // only need to check one
     }
 
     if (subsetEmpty == true) {
@@ -2499,7 +2344,6 @@ function subsetSelect(btn) {
         $("#btnModels").trigger("click");
 
         var grayOuts = [];
-
         var rCall = [];
         rCall[0] = json.call;
 
@@ -2539,12 +2383,11 @@ function subsetSelect(btn) {
 
         // this is to be used to gray out and remove listeners for variables that have been subsetted out of the data
         function varOut(v) {
-            // if in nodes, remove
-            // gray out in left panel
+            // if in nodes, remove gray out in left panel
             // make unclickable in left panel
             for (var i = 0; i < v.length; i++) {
                 var selectMe = v[i].replace(/\W/g, "_");
-                document.getElementById(selectMe).style.color = hexToRgba(grayColor);
+                byId(selectMe).style.color = hexToRgba(grayColor);
                 selectMe = "p#".concat(selectMe);
                 d3.select(selectMe)
                     .on("click", null);
@@ -2558,27 +2401,23 @@ function subsetSelect(btn) {
         d3.select("#innercarousel")
             .append('div')
             .attr('class', 'item active')
-            .attr('id', function() {
-                return "m".concat(myspace.toString());
-            })
+            .attr('id', () => "m".concat(myspace.toString()))
             .append('svg')
             .attr('id', 'whitespace');
         svg = d3.select("#whitespace");
 
         d3.json(json.url, function(error, json) {
-            if (error) return console.warn(error);
+            if (error)
+								return console.warn(error);
             var jsondata = json;
-
             for (var key in jsondata) {
                 var myIndex = findNodeIndex(key);
-
                 allNodes[myIndex].plotx = undefined;
                 allNodes[myIndex].ploty = undefined;
                 allNodes[myIndex].plotvalues = undefined;
                 allNodes[myIndex].plottype = "";
 
                 jQuery.extend(true, allNodes[myIndex], jsondata[key]);
-
                 allNodes[myIndex].subsetplot = false;
                 allNodes[myIndex].subsetrange = ["", ""];
                 allNodes[myIndex].setxplot = false;
@@ -2593,7 +2432,6 @@ function subsetSelect(btn) {
             rePlot();
             populatePopover();
             layout(v = "add");
-
         });
 
         varOut(grayOuts);
@@ -2645,9 +2483,7 @@ function opencite() {
 }
 
 function closecite(toggle) {
-    if (toggle == false) {
-        $('#cite').hide();
-    }
+    if (toggle == false) $('#cite').hide();
 }
 
 function clickcite(toggle) {
@@ -2660,17 +2496,14 @@ function clickcite(toggle) {
     }
 }
 
-// function to remove all the children svgs inside subset and setx divs
+// removes all the children svgs inside subset and setx divs
 function rePlot() {
     d3.select("#tab2")
         .selectAll("svg")
         .remove();
-
     d3.select("#setx")
         .selectAll("svg")
         .remove();
-
-    // make this smarter
     for (var i = 0; i < allNodes.length; i++) {
         allNodes[i].setxplot = false;
         allNodes[i].subsetplot = false;
@@ -2679,16 +2512,14 @@ function rePlot() {
 
 function showLog() {
     if (logArray.length > 0) {
-        document.getElementById('logdiv').setAttribute("style", "display:block");
+        byId('logdiv').setAttribute("style", "display:block");
         d3.select("#collapseLog div.panel-body").selectAll("p")
             .data(logArray)
             .enter()
             .append("p")
-            .text(function(d) {
-                return d;
-            });
+            .text(d => d);
     } else {
-        document.getElementById('logdiv').setAttribute("style", "display:none");
+        byId('logdiv').setAttribute("style", "display:none");
     }
 }
 
@@ -2699,25 +2530,21 @@ function reWriteLog() {
         .data(logArray)
         .enter()
         .append("p")
-        .text(function(d) {
-            return d;
-        });
+        .text(d => d);
 }
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
 function fakeClick() {
     var myws = "#whitespace".concat(myspace);
     // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
-    jQuery.fn.d3Click = function() {
-        this.each(function(i, e) {
+    jQuery.fn.d3Click = () => {
+        this.each((i, e) => {
             var evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-
             e.dispatchEvent(evt);
         });
     };
     $(myws).d3Click();
-
     d3.select(myws)
-        .classed('active', false); // remove active class
+        .classed('active', false);
 }

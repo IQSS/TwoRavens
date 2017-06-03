@@ -4,11 +4,11 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
-import main from './app_ddi.js';
+import {main, tabLeft} from './app_ddi.js';
 
 function leftpanel() {
-    return m(".sidepanel.container.clearfix[id='leftpanel']", [
-        m(".panelbar[id='toggleLpanelicon']",
+    return m('#leftpanel.sidepanel.container.clearfix', [
+        m('#toggleLpanelicon.panelbar',
             m("span", [
                 m.trust("&#9679;"),
                 m("br"),
@@ -19,10 +19,8 @@ function leftpanel() {
                 m.trust("&#9679;")
             ])
         ),
-        m(".panel-heading.text-center[id='leftpaneltitle']",
-            m("h3.panel-title",
-                "Data Selection"
-            )
+        m('#leftpaneltitle.panel-heading.text-center',
+            m("h3.panel-title", "Data Selection")
         ),
         m(".btn-toolbar[role='toolbar']", {
             style: {
@@ -35,58 +33,56 @@ function leftpanel() {
                     "margin-left": "0"
                 }
             }, [
-                m("button.btn.active[id='btnVariables'][onclick='tabLeft(\'tab1\');'][title='Click variable name to add or remove the variable pebble from the modeling space.'][type='button']",
-                    "Variables"
-                ),
-                m("button.btn.btn-default[id='btnSubset'][onclick='tabLeft(\'tab2\');'][type='button']",
-                    "Subset"
-                )
+                m("button#btnVariables.btn.active[type='button']", {
+                    title: 'Click variable name to add or remove the variable pebble from the modeling space.',
+                    onclick: v => tabLeft('tab1')
+                }, "Variables"),
+                m("button#btnSubset.btn.btn-default[type='button']", {
+                    onclick: v => tabLeft('tab2')
+                }, "Subset")
             ]),
-            m("button.btn.btn-default.ladda-button[data-spinner-color='#000000'][data-style='zoom-in'][id='btnSelect'][onclick='subsetSelect(\'btnSelect\');'][title='Subset data by the intersection of all selected values.'][type='button']", {
+            m("button#btnSelect.btn.btn-default.ladda-button[data-spinner-color='#000000'][data-style='zoom-in'][onclick='subsetSelect(\'btnSelect\');'][type='button']", {
+                title: 'Subset data by the intersection of all selected values.',
+                style: {
+                    "display": "none",
+                    "float": "right",
+                    "margin-right": "10px"
+                }
+            }, m("span.ladda-label", {
                     style: {
-                        "display": "none",
-                        "float": "right",
-                        "margin-right": "10px"
+                        "pointer-events": "none"
                     }
                 },
-                m("span.ladda-label", {
-                        style: {
-                            "pointer-events": "none"
-                        }
-                    },
-                    "Select"
-                )
+                "Select")
             )
         ]),
         m(".row-fluid",
-            m("[id='leftpanelcontent']",
-                m("[id='leftContentArea']", {
+            m('#leftpanelcontent',
+                m('#leftContentArea', {
                     style: {
                         "overflow": "scroll",
                         "height": "488px"
                     }
                 }, [
-                    m("[id='tab1']", {
+                    m('#tab1', {
                         style: {
                             "display": "block",
                             "padding": "6px 12px",
                             "text-align": "center"
                         }
                     }),
-                    m("[id='tab2']", {
+                    m('#tab2', {
                         style: {
                             "display": "none",
                             "margin-top": ".5em"
                         }
-                    }, ),
-                    m("[id='tab3']",
+                    }),
+                    m('#tab3',
                         m("p", {
-                                style: {
-                                    "padding": ".5em 1em"
-                                }
-                            },
-                            "Select a variable from within the visualization in the center panel to view its summary statistics."
-                        )
+                            style: {
+                                "padding": ".5em 1em"
+                            }
+                        }, "Select a variable from within the visualization in the center panel to view its summary statistics.")
                     )
                 ])
             )
@@ -242,7 +238,7 @@ class Body {
             if (cindex > 0) {
                 apikey = apikey.substring(0, cindex);
             };
-        };		
+        };
         if (myurl.indexOf("ddiurl=") > 0) {
             ddiurl = myurl.substring(myurl.indexOf("ddiurl=") + 7);
             ddiurl = ddiurl.replace(/%25/g, "%");
@@ -252,7 +248,7 @@ class Body {
             if (cindex > 0) {
                 ddiurl = ddiurl.substring(0, cindex);
             };
-        };		
+        };
         if (myurl.indexOf("dataurl=") > 0) {
             dataurl = myurl.substring(myurl.indexOf("dataurl=") + 8);
             dataurl = dataurl.replace(/%25/g, "%");
@@ -269,8 +265,8 @@ class Body {
         console.log("apikey: " + apikey);
         console.log("ddiurl: " + ddiurl);
         console.log("dataurl: " + dataurl);
-    
-		main(fileid, hostname, ddiurl, dataurl);	
+
+		main(fileid, hostname, ddiurl, dataurl);
 	}
 
     view() {
