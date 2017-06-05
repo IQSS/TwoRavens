@@ -4,7 +4,10 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
-import {main, tabLeft} from './app_ddi.js';
+import {
+    main,
+    tabLeft
+} from './app_ddi.js';
 
 function leftpanel() {
     return m('#leftpanel.sidepanel.container.clearfix', [
@@ -53,8 +56,7 @@ function leftpanel() {
                         "pointer-events": "none"
                     }
                 },
-                "Select")
-            )
+                "Select"))
         ]),
         m(".row-fluid",
             m('#leftpanelcontent',
@@ -266,8 +268,8 @@ class Body {
         console.log("ddiurl: " + ddiurl);
         console.log("dataurl: " + dataurl);
 
-		main(fileid, hostname, ddiurl, dataurl);
-	}
+        main(fileid, hostname, ddiurl, dataurl);
+    }
 
     view() {
         return m('main',

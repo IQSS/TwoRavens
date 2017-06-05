@@ -35,21 +35,21 @@ var forcetoggle = ["true"];
 var priv = false;
 
 var zparams = {
-	zdata: [],
-	zedges: [],
-	ztime: [],
-	znom: [],
-	zcross: [],
-	zmodel: "",
-	zvars: [],
-	zdv: [],
-	zdataurl: "",
-	zsubset: [],
-	zsetx: [],
-	zmodelcount: 0,
-	zplot: [],
-	zsessionid: "",
-	zdatacite: ""
+    zdata: [],
+    zedges: [],
+    ztime: [],
+    znom: [],
+    zcross: [],
+    zmodel: "",
+    zvars: [],
+    zdv: [],
+    zdataurl: "",
+    zsubset: [],
+    zsetx: [],
+    zmodelcount: 0,
+    zplot: [],
+    zsessionid: "",
+    zdatacite: ""
 };
 
 var modelCount = 0;
@@ -67,7 +67,7 @@ var svg, width, height, div, obj, rappURL, estimateLadda, selectLadda;
 var arc3, arc4;
 
 function byId(id) {
-		return document.getElementById(id);
+    return document.getElementById(id);
 }
 
 var dataurl;
@@ -111,8 +111,8 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var rightClickLast = false;
 
     // initial color scale used to establish the initial colors of nodes
-		// allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
-		// everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
+    // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
+    // everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
     var colors = d3.scale.category20();
 
     var colorTime = false;
@@ -170,7 +170,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var spaces = [];
     var trans = []; // var list for each space contain variables in original data plus trans in that space
 
-		// collapsable user log
+    // collapsable user log
     $('#collapseLog').on('shown.bs.collapse', () => {
         d3.select("#collapseLog div.panel-body").selectAll("p")
             .data(logArray)
@@ -208,10 +208,10 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     }
     var preprocess = {};
 
-		// loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
+    // loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
     var url, p, v, callback;
     readPreprocess(url = pURL, p = preprocess, v = null, callback = function() {
-        d3.xml(metadataurl, "application/xml", xml =>  {
+        d3.xml(metadataurl, "application/xml", xml => {
             var vars = xml.documentElement.getElementsByTagName("var");
             var temp = xml.documentElement.getElementsByTagName("fileName");
             zparams.zdata = temp[0].childNodes[0].nodeValue;
@@ -241,13 +241,13 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             for (var i = 0; i < vars.length; i++) {
                 valueKey[i] = vars[i].attributes.name.nodeValue;
                 lablArray[i] = vars[i].getElementsByTagName("labl").length == 0 ?
-										"no label" :
-                		vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
+                    "no label" :
+                    vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
                 var datasetcount = d3.layout.histogram()
                     .bins(barnumber).frequency(false)
                     (myvalues);
                 // creates an object to be pushed to allNodes
-								// contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
+                // contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
                 var obj1 = {
                     id: i,
                     reflexive: false,
@@ -272,19 +272,19 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             // Reading the zelig models and populating the model list in the right panel.
             d3.json("data/zelig5models.json", (err, data) => {
                 if (err)
-										return console.warn(err);
+                    return console.warn(err);
                 console.log("zelig models json: ", data);
-                for (var key in jsondata.zelig5models) {
-                    if (jsondata.zelig5models.hasOwnProperty(key))
-                        mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
+                for (let key in data.zelig5models) {
+                    if (data.zelig5models.hasOwnProperty(key))
+                        mods[data.zelig5models[key].name[0]] = data.zelig5models[key].description[0];
                 }
                 d3.json("data/zelig5choicemodels.json", (err, data) => {
                     if (err)
-												return console.warn(err);
+                        return console.warn(err);
                     console.log("zelig choice models json: ", data);
-                    for (var key in jsondata.zelig5choicemodels) {
-                        if (jsondata.zelig5choicemodels.hasOwnProperty(key))
-                            mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
+                    for (let key in data.zelig5choicemodels) {
+                        if (data.zelig5choicemodels.hasOwnProperty(key))
+                            mods[data.zelig5choicemodels[key].name[0]] = data.zelig5choicemodels[key].description[0];
                     }
                     scaffolding(callback = layout);
                     dataDownload();
@@ -395,8 +395,8 @@ function scaffolding(callback) {
         .data(valueKey)
         .enter()
         .append("p")
-				// replace non-alphanumerics for selection purposes)
-				// perhaps ensure this id is unique by adding '_' to the front?
+        // replace non-alphanumerics for selection purposes)
+        // perhaps ensure this id is unique by adding '_' to the front?
         .attr("id", d => d.replace(/\W/g, "_"))
         .text(d => d)
         .style('background-color', d => {
@@ -434,7 +434,7 @@ function scaffolding(callback) {
         .attr("data-original-title", "Model Description")
         .attr("data-content", d => mods[d]);
 
- // call layout() because at this point all scaffolding is up and ready
+    // call layout() because at this point all scaffolding is up and ready
     if (typeof callback === "function") callback();
 }
 
@@ -643,7 +643,7 @@ function layout(v) {
             d3.select("#models").selectAll("p")
                 .style('background-color', varColor);
             d3.select(this)
-                .style('background-color', d =>  {
+                .style('background-color', d => {
                     if (d3.rgb(myColor).toString() === varColor.toString()) {
                         zparams.zmodel = d.toString();
                         return hexToRgba(selVarColor);
@@ -948,7 +948,7 @@ function layout(v) {
             .attr('x', 0)
             .attr('y', 15)
             .attr('class', 'id')
-            .text(d => d.name )
+            .text(d => d.name)
 
 
         // show summary stats on mouseover
@@ -1554,7 +1554,7 @@ function transform(n, t, typeTransform) {
         if (json.typeTransform[0]) {
             d3.json(json.url, (error, json) => {
                 if (error)
-										return console.warn(error);
+                    return console.warn(error);
                 var jsondata = json;
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
@@ -1941,6 +1941,7 @@ function tabRight(tabid) {
     }
 
     righttab = tabid;
+
     function toggleR() {
         d3.select("#rightpanel")
             .attr("class", d => {
@@ -1961,14 +1962,14 @@ function varSummary(d) {
     if (priv) {
         if (d.meanCI) {
             t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
-            t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
-            i, j;
+                t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
+                i, j;
         }
     }
 
     for (i = 0; i < t1.length; i++) {
         if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "")
-						continue;
+            continue;
         tmpDataset = [];
         tmpDataset.push(t1[i]);
         tmpDataset.push(t2[i]);
@@ -2090,41 +2091,42 @@ function popupX(d) {
 
 function panelPlots() {
     // build arrays from nodes in main
-    var varArray = [];
-    var idArray = [];
-    for (var j = 0; j < nodes.length; j++) {
-        varArray.push(nodes[j].name.replace(/\(|\)/g, ""));
-        idArray.push(nodes[j].id);
-    }
+    let vars = [];
+    let ids = [];
+    nodes.forEach(n => {
+        vars.push(n.name.replace(/\(|\)/g, ''));
+        ids.push(n.id);
+    });
 
     //remove all plots, could be smarter here
-    d3.select("#setx").selectAll("svg").remove();
-    d3.select("#tab2").selectAll("svg").remove();
-    for (var i = 0; i < varArray.length; i++) {
-        allNodes[idArray[i]].setxplot = false;
-        allNodes[idArray[i]].subsetplot = false;
-        if (allNodes[idArray[i]].plottype === "continuous" & allNodes[idArray[i]].setxplot == false) {
-            allNodes[idArray[i]].setxplot = true;
+    d3.select('#setx').selectAll('svg').remove();
+    d3.select('#tab2').selectAll('svg').remove();
+    for (var i = 0; i < vars.length; i++) {
+        let node = allNodes[ids[i]];
+        node.setxplot = false;
+        node.subsetplot = false;
+        if (node.plottype === "continuous" & node.setxplot == false) {
+            node.setxplot = true;
             console.log(priv);
-            density(allNodes[idArray[i]], div = "setx", priv);
-            allNodes[idArray[i]].subsetplot = true;
-            density(allNodes[idArray[i]], div = "subset", priv);
-        } else if (allNodes[idArray[i]].plottype === "bar" & allNodes[idArray[i]].setxplot == false) {
-            allNodes[idArray[i]].setxplot = true;
-            bars(allNodes[idArray[i]], div = "setx", priv);
-            allNodes[idArray[i]].subsetplot = true;
-            barsSubset(allNodes[idArray[i]]);
+            density(node, div = "setx", priv);
+            node.subsetplot = true;
+            density(node, div = "subset", priv);
+        } else if (node.plottype === "bar" & node.setxplot == false) {
+            node.setxplot = true;
+            bars(node, div = "setx", priv);
+            node.subsetplot = true;
+            barsSubset(node);
         }
     }
 
     d3.select("#setx").selectAll("svg")
-        .each(() => {
+        .each(function () {
             d3.select(this);
             var regstr = /(.+)_setx_(\d+)/;
             var myname = regstr.exec(this.id);
             var nodeid = myname[2];
             myname = myname[1];
-            var j = varArray.indexOf(myname);
+            var j = vars.indexOf(myname);
             if (j == -1) {
                 allNodes[nodeid].setxplot = false;
                 var temp = "#".concat(myname, "_setx_", nodeid);
@@ -2162,7 +2164,6 @@ function hexToRgba(hex) {
 
 // function takes a node and a color and updates zparams
 function setColors(n, c) {
-
     if (n.strokeWidth == '1') { // adding time, cs, dv, nom to a node with no stroke
         n.strokeWidth = '4';
         n.strokeColor = c;
@@ -2184,7 +2185,6 @@ function setColors(n, c) {
             allNodes[findNodeIndex(n.name)].nature = "nominal";
             transform(n.name, t = null, typeTransform = true);
         }
-
         d3.select("#tab1").select("p#".concat(n.name))
             .style('background-color', hexToRgba(c));
     } else if (n.strokeWidth == '4') {
@@ -2408,7 +2408,7 @@ function subsetSelect(btn) {
 
         d3.json(json.url, function(error, json) {
             if (error)
-								return console.warn(error);
+                return console.warn(error);
             var jsondata = json;
             for (var key in jsondata) {
                 var myIndex = findNodeIndex(key);
@@ -2490,24 +2490,23 @@ function clickcite(toggle) {
     if (toggle == false) {
         $('#cite').show();
         return true;
-    } else {
-        $('#cite').hide();
-        return false;
     }
+    $('#cite').hide();
+    return false;
 }
 
 // removes all the children svgs inside subset and setx divs
 function rePlot() {
-    d3.select("#tab2")
-        .selectAll("svg")
+    d3.select('#tab2')
+        .selectAll('svg')
         .remove();
-    d3.select("#setx")
-        .selectAll("svg")
+    d3.select('#setx')
+        .selectAll('svg')
         .remove();
-    for (var i = 0; i < allNodes.length; i++) {
-        allNodes[i].setxplot = false;
-        allNodes[i].subsetplot = false;
-    }
+    allNodes.forEach(n => {
+        n.setxplot = false;
+        n.subsetplot = false;
+    });
 }
 
 function showLog() {
@@ -2518,9 +2517,9 @@ function showLog() {
             .enter()
             .append("p")
             .text(d => d);
-    } else {
-        byId('logdiv').setAttribute("style", "display:none");
+	return;
     }
+    byId('logdiv').setAttribute("style", "display:none");
 }
 
 function reWriteLog() {
@@ -2537,7 +2536,7 @@ function reWriteLog() {
 function fakeClick() {
     var myws = "#whitespace".concat(myspace);
     // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
-    jQuery.fn.d3Click = () => {
+    jQuery.fn.d3Click = function () {
         this.each((i, e) => {
             var evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
