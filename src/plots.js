@@ -40,7 +40,7 @@ export function density(node, div, priv) {
                         y: node.plotCI[bound][i]
                     });
                  }
-                 return error.forEach(add);
+                 return error.map(add);
             }
             let upperError = store('upperBound');
             let lowerError = store('lowerBound');
