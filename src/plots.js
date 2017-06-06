@@ -24,7 +24,6 @@ export function density(node, div, priv) {
             y: node.ploty[i]
         });
     }
-
     let add = d => {
         d.x = +d.x;
         d.y = +d.y;
@@ -32,27 +31,20 @@ export function density(node, div, priv) {
     data2.forEach(add);
     if (priv) {
         if (node.plotCI) {
-            //stores values for upper bound
-            var upperError = [];
-            for (var i = 0; i < node.plotx.length; i++) {
-                upperError.push({
-                    x: node.plotx[i],
-                    y: node.plotCI.upperBound[i]
-                });
+            // stores values for upper/lower bound
+	    let store = bound => { 
+                let error = [];
+                for (let i = 0; i < node.plotx.length; i++) {
+                    error.push({
+                        x: node.plotx[i],
+                        y: node.plotCI[bound][i]
+                    });
+                 }
+                 return error.forEach(add);
             }
-
-            upperError.forEach(add);
-            // stores values for lower bound
-            var lowerError = [];
-            for (var i = 0; i < node.plotx.length; i++) {
-                lowerError.push({
-                    x: node.plotx[i],
-                    y: node.plotCI.lowerBound[i]
-                });
-            }
-
-            lowerError.forEach(add);
-            console.log("upperError");
+            let upperError = store('upperBound');
+            let lowerError = store('lowerBound');
+            console.log('upperError');
             console.log(upperError);
         }
     }
@@ -118,7 +110,6 @@ export function density(node, div, priv) {
         var plotsvg = d3.select(mydiv)
             .selectAll("svg")
             .remove();
-
         var plotsvg = d3.select(mydiv)
             .append("svg")
             .attr("id", () => node.name.toString().concat(mydiv.substr(1))) 
@@ -139,7 +130,6 @@ export function density(node, div, priv) {
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     };
-
     plotsvg.append("path")
         .datum(data2)
         .attr("class", "area")
@@ -320,14 +310,13 @@ export function density(node, div, priv) {
                 return (xpos - s) + "," + (-s) + " " + (xpos + s) + "," + (-s) + " " + xpos + "," + (s * 1.3);
             });
             plotsvg.select("text#range")
-                .text(function() {
-                    return ("x: ".concat((invx(xpos)).toPrecision(4)));
-                });
+                .text(() => "x: ".concat((invx(xpos)).toPrecision(4)));
             node.setxvals[1] = (invx(xpos)).toPrecision(4);
         }
     }
 
-    function brushed2() { // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
+    // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
+    function brushed2() { 
         var value = brush2.extent()[0];
         var s = 6; // scaling for triangle shape
 
@@ -1133,9 +1122,7 @@ export function barsSubset(node) {
             if (node.subsetrange.length == 0)
                 return "Selected: all values";
             var selecteds = new Array;
-            node.subsetrange.forEach(val => {
-               selecteds.push(yValKey[val].x);
-            })
+            node.subsetrange.forEach(val =>  selecteds.push(yValKey[val].x));
             return "Selected: " + selecteds;
         });
 }
@@ -1187,21 +1174,15 @@ export function densityNode(node, obj) {
 
     var area = d3.svg.area()
         .interpolate("monotone")
-        .x(function(d) {
-            return x(d.x);
-        })
+        .x(d => x(d.x))
         .y0(height)
-        .y1(function(d) {
-            return y(d.y);
-        });
+        .y1(d => y(d.y));
 
     var plotsvg = d3.select(obj)
         .insert("svg", ":first-child")
         .attr("x", -40) // NOTE: Not sure exactly why these numbers work, but these hardcoded values seem to position the plot inside g correctly.  this shouldn't be hardcoded in the future
         .attr("y", -45)
-        .attr("id", function() {
-            return myname;
-        })
+        .attr("id", () => myname)
         .style("width", width)
         .style("height", height)
         .append("g")
@@ -1241,10 +1222,7 @@ export function barsNode(node, obj) {
                 continue;
             yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
-            yValKey.push({
-                y: yVals[xi],
-                x: keys[i]
-            });
+            yValKey.push({y: yVals[xi], x: keys[i]});
             xi = xi + 1;
         }
         yValKey.sort((a, b) => b.y - a.y); // array of objects, each object has y, the same as yVals, and x, the category
@@ -1296,12 +1274,8 @@ export function barsNode(node, obj) {
         .data(yVals)
         .enter()
         .append("rect")
-        .attr("x", function(d, i) {
-            return x(xVals[i] - 0.5 + barPadding);
-        })
-        .attr("y", function(d) {
-            return y(maxY - d);
-        })
+        .attr("x", (d, i) =>  x(xVals[i] - 0.5 + barPadding))
+        .attr("y", d =>  y(maxY - d))
         .attr("width", x(minX + 0.5 - 2 * barPadding)) // the "width" is the coordinate of the end of the first bar
         .attr("height", y) 
         .attr("fill", "#1f77b4");
