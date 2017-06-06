@@ -25,11 +25,11 @@ export function density(node, div, priv) {
         });
     }
 
-    data2.forEach(d => {
+    let add = d => {
         d.x = +d.x;
         d.y = +d.y;
-    });
-
+    };
+    data2.forEach(add);
     if (priv) {
         if (node.plotCI) {
             //stores values for upper bound
@@ -41,11 +41,7 @@ export function density(node, div, priv) {
                 });
             }
 
-            upperError.forEach(d =>  {
-                d.x = +d.x;
-                d.y = +d.y;
-            });
-
+            upperError.forEach(add);
             // stores values for lower bound
             var lowerError = [];
             for (var i = 0; i < node.plotx.length; i++) {
@@ -55,10 +51,7 @@ export function density(node, div, priv) {
                 });
             }
 
-            lowerError.forEach(d => {
-                d.x = +d.x;
-                d.y = +d.y;
-            });
+            lowerError.forEach(add);
             console.log("upperError");
             console.log(upperError);
         }
@@ -66,10 +59,8 @@ export function density(node, div, priv) {
 
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0, (tempWidth.length - 2));
-
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0, (tempHeight.length - 2));
-
     var margin = {
         top: 20,
         right: 20,
@@ -92,39 +83,30 @@ export function density(node, div, priv) {
     var x = d3.scale.linear()
         .domain([d3.min(xVals), d3.max(xVals)])
         .range([0, width]);
-
     var invx = d3.scale.linear()
         .range([d3.min(xVals), d3.max(xVals)])
         .domain([0, width]);
-
     var y = d3.scale.linear()
         .domain([d3.min(yVals), d3.max(yVals)])
         .range([height, 0]);
-
     var xAxis = d3.svg.axis()
         .scale(x)
         .ticks(5)
         .orient("bottom");
-
     var yAxis = d3.svg.axis()
         .scale(y)
         .orient("left");
-
     var brush = d3.svg.brush()
         .x(x)
         .extent(node.subsetrange)
         .on("brush", brushed);
-
     var brush2 = d3.svg.brush()
         .x(x)
         .on("brush", brushed2);
-
     var area = d3.svg.area()
         .interpolate("monotone")
         .x(d => x(d.x))
         .y0(height)
-        .y1(d => y(d.y));
-
     var line = d3.svg.line()
         .x(d => x(d.x))
         .y(d => y(d.y))
@@ -197,9 +179,7 @@ export function density(node, div, priv) {
             .attr("id", "range")
             .attr("x", 25)
             .attr("y", height + 40)
-            .text(function() {
-                return ("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
-            });
+            .text(() => "Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
 
         plotsvg.append("g")
             .attr("class", "x brush")
@@ -228,12 +208,8 @@ export function density(node, div, priv) {
 
         // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
-            .x(function(d) {
-                return d.x;
-            })
-            .y(function(d) {
-                return d.y;
-            })
+            .x(d => d.x)
+            .y(d => d.y) 
             .interpolate("linear");
 
         var colSeq = ["#A2CD5A", "orange", "red"]; // will cycle through color sequence, and then repeat last color
@@ -280,38 +256,26 @@ export function density(node, div, priv) {
                 .scale(x)
                 .ticks(0)
                 .orient("bottom"))
-
         var slider = plotsvg.append("g")
             .attr("class", "slider")
             .call(brush);
-
         var handle = slider.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .7 + ")")
-            .attr("points", function(d) {
-                var s = 6;
-                if (node.setxvals[0] == "") {
-                    var xnm = x(node.mean);
-                } else {
-                    var xnm = x(node.setxvals[0])
-                };
+            .attr("points", d => {
+                let s = 6;
+                let xnm = node.setxvals[0] == '' ? x(node.mean) : x(node.setxvals[0]);
                 return (xnm - s) + "," + (-s) + " " + (xnm + s) + "," + (-s) + " " + xnm + "," + (s * 1.3);
             });
-
         var slider2 = plotsvg.append("g")
             .attr("class", "slider")
             .call(brush2);
-
         var handle2 = slider2.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .9 + ")")
-            .attr("points", function(d) {
-                var s = 6;
-                if (node.setxvals[1] == "") {
-                    var xnm = x(node.mean);
-                } else {
-                    var xnm = x(node.setxvals[1])
-                };
+            .attr("points", d => {
+                let s = 6;
+                let xnm = node.setxvals[1] == '' ? x(node.mean) : x(node.setxvals[1]);
                 return (xnm - s) + "," + s + " " + (xnm + s) + "," + s + " " + xnm + "," + (-s * 1.3);
             });
     }
@@ -320,23 +284,16 @@ export function density(node, div, priv) {
     function brushed() {
         if (mydiv == "#tab2") {
             plotsvg.select("text#range")
-                .text(function() {
-                    if (brush.empty()) {
-                        return ("Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
-                    } else {
-                        return ("Range: ".concat((brush.extent()[0]).toPrecision(4), " to ", (brush.extent()[1]).toPrecision(4)));
-                    }
-                });
-
-            if ((brush.extent()[0]).toPrecision(4) != (brush.extent()[1]).toPrecision(4)) {
-                node.subsetrange = [(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)];
-            } else {
-                node.subsetrange = ["", ""];
-            }
+                .text(() => brush.empty() ?
+                    "Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)) :
+                    "Range: ".concat((brush.extent()[0]).toPrecision(4), " to ", (brush.extent()[1]).toPrecision(4))
+                );
+            node.subsetrange = brush.extent()[0].toPrecision(4) != brush.extent()[1].toPrecision(4) ?
+                [(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)] :
+                ["", ""];
         } else if (mydiv == "#setx") {
             var value = brush.extent()[0];
             var s = 6;
-
             if (d3.event.sourceEvent) {
                 value = x.invert(d3.mouse(this)[0]);
                 brush.extent([value, value]);
@@ -593,12 +550,8 @@ export function bars(node, div, priv) {
         .data(yVals)
         .enter()
         .append("rect")
-        .attr("x", function(d, i) {
-            return x(xVals[i] - 0.5 + barPadding);
-        })
-        .attr("y", function(d) {
-            return y(maxY - d);
-        })
+        .attr("x", (d, i) => x(xVals[i] - 0.5 + barPadding))
+        .attr("y", d => y(maxY - d))
         .attr("width", rectWidth)
         .attr("height", y) 
         .attr("fill", "#1f77b4");
@@ -614,9 +567,7 @@ export function bars(node, div, priv) {
                 .attr("x1", function(d, i) {
                     return x(xVals[i] - 0.5 + barPadding) + rectWidth / 2
                 })
-                .attr("y1", function(d) {
-                    return y(maxY - d);
-                })
+        	.attr("y1", d => y(maxY - d))
                 .attr("x2", function(d, i) {
                     return x(xVals[i] - 0.5 + barPadding) + rectWidth / 2
                 })
