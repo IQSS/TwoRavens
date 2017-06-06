@@ -1,3 +1,5 @@
+import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
+
 // hostname default - the app will use it to obtain the variable metadata
 // (ddi) and pre-processed data info if the file id is supplied as an
 // argument (for ex., gui.html?dfId=17), but hostname isn't.
@@ -12,11 +14,20 @@
 // local files if nothing is supplied.
 
 var production = false;
+var rappURL = (production ? 'https://beta.dataverse.org/' : 'http://0.0.0.0:8000/') + '/custom/';
 
-var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
-var selVarColor = '#fa8072'; //d3.rgb("salmon");
+// initial color scale used to establish the initial colors of nodes
+// allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
+// everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
+var colors = d3.scale.category20();
+var csColor = '#419641';
 var dvColor = '#28a4c9';
+var grayColor = '#c0c0c0';
 var nomColor = '#ff6600';
+var selVarColor = '#fa8072'; //d3.rgb("salmon");
+var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
+var timeColor = '#2d6ca2';
+var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
 var lefttab = "tab1"; // current tab in left panel
 var righttab = "btnModels"; // current tab in right panel
@@ -60,10 +71,11 @@ var allNodes = [];
 var nodes = [];
 var links = [];
 var mods = {};
+var rightClickLast = false;
 var selInteract = false;
 var callHistory = []; // unique to the space. saves transform and subset calls.
 
-var svg, width, height, div, obj, rappURL, estimateLadda, selectLadda;
+var svg, width, height, div, obj, estimateLadda, selectLadda;
 var arc3, arc4;
 
 function byId(id) {
@@ -94,38 +106,25 @@ export function main(fileid, hostname, ddiurl, dataurl) {
         dataurl = dataurl + "?key=" + apikey;
     }
 
-    rappURL = (production ? 'https://beta.dataverse.org/' : 'http://0.0.0.0:8000/') + '/custom/';
-
     svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
         .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
 
     var logArray = [];
 
-    var tempWidth = d3.select("#main.left").style("width")
+    var tempWidth = d3.select("#main.left").style("width");
     width = tempWidth.substring(0, (tempWidth.length - 2));
     height = $(window).height() - 120; // Hard coding for header and footer and bottom margin.
 
     var estimated = false;
     estimateLadda = Ladda.create(byId("btnEstimate"));
     selectLadda = Ladda.create(byId("btnSelect"));
-    var rightClickLast = false;
-
-    // initial color scale used to establish the initial colors of nodes
-    // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
-    // everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
-    var colors = d3.scale.category20();
 
     var colorTime = false;
-    var timeColor = '#2d6ca2';
     var colorCS = false;
-    var csColor = '#419641';
 
     var depVar = false;
     var subsetdiv = false;
     var setxdiv = false;
-
-    var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
-    var grayColor = '#c0c0c0';
 
     //Width and height for histgrams
     var barwidth = 1.3 * allR;
@@ -184,6 +183,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     });
 
     $('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.');
+
     // read DDI metadata with d3
     var metadataurl = "";
     if (ddiurl) {
@@ -191,21 +191,17 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     } else if (fileid) {
         // file id supplied; we're going to cook a standard dataverse
         // metadata url, with the file id provided and the hostname
-        // supplied or configured:
+        // supplied or configured
         metadataurl = dataverseurl + "/api/meta/datafile/" + fileid;
     } else {
         // neither a full ddi url, nor file id supplied
-        // use one of the sample data files distributed with the app in the 'data' directory
-        metadataurl = "data/PUMS5small-ddi.xml"; // This is California PUMS subset
+        metadataurl = "data/PUMS5small-ddi.xml"; // California PUMS subset
     }
 
-    // read pre-processed metadata and data:
-    var pURL = "";
-    if (dataurl) {
-        pURL = dataurl + "&format=prep";
-    } else {
-        pURL = "data/preprocessPUMS5small.json"; // California PUMS subset
-    }
+    // read pre-processed metadata and data
+    let pURL = dataurl ? dataurl + "&format=prep" 
+        :"data/preprocessPUMS5small.json"; // California PUMS subset
+
     var preprocess = {};
 
     // loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
@@ -237,7 +233,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             d3.select("title").html("TwoRavens " + dataname)
             // temporary values for hold that correspond to histogram bins
             hold = [.6, .2, .9, .8, .1, .3, .4];
-            var myvalues = [0, 0, 0, 0, 0];
             for (var i = 0; i < vars.length; i++) {
                 valueKey[i] = vars[i].attributes.name.nodeValue;
                 lablArray[i] = vars[i].getElementsByTagName("labl").length == 0 ?
@@ -245,7 +240,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                     vars[i].getElementsByTagName("labl")[0].childNodes[0].nodeValue;
                 var datasetcount = d3.layout.histogram()
                     .bins(barnumber).frequency(false)
-                    (myvalues);
+                    ([0, 0, 0, 0, 0]);
                 // creates an object to be pushed to allNodes
                 // contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
                 var obj1 = {
@@ -269,7 +264,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                 allNodes.push(obj1);
             };
 
-            // Reading the zelig models and populating the model list in the right panel.
+            // read the zelig models and populate model list in right panel
             d3.json("data/zelig5models.json", (err, data) => {
                 if (err)
                     return console.warn(err);
@@ -360,7 +355,7 @@ function scaffolding(callback) {
             $('#transList').fadeOut(100);
         }
 
-        if (event.keyCode == 13) { // keyup on "Enter"
+        if (event.keyCode == 13) { // keyup on Enter
             n = $('#tInput').val();
             var t = transParse(n = n);
             if (t === null)
@@ -395,15 +390,11 @@ function scaffolding(callback) {
         .data(valueKey)
         .enter()
         .append("p")
-        // replace non-alphanumerics for selection purposes)
+        // replace non-alphanumerics for selection purposes
         // perhaps ensure this id is unique by adding '_' to the front?
         .attr("id", d => d.replace(/\W/g, "_"))
         .text(d => d)
-        .style('background-color', d => {
-            if (findNodeIndex(d) > 2)
-                return varColor;
-            return hexToRgba(selVarColor);
-        })
+        .style('background-color', d => findNodeIndex(d) > 2 ? varColor : hexToRgba(selVarColor))
         .attr("data-container", "body")
         .attr("data-toggle", "popover")
         .attr("data-trigger", "hover")
@@ -575,8 +566,7 @@ function layout(v) {
 
     //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
-        .on("mouseover", function(d) {
-            // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
+        .on("mouseover", d => {
             $("body div.popover")
                 .addClass("variables");
             $("body div.popover div.popover-content")
@@ -1212,7 +1202,6 @@ function estimate(btn) {
 
     zPop();
     // write links to file & run R CMD
-
     // package the output as JSON
     // add call history and package the zparams object as JSON
     zparams.callHistory = callHistory;
@@ -1223,10 +1212,9 @@ function estimate(btn) {
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
 
-    zparams.allVars = valueKey.slice(10, 25); // this is because the URL is too long...
+    zparams.allVars = valueKey.slice(10, 25); // because the URL is too long...
     var jsonout = JSON.stringify(zparams);
-    //var selectorBase = rappURL+"selectorapp?solaJSON=";
-    var selectorurlcall = rappURL + "selectorapp"; //.concat(jsonout);
+    var selectorurlcall = rappURL + "selectorapp";
 
     function estimateSuccess(btn, json) {
         estimateLadda.stop(); // stop spinner
@@ -2247,26 +2235,18 @@ function setColors(n, c) {
 }
 
 function borderState() {
-    if (zparams.zdv.length > 0) {
-        $('#dvButton .rectColor svg circle').attr('stroke', dvColor);
-    } else {
+    zparams.zdv.length > 0 ?
+        $('#dvButton .rectColor svg circle').attr('stroke', dvColor) :
         $('#dvButton').css('border-color', '#ccc');
-    }
-    if (zparams.zcross.length > 0) {
-        $('#csButton .rectColor svg circle').attr('stroke', csColor);
-    } else {
+    zparams.zcross.length > 0 ?
+        $('#csButton .rectColor svg circle').attr('stroke', csColor) :
         $('#csButton').css('border-color', '#ccc');
-    }
-    if (zparams.ztime.length > 0) {
-        $('#timeButton .rectColor svg circle').attr('stroke', timeColor);
-    } else {
+    zparams.ztime.length > 0 ?
+        $('#timeButton .rectColor svg circle').attr('stroke', timeColor) :
         $('#timeButton').css('border-color', '#ccc');
-    }
-    if (zparams.znom.length > 0) {
-        $('#nomButton .rectColor svg circle').attr('stroke', nomColor);
-    } else {
+    zparams.znom.length > 0 ?
+        $('#nomButton .rectColor svg circle').attr('stroke', nomColor) :
         $('#nomButton').css('border-color', '#ccc');
-    }
 }
 
 // small appearance resets, but perhaps this will become a hard reset back to all original allNode values?
