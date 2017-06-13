@@ -71,6 +71,7 @@ var allNodes = [];
 var nodes = [];
 var links = [];
 var mods = {};
+var estimated = false;
 var rightClickLast = false;
 var selInteract = false;
 var callHistory = []; // unique to the space. saves transform and subset calls.
@@ -115,7 +116,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     width = tempWidth.substring(0, (tempWidth.length - 2));
     height = $(window).height() - 120; // Hard coding for header and footer and bottom margin.
 
-    var estimated = false;
     estimateLadda = Ladda.create(byId("btnEstimate"));
     selectLadda = Ladda.create(byId("btnSelect"));
 
@@ -1185,7 +1185,7 @@ function zPop() {
     }
 }
 
-function estimate(btn) {
+export function estimate(btn) {
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
@@ -1941,11 +1941,11 @@ function varSummary(d) {
     if (priv) {
         if (d.meanCI) {
             t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
-                t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
-                i, j;
+            t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
+            i, j;
         }
     }
-
+    
     for (i = 0; i < t1.length; i++) {
         if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "")
             continue;
