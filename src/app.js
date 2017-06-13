@@ -164,7 +164,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var hold = [];
     var allResults = [];
     var subsetNodes = [];
-    var citetoggle = false;
 
     var spaces = [];
     var trans = []; // var list for each space contain variables in original data plus trans in that space
@@ -182,8 +181,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             .remove();
     });
 
-    $('#about div.panel-body').text('TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed.  In the Norse, their names were "Thought" and "Memory".  In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.');
-
     // read DDI metadata with d3
     var metadataurl = "";
     if (ddiurl) {
@@ -199,8 +196,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     }
 
     // read pre-processed metadata and data
-    let pURL = dataurl ? dataurl + "&format=prep" 
-        :"data/preprocessPUMS5small.json"; // California PUMS subset
+    let pURL = dataurl ? dataurl + "&format=prep" : "data/preprocessPUMS5small.json"; // California PUMS subset
 
     var preprocess = {};
 
@@ -460,18 +456,16 @@ function layout(v) {
         if (allNodes.length > 2) {
             nodes = [allNodes[0], allNodes[1], allNodes[2]];
             links = [{
-                    source: nodes[1],
-                    target: nodes[0],
-                    left: false,
-                    right: true
-                },
-                {
-                    source: nodes[0],
-                    target: nodes[2],
-                    left: false,
-                    right: true
-                }
-            ];
+                source: nodes[1],
+                target: nodes[0],
+                left: false,
+                right: true
+            }, {
+                source: nodes[0],
+                target: nodes[2],
+                left: false,
+                right: true
+            }];
         } else if (allNodes.length === 2) {
             nodes = [allNodes[0], allNodes[1]];
             links = [{
@@ -1035,9 +1029,7 @@ function layout(v) {
             .data(t) //set to variables in model space as they're added
             .enter()
             .append("li")
-            .text(function(d) {
-                return d;
-            });
+            .text(d => d);
 
         $('#transSel li').click(function(event) {
             // if 'interaction' is the selected function, don't show the function list again
@@ -1077,8 +1069,8 @@ function layout(v) {
     }
 
     function mousemove(d) {
-        if (!mousedown_node) return;
-
+        if (!mousedown_node)
+            return;
         // update drag line
         drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
     }
@@ -1142,7 +1134,7 @@ var findNode = function(nodeName) {
 }
 
 // function called by force button
-function forceSwitch() {
+export function forceSwitch() {
     if (forcetoggle[0] === "true") {
         forcetoggle = ["false"];
     } else {
@@ -1167,9 +1159,8 @@ function spliceLinksForNode(node) {
 }
 
 function zPop() {
-    if (dataurl) {
+    if (dataurl)
         zparams.zdataurl = dataurl;
-    }
     zparams.zmodelcount = modelCount;
     zparams.zedges = [];
     zparams.zvars = [];
@@ -1811,12 +1802,12 @@ function legend(c) {
     borderState();
 }
 
-function reset() {
+export function reset() {
     location.reload();
 }
 
 // programmatically deselecting every selected variable...
-function erase() {
+export function erase() {
     leftpanelMedium();
     rightpanelMedium();
     byId("legend").setAttribute("style", "display:none");
@@ -1896,7 +1887,7 @@ export function tabLeft(tab) {
     byId(tab).style.display = 'block';
 }
 
-function tabRight(tabid) {
+export function tabRight(tabid) {
     byId('models').style.display = 'none';
     byId('setx').style.display = 'none';
     byId('results').style.display = 'none';
@@ -1978,7 +1969,7 @@ function varSummary(d) {
         .on("mouseover", () => d3.select(this).style("background-color", "aliceblue"))
         .on("mouseout", () => d3.select(this).style("background-color", "#F9F9F9"));
 
-    var plotsvg = d3.select("#tab3")
+    d3.select("#tab3")
         .selectAll("svg")
         .remove();
 
@@ -1987,7 +1978,7 @@ function varSummary(d) {
     else if (d.plottype === "continuous") density(d, div = "varSummary", priv);
     else if (d.plottype === "bar") bars(d, div = "varSummary", priv);
     else {
-        var plotsvg = d3.select("#tab3") // no graph to draw, but still need to remove previous graph
+        d3.select("#tab3") // no graph to draw, but still need to remove previous graph
             .selectAll("svg")
             .remove();
     };
@@ -2000,62 +1991,47 @@ function populatePopover() {
 
 function popoverContent(d) {
     var rint = d3.format("r");
-    var outtext = "";
-    if (d.labl != "") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
-    }
+    var text = "";
+    if (d.labl != "")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
     if (d.mean != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"
         if (priv && d.meanCI) {
-            outtext += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
+            text += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
         } else {
-            outtext += (+d.mean).toPrecision(4).toString()
+            text += (+d.mean).toPrecision(4).toString()
         }
-        outtext += "</p></div></div>";
+        text += "</p></div></div>";
     }
-    if (d.median != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
-    }
-    if (d.mode != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Most Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>";
-    }
-    if (d.freqmode != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
-    }
-    if (d.mid != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Median Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
-    }
-    if (d.freqmid != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
-    }
-    if (d.fewest != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Least Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.fewest + "</p></div></div>";
-    }
-    if (d.freqfewest != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
-    }
-    if (d.sd != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.sd).toPrecision(4).toString() + "</p></div></div>";
-    }
-    if (d.max != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.max).toPrecision(4).toString() + "</p></div></div>";
-    }
-    if (d.min != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.min).toPrecision(4).toString() + "</p></div></div>";
-    }
-    if (d.invalid != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>";
-    }
-    if (d.valid != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>";
-    }
-    if (d.uniques != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Uniques</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.uniques) + "</p></div></div>";
-    }
-    if (d.herfindahl != "NA") {
-        outtext = outtext + "<div class='form-group'><label class='col-sm-4 control-label'>Herfindahl</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.herfindahl).toPrecision(4).toString() + "</p></div></div>";
-    }
-    return outtext;
+    if (d.median != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
+    if (d.mode != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Most Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>";
+    if (d.freqmode != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
+    if (d.mid != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Median Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
+    if (d.freqmid != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
+    if (d.fewest != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Least Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.fewest + "</p></div></div>";
+    if (d.freqfewest != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
+    if (d.sd != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.sd).toPrecision(4).toString() + "</p></div></div>";
+    if (d.max != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.max).toPrecision(4).toString() + "</p></div></div>";
+    if (d.min != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.min).toPrecision(4).toString() + "</p></div></div>";
+    if (d.invalid != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>";
+    if (d.valid != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>";
+    if (d.uniques != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Uniques</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.uniques) + "</p></div></div>";
+    if (d.herfindahl != "NA")
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Herfindahl</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.herfindahl).toPrecision(4).toString() + "</p></div></div>";
+    return text;
 }
 
 function popupX(d) {
@@ -2147,7 +2123,7 @@ function hexToRgba(hex) {
     var g = (bigint >> 8) & 255;
     var b = bigint & 255;
     var a = '0.5';
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    return 'rgba(' + [r, g, b, a].join(',') + ')';
 }
 
 // function takes a node and a color and updates zparams
@@ -2256,10 +2232,9 @@ function nodeReset(n) {
     n.nodeCol = n.baseCol;
 }
 
-function subsetSelect(btn) {
-    if (dataurl) {
+export function subsetSelect(btn) {
+    if (dataurl)
         zparams.zdataurl = dataurl;
-    }
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
@@ -2273,17 +2248,14 @@ function subsetSelect(btn) {
         var temp = nodes[j].id;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
         if (zparams.zsubset[j].length > 0) {
-            if (zparams.zsubset[j][0] != "") {
+            if (zparams.zsubset[j][0] != "")
                 zparams.zsubset[j][0] = Number(zparams.zsubset[j][0]);
-            }
-            if (zparams.zsubset[j][1] != "") {
+            if (zparams.zsubset[j][1] != "")
                 zparams.zsubset[j][1] = Number(zparams.zsubset[j][1]);
-            }
         }
         zparams.zplot.push(allNodes[temp].plottype);
-        if (zparams.zsubset[j][1] != "") {
-            subsetEmpty = false;
-        } // only need to check one
+        if (zparams.zsubset[j][1] != "")
+            subsetEmpty = false; // only need to check one
     }
 
     if (subsetEmpty == true) {
@@ -2417,62 +2389,50 @@ function subsetSelect(btn) {
         varOut(grayOuts);
     }
 
-    function subsetSelectFail(btn) {
-        selectLadda.stop(); //stop motion
-    }
-
     selectLadda.start(); //start button motion
-    makeCorsRequest(urlcall, btn, subsetSelectSuccess, subsetSelectFail, solajsonout);
+    makeCorsRequest(urlcall, btn, subsetSelectSuccess, btn => selectLadda.stop(), solajsonout);
 }
 
 function readPreprocess(url, p, v, callback) {
     console.log(url);
     d3.json(url, function(error, json) {
-        if (error) return console.warn(error);
+        if (error)
+            return console.warn(error);
         var jsondata = json;
 
         console.log("inside readPreprocess function");
         console.log(jsondata);
         console.log(jsondata["variables"]);
 
-        if (jsondata.dataset.priv) {
+        if (jsondata.dataset.priv)
             priv = jsondata["dataset"]["priv"];
-        };
 
         //copying the object
         for (var key in jsondata["variables"]) {
             p[key] = jsondata["variables"][key];
         }
 
-        if (typeof callback === "function") {
+        if (typeof callback === "function")
             callback();
-        }
     });
 }
 
-function about() {
-    $('#about').show();
-}
-
-function closeabout() {
-    $('#about').hide();
-}
-
-function opencite() {
+export function opencite() {
     $('#cite').show();
+    m.redraw();
 }
 
-function closecite(toggle) {
-    if (toggle == false) $('#cite').hide();
+export function closecite(toggle) {
+    if (!toggle) $('#cite').hide();
 }
 
-function clickcite(toggle) {
-    if (toggle == false) {
-        $('#cite').show();
-        return true;
+export function clickcite(toggle) {
+    if (toggle) {
+        $('#cite').hide();
+        return false;
     }
-    $('#cite').hide();
-    return false;
+    $('#cite').show();
+    return true;
 }
 
 // removes all the children svgs inside subset and setx divs
@@ -2497,7 +2457,7 @@ function showLog() {
             .enter()
             .append("p")
             .text(d => d);
-	return;
+	      return;
     }
     byId('logdiv').setAttribute("style", "display:none");
 }
