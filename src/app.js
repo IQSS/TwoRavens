@@ -1802,10 +1802,6 @@ function legend(c) {
     borderState();
 }
 
-export function reset() {
-    location.reload();
-}
-
 // programmatically deselecting every selected variable...
 export function erase() {
     leftpanelMedium();
@@ -2415,24 +2411,6 @@ function readPreprocess(url, p, v, callback) {
         if (typeof callback === "function")
             callback();
     });
-}
-
-export function opencite() {
-    $('#cite').show();
-    m.redraw();
-}
-
-export function closecite(toggle) {
-    if (!toggle) $('#cite').hide();
-}
-
-export function clickcite(toggle) {
-    if (toggle) {
-        $('#cite').hide();
-        return false;
-    }
-    $('#cite').show();
-    return true;
 }
 
 // removes all the children svgs inside subset and setx divs

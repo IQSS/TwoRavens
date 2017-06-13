@@ -201,7 +201,8 @@ function panel(id, title, target, body=[]) {
 
 let Model = {
     about: false,
-    cite: false
+    cite: false,
+    citetoggle: false
 }
 
 class Body {
@@ -276,7 +277,7 @@ class Body {
                         }, m('.panel-body',
                              'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'
                         ))
-                    ]),
+                    ]), 
                     m('#dataField.field', {
                         style: {
                             "text-align": "center",
@@ -284,9 +285,9 @@ class Body {
                         }
                     }, [
                         m('h4#dataName', {
-                            onclick: v => citetoggle = app.clickcite(citetoggle),
-                            onmouseout: v => app.closecite(citetoggle),
-                            onmouseover: app.opencite,
+                            onclick: v => Model.cite = Model.citetoggle = !Model.citetoggle,
+                            onmouseout: v => Model.citetoggle || (Model.cite = false),
+                            onmouseover: v => Model.cite = true,
                             style: {display: "inline"}
                         }, "Dataset Name"),
                         m("#cite.panel.panel-default", {
@@ -294,7 +295,7 @@ class Body {
                                 position: "absolute",
                                 right: "50%",
                                 width: "380px",
-                                display: "none",
+                                display: Model.cite ? 'block' : 'none',
                                 "z-index": "50",
                                 "text-align": "left"
                             }
