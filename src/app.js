@@ -1812,8 +1812,8 @@ export function erase() {
     rightpanelMedium();
     byId("legend").setAttribute("style", "display:none");
     tabLeft('tab1');
-    jQuery.fn.d3Click = () => {
-        this.children().each((i, e) => {
+    jQuery.fn.d3Click = function() {
+        this.children().each(function(i, e) {
             var mycol = d3.rgb(this.style.backgroundColor);
             if (mycol.toString() === varColor.toString())
                 return;
