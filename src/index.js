@@ -25,7 +25,7 @@ function panel(id, title, target, buttons={}) {
           m("h3.panel-title", [
               title,
               m(`span.glyphicon.glyphicon-large.glyphicon-chevron-${Model[toggle] ? 'up' : 'down'}.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
-                  onclick: () => Model[toggle] = !Model[toggle],
+                  onclick: _ => Model[toggle] = !Model[toggle],
                   style: {
                       cursor: "hand",
                       cursor: "pointer"
@@ -33,49 +33,51 @@ function panel(id, title, target, buttons={}) {
               })
           ])
          ),
-        m(`#${target}.panel-collapse.collapse.in`, m(".panel-body", Object.entries(buttons).map(x => {
-            return m(`#${x[0]}.clearfix.hide`, [
-                m(".rectColor",
-                  m("svg", {
-                      style: {
-                          width: "20px",
-                          height: "20px"
-                      }
-                  }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
-                ),
-                m(".rectLabel", x[1])
-            ]);
-        })))
+        m(`#${target}.panel-collapse.collapse.in`,
+          m(".panel-body", Object.entries(buttons).map(x => {
+              return m(`#${x[0]}.clearfix.hide`, [
+                  m(".rectColor",
+                    m("svg", {
+                        style: {
+                            width: "20px",
+                            height: "20px"
+                        }
+                    }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
+                   ),
+                  m(".rectLabel", x[1])
+              ]);
+          })))
     ]);
 }
 
-function bar(side) {
+let closepanel = side => Model[side + 'Closed'] ? '.closepanel' : '';
+
+function top(side, title, ...args) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
-    return m(
-        `#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`,
-        m('span', {
-            onclick: () => {
-                let key = side + 'Closed';
-                if (!Model[key]) {
-                    $(id).removeClass('expandpanel');
-                    $('#main').toggleClass('svg-' + id);
-                    if (side == 'left')
-                        $('#btnSelect').css('display', 'none');
-                }
-                Model[key] = !Model[key];
-            }
-        }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])
-    );
+    return m(`#${side}panel.sidepanel.container.clearfix${closepanel(side)}`, [
+        m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`,
+          m('span', {
+              onclick: _ => {
+                  let key = side + 'Closed';
+                  if (!Model[key]) {
+                      $(id).removeClass('expandpanel');
+                      if (side == 'left')
+                          $('#btnSelect').css('display', 'none');
+                  }
+                  Model[key] = !Model[key];
+              }
+          }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])
+        ),
+        m(`#${side}paneltitle.panel-heading.text-center`,
+          m("h3.panel-title", title)
+        )
+    ].concat(args));
 }
 
 function leftpanel() {
-    let closepanel = Model.leftClosed ? '.closepanel' : '';
-    return m('#leftpanel.sidepanel.container.clearfix' + closepanel, [
-        bar('left'),
-        m('#leftpaneltitle.panel-heading.text-center',
-          m("h3.panel-title", "Data Selection")
-        ),
+    return top(
+        'left', 'Data Selection',
         m(".btn-toolbar[role=toolbar]", {
             style: {
                 "margin-left": ".5em",
@@ -87,15 +89,15 @@ function leftpanel() {
             }, [
                 m("button#btnVariables.btn.active[type=button]", {
                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
-                    onclick: v => app.tabLeft('tab1')
+                    onclick: _ => app.tabLeft('tab1')
                 }, "Variables"),
                 m("button#btnSubset.btn.btn-default[type=button]", {
-                    onclick: v => app.tabLeft('tab2')
+                    onclick: _ => app.tabLeft('tab2')
                 }, "Subset")
             ]),
             m("button#btnSelect.btn.btn-default.ladda-button[data-spinner-color=#000000][data-style=zoom-in][type=button]", {
                 title: 'Subset data by the intersection of all selected values.',
-                onclick: v => app.subsetSelect('btnSelect'),
+                onclick: _ => app.subsetSelect('btnSelect'),
                 style: {
                     display: "none",
                     float: "right",
@@ -105,7 +107,7 @@ function leftpanel() {
                 style: {"pointer-events": "none"}
             }, "Select"))
         ]),
-        m('.row-fluid' + closepanel,
+        m('.row-fluid' + closepanel('left'),
             m('#leftpanelcontent',
                 m('#leftContentArea', {
                     style: {
@@ -134,79 +136,75 @@ function leftpanel() {
                 ])
             )
         )
-    ]);
+    );
 }
 
 function rightpanel() {
-    let closepanel = Model.rightClosed ? '.closepanel' : '';
-    return m('#rightpanel.sidepanel.container.clearfix' + closepanel, [
-        bar('right'),
-        m('#rightpaneltitle.panel-heading.text-center',
-          m("h3.panel-title", "Model Selection")
-        ),
+    return top(
+        'right', 'Model Selection',
         m(".btn-group.btn-group-justified[aria-label=...][role=group]", {
             style: {"margin-top": ".5em"}
         }, [
             m('button#btnModels.btn.active[type=button]', {
-                onclick: v => app.tabRight('btnModels'),
+                onclick: _ => app.tabRight('btnModels'),
                 style: {width: "33%"}
             }, "Models"),
             m('button#btnSetx.btn.btn-default[type=button]', {
-                onclick: v => app.tabRight('btnSetx'),
+                onclick: _ => app.tabRight('btnSetx'),
                 style: {width: "34%"}
             }, "Set Covar."),
             m('button#btnResults.btn.btn-default[type=button]', {
-                onclick: v => app.tabRight('btnResults'),
+                onclick: _ => app.tabRight('btnResults'),
                 style: {width: "33%"}
             }, "Results")
         ]),
-        m('.row-fluid' + closepanel,
-            m('#rightpanelcontent',
-                m('#rightContentArea', {
-                    style: {
-                        height: "488px",
-                        overflow: "scroll"
-                    }
+        m('.row-fluid' + closepanel('right'),
+          m('#rightpanelcontent',
+            m('#rightContentArea', {
+                style: {
+                    height: "488px",
+                    overflow: "scroll"
+                }
+            }, [
+                m('#results', {
+                    style: {"margin-top": ".5em"}
                 }, [
-                    m('#results', {
-                        style: {"margin-top": ".5em"}
-                    }, [
-                        m("#resultsView.container", {
-                            style: {
-                                float: "right",
-                                display: "none",
-                                overflow: "auto",
-                                width: "80%",
-                                "background-color": "white",
-                                "white-space": "nowrap"
-                            }
-                        }),
-                        m('#modelView', {
-                            style: {
-                                display: "none",
-                                float: "left",
-                                width: "20%",
-                                "background-color": "white"
-                            }
-                        }),
-                        m("p#resultsHolder", {
-                            style: {padding: ".5em 1em"}
-                        })
-                    ]),
-                    m('#setx', {
-                        style: {display: "none"}
-                    }),
-                    m('#models', {
+                    m("#resultsView.container", {
                         style: {
-                            display: "block",
-                            padding: "6px 12px",
-                            "text-align": "center"
+                            float: "right",
+                            display: "none",
+                            overflow: "auto",
+                            width: "80%",
+                            "background-color": "white",
+                            "white-space": "nowrap"
                         }
+                    }),
+                    m('#modelView', {
+                        style: {
+                            display: "none",
+                            float: "left",
+                            width: "20%",
+                            "background-color": "white"
+                        }
+                    }),
+                    m("p#resultsHolder", {
+                        style: {padding: ".5em 1em"}
                     })
-                ])
-            )
+                ]),
+                m('#setx', {
+                    style: {display: "none"}
+                }),
+                m('#models', {
+                    style: {
+                        display: "block",
+                        padding: "6px 12px",
+                        "text-align": "center"
+                    }
+                })
+            ])
+           )
         )
-    ]);
+    );
 }
 
 class Body {
@@ -241,8 +239,8 @@ class Body {
                 m("div", [
                     m("#navbarheader.navbar-header", [
                         m("img[alt=TwoRavens][src=images/TwoRavens.png][width=100]", {
-                            onmouseover: v => Model.about = true,
-                            onmouseout: v => Model.about = false,
+                            onmouseover: _ => Model.about = true,
+                            onmouseout: _ => Model.about = false,
                             style: {
                                 "margin-left": "2em",
                                 "margin-top": "-0.5em"
@@ -258,7 +256,7 @@ class Body {
                             }
                         }, m('.panel-body',
                              'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'
-                        ))
+                            ))
                     ]),
                     m('#dataField.field', {
                         style: {
@@ -267,9 +265,9 @@ class Body {
                         }
                     }, [
                         m('h4#dataName', {
-                            onclick: v => Model.cite = Model.citetoggle = !Model.citetoggle,
-                            onmouseout: v => Model.citetoggle || (Model.cite = false),
-                            onmouseover: v => Model.cite = true,
+                            onclick: _ => Model.cite = Model.citetoggle = !Model.citetoggle,
+                            onmouseout: _ => Model.citetoggle || (Model.cite = false),
+                            onmouseover: _ => Model.cite = true,
                             style: {display: "inline"}
                         }, "Dataset Name"),
                         m("#cite.panel.panel-default", {
@@ -283,7 +281,7 @@ class Body {
                             }
                         }, m(".panel-body")),
                         m("button#btnEstimate.btn.btn-default.ladda-button.navbar-right[data-spinner-color=#000000][data-style=zoom-in]", {
-                            onclick: v => app.estimate('btnEstimate'),
+                            onclick: _ => app.estimate('btnEstimate'),
                             style: {
                                 "margin-left": "2em",
                                 "margin-right": "1em"
@@ -305,37 +303,37 @@ class Body {
                     ])
                 ])
             ),
-            m("#main.left.svg-leftpanel.svg-rightpanel.carousel.slide", [
-                m(".carousel-inner"),
-                m("#spacetools.spaceTool", {
-                    style: {"z-index": "16"}
-                }, [
-                    m("button#btnForce.btn.btn-default[title=Pin the variable pebbles to the page.]", {
-                        onclick: app.forceSwitch
-                    }, m("span.glyphicon.glyphicon-pushpin")),
-                    m("button#btnEraser.btn.btn-default[title=Wipe all variables from the modeling space.]", {
-                        onclick: app.erase
-                    }, m("span.glyphicon.glyphicon-magnet"))
-                ]),
-                panel("legend.legendary", "Legend", "collapseLegend", {
-                    timeButton: 'Time',
-                    csButton: 'Cross Sec',
-                    dvButton: 'Dep Var',
-                    nomButton: 'Nom Var'
-                }),
-                panel("logdiv.logbox", "History", 'collapseLog'),
-                m('#ticker', {
-                    style: {
-                        background: "#F9F9F9",
-                        bottom: "0",
-                        height: "50px",
-                        position: "fixed",
-                        width: "100%"
-                    }
-                }, m("a#logID[href=somelink][target=_blank]", "Replication")),
-                leftpanel(),
-                rightpanel()
-            ])
+            m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}`,
+              m(".carousel-inner"),
+              m("#spacetools.spaceTool", {
+                  style: {"z-index": "16"}
+              }, [
+                  m("button#btnForce.btn.btn-default[title=Pin the variable pebbles to the page.]", {
+                      onclick: app.forceSwitch
+                  }, m("span.glyphicon.glyphicon-pushpin")),
+                  m("button#btnEraser.btn.btn-default[title=Wipe all variables from the modeling space.]", {
+                      onclick: app.erase
+                  }, m("span.glyphicon.glyphicon-magnet"))
+              ]),
+              panel("legend.legendary", "Legend", "collapseLegend", {
+                  timeButton: 'Time',
+                  csButton: 'Cross Sec',
+                  dvButton: 'Dep Var',
+                  nomButton: 'Nom Var'
+              }),
+              panel("logdiv.logbox", "History", 'collapseLog'),
+              m('#ticker', {
+                       style: {
+                           background: "#F9F9F9",
+                           bottom: "0",
+                           height: "50px",
+                           position: "fixed",
+                           width: "100%"
+                       }
+              }, m("a#logID[href=somelink][target=_blank]", "Replication")),
+              leftpanel(),
+              rightpanel()
+            )
         );
     }
 }
