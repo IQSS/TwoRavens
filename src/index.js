@@ -42,7 +42,7 @@ function panel(id, title, target, buttons={}) {
                           height: "20px"
                       }
                   }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
-                 ),
+                ),
                 m(".rectLabel", x[1])
             ]);
         })))
@@ -53,14 +53,12 @@ function bar(side) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
     return m(
-        `#${side == 'left' ? 'toggleLpanelicon' : 'toggleRpanelicon'}.panelbar`,
+        `#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`,
         m('span', {
             onclick: () => {
                 let key = side + 'Closed';
                 if (!Model[key]) {
                     $(id).removeClass('expandpanel');
-                    $(id + ' > div.row-fluid').toggleClass('closepanel');
-                    $(id).toggleClass('closepanel');
                     $('#main').toggleClass('svg-' + id);
                     if (side == 'left')
                         $('#btnSelect').css('display', 'none');
@@ -72,7 +70,8 @@ function bar(side) {
 }
 
 function leftpanel() {
-    return m('#leftpanel.sidepanel.container.clearfix', [
+    let closepanel = Model.leftClosed ? '.closepanel' : '';
+    return m('#leftpanel.sidepanel.container.clearfix' + closepanel, [
         bar('left'),
         m('#leftpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Data Selection")
@@ -106,7 +105,7 @@ function leftpanel() {
                 style: {"pointer-events": "none"}
             }, "Select"))
         ]),
-        m(".row-fluid",
+        m('.row-fluid' + closepanel,
             m('#leftpanelcontent',
                 m('#leftContentArea', {
                     style: {
@@ -139,7 +138,8 @@ function leftpanel() {
 }
 
 function rightpanel() {
-    return m('#rightpanel.sidepanel.container.clearfix', [
+    let closepanel = Model.rightClosed ? '.closepanel' : '';
+    return m('#rightpanel.sidepanel.container.clearfix' + closepanel, [
         bar('right'),
         m('#rightpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Model Selection")
@@ -160,7 +160,7 @@ function rightpanel() {
                 style: {width: "33%"}
             }, "Results")
         ]),
-        m(".row-fluid",
+        m('.row-fluid' + closepanel,
             m('#rightpanelcontent',
                 m('#rightContentArea', {
                     style: {
