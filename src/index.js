@@ -6,24 +6,70 @@ import m from 'mithril';
 
 import * as app from './app.js';
 
-function panelbar(id) {
+let Model = {
+    about: false,
+    cite: false,
+    citetoggle: false,
+    closeLeft: false,
+    closeRight: false,
+    toggleHistory: false,
+    toggleLegend: false
+};
+
+function panel(id, title, target, buttons={}) {
+    let toggle = 'toggle' + title;
+    return m(`#${id}.panel.panel-default`, {
+        style: {display: "none"}
+    }, [
+        m(".panel-heading",
+          m("h3.panel-title", [
+              title,
+              m(`span.glyphicon.glyphicon-large.glyphicon-chevron-${Model[toggle] ? 'up' : 'down'}.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
+                  onclick: () => Model[toggle] = !Model[toggle],
+                  style: {
+                      cursor: "hand",
+                      cursor: "pointer"
+                  }
+              })
+          ])
+         ),
+        m(`#${target}.panel-collapse.collapse.in`, m(".panel-body", Object.entries(buttons).map(x => {
+            return m(`#${x[0]}.clearfix.hide`, [
+                m(".rectColor",
+                  m("svg", {
+                      style: {
+                          width: "20px",
+                          height: "20px"
+                      }
+                  }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
+                 ),
+                m(".rectLabel", x[1])
+            ]);
+        })))
+    ]);
+}
+
+function bar(id) {
+    let dot = m.trust('&#9679;');
     return m(
         `#${id}.panelbar`,
-        m('span', [
-            m.trust("&#9679;"),
-            m('br'),
-            m.trust("&#9679;"),
-            m('br'),
-            m.trust("&#9679;"),
-            m('br'),
-            m.trust("&#9679;")
-        ])
+        m('span', [dot, m('br'), dot, m('br'), dot, m('br'), dot])
     );
 }
 
+$('#leftpanel span').click(() => {
+    if (!$('#leftpanel').hasClass('forceclosepanel')) {
+        $('#leftpanel').removeClass('expandpanel');
+        $('#leftpanel > div.row-fluid').toggleClass('closepanel');
+        $('#leftpanel').toggleClass('closepanel');
+        $('#main').toggleClass('svg-leftpanel');
+        $('#btnSelect').css('display', 'none');
+    }
+});
+
 function leftpanel() {
     return m('#leftpanel.sidepanel.container.clearfix', [
-        panelbar('toggleLpanelicon'),
+        bar('toggleLpanelicon'),
         m('#leftpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Data Selection")
         ),
@@ -88,9 +134,18 @@ function leftpanel() {
     ]);
 }
 
+$('#rightpanel span').click(() => {
+    if (!$('#leftpanel').hasClass('forceclosepanel')) {
+        $('#rightpanel').removeClass('expandpanel');
+        $('#rightpanel > div.row-fluid').toggleClass('closepanel');
+        $('#rightpanel').toggleClass('closepanel');
+        $('#main').toggleClass('svg-rightpanel');
+    }
+});
+
 function rightpanel() {
     return m('#rightpanel.sidepanel.container.clearfix', [
-        panelbar('toggleRpanelicon'),
+        bar('toggleRpanelicon'),
         m('#rightpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Model Selection")
         ),
@@ -159,72 +214,8 @@ function rightpanel() {
     ]);
 }
 
-function button(id, label) {
-    return m(`#${id}.clearfix.hide`, [
-        m(".rectColor",
-          m("svg", {
-              style: {
-                  width: "20px",
-                  height: "20px"
-              }
-          }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
-        ),
-        m(".rectLabel", label)
-    ]);
-}
-
-function panel(id, title, target, buttons={}) {
-    return m(`#${id}.panel.panel-default`, {
-        style: {display: "none"}
-    }, [
-        m(".panel-heading",
-          m("h3.panel-title", [
-              title,
-              m(`span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
-                  onclick: function() {
-                      $(this)
-                          .toggleClass('glyphicon-chevron-down')
-                          .toggleClass('glyphicon-chevron-up');
-                  },
-                  style: {
-                      cursor: "hand",
-                      cursor: "pointer"
-                  }
-              })
-          ])
-         ),
-        m(`#${target}.panel-collapse.collapse.in`,
-          m(".panel-body", Object.entries(buttons).map(x => button.apply(null, x)))
-        )
-    ]);
-}
-
-let Model = {
-    about: false,
-    cite: false,
-    citetoggle: false
-}
-
 class Body {
     oncreate() {
-        $('#leftpanel span').click(() => {
-            if (!$('#leftpanel').hasClass('forceclosepanel')) {
-                $('#leftpanel').removeClass('expandpanel');
-                $('#leftpanel > div.row-fluid').toggleClass('closepanel');
-                $('#leftpanel').toggleClass('closepanel');
-                $('#main').toggleClass('svg-leftpanel');
-                $('#btnSelect').css('display', 'none');
-            }
-        });
-        $('#rightpanel span').click(() => {
-            if (!$('#leftpanel').hasClass('forceclosepanel')) {
-                $('#rightpanel').removeClass('expandpanel');
-                $('#rightpanel > div.row-fluid').toggleClass('closepanel');
-                $('#rightpanel').toggleClass('closepanel');
-                $('#main').toggleClass('svg-rightpanel');
-            }
-        });
-
         let extract = (name, key, offset) => {
             key = key + '=';
             let loc = window.location.toString();
@@ -331,13 +322,13 @@ class Body {
                         onclick: app.erase
                     }, m("span.glyphicon.glyphicon-magnet"))
                 ]),
-                panel("legend.legendary", "Legend  ", "collapseLegend", {
+                panel("legend.legendary", "Legend", "collapseLegend", {
                     timeButton: 'Time',
                     csButton: 'Cross Sec',
                     dvButton: 'Dep Var',
                     nomButton: 'Nom Var'
                 }),
-                panel("logdiv.logbox", "History ", 'collapseLog'),
+                panel("logdiv.logbox", "History", 'collapseLog'),
                 m('#ticker', {
                     style: {
                         background: "#F9F9F9",
