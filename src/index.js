@@ -60,8 +60,8 @@ function leftpanel() {
             m('#leftpanelcontent',
                 m('#leftContentArea', {
                     style: {
-                        overflow: "scroll",
-                        height: "488px"
+                        height: "488px",
+                        overflow: "scroll"
                     }
                 }, [
                     m('#tab1', {
@@ -114,8 +114,8 @@ function rightpanel() {
             m('#rightpanelcontent',
                 m('#rightContentArea', {
                     style: {
-                        overflow: "scroll",
-                        height: "488px"
+                        height: "488px",
+                        overflow: "scroll"
                     }
                 }, [
                     m('#results', {
@@ -123,20 +123,20 @@ function rightpanel() {
                     }, [
                         m("#resultsView.container", {
                             style: {
+                                float: "right",
+                                display: "none",
+                                overflow: "auto",
                                 width: "80%",
                                 "background-color": "white",
-                                display: "none",
-                                float: "right",
-                                overflow: "auto",
                                 "white-space": "nowrap"
                             }
                         }),
                         m('#modelView', {
                             style: {
-                                width: "20%",
-                                "background-color": "white",
                                 display: "none",
-                                float: "left"
+                                float: "left",
+                                width: "20%",
+                                "background-color": "white"
                             }
                         }),
                         m("p#resultsHolder", {
@@ -168,7 +168,7 @@ function button(id, label) {
                   height: "20px"
               }
           }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
-         ),
+        ),
         m(".rectLabel", label)
     ]);
 }
@@ -183,12 +183,12 @@ function panel(id, title, target, body=[]) {
               m(`span.glyphicon.glyphicon-large.glyphicon-chevron-down.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
                   onclick: function() {
                       $(this)
-                          .toggleClass('glyphicon-chevron-up')
-                          .toggleClass('glyphicon-chevron-down');
+                          .toggleClass('glyphicon-chevron-down')
+                          .toggleClass('glyphicon-chevron-up');
                   },
                   style: {
-                      cursor: "pointer",
-                      cursor: "hand"
+                      cursor: "hand",
+                      cursor: "pointer"
                   }
               })
           ])
@@ -226,8 +226,8 @@ class Body {
         });
 
         let substr = (key, offset) => {
-            let url = window.location.toString();
             key = key + '=';
+            let url = window.location.toString();
             return url.indexOf(key) > 0 ? url.substring(url.indexOf(key) + offset) : '';
         };
         let extract = (name, val) => {
@@ -268,20 +268,20 @@ class Body {
                         }),
                         m('#about.panel.panel-default', {
                             style: {
-                                position: "absolute",
-                                left: "140px",
-                                width: "380px",
                                 display: Model.about ? 'block' : 'none',
+                                left: "140px",
+                                position: "absolute",
+                                width: "380px",
                                 "z-index": "50"
                             }
                         }, m('.panel-body',
                              'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'
                         ))
-                    ]), 
+                    ]),
                     m('#dataField.field', {
                         style: {
-                            "text-align": "center",
-                            "margin-top": "0.5em"
+                            "margin-top": "0.5em",
+                            "text-align": "center"
                         }
                     }, [
                         m('h4#dataName', {
@@ -292,12 +292,12 @@ class Body {
                         }, "Dataset Name"),
                         m("#cite.panel.panel-default", {
                             style: {
+                                display: Model.cite ? 'block' : 'none',
                                 position: "absolute",
                                 right: "50%",
                                 width: "380px",
-                                display: Model.cite ? 'block' : 'none',
-                                "z-index": "50",
-                                "text-align": "left"
+                                "text-align": "left",
+                                "z-index": "50"
                             }
                         }, m(".panel-body")),
                         m("button#btnEstimate.btn.btn-default.ladda-button.navbar-right[data-spinner-color=#000000][data-style=zoom-in]", {
@@ -344,11 +344,11 @@ class Body {
                 panel("logdiv.logbox", "History ", 'collapseLog'),
                 m('#ticker', {
                     style: {
-                        position: "fixed",
-                        height: "50px",
-                        width: "100%",
                         background: "#F9F9F9",
-                        bottom: "0"
+                        bottom: "0",
+                        height: "50px",
+                        position: "fixed",
+                        width: "100%"
                     }
                 }, m("a#logID[href=somelink][target=_blank]", "Replication")),
                 leftpanel(),

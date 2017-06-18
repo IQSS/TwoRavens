@@ -2,16 +2,13 @@ var d3Color = '#1f77b4'; // d3's default blue
 
 // function to use d3 to graph density plots with preprocessed data
 export function density(node, div, priv) {
-    var mydiv;
-    if (div == "subset") {
-        mydiv = "#tab2";
-    } else if (div == "setx") {
-        mydiv = "#setx";
-    } else if (div == "varSummary") {
-        mydiv = "#tab3";
-    } else {
+    var mydiv = {
+        subset: "#tab2",
+        setx: "#setx",
+        varSummary: "#tab3"
+    }[div];
+    if (!mydiv)
         return alert("Error: incorrect div selected for plots");
-    }
 
     var yVals = node.ploty;
     var xVals = node.plotx;
@@ -32,20 +29,19 @@ export function density(node, div, priv) {
     if (priv) {
         if (node.plotCI) {
             // stores values for upper/lower bound
-	    let store = bound => { 
+	          let store = bound => {
                 let error = [];
                 for (let i = 0; i < node.plotx.length; i++) {
                     error.push({
                         x: node.plotx[i],
                         y: node.plotCI[bound][i]
                     });
-                 }
-                 return error.map(add);
+                }
+                return error.map(add);
             }
             let upperError = store('upperBound');
             let lowerError = store('lowerBound');
-            console.log('upperError');
-            console.log(upperError);
+            console.log('upperError\n', upperError);
         }
     }
 

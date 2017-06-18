@@ -74,7 +74,7 @@ var mods = {};
 var estimated = false;
 var rightClickLast = false;
 var selInteract = false;
-var callHistory = []; // unique to the space. saves transform and subset calls.
+var callHistory = []; // transform and subset calls
 
 var svg, width, height, div, obj, estimateLadda, selectLadda;
 var arc3, arc4;
@@ -208,12 +208,11 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             var temp = xml.documentElement.getElementsByTagName("fileName");
             zparams.zdata = temp[0].childNodes[0].nodeValue;
 
-            // clean the citation so that the POST is valid json
+            // clean citation so POST is valid json
             function cleanstring(s) {
-                s = s.replace(/\&/g, "and");
-                s = s.replace(/\;/g, ",");
-                s = s.replace(/\%/g, "-");
-                return s;
+                return s.replace(/\&/g, "and")
+                    .replace(/\;/g, ",")
+                    .replace(/\%/g, "-");
             }
 
             var cite = xml.documentElement.getElementsByTagName("biblCit");
@@ -237,9 +236,8 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                 var datasetcount = d3.layout.histogram()
                     .bins(barnumber).frequency(false)
                     ([0, 0, 0, 0, 0]);
-                // creates an object to be pushed to allNodes
                 // contains all the preprocessed data we have for the variable, as well as UI data pertinent to that variable, such as setx values (if the user has selected them) and pebble coordinates
-                var obj1 = {
+                let obj = {
                     id: i,
                     reflexive: false,
                     "name": valueKey[i],
@@ -256,8 +254,8 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                     "setxvals": ["", ""],
                     "grayout": false
                 };
-                jQuery.extend(true, obj1, preprocess[valueKey[i]]);
-                allNodes.push(obj1);
+                jQuery.extend(true, obj, preprocess[valueKey[i]]);
+                allNodes.push(obj);
             };
 
             // read the zelig models and populate model list in right panel
@@ -869,8 +867,8 @@ function layout(v) {
                     rightClickLast = false;
                     return;
                 }
-
-                if (!mousedown_node) return;
+                if (!mousedown_node)
+                    return;
 
                 // needed by FF
                 drag_line
@@ -900,10 +898,7 @@ function layout(v) {
                     direction = 'left';
                 }
 
-                var link;
-                link = links.filter(function(l) {
-                    return (l.source === source && l.target === target);
-                })[0];
+                let link = links.filter(x => x.source == source && x.target == target)[0];
                 if (link) {
                     link[direction] = true;
                 } else {
@@ -938,7 +933,7 @@ function layout(v) {
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
-            .on("mouseover", function(d) {
+            .on("mouseover", d => {
                 tabLeft("tab3");
                 varSummary(d);
                 byId('transformations').setAttribute("style", "display:block");
@@ -973,51 +968,16 @@ function layout(v) {
                     .delay(0)
                     .duration(100);
             })
-
-            .on("mouseout", function(d) {
-                if (summaryHold === false) {
+            .on('mouseout', d => {
+                if (!summaryHold)
                     tabLeft(lefttab);
-                }
-
-                d3.select("#csArc".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#csText".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#timeArc".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#timeText".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#dvArc".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#dvText".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#nomArc".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#nomText".concat(d.id)).transition()
-                    .attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
+                'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(
+                    id => d3.select(`#${id}`.concat(d.id)).transition()
+                        .attr('fill-opacity', 0)
+                        .delay(100)
+                        .duration(500)
+                );
             });
-
-        // populating transformation dropdown
-        var t = [];
-        for (var j = 0; j < nodes.length; j++) {
-            t.push(nodes[j].name);
-        }
 
         // the transformation variable list is silently updated as pebbles are added/removed
         d3.select("#transSel")
@@ -1026,21 +986,20 @@ function layout(v) {
 
         d3.select("#transSel")
             .selectAll('li')
-            .data(t) //set to variables in model space as they're added
+            .data(nodes.map(x => x.name)) // set to variables in model space as they're added
             .enter()
             .append("li")
             .text(d => d);
 
-        $('#transSel li').click(function(event) {
+        $('#transSel li').click(function(evt) {
             // if 'interaction' is the selected function, don't show the function list again
-            if (selInteract === true) {
+            if (selInteract) {
                 var n = $('#tInput').val().concat($(this).text());
                 $('#tInput').val(n);
-                event.stopPropagation();
+                evt.stopPropagation();
                 var t = transParse(n = n);
-                if (t === null) {
+                if (!t)
                     return;
-                }
                 $(this).parent().fadeOut(100);
                 transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
                 return;
@@ -1049,7 +1008,7 @@ function layout(v) {
             $('#tInput').val($(this).text());
             $(this).parent().fadeOut(100);
             $('#transList').fadeIn(100);
-            event.stopPropagation();
+            evt.stopPropagation();
         });
 
         // remove old nodes
@@ -1089,9 +1048,7 @@ function layout(v) {
     }
 
     // app starts here
-    svg.attr('id', function() {
-            return "whitespace".concat(myspace);
-        })
+    svg.attr('id', () => "whitespace".concat(myspace))
         .attr('height', height)
         .on('mousedown', function() {
             mousedown(this);
@@ -1105,17 +1062,24 @@ function layout(v) {
             $('#transList').fadeOut(100);
             $('#transSel').fadeOut(100);
         });
-
+    
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
-} // end layout
+}
 
 // returns id
-var findNodeIndex = function(nodeName) {
-    for (var i in allNodes) {
-        if (allNodes[i]["name"] === nodeName) {
-            return allNodes[i]["id"];
-        }
+function find($nodes, name) {
+    for (let i in $nodes) {
+        if ($nodes[i].name == name)
+            return $nodes[i].id;
+    };
+}
+
+// returns id
+var findNodeIndex = function(name) {
+    for (let i in allNodes) {
+        if (allNodes[i].name == name)
+            return allNodes[i].id;
     };
 }
 
@@ -1129,18 +1093,14 @@ var nodeIndex = function(nodeName) {
 
 var findNode = function(nodeName) {
     for (var i in allNodes) {
-        if (allNodes[i]["name"] === nodeName) return allNodes[i]
+        if (allNodes[i]["name"] === nodeName)
+            return allNodes[i];
     };
 }
 
 // function called by force button
 export function forceSwitch() {
-    if (forcetoggle[0] === "true") {
-        forcetoggle = ["false"];
-    } else {
-        forcetoggle = ["true"]
-    }
-
+    forcetoggle = [forcetoggle[0] == 'true' ? 'false' : 'true'];
     if (forcetoggle[0] === "false") {
         byId('btnForce').setAttribute("class", "btn active");
     } else {
@@ -1153,9 +1113,7 @@ function spliceLinksForNode(node) {
     var toSplice = links.filter(function(l) {
         return (l.source === node || l.target === node);
     });
-    toSplice.map(function(l) {
-        links.splice(links.indexOf(l), 1);
-    });
+    toSplice.map(x => links.splice(links.indexOf(x), 1));
 }
 
 function zPop() {
