@@ -10,8 +10,8 @@ let Model = {
     about: false,
     cite: false,
     citetoggle: false,
-    closeLeft: false,
-    closeRight: false,
+    leftClosed: false,
+    rightClosed: false,
     toggleHistory: false,
     toggleLegend: false
 };
@@ -49,27 +49,31 @@ function panel(id, title, target, buttons={}) {
     ]);
 }
 
-function bar(id) {
+function bar(side) {
+    let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
     return m(
-        `#${id}.panelbar`,
-        m('span', [dot, m('br'), dot, m('br'), dot, m('br'), dot])
+        `#${side == 'left' ? 'toggleLpanelicon' : 'toggleRpanelicon'}.panelbar`,
+        m('span', {
+            onclick: () => {
+                let key = side + 'Closed';
+                if (!Model[key]) {
+                    $(id).removeClass('expandpanel');
+                    $(id + ' > div.row-fluid').toggleClass('closepanel');
+                    $(id).toggleClass('closepanel');
+                    $('#main').toggleClass('svg-' + id);
+                    if (side == 'left')
+                        $('#btnSelect').css('display', 'none');
+                }
+                Model[key] = !Model[key];
+            }
+        }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])
     );
 }
 
-$('#leftpanel span').click(() => {
-    if (!$('#leftpanel').hasClass('forceclosepanel')) {
-        $('#leftpanel').removeClass('expandpanel');
-        $('#leftpanel > div.row-fluid').toggleClass('closepanel');
-        $('#leftpanel').toggleClass('closepanel');
-        $('#main').toggleClass('svg-leftpanel');
-        $('#btnSelect').css('display', 'none');
-    }
-});
-
 function leftpanel() {
     return m('#leftpanel.sidepanel.container.clearfix', [
-        bar('toggleLpanelicon'),
+        bar('left'),
         m('#leftpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Data Selection")
         ),
@@ -134,18 +138,9 @@ function leftpanel() {
     ]);
 }
 
-$('#rightpanel span').click(() => {
-    if (!$('#leftpanel').hasClass('forceclosepanel')) {
-        $('#rightpanel').removeClass('expandpanel');
-        $('#rightpanel > div.row-fluid').toggleClass('closepanel');
-        $('#rightpanel').toggleClass('closepanel');
-        $('#main').toggleClass('svg-rightpanel');
-    }
-});
-
 function rightpanel() {
     return m('#rightpanel.sidepanel.container.clearfix', [
-        bar('toggleRpanelicon'),
+        bar('right'),
         m('#rightpaneltitle.panel-heading.text-center',
           m("h3.panel-title", "Model Selection")
         ),
