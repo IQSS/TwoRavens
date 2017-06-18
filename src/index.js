@@ -9,13 +9,13 @@ import * as app from './app.js';
 function panelbar(id) {
     return m(
         `#${id}.panelbar`,
-        m("span", [
+        m('span', [
             m.trust("&#9679;"),
-            m("br"),
+            m('br'),
             m.trust("&#9679;"),
-            m("br"),
+            m('br'),
             m.trust("&#9679;"),
-            m("br"),
+            m('br'),
             m.trust("&#9679;")
         ])
     );
@@ -173,7 +173,7 @@ function button(id, label) {
     ]);
 }
 
-function panel(id, title, target, body=[]) {
+function panel(id, title, target, buttons={}) {
     return m(`#${id}.panel.panel-default`, {
         style: {display: "none"}
     }, [
@@ -194,7 +194,7 @@ function panel(id, title, target, body=[]) {
           ])
          ),
         m(`#${target}.panel-collapse.collapse.in`,
-          m(".panel-body", body)
+          m(".panel-body", Object.entries(buttons).map(x => button.apply(null, x)))
         )
     ]);
 }
@@ -225,30 +225,26 @@ class Body {
             }
         });
 
-        let substr = (key, offset) => {
+        let extract = (name, key, offset) => {
             key = key + '=';
-            let url = window.location.toString();
-            return url.indexOf(key) > 0 ? url.substring(url.indexOf(key) + offset) : '';
-        };
-        let extract = (name, val) => {
+            let loc = window.location.toString();
+            let val = loc.indexOf(key) > 0 ? loc.substring(loc.indexOf(key) + offset) : '';
             let idx = val.indexOf('&');
             val = idx > 0 ? val.substring(0, idx) : val;
-            console.log(name + ': ' + val);
+            console.log(name, ': ', val);
             return val;
         };
-        let fileid = extract('fileid', substr('dfId', 5));
-        let hostname = extract('hostname', substr('host', 5));
-        let apikey = extract('apikey', substr('key', 4));
-        let ddiurl = extract('ddiurl', substr('ddiurl', 7)
-            .replace(/%25/g, "%")
-            .replace(/%3A/g, ":")
-            .replace(/%2F/g, "/")
-                            );
-        let dataurl = extract('dataurl', substr('dataurl', 8)
-            .replace(/%25/g, "%")
-            .replace(/%3A/g, ":")
-            .replace(/%2F/g, "/")
-        );
+        let fileid = extract('fileid', 'dfId', 5);
+        let hostname = extract('hostname', 'host', 5);
+        let apikey = extract('apikey', 'key', 4);
+        let ddiurl = extract('ddiurl', 'ddiurl', 7)
+            .replace(/%25/g, '%')
+            .replace(/%3A/g, ':')
+            .replace(/%2F/g, '/');
+        let dataurl = extract('dataurl', 'dataurl', 8)
+            .replace(/%25/g, '%')
+            .replace(/%3A/g, ':')
+            .replace(/%2F/g, '/');
 
         app.main(fileid, hostname, ddiurl, dataurl);
     }
@@ -335,12 +331,12 @@ class Body {
                         onclick: app.erase
                     }, m("span.glyphicon.glyphicon-magnet"))
                 ]),
-                panel("legend.legendary", "Legend  ", "collapseLegend", [
-                    button('timeButton', 'Time'),
-                    button('csButton', 'Cross Sec'),
-                    button('dvButton', 'Dep Var'),
-                    button('nomButton', 'Nom Var')
-                ]),
+                panel("legend.legendary", "Legend  ", "collapseLegend", {
+                    timeButton: 'Time',
+                    csButton: 'Cross Sec',
+                    dvButton: 'Dep Var',
+                    nomButton: 'Nom Var'
+                }),
                 panel("logdiv.logbox", "History ", 'collapseLog'),
                 m('#ticker', {
                     style: {

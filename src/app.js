@@ -132,31 +132,16 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var barPadding = 0.35;
     var barnumber = 7;
 
-    var arc0 = d3.svg.arc()
+    let arc = (start, end) => d3.svg.arc()
         .innerRadius(allR + 5)
         .outerRadius(allR + 20)
-        .startAngle(0)
-        .endAngle(3.2);
-    var arc1 = d3.svg.arc()
-        .innerRadius(allR + 5)
-        .outerRadius(allR + 20)
-        .startAngle(0)
-        .endAngle(1);
-    var arc2 = d3.svg.arc()
-        .innerRadius(allR + 5)
-        .outerRadius(allR + 20)
-        .startAngle(1.1)
-        .endAngle(2.2);
-    arc3 = d3.svg.arc()
-        .innerRadius(allR + 5)
-        .outerRadius(allR + 20)
-        .startAngle(2.3)
-        .endAngle(3.3);
-    arc4 = d3.svg.arc()
-        .innerRadius(allR + 5)
-        .outerRadius(allR + 20)
-        .startAngle(4.3)
-        .endAngle(5.3);
+        .startAngle(start)
+        .endAngle(end);
+    let arc0 = arc(0, 3.2);
+    var arc1 = arc(0, 1);
+    var arc2 = arc(1.1, 2.2);
+    arc3 = arc(2.3, 3.3);
+    arc4 = arc(4.3, 5.3);
 
     // From .csv
     var dataset2 = [];
@@ -181,23 +166,11 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             .remove();
     });
 
-    // read DDI metadata with d3
-    var metadataurl = "";
-    if (ddiurl) {
-        metadataurl = ddiurl;
-    } else if (fileid) {
-        // file id supplied; we're going to cook a standard dataverse
-        // metadata url, with the file id provided and the hostname
-        // supplied or configured
-        metadataurl = dataverseurl + "/api/meta/datafile/" + fileid;
-    } else {
-        // neither a full ddi url, nor file id supplied
-        metadataurl = "data/PUMS5small-ddi.xml"; // California PUMS subset
-    }
+    // default to California PUMS subset
 
+    let metadataurl = ddiurl || (fileid ? `${dataverseurl}/api/meta/datafile/${fileid}` : 'data/PUMS5small-ddi.xml');
     // read pre-processed metadata and data
-    let pURL = dataurl ? dataurl + "&format=prep" : "data/preprocessPUMS5small.json"; // California PUMS subset
-
+    let pURL = dataurl ? `${dataurl}&format=prep` : 'data/preprocessPUMS5small.json';
     var preprocess = {};
 
     // loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
@@ -219,7 +192,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             zparams.zdatacite = cite[0].childNodes[0].nodeValue;
             zparams.zdatacite = cleanstring(zparams.zdatacite);
             // dataset name trimmed to 12 chars
-            var dataname = zparams.zdata.replace(/\.(.*)/, ""); // drop any file extension
+            var dataname = zparams.zdata.replace(/\.(.*)/, ''); // drop ile extension
             d3.select("#dataName")
                 .html(dataname);
             $('#cite div.panel-body').text(zparams.zdatacite);
@@ -240,19 +213,19 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                 let obj = {
                     id: i,
                     reflexive: false,
-                    "name": valueKey[i],
-                    "labl": lablArray[i],
+                    name: valueKey[i],
+                    labl: lablArray[i],
                     data: [5, 15, 20, 0, 5, 15, 20],
                     count: hold,
-                    "nodeCol": colors(i),
-                    "baseCol": colors(i),
-                    "strokeColor": selVarColor,
-                    "strokeWidth": "1",
-                    "subsetplot": false,
-                    "subsetrange": ["", ""],
-                    "setxplot": false,
-                    "setxvals": ["", ""],
-                    "grayout": false
+                    nodeCol: colors(i),
+                    baseCol: colors(i),
+                    strokeColor: selVarColor,
+                    strokeWidth: "1",
+                    subsetplot: false,
+                    subsetrange: ["", ""],
+                    setxplot: false,
+                    setxvals: ["", ""],
+                    grayout: false
                 };
                 jQuery.extend(true, obj, preprocess[valueKey[i]]);
                 allNodes.push(obj);
