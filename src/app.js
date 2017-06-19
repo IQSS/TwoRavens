@@ -722,7 +722,7 @@ function layout(v) {
                 restart();
             });
         g.append("text")
-            .attr("id", x => "nomText".concat(d.id))
+            .attr("id", x => "nomText".concat(x.id))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
