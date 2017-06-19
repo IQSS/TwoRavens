@@ -29,7 +29,7 @@ var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
 var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
-var lefttab = "tab1"; // current tab in left panel
+export let lefttab = "tab1"; // current tab in left panel
 var righttab = "btnModels"; // current tab in right panel
 
 // transformation toolbar options
@@ -666,29 +666,25 @@ function layout(v) {
             }
         });
 
+        let fill = (id, opacity, delay, duration) => d3.select(id).transition().attr("fill-opacity", opacity)
+            .delay(delay)
+            .duration(duration);
+
         g.append("path")
             .attr("id", x => "dvArc".concat(x.id))
             .attr("d", arc3)
             .style("fill", dvColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
-                d3.select(this).transition().attr("fill-opacity", .3)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#dvText".concat(d.id)).transition().attr("fill-opacity", .9)
-                    .delay(0)
-                    .duration(100);
+                fill(this, .3, 0, 100);
+                fill("#dvText".concat(d.id), .9, 0, 100);
             })
             .on('mouseout', function(d) {
-                d3.select(this).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#dvText".concat(d.id)).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
+                fill(this, 0, 100, 500);
+                fill("#dvText".concat(d.id), 0, 100, 500);
             })
-            .on('click', function(d) {
-                setColors(d, dvColor);
+            .on('click', x => {
+                setColors(x, dvColor);
                 legend(dvColor);
                 restart();
             });
@@ -698,37 +694,25 @@ function layout(v) {
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", function(d) {
-                return "#dvArc".concat(d.id);
-            })
+            .attr("xlink:href", x => "#dvArc".concat(x.id))
             .text("Dep Var");
 
         g.append("path")
-            .attr("id", function(d) {
-                return "nomArc".concat(d.id);
-            })
+            .attr("id", x => "nomArc".concat(x.id))
             .attr("d", arc4)
             .style("fill", nomColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
                 if (d.defaultNumchar == "character")
                     return;
-                d3.select(this).transition().attr("fill-opacity", .3)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#nomText".concat(d.id)).transition().attr("fill-opacity", .9)
-                    .delay(0)
-                    .duration(100);
+                fill(this, .3, 0, 100);
+                fill("#nomText".concat(d.id), .9, 0, 100);
             })
             .on('mouseout', function(d) {
                 if (d.defaultNumchar == "character")
                     return;
-                d3.select(this).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#nomText".concat(d.id)).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
+                fill(this, 0, 100, 500);
+                fill("#nomText".concat(d.id), 0, 100, 500);
             })
             .on('click', function(d) {
                 if (d.defaultNumchar == "character")
@@ -738,25 +722,19 @@ function layout(v) {
                 restart();
             });
         g.append("text")
-            .attr("id", function(d) {
-                return "nomText".concat(d.id);
-            })
+            .attr("id", x => "nomText".concat(d.id))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", function(d) {
-                return "#nomArc".concat(d.id);
-            })
+            .attr("xlink:href", x => "#nomArc".concat(x.id))
             .text("Nominal");
 
         g.append('svg:circle')
             .attr('class', 'node')
             .attr('r', allR)
             .style('pointer-events', 'inherit')
-            .style('fill', function(d) {
-                return d.nodeCol;
-            })
+            .style('fill', x => x.nodeCol)
             .style('opacity', "0.5")
             .style('stroke', function(d) {
                 return d3.rgb(d.strokeColor).toString();
@@ -855,7 +833,6 @@ function layout(v) {
             .attr('y', 15)
             .attr('class', 'id')
             .text(d => d.name);
-
 
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
@@ -1707,9 +1684,6 @@ export function tabLeft(tab) {
     if (tab != "tab3")
         lefttab = tab;
     let tabi = tab.substring(3);
-    byId('tab1').style.display = 'none';
-    byId('tab2').style.display = 'none';
-    byId('tab3').style.display = 'none';
     if (tab == "tab1") {
         summaryHold = false;
         byId('btnSubset').setAttribute("class", "btn btn-default");
@@ -1721,7 +1695,6 @@ export function tabLeft(tab) {
         summaryHold = false;
         byId('btnVariables').setAttribute("class", "btn btn-default");
         byId('btnSubset').setAttribute("class", "btn active");
-        console.log('here');
         d3.select("#leftpanel")
             .attr("class", function(d) {
                 if (this.getAttribute("class") === "sidepanel container clearfix expandpanel") {
@@ -1738,7 +1711,6 @@ export function tabLeft(tab) {
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
     }
-    byId(tab).style.display = 'block';
 }
 
 export function tabRight(tabid) {

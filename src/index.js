@@ -117,14 +117,14 @@ function leftpanel() {
                 }, [
                     m('#tab1', {
                         style: {
-                            display: "block",
+                            display: app.lefttab == 'tab1' ? 'block' : 'none',
                             padding: "6px 12px",
                             "text-align": "center"
                         }
                     }),
                     m('#tab2', {
                         style: {
-                            display: "none",
+                            display: app.lefttab == 'tab2' ? 'block' : 'none',
                             "margin-top": ".5em"
                         }
                     }),
