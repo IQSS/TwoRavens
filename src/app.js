@@ -113,7 +113,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var logArray = [];
 
     var tempWidth = d3.select("#main.left").style("width");
-    width = tempWidth.substring(0, (tempWidth.length - 2));
+    width = tempWidth.substring(0, tempWidth.length - 2);
     height = $(window).height() - 120; // Hard coding for header and footer and bottom margin.
 
     estimateLadda = Ladda.create(byId("btnEstimate"));
@@ -181,18 +181,15 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             var temp = xml.documentElement.getElementsByTagName("fileName");
             zparams.zdata = temp[0].childNodes[0].nodeValue;
 
-            // clean citation so POST is valid json
-            function cleanstring(s) {
-                return s.replace(/\&/g, "and")
-                    .replace(/\;/g, ",")
-                    .replace(/\%/g, "-");
-            }
-
             var cite = xml.documentElement.getElementsByTagName("biblCit");
             zparams.zdatacite = cite[0].childNodes[0].nodeValue;
-            zparams.zdatacite = cleanstring(zparams.zdatacite);
+            // clean citation so POST is valid json
+            zparams.zdatacite = zparams.zdatacite.replace(/\&/g, "and")
+                .replace(/\;/g, ",")
+                .replace(/\%/g, "-");
+
             // dataset name trimmed to 12 chars
-            var dataname = zparams.zdata.replace(/\.(.*)/, ''); // drop ile extension
+            var dataname = zparams.zdata.replace(/\.(.*)/, ''); // drop file extension
             d3.select("#dataName")
                 .html(dataname);
             $('#cite div.panel-body').text(zparams.zdatacite);
@@ -311,35 +308,30 @@ function scaffolding(callback) {
     });
 
     var n, typeTransform;
-
-    $('#tInput').keyup(event => {
+    $('#tInput').keyup(evt => {
         var t = byId('transSel').style.display;
         var t1 = byId('transList').style.display;
+        if (t != "none") $('#transSel').fadeOut(100);
+        else if (t1 != "none") $('#transList').fadeOut(100);
 
-        if (t !== "none") {
-            $('#transSel').fadeOut(100);
-        } else if (t1 !== "none") {
-            $('#transList').fadeOut(100);
-        }
-
-        if (event.keyCode == 13) { // keyup on Enter
+        if (evt.keyCode == 13) { // keyup on Enter
             n = $('#tInput').val();
             var t = transParse(n = n);
-            if (t === null)
+            if (t == null)
                 return;
             transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
         }
     });
 
     var t;
-    $('#transList li').click(event => {
+    $('#transList li').click(evt => {
         // if interact is selected, show variable list again
         if ($(this).text() === "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
             selInteract = true;
             $(this).parent().fandeOut(100);
             $('#transSel').fadeIn(100);
-            event.stopPropagation();
+            evt.stopPropagation();
             return;
         }
 
@@ -348,7 +340,7 @@ function scaffolding(callback) {
         var tcall = $(this).text().replace("d", tvar);
         $('#tInput').val(tcall);
         $(this).parent().fadeOut(100);
-        event.stopPropagation();
+        evt.stopPropagation();
         transform(n = tvar, t = tfunc, typeTransform = false);
     });
 
@@ -561,24 +553,20 @@ function layout(v) {
 
                         if (mySC == dvColor) {
                             var dvIndex = zparams.zdv.indexOf(myText);
-                            if (dvIndex > -1) {
+                            if (dvIndex > -1)
                                 zparams.zdv.splice(dvIndex, 1);
-                            }
                         } else if (mySC == csColor) {
                             var csIndex = zparams.zcross.indexOf(myText);
-                            if (csIndex > -1) {
+                            if (csIndex > -1)
                                 zparams.zcross.splice(csIndex, 1);
-                            }
                         } else if (mySC == timeColor) {
                             var timeIndex = zparams.ztime.indexOf(myText);
-                            if (timeIndex > -1) {
+                            if (timeIndex > -1)
                                 zparams.ztime.splice(timeIndex, 1);
-                            }
                         } else if (mySC == nomColor) {
                             var nomIndex = zparams.znom.indexOf(myText);
-                            if (nomIndex > -1) {
+                            if (nomIndex > -1)
                                 zparams.znom.splice(dvIndex, 1);
-                            }
                         }
 
                         nodeReset(allNodes[findNodeIndex(myText)]);
@@ -615,7 +603,7 @@ function layout(v) {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
         circle.call(force.drag);
-        if (forcetoggle[0] === "true") {
+        if (forcetoggle[0] == "true") {
             force.gravity(0.1);
             force.charge(-800);
             force.linkStrength(1);
@@ -631,34 +619,21 @@ function layout(v) {
 
         // update existing links
         // VJD: dashed links between pebbles are "selected". this is disabled for now
-        path.classed('selected', function(d) {
-                return;
-            }) //return d === selected_link; })
-            .style('marker-start', function(d) {
-                return d.left ? 'url(#start-arrow)' : '';
-            })
-            .style('marker-end', function(d) {
-                return d.right ? 'url(#end-arrow)' : '';
-            });
+        path.classed('selected', x => null)
+            .style('marker-start', x => x.left ? 'url(#start-arrow)' : '')
+            .style('marker-end', x => x.right ? 'url(#end-arrow)' : '');
 
         // add new links
         path.enter().append('svg:path')
             .attr('class', 'link')
-            .classed('selected', function(d) {
-                return;
-            }) //return d === selected_link; })
-            .style('marker-start', function(d) {
-                return d.left ? 'url(#start-arrow)' : '';
-            })
-            .style('marker-end', function(d) {
-                return d.right ? 'url(#end-arrow)' : '';
-            })
+            .classed('selected', x => null)
+            .style('marker-start', x => x.left ? 'url(#start-arrow)' : '')
+            .style('marker-end', x => x.right ? 'url(#end-arrow)' : '')
             .on('mousedown', function(d) { // do we ever need to select a link? make it delete..
-                var obj1 = JSON.stringify(d);
+                var obj = JSON.stringify(d);
                 for (var j = 0; j < links.length; j++) {
-                    if (obj1 === JSON.stringify(links[j])) {
+                    if (obj === JSON.stringify(links[j]))
                         links.splice(j, 1);
-                    }
                 }
             });
 
@@ -666,34 +641,20 @@ function layout(v) {
         path.exit().remove();
 
         // circle (node) group
-        circle = circle.data(nodes, function(d) {
-            return d.id;
-        });
-
+        circle = circle.data(nodes, x => x.id);
 
         // update existing nodes (reflexive & selected visual states)
         //d3.rgb is the function adjusting the color here.
         circle.selectAll('circle')
-            .classed('reflexive', function(d) {
-                return d.reflexive;
-            })
-            .style('fill', function(d) {
-                return d3.rgb(d.nodeCol);
-            })
-            .style('stroke', function(d) {
-                return (d3.rgb(d.strokeColor));
-            })
-            .style('stroke-width', function(d) {
-                return (d.strokeWidth);
-            });
+            .classed('reflexive', x => x.reflexive)
+            .style('fill', x => d3.rgb(x.nodeCol))
+            .style('stroke', x => d3.rgb(x.strokeColor))
+            .style('stroke-width', x => x.strokeWidth);
 
         // add new nodes
         var g = circle.enter()
             .append('svg:g')
-            .attr("id", function(d) {
-                var myname = d.name + "biggroup";
-                return (myname);
-            });
+            .attr("id", x => x.name + 'biggroup');
 
         // add plot
         g.each(function(d) {
@@ -706,9 +667,7 @@ function layout(v) {
         });
 
         g.append("path")
-            .attr("id", function(d) {
-                return "dvArc".concat(d.id);
-            })
+            .attr("id", x => "dvArc".concat(x.id))
             .attr("d", arc3)
             .style("fill", dvColor)
             .attr("fill-opacity", 0)
@@ -734,9 +693,7 @@ function layout(v) {
                 restart();
             });
         g.append("text")
-            .attr("id", function(d) {
-                return "dvText".concat(d.id);
-            })
+            .attr("id", x => "dvText".concat(x.id))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
@@ -754,9 +711,8 @@ function layout(v) {
             .style("fill", nomColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
-                if (d.defaultNumchar == "character") {
+                if (d.defaultNumchar == "character")
                     return;
-                }
                 d3.select(this).transition().attr("fill-opacity", .3)
                     .delay(0)
                     .duration(100);
@@ -765,9 +721,8 @@ function layout(v) {
                     .duration(100);
             })
             .on('mouseout', function(d) {
-                if (d.defaultNumchar == "character") {
+                if (d.defaultNumchar == "character")
                     return;
-                }
                 d3.select(this).transition().attr("fill-opacity", 0)
                     .delay(100)
                     .duration(500);
@@ -776,9 +731,8 @@ function layout(v) {
                     .duration(500);
             })
             .on('click', function(d) {
-                if (d.defaultNumchar == "character") {
+                if (d.defaultNumchar == "character")
                     return;
-                }
                 setColors(d, nomColor);
                 legend(nomColor);
                 restart();
@@ -900,7 +854,7 @@ function layout(v) {
             .attr('x', 0)
             .attr('y', 15)
             .attr('class', 'id')
-            .text(d => d.name)
+            .text(d => d.name);
 
 
         // show summary stats on mouseover
@@ -994,9 +948,8 @@ function layout(v) {
         d3.event.preventDefault();
         // because :active only works in WebKit?
         svg.classed('active', true);
-        if (d3.event.ctrlKey || mousedown_node || mousedown_link) {
+        if (d3.event.ctrlKey || mousedown_node || mousedown_link)
             return;
-        }
         restart();
     }
 
@@ -1023,20 +976,17 @@ function layout(v) {
     // app starts here
     svg.attr('id', () => "whitespace".concat(myspace))
         .attr('height', height)
-        .on('mousedown', function() {
-            mousedown(this);
-        })
-        .on('mouseup', function() {
-            mouseup(this);
-        });
+        .on('mousedown', function() {mousedown(this);})
+        .on('mouseup', function() {mouseup(this);});
 
     d3.select(window)
-        .on('click', function() { //NOTE: all clicks will bubble here unless event.stopPropagation()
+        .on('click', () => {
+            // all clicks will bubble here unless event.stopPropagation()
             $('#transList').fadeOut(100);
             $('#transSel').fadeOut(100);
         });
-    
-    restart(); // this is the call the restart that initializes the force.layout()
+
+    restart(); // initializes force.layout()
     fakeClick();
 }
 
@@ -1705,31 +1655,12 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
 }
 
 function legend(c) {
-    if (zparams.ztime.length != 0 | zparams.zcross.length != 0 | zparams.zdv.length != 0 | zparams.znom.length != 0) {
-        byId("legend").setAttribute("style", "display:block");
-    } else {
-        byId("legend").setAttribute("style", "display:none");
-    }
-    if (zparams.ztime.length == 0) {
-        byId("timeButton").setAttribute("class", "clearfix hide");
-    } else {
-        byId("timeButton").setAttribute("class", "clearfix show");
-    }
-    if (zparams.zcross.length == 0) {
-        byId("csButton").setAttribute("class", "clearfix hide");
-    } else {
-        byId("csButton").setAttribute("class", "clearfix show");
-    }
-    if (zparams.zdv.length == 0) {
-        byId("dvButton").setAttribute("class", "clearfix hide");
-    } else {
-        byId("dvButton").setAttribute("class", "clearfix show");
-    }
-    if (zparams.znom.length == 0) {
-        byId("nomButton").setAttribute("class", "clearfix hide");
-    } else {
-        byId("nomButton").setAttribute("class", "clearfix show");
-    }
+    byId("legend").setAttribute("style", "display:" + (zparams.ztime.length != 0 | zparams.zcross.length != 0 | zparams.zdv.length != 0 | zparams.znom.length != 0 ? 'block' : 'none'));
+    let clearfix = (attr, id) => byId(id).setAttribute("class", 'clearfix' + (zparams[attr].length == 0 ? "hide" : "show"));
+    clearfix('ztime', 'timeButton');
+    clearfix('zcross', "csButton");
+    clearfix('zdv', "dvButton");
+    clearfix('znom', "nomButton");
     borderState();
 }
 
@@ -1750,10 +1681,6 @@ export function erase() {
         });
     };
     $("#tab1").d3Click();
-}
-
-function deselect(d) {
-    console.log(d);
 }
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
@@ -1777,24 +1704,24 @@ function loadXMLDoc(XMLname) {
 }
 
 export function tabLeft(tab) {
-    if (tab != "tab3") {
+    if (tab != "tab3")
         lefttab = tab;
-    }
-    var tabi = tab.substring(3);
+    let tabi = tab.substring(3);
     byId('tab1').style.display = 'none';
     byId('tab2').style.display = 'none';
     byId('tab3').style.display = 'none';
-    if (tab === "tab1") {
+    if (tab == "tab1") {
         summaryHold = false;
         byId('btnSubset').setAttribute("class", "btn btn-default");
         byId('btnVariables').setAttribute("class", "btn active");
         byId("btnSelect").style.display = 'none';
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
-    } else if (tab === "tab2") {
+    } else if (tab == "tab2") {
         summaryHold = false;
         byId('btnVariables').setAttribute("class", "btn btn-default");
         byId('btnSubset').setAttribute("class", "btn active");
+        console.log('here');
         d3.select("#leftpanel")
             .attr("class", function(d) {
                 if (this.getAttribute("class") === "sidepanel container clearfix expandpanel") {
