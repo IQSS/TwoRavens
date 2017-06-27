@@ -76,6 +76,7 @@ function top(side, title, ...args) {
 }
 
 function leftpanel() {
+    let tab = (a, b, c) => app.lefttab == a ? b : c;
     return top(
         'left', 'Data Selection',
         m(".btn-toolbar[role=toolbar]", {
@@ -87,11 +88,11 @@ function leftpanel() {
             m(".btn-group", {
                 style: {"margin-left": "0"}
             }, [
-                m("button#btnVariables.btn.active[type=button]", {
+                m(`button#btnVariables.btn.${tab('tab1', 'active', 'btn-default')}[type=button]`, {
                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
                     onclick: _ => app.tabLeft('tab1')
                 }, "Variables"),
-                m("button#btnSubset.btn.btn-default[type=button]", {
+                m(`button#btnSubset.btn.${tab('tab2', 'active', 'btn-default')}[type=button]`, {
                     onclick: _ => app.tabLeft('tab2')
                 }, "Subset")
             ]),
@@ -99,7 +100,7 @@ function leftpanel() {
                 title: 'Subset data by the intersection of all selected values.',
                 onclick: _ => app.subsetSelect('btnSelect'),
                 style: {
-                    display: "none",
+                    display: tab('tab2', 'block', 'none'),
                     float: "right",
                     "margin-right": "10px"
                 }
@@ -117,19 +118,20 @@ function leftpanel() {
                 }, [
                     m('#tab1', {
                         style: {
-                            display: app.lefttab == 'tab1' ? 'block' : 'none',
+                            display: tab('tab1', 'block', 'none'),
                             padding: "6px 12px",
                             "text-align": "center"
                         }
                     }),
                     m('#tab2', {
                         style: {
-                            display: app.lefttab == 'tab2' ? 'block' : 'none',
+                            display: tab('tab2', 'block', 'none'),
                             "margin-top": ".5em"
                         }
                     }),
                     m('#tab3',
                         m("p", {
+                            display: tab('tab1', 'block', 'none'),
                             style: {padding: ".5em 1em"}
                         }, "Select a variable from within the visualization in the center panel to view its summary statistics.")
                     )

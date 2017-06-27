@@ -1712,28 +1712,17 @@ export function tabLeft(tab) {
     byId('tab3').style.display = 'none';
     if (tab == "tab1") {
         summaryHold = false;
-        byId('btnSubset').setAttribute("class", "btn btn-default");
-        byId('btnVariables').setAttribute("class", "btn active");
-        byId("btnSelect").style.display = 'none';
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
     } else if (tab == "tab2") {
         summaryHold = false;
-        byId('btnVariables').setAttribute("class", "btn btn-default");
-        byId('btnSubset').setAttribute("class", "btn active");
         d3.select("#leftpanel")
             .attr("class", function(d) {
-                if (this.getAttribute("class") === "sidepanel container clearfix expandpanel") {
-                    byId("btnSelect").style.display = 'none';
-                    return "sidepanel container clearfix";
-                } else {
-                    byId("btnSelect").style.display = 'block';
-                    return "sidepanel container clearfix expandpanel";
-                }
+                return this.getAttribute("class") == "sidepanel container clearfix expandpanel" ?
+                    "sidepanel container clearfix" :
+                    "sidepanel container clearfix expandpanel";
             });
     } else {
-        byId('btnSubset').setAttribute("class", "btn btn-default");
-        byId('btnVariables').setAttribute("class", "btn btn-default");
         d3.select("#leftpanel")
             .attr("class", "sidepanel container clearfix");
     }
@@ -1756,9 +1745,8 @@ export function tabRight(tabid) {
         byId('btnResults').setAttribute("class", "btn btn-default");
         byId('btnSetx').setAttribute("class", "btn active");
         byId('setx').style.display = 'block';
-        if (righttab == "btnSetx" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix") {
-            toggleR()
-        };
+        if (righttab == "btnSetx" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
+            toggleR();
     } else if (tabid == "btnResults") {
         byId('btnModels').setAttribute("class", "btn btn-default");
         byId('btnSetx').setAttribute("class", "btn btn-default");
@@ -1767,9 +1755,8 @@ export function tabRight(tabid) {
         if (estimated === false) {
             d3.select("#rightpanel")
                 .attr("class", "sidepanel container clearfix");
-        } else if (righttab == "btnResults" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix") {
-            toggleR()
-        };
+        } else if (righttab == "btnResults" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
+            toggleR();
     }
 
     righttab = tabid;
@@ -1798,7 +1785,7 @@ function varSummary(d) {
             i, j;
         }
     }
-    
+
     for (i = 0; i < t1.length; i++) {
         if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "")
             continue;
@@ -1848,12 +1835,10 @@ function popoverContent(d) {
     if (d.labl != "")
         text += "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
     if (d.mean != "NA") {
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>"
-        if (priv && d.meanCI) {
-            text += (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")"
-        } else {
-            text += (+d.mean).toPrecision(4).toString()
-        }
+        text += "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>";
+        text += priv && d.meanCI ?
+            (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")" :
+            (+d.mean).toPrecision(4).toString();
         text += "</p></div></div>";
     }
     if (d.median != "NA")
