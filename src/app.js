@@ -1706,26 +1706,11 @@ function loadXMLDoc(XMLname) {
 export function tabLeft(tab) {
     if (tab != "tab3")
         lefttab = tab;
-    let tabi = tab.substring(3);
     byId('tab1').style.display = 'none';
     byId('tab2').style.display = 'none';
     byId('tab3').style.display = 'none';
-    if (tab == "tab1") {
+    if (tab != "tab3")
         summaryHold = false;
-        d3.select("#leftpanel")
-            .attr("class", "sidepanel container clearfix");
-    } else if (tab == "tab2") {
-        summaryHold = false;
-        d3.select("#leftpanel")
-            .attr("class", function(d) {
-                return this.getAttribute("class") == "sidepanel container clearfix expandpanel" ?
-                    "sidepanel container clearfix" :
-                    "sidepanel container clearfix expandpanel";
-            });
-    } else {
-        d3.select("#leftpanel")
-            .attr("class", "sidepanel container clearfix");
-    }
     byId(tab).style.display = 'block';
 }
 

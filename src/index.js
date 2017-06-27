@@ -50,7 +50,7 @@ function panel(id, title, target, buttons={}) {
     ]);
 }
 
-let closepanel = side => Model[side + 'Closed'] ? '.closepanel' : '';
+let closepanel = side => Model[side + 'Closed'] ? '.closepanel' : (side == 'left' && app.lefttab == 'tab2' ? '.expandpanel' : '');
 
 function top(side, title, ...args) {
     let id = `#${side}panel`;
