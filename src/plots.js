@@ -38,16 +38,16 @@ export function density(node, div, priv) {
                     });
                 }
                 return error.map(add);
-            }
+            };
             let upperError = store('upperBound');
             let lowerError = store('lowerBound');
             console.log('upperError\n', upperError);
         }
     }
 
-    var tempWidth = d3.select(mydiv).style("width")
+    var tempWidth = d3.select(mydiv).style("width");
     var width = tempWidth.substring(0, (tempWidth.length - 2));
-    var tempHeight = d3.select(mydiv).style("height")
+    var tempHeight = d3.select(mydiv).style("height");
     var height = tempHeight.substring(0, (tempHeight.length - 2));
     var margin = {
         top: 20,
@@ -94,7 +94,7 @@ export function density(node, div, priv) {
     var area = d3.svg.area()
         .interpolate("monotone")
         .x(d => x(d.x))
-        .y0(height)
+        .y0(height);
     var line = d3.svg.line()
         .x(d => x(d.x))
         .y(d => y(d.y))
@@ -106,9 +106,9 @@ export function density(node, div, priv) {
         var plotsvg = d3.select(mydiv)
             .selectAll("svg")
             .remove();
-        var plotsvg = d3.select(mydiv)
+        plotsvg = d3.select(mydiv)
             .append("svg")
-            .attr("id", () => node.name.toString().concat(mydiv.substr(1))) 
+            .attr("id", () => node.name.toString().concat(mydiv.substr(1)))
             .style("width", 300) // set height to the height of #main.left
             .style("height", 200)
             .append("g")
@@ -239,9 +239,9 @@ export function density(node, div, priv) {
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height * .8 + ")")
             .call(d3.svg.axis()
-                .scale(x)
-                .ticks(0)
-                .orient("bottom"))
+                  .scale(x)
+                  .ticks(0)
+                  .orient("bottom"));
         var slider = plotsvg.append("g")
             .attr("class", "slider")
             .call(brush);
@@ -285,7 +285,7 @@ export function density(node, div, priv) {
                 brush.extent([value, value]);
             }
 
-            // set x position of slider center                     
+            // set x position of slider center
             var xpos = x(value);
             if (value > d3.max(xVals)) { // dragged past max
                 xpos = x(d3.max(xVals));

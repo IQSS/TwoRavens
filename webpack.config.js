@@ -7,12 +7,12 @@ module.exports = {
     output: {
         filename: 'app.js',
         path: path.resolve(__dirname, 'build')
-    },    
+    },
     devtool: 'eval-source-map',
     module: {
         rules: [{
             test: /\.js$/,
-            exclude: /node_modules/, 
+            exclude: /node_modules/,
             loader: 'babel-loader',
             options: {
                 presets: ['es2015']
@@ -21,7 +21,7 @@ module.exports = {
             test: /\.css$/,
             use: ExtractTextPlugin.extract({
                 use: 'css-loader'
-            }) 
+            })
         }]
     },
     plugins: [

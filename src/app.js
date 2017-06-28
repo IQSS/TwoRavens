@@ -1,3 +1,5 @@
+import m from 'mithril';
+
 import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 
 // hostname default - the app will use it to obtain the variable metadata
@@ -30,6 +32,7 @@ var timeColor = '#2d6ca2';
 var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
 export let lefttab = "tab1"; // current tab in left panel
+export let lefttab1 = "tab1";
 var righttab = "btnModels"; // current tab in right panel
 
 // transformation toolbar options
@@ -79,9 +82,7 @@ var callHistory = []; // transform and subset calls
 var svg, width, height, div, obj, estimateLadda, selectLadda;
 var arc3, arc4;
 
-function byId(id) {
-    return document.getElementById(id);
-}
+let byId = id => document.getElementById(id);
 
 var dataurl;
 export function main(fileid, hostname, ddiurl, dataurl) {
@@ -195,7 +196,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             $('#cite div.panel-body').text(zparams.zdatacite);
 
             // Put dataset name, from meta-data, into page title
-            d3.select("title").html("TwoRavens " + dataname)
+            d3.select("title").html("TwoRavens " + dataname);
             // temporary values for hold that correspond to histogram bins
             hold = [.6, .2, .9, .8, .1, .3, .4];
             for (var i = 0; i < vars.length; i++) {
@@ -252,6 +253,14 @@ export function main(fileid, hostname, ddiurl, dataurl) {
         });
     });
 }
+
+let $fill = (obj, op, d1, d2) => d3.select(obj).transition()
+    .attr('fill-opacity', op)
+    .delay(d1)
+    .duration(d2);
+let fill = (d, id, op, d1, d2) => $fill(d3.select(('#' + id).concat(d.id), op, d1, d2));
+let fillThis = (self, op, d1, d2) => $fill(d3.select(self), op, d1, d2);
+
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
 function scaffolding(callback) {
@@ -672,20 +681,12 @@ function layout(v) {
             .style("fill", dvColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
-                d3.select(this).transition().attr("fill-opacity", .3)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#dvText".concat(d.id)).transition().attr("fill-opacity", .9)
-                    .delay(0)
-                    .duration(100);
+                fillThis(this, .3, 0, 100);
+                fill(d, 'dvText', .9, 0, 100);
             })
             .on('mouseout', function(d) {
-                d3.select(this).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#dvText".concat(d.id)).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
+                fillThis(this, 0, 100, 500);
+                fill(d, 'dvText', 0, 100, 500);
             })
             .on('click', function(d) {
                 setColors(d, dvColor);
@@ -698,37 +699,25 @@ function layout(v) {
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", function(d) {
-                return "#dvArc".concat(d.id);
-            })
+            .attr("xlink:href", d => '#dvArc'.concat(d.id))
             .text("Dep Var");
 
         g.append("path")
-            .attr("id", function(d) {
-                return "nomArc".concat(d.id);
-            })
+            .attr("id", d => 'nomArc'.concat(d.id))
             .attr("d", arc4)
             .style("fill", nomColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
                 if (d.defaultNumchar == "character")
                     return;
-                d3.select(this).transition().attr("fill-opacity", .3)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#nomText".concat(d.id)).transition().attr("fill-opacity", .9)
-                    .delay(0)
-                    .duration(100);
+                fillThis(this, .3, 0, 100);
+                fill(d, "nomText", .9, 0, 100);
             })
             .on('mouseout', function(d) {
                 if (d.defaultNumchar == "character")
                     return;
-                d3.select(this).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
-                d3.select("#nomText".concat(d.id)).transition().attr("fill-opacity", 0)
-                    .delay(100)
-                    .duration(500);
+                fillThis(this, 0, 100, 500);
+                fill(d, "nomText", 0, 100, 500);
             })
             .on('click', function(d) {
                 if (d.defaultNumchar == "character")
@@ -856,54 +845,31 @@ function layout(v) {
             .attr('class', 'id')
             .text(d => d.name);
 
-
         // show summary stats on mouseover
         // SVG doesn't support text wrapping, use html instead
         g.selectAll("circle.node")
             .on("mouseover", d => {
-                tabLeft("tab3");
+                tabLeft('tab3');
                 varSummary(d);
                 byId('transformations').setAttribute("style", "display:block");
                 var select = byId("transSel");
                 select.selectedIndex = d.id;
                 transformVar = valueKey[d.id];
 
-                d3.select("#dvArc".concat(d.id)).transition().attr("fill-opacity", .1)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#dvText".concat(d.id)).transition().attr("fill-opacity", .5)
-                    .delay(0)
-                    .duration(100);
+                fill(d, "dvArc", .1, 0, 100);
+                fill(d, "dvText", .5, 0, 100);
                 if (d.defaultNumchar == "numeric") {
-                    d3.select("#nomArc".concat(d.id)).transition().attr("fill-opacity", .1)
-                        .delay(0)
-                        .duration(100);
-                    d3.select("#nomText".concat(d.id)).transition().attr("fill-opacity", .5)
-                        .delay(0)
-                        .duration(100);
+                    fill(d, "nomArc", .1, 0, 100);
+                    fill(d, "nomText", .5, 0, 100);
                 }
-                d3.select("#csArc".concat(d.id)).transition().attr("fill-opacity", .1)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#csText".concat(d.id)).transition().attr("fill-opacity", .5)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#timeArc".concat(d.id)).transition().attr("fill-opacity", .1)
-                    .delay(0)
-                    .duration(100);
-                d3.select("#timeText".concat(d.id)).transition().attr("fill-opacity", .5)
-                    .delay(0)
-                    .duration(100);
+                fill(d, "csArc", .1, 0, 100);
+                fill(d, "csText", .5, 0, 100);
+                fill(d, "timeArc", .1, 0, 100);
+                fill(d, "timeText", .5, 0, 100);
             })
             .on('mouseout', d => {
-                if (!summaryHold)
-                    tabLeft(lefttab);
-                'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(
-                    id => d3.select(`#${id}`.concat(d.id)).transition()
-                        .attr('fill-opacity', 0)
-                        .delay(100)
-                        .duration(500)
-                );
+                tabLeft(lefttab1);
+                'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(id => fill(d, id, .1, 0, 100));
             });
 
         // the transformation variable list is silently updated as pebbles are added/removed
@@ -1704,14 +1670,7 @@ function loadXMLDoc(XMLname) {
 }
 
 export function tabLeft(tab) {
-    if (tab != "tab3")
-        lefttab = tab;
-    byId('tab1').style.display = 'none';
-    byId('tab2').style.display = 'none';
-    byId('tab3').style.display = 'none';
-    if (tab != "tab3")
-        summaryHold = false;
-    byId(tab).style.display = 'block';
+    [lefttab, lefttab1] = [tab, lefttab];
 }
 
 export function tabRight(tabid) {
@@ -1757,27 +1716,18 @@ export function tabRight(tabid) {
 }
 
 function varSummary(d) {
-    var rint = d3.format("r");
-    var summarydata = [],
-        tmpDataset = [],
-        t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
-        t2 = [(+d.mean).toPrecision(4).toString(), (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
-        i, j;
-    if (priv) {
-        if (d.meanCI) {
-            t1 = ["Mean:", "Median:", "Most Freq:", "Occurrences:", "Median Freq:", "Occurrences:", "Least Freq:", "Occurrences:", "Stand.Dev:", "Minimum:", "Maximum:", "Invalid:", "Valid:", "Uniques:", "Herfindahl:"],
-            t2 = [(+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")", (+d.median).toPrecision(4).toString(), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), (+d.sd).toPrecision(4).toString(), (+d.min).toPrecision(4).toString(), (+d.max).toPrecision(4).toString(), rint(d.invalid), rint(d.valid), rint(d.uniques), (+d.herfindahl).toPrecision(4).toString()],
-            i, j;
-        }
-    }
+    let t1 = 'Mean:, Median:, Most Freq:, Occurrences:, Median Freq:, Occurrences:, Least Freq:, Occurrences:, Std Dev:, Minimum:, Maximum:, Invalid:, Valid:, Uniques:, Herfindahl'.split(', ');
+    let rint = d3.format('r');
+    let str = (x, p) => (+x).toPrecision(p || 4).toString();
+    let t2 = priv && d.meanCI ?
+        [str(d.mean, 2) + ' (' + str(d.meanCI.lowerBound, 2) + ' - ' + str(d.meanCI.upperBound, 2) + ')', str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)] :
+        [str(d.mean), str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)];
 
-    for (i = 0; i < t1.length; i++) {
-        if (t2[i].indexOf("NaN") > -1 | t2[i] == "NA" | t2[i] == "")
+    let data = [];
+    for (let i = 0; i < t1.length; i++) {
+        if (t2[i].indexOf('NaN') > -1 || t2[i] == 'NA' || t2[i] == '')
             continue;
-        tmpDataset = [];
-        tmpDataset.push(t1[i]);
-        tmpDataset.push(t2[i]);
-        summarydata.push(tmpDataset);
+        data.push([t1[i], t2[i]]);
     };
 
     d3.select("#tab3") // tab when you mouseover a pebble
@@ -1785,28 +1735,25 @@ function varSummary(d) {
         .html("<center><b>" + d.name + "</b><br><i>" + d.labl + "</i></center>")
         .append("table")
         .selectAll("tr")
-        .data(summarydata)
+        .data(data)
         .enter().append("tr")
         .selectAll("td")
         .data(d => d)
         .enter().append("td")
         .text(d => d)
-        .on("mouseover", () => d3.select(this).style("background-color", "aliceblue"))
-        .on("mouseout", () => d3.select(this).style("background-color", "#F9F9F9"));
-
+        .on("mouseover", function() {d3.select(this).style("background-color", "aliceblue");})
+        .on("mouseout", function() {d3.select(this).style("background-color", "#F9F9F9");});
     d3.select("#tab3")
         .selectAll("svg")
         .remove();
 
-    if (typeof d.plottype === "undefined") // .properties is undefined for some vars
+    if (!d.plottype)
         return;
-    else if (d.plottype === "continuous") density(d, div = "varSummary", priv);
-    else if (d.plottype === "bar") bars(d, div = "varSummary", priv);
-    else {
-        d3.select("#tab3") // no graph to draw, but still need to remove previous graph
-            .selectAll("svg")
-            .remove();
-    };
+    if (d.plottype == "continuous") density(d, div = "varSummary", priv);
+    else if (d.plottype == "bar") bars(d, div = "varSummary", priv);
+    else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
+        .selectAll("svg")
+        .remove();
 }
 
 function populatePopover() {

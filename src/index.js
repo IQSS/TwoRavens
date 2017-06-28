@@ -50,7 +50,11 @@ function panel(id, title, target, buttons={}) {
     ]);
 }
 
-let closepanel = side => Model[side + 'Closed'] ? '.closepanel' : (side == 'left' && app.lefttab == 'tab2' ? '.expandpanel' : '');
+let closepanel = side => {
+    if (Model[side + 'Closed'])
+        return '.closepanel';
+    return side == 'left' && app.lefttab == 'tab2' ? '.expandpanel' : '';
+};
 
 function top(side, title, ...args) {
     let id = `#${side}panel`;
@@ -60,11 +64,6 @@ function top(side, title, ...args) {
           m('span', {
               onclick: _ => {
                   let key = side + 'Closed';
-                  if (!Model[key]) {
-                      $(id).removeClass('expandpanel');
-                      if (side == 'left')
-                          $('#btnSelect').css('display', 'none');
-                  }
                   Model[key] = !Model[key];
               }
           }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])
@@ -131,7 +130,7 @@ function leftpanel() {
                     }),
                     m('#tab3',
                         m("p", {
-                            display: tab('tab1', 'block', 'none'),
+                            display: tab('tab3', 'block', 'none'),
                             style: {padding: ".5em 1em"}
                         }, "Select a variable from within the visualization in the center panel to view its summary statistics.")
                     )
