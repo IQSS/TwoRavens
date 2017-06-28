@@ -258,9 +258,8 @@ let $fill = (obj, op, d1, d2) => d3.select(obj).transition()
     .attr('fill-opacity', op)
     .delay(d1)
     .duration(d2);
-let fill = (d, id, op, d1, d2) => $fill(d3.select(('#' + id).concat(d.id), op, d1, d2));
-let fillThis = (self, op, d1, d2) => $fill(d3.select(self), op, d1, d2);
-
+let fill = (d, id, op, d1, d2) => $fill(('#' + id).concat(d.id), op, d1, d2);
+let fillThis = (self, op, d1, d2) => $fill(self, op, d1, d2);
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
 function scaffolding(callback) {
@@ -402,7 +401,7 @@ function layout(v) {
     nodes = [];
     links = [];
 
-    if (v === "add" | v === "move") {
+    if (v == "add" || v == "move") {
         d3.select("#tab1").selectAll("p").style('background-color', varColor);
         for (var j = 0; j < zparams.zvars.length; j++) {
             var ii = findNodeIndex(zparams.zvars[j]);
@@ -668,11 +667,8 @@ function layout(v) {
         // add plot
         g.each(function(d) {
             d3.select(this);
-            if (d.plottype === "continuous") {
-                densityNode(d, obj = this);
-            } else if (d.plottype === "bar") {
-                barsNode(d, obj = this);
-            }
+            if (d.plottype == 'continuous') densityNode(d, obj = this);
+            else if (d.plottype == 'bar') barsNode(d, obj = this);
         });
 
         g.append("path")
@@ -693,6 +689,7 @@ function layout(v) {
                 legend(dvColor);
                 restart();
             });
+
         g.append("text")
             .attr("id", x => "dvText".concat(x.id))
             .attr("x", 6)
@@ -837,8 +834,7 @@ function layout(v) {
                 restart();
             });
 
-
-        // show node Names
+        // show node names
         g.append('svg:text')
             .attr('x', 0)
             .attr('y', 15)
@@ -934,7 +930,6 @@ function layout(v) {
         }
         // because :active only works in WebKit?
         svg.classed('active', false);
-
         // clear mouse event vars
         resetMouseVars();
     }
