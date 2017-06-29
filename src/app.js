@@ -108,8 +108,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
         dataurl = dataurl + "?key=" + apikey;
     }
 
-    svg = d3.select("#main.left div.carousel-inner").attr('id', 'innercarousel')
-        .append('div').attr('class', 'item active').attr('id', 'm0').append('svg').attr('id', 'whitespace');
+    svg = d3.select("#whitespace");
 
     var logArray = [];
 
@@ -723,33 +722,24 @@ function layout(v) {
                 legend(nomColor);
                 restart();
             });
+
         g.append("text")
-            .attr("id", function(d) {
-                return "nomText".concat(d.id);
-            })
+            .attr("id", d => "nomText".concat(d.id))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", function(d) {
-                return "#nomArc".concat(d.id);
-            })
+            .attr("xlink:href", d => "#nomArc".concat(d.id))
             .text("Nominal");
 
         g.append('svg:circle')
             .attr('class', 'node')
             .attr('r', allR)
             .style('pointer-events', 'inherit')
-            .style('fill', function(d) {
-                return d.nodeCol;
-            })
+            .style('fill', d => d.nodeCol)
             .style('opacity', "0.5")
-            .style('stroke', function(d) {
-                return d3.rgb(d.strokeColor).toString();
-            })
-            .classed('reflexive', function(d) {
-                return d.reflexive;
-            })
+            .style('stroke', d => d3.rgb(d.strokeColor).toString())
+            .classed('reflexive', d => d.reflexive)
             .on('dblclick', function(d) {
                 d3.event.stopPropagation(); // stop click from bubbling
                 summaryHold = true;
@@ -848,8 +838,7 @@ function layout(v) {
                 tabLeft('tab3');
                 varSummary(d);
                 byId('transformations').setAttribute("style", "display:block");
-                var select = byId("transSel");
-                select.selectedIndex = d.id;
+                byId("transSel").selectedIndex = d.id;
                 transformVar = valueKey[d.id];
 
                 fill(d, "dvArc", .1, 0, 100);
@@ -1666,6 +1655,7 @@ function loadXMLDoc(XMLname) {
 
 export function tabLeft(tab) {
     [lefttab, lefttab1] = [tab, lefttab];
+    m.redraw();
 }
 
 export function tabRight(tabid) {
@@ -1710,6 +1700,8 @@ export function tabRight(tabid) {
     }
 }
 
+export let summary = {data: []};
+
 function varSummary(d) {
     let t1 = 'Mean:, Median:, Most Freq:, Occurrences:, Median Freq:, Occurrences:, Least Freq:, Occurrences:, Std Dev:, Minimum:, Maximum:, Invalid:, Valid:, Uniques:, Herfindahl'.split(', ');
     let rint = d3.format('r');
@@ -1718,26 +1710,16 @@ function varSummary(d) {
         [str(d.mean, 2) + ' (' + str(d.meanCI.lowerBound, 2) + ' - ' + str(d.meanCI.upperBound, 2) + ')', str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)] :
         [str(d.mean), str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)];
 
-    let data = [];
+    summary.data = [];
     for (let i = 0; i < t1.length; i++) {
         if (t2[i].indexOf('NaN') > -1 || t2[i] == 'NA' || t2[i] == '')
             continue;
-        data.push([t1[i], t2[i]]);
+        summary.data.push([t1[i], t2[i]]);
     };
 
-    d3.select("#tab3") // tab when you mouseover a pebble
-        .select("p")
-        .html("<center><b>" + d.name + "</b><br><i>" + d.labl + "</i></center>")
-        .append("table")
-        .selectAll("tr")
-        .data(data)
-        .enter().append("tr")
-        .selectAll("td")
-        .data(d => d)
-        .enter().append("td")
-        .text(d => d)
-        .on("mouseover", function() {d3.select(this).style("background-color", "aliceblue");})
-        .on("mouseout", function() {d3.select(this).style("background-color", "#F9F9F9");});
+    summary.name = d.name;
+    summary.labl = d.labl;
+
     d3.select("#tab3")
         .selectAll("svg")
         .remove();

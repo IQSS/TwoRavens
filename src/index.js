@@ -129,14 +129,22 @@ function leftpanel() {
                         }
                     }),
                     m('#tab3',
-                        m("p", {
-                            display: tab('tab3', 'block', 'none'),
-                            style: {padding: ".5em 1em"}
-                        }, "Select a variable from within the visualization in the center panel to view its summary statistics.")
-                    )
+                      m("p", {
+                          display: tab('tab3', 'block', 'none'),
+                          style: {padding: ".5em 1em"},
+                          title: "Select a variable from within the visualization in the center panel to view its summary statistics."
+                      },
+                        m('center', m('b', app.summary.name), m('br'), m('i', app.summary.labl)),
+                        m('table', app.summary.data.map(
+                            x => m('tr', x.map(y => m('td', y)))
+                        ))
+                        //.on("mouseover", function() {d3.select(this).style("background-color", "aliceblue");})
+                        //.on("mouseout", function() {d3.select(this).style("background-color", "#F9F9F9");})
+                       )
+                     )
                 ])
-            )
-        )
+             )
+         )
     );
 }
 
@@ -305,7 +313,8 @@ class Body {
                 ])
             ),
             m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}`,
-              m(".carousel-inner"),
+              m("#innercarousel.carousel-inner",
+                m('#m0.item.active', m('svg#whitespace'))),
               m("#spacetools.spaceTool", {
                   style: {"z-index": "16"}
               }, [
@@ -324,13 +333,13 @@ class Body {
               }),
               panel("logdiv.logbox", "History", 'collapseLog'),
               m('#ticker', {
-                       style: {
-                           background: "#F9F9F9",
-                           bottom: "0",
-                           height: "50px",
-                           position: "fixed",
-                           width: "100%"
-                       }
+                  style: {
+                      background: "#F9F9F9",
+                      bottom: "0",
+                      height: "50px",
+                      position: "fixed",
+                      width: "100%"
+                  }
               }, m("a#logID[href=somelink][target=_blank]", "Replication")),
               leftpanel(),
               rightpanel()
