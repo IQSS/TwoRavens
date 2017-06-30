@@ -14,7 +14,7 @@ callGUI <- function(dict, indices, stats, metadata, globals, action, var, stat){
 	#save(dict,file="dict.rda")
 	#save(indices,file="indices.rda")
 	df <- convert(dict, indices, stats, metadata)
-	print(df)
+	#print(df)
 	save(df,file="df.rda")
     #clear any empty rows
     empty_rows <- -which(is.na(df$Variable))
