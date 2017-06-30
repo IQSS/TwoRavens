@@ -159,7 +159,9 @@ Quantile.getAccuracy <- function(eps, beta, range, gran, n) {
   
   universe_size <- ((range[2] - range[1]) / gran) + 1
   
-  return(((4/eps) * log2(1/beta) * log2(universe_size)^(1.5))/(n*100)) #/(n*100) added by JM on 8/5/14 for consistency among accuracies
+ # return(((4/eps) * log2(1/beta) * log2(universe_size)^(1.5)))#/(n*100)) #/(n*100) added by JM on 8/5/14 for consistency among accuracies
+ # newer, tighter analysis:
+  return((2*sqrt(2)/eps) * sqrt(log(2/beta)) * log2(universe_size)^(1.5))
 
 }
 
@@ -176,7 +178,9 @@ Quantile.getParameters <- function(alpha, beta, range, gran, n) {
   alpha <- alpha*100   #added by JM on 8/5/14 for consistency among accuracies
   universe_size <- ((range[2] - range[1]) / gran) + 1
 	
-  return(((4/alpha) * log2(1/beta) * log2(universe_size)^(1.5))/n)
+  #return(((4/alpha) * log2(1/beta) * log2(universe_size)^(1.5)))#/n)
+  # newer, tighter analysis:
+  return((2*sqrt(2)/alpha) * sqrt(log(2/beta)) * log2(universe_size)^(1.5))
 	
 }
   

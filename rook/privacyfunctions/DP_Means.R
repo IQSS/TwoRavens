@@ -37,7 +37,7 @@ Mean.getAccuracy <- function(eps, del, range, n, beta) {
   # Returns:
   #   The percentage accuracy guaranteed by the given epsilon
     
-  returnValue <- log(1/beta)/(eps*n)
+  returnValue <- log(1/beta)*range/(eps*n)
   returnValue <- returnValue
       
   return(returnValue)
@@ -56,7 +56,7 @@ Mean.getParameters <- function(acc, del, range, n, beta) {
   # Returns:
   #   The scalar epsilon necessary to guarantee the accuracy needed  
   
-  t <- acc #/ range  # Adjust accuracy to be range agnostic
+  t <- acc/range  # Adjust accuracy to be range agnostic
   
   # Solve for the expected error from the Laplace Distribution
   returnValue <- log(1/beta)/(n*t)

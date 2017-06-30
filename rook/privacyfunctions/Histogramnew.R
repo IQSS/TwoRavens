@@ -155,7 +155,7 @@ noisyHistogram.getAccuracy <- function(n, eps, beta=.05)
 #    alpha accuracy parameter
 #
 {
-   acc <- -2*log(beta) / (n * eps)
+   acc <- -2*log(beta) / eps
    return(c(acc, acc))
 }
 
@@ -172,7 +172,7 @@ noisyHistogram.getParameters <- function(n, acc, beta=.05)
 #    epsilon privacy parameter
 #
 {
-   eps <- -2*log(beta) / (n * acc)
+   eps <- -2*log(beta) /acc
    return(eps)
 }
 

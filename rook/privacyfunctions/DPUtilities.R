@@ -14,6 +14,7 @@ callGUI <- function(dict, indices, stats, metadata, globals, action, var, stat){
 	#save(dict,file="dict.rda")
 	#save(indices,file="indices.rda")
 	df <- convert(dict, indices, stats, metadata)
+	print(df)
 	save(df,file="df.rda")
     #clear any empty rows
     empty_rows <- -which(is.na(df$Variable))
@@ -88,9 +89,45 @@ convert <- function(dict, indices, stats, metadata){
 			}
 		}
 	}
-
+	
 	df <- data.frame(content, row.names=NULL, stringsAsFactors=FALSE)
 	colnames(df) <- c("Variable", "Type", "Statistic", metadata, "Epsilon", "Accuracy","Hold")
+
+	#recode histogram bin names:
+	binnames <- df$Bin_Names
+	shorthands <- grep("+:+", binnames)
+	for(i in shorthands){
+		newnames <- c()
+		ends <- unlist(strsplit(binnames[i], split=":"))
+		if(length(ends) == 3){
+			newnames <- try(seq(as.numeric(ends[1]),as.numeric(ends[2]),as.numeric(ends[3])), silent=T)
+		}
+		if(length(ends) == 2){
+			lett <- c()
+			if(ends[1] %in% letters &&  ends[2] %in% letters){
+				lett <- letters
+				
+			}
+			else if(ends[1] %in% LETTERS &&  ends[2] %in% LETTERS){
+				lett <- LETTERS
+			}
+			
+			if(length(lett)!=0){
+				coord1 <- match(ends[1], lett)
+				coord2 <- match(ends[2], lett)
+				newnames <- lett[coord1:coord2]
+			}
+			else{
+				newnames <- try(seq(as.numeric(ends[1]),as.numeric(ends[2])), silent=T)
+			}
+		}
+		
+		if(length(newnames)>0 && class(newnames) != "try-error"){
+			newnames <- paste(newnames,collapse=',')
+			df$Bin_Names[i] <- newnames
+		}
+		
+	}
 	return(df)
 }
 
