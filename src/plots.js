@@ -3,9 +3,9 @@ var d3Color = '#1f77b4'; // d3's default blue
 // function to use d3 to graph density plots with preprocessed data
 export function density(node, div, priv) {
     var mydiv = {
-        subset: "#tab2",
-        setx: "#setx",
-        varSummary: "#tab3"
+        subset: '#tab2',
+        setx: '#setx',
+        varSummary: '#tab3'
     }[div];
     if (!mydiv)
         return alert("Error: incorrect div selected for plots");

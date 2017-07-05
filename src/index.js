@@ -133,8 +133,7 @@ function leftpanel() {
                           display: tab('tab3', 'block', 'none'),
                           style: {padding: ".5em 1em"},
                           title: "Select a variable from within the visualization in the center panel to view its summary statistics."
-                      },
-                        m('center', m('b', app.summary.name), m('br'), m('i', app.summary.labl)),
+                      }, m('center', m('b', app.summary.name), m('br'), m('i', app.summary.labl)),
                         m('table', app.summary.data.map(
                             x => m('tr', x.map(y => m('td', y)))
                         ))

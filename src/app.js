@@ -1179,20 +1179,11 @@ function viz(m) {
     // write the results table
     var resultsArray = [];
     for (var key in json.sumInfo) {
-        if (key == "colnames") {
+        if (key == 'colnames')
             continue;
-        }
 
         obj = json.sumInfo[key];
         resultsArray.push(obj);
-        /* SO says this is important check, but I don't see how it helps here...
-         for (var prop in obj) {
-         // important check that this is objects own property
-         // not from prototype prop inherited
-         if(obj.hasOwnProperty(prop)){
-         alert(prop + " = " + obj[prop]);
-         }
-         }  */
     }
 
     var table = d3.select("#resultsView")
@@ -1226,10 +1217,10 @@ function viz(m) {
             return myNum.toPrecision(3);
         })
         .on("mouseover", function() {
-            d3.select(this).style("background-color", "aliceblue")
+            d3.select(this).style("background-color", "aliceblue");
         }) // for no discernable reason
         .on("mouseout", function() {
-            d3.select(this).style("background-color", "#F9F9F9")
+            d3.select(this).style("background-color", "#F9F9F9");
         }); //(but maybe we'll think of one)
 
     d3.select("#resultsView")
@@ -1654,7 +1645,11 @@ function loadXMLDoc(XMLname) {
 }
 
 export function tabLeft(tab) {
+    byId('tab1').style.display = 'none';
+    byId('tab2').style.display = 'none';
+    byId('tab3').style.display = 'none';
     [lefttab, lefttab1] = [tab, lefttab];
+    byId(tab).style.display = 'block';
     m.redraw();
 }
 
@@ -1720,17 +1715,17 @@ function varSummary(d) {
     summary.name = d.name;
     summary.labl = d.labl;
 
-    d3.select("#tab3")
-        .selectAll("svg")
+    d3.select('#tab3')
+        .selectAll('svg')
         .remove();
 
     if (!d.plottype)
         return;
-    if (d.plottype == "continuous") density(d, div = "varSummary", priv);
-    else if (d.plottype == "bar") bars(d, div = "varSummary", priv);
-    else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
-        .selectAll("svg")
-        .remove();
+    if (d.plottype == 'continuous') density(d, 'varSummary', priv);
+    //else if (d.plottype == "bar") bars(d, div = "varSummary", priv);
+    //else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
+        //.selectAll("svg")
+        //.remove();
 }
 
 function populatePopover() {
