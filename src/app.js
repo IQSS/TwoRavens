@@ -851,10 +851,12 @@ function layout(v) {
                 fill(d, "csText", .5, 0, 100);
                 fill(d, "timeArc", .1, 0, 100);
                 fill(d, "timeText", .5, 0, 100);
+                m.redraw();
             })
             .on('mouseout', d => {
                 tabLeft(lefttab1);
                 'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(id => fill(d, id, .1, 0, 100));
+                m.redraw();
             });
 
         // the transformation variable list is silently updated as pebbles are added/removed
@@ -1650,7 +1652,6 @@ export function tabLeft(tab) {
     byId('tab3').style.display = 'none';
     byId(tab).style.display = 'block';
     [lefttab, lefttab1] = [tab, lefttab];
-    m.redraw();
 }
 
 export function tabRight(tabid) {
@@ -1714,8 +1715,6 @@ function varSummary(d) {
 
     summary.name = d.name;
     summary.labl = d.labl;
-
-    console.log(d);
 
     d3.select('#tab3')
         .selectAll('svg')
