@@ -551,7 +551,7 @@ export function bars(node, div, priv) {
                     return x(xVals[i] - 0.5 + barPadding) + rectWidth / 2
                 })
                 .attr("y2", d => {
-                    y2 = y(maxY - d + ciSize);
+                    let y2 = y(maxY - d + ciSize);
                     return y2 >= y(maxY) ? y(maxY) : y2;
                  });
 

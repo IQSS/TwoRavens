@@ -46,7 +46,7 @@ var allR = 40;
 var myspace = 0;
 
 var forcetoggle = ["true"];
-var priv = false;
+var priv = true;
 
 var zparams = {
     zdata: [],
@@ -1814,7 +1814,6 @@ function panelPlots() {
         node.subsetplot = false;
         if (node.plottype === "continuous" & node.setxplot == false) {
             node.setxplot = true;
-            console.log(priv);
             density(node, div = "setx", priv);
             node.subsetplot = true;
             density(node, div = "subset", priv);
