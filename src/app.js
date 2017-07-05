@@ -837,7 +837,7 @@ function layout(v) {
             .on("mouseover", d => {
                 tabLeft('tab3');
                 varSummary(d);
-                byId('transformations').setAttribute("style", "display:block");
+                byId('transformations').setAttribute('style', 'display:block');
                 byId("transSel").selectedIndex = d.id;
                 transformVar = valueKey[d.id];
 
@@ -1648,8 +1648,8 @@ export function tabLeft(tab) {
     byId('tab1').style.display = 'none';
     byId('tab2').style.display = 'none';
     byId('tab3').style.display = 'none';
-    [lefttab, lefttab1] = [tab, lefttab];
     byId(tab).style.display = 'block';
+    [lefttab, lefttab1] = [tab, lefttab];
     m.redraw();
 }
 
@@ -1715,6 +1715,8 @@ function varSummary(d) {
     summary.name = d.name;
     summary.labl = d.labl;
 
+    console.log(d);
+
     d3.select('#tab3')
         .selectAll('svg')
         .remove();
@@ -1722,10 +1724,10 @@ function varSummary(d) {
     if (!d.plottype)
         return;
     if (d.plottype == 'continuous') density(d, 'varSummary', priv);
-    //else if (d.plottype == "bar") bars(d, div = "varSummary", priv);
-    //else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
-        //.selectAll("svg")
-        //.remove();
+    else if (d.plottype == "bar") bars(d, 'varSummary', priv);
+    else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
+        .selectAll("svg")
+        .remove();
 }
 
 function populatePopover() {

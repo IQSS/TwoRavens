@@ -26,23 +26,21 @@ export function density(node, div, priv) {
         d.y = +d.y;
     };
     data2.forEach(add);
-    if (priv) {
-        if (node.plotCI) {
-            // stores values for upper/lower bound
-	          let store = bound => {
-                let error = [];
-                for (let i = 0; i < node.plotx.length; i++) {
-                    error.push({
-                        x: node.plotx[i],
-                        y: node.plotCI[bound][i]
-                    });
-                }
-                return error.map(add);
-            };
-            let upperError = store('upperBound');
-            let lowerError = store('lowerBound');
-            console.log('upperError\n', upperError);
-        }
+    if (priv && node.plotCI) {
+        // stores values for upper/lower bound
+	      let store = bound => {
+            let error = [];
+            for (let i = 0; i < node.plotx.length; i++) {
+                error.push({
+                    x: node.plotx[i],
+                    y: node.plotCI[bound][i]
+                });
+            }
+            return error.map(add);
+        };
+        let upperError = store('upperBound');
+        let lowerError = store('lowerBound');
+        console.log('upperError\n', upperError);
     }
 
     var tempWidth = d3.select(mydiv).style("width");
@@ -180,22 +178,18 @@ export function density(node, div, priv) {
             .attr("id", "range")
             .attr("x", 25)
             .attr("y", height + 40)
-            .text(function() {
-                return ("x: ".concat((+node.mean).toPrecision(4)));
-            });
+            .text(() => "x: ".concat((+node.mean).toPrecision(4)));
 
         plotsvg.append("text")
             .attr("id", "range2")
             .attr("x", 25)
             .attr("y", height + 50)
-            .text(function() {
-                return ("x1: ".concat((+node.mean).toPrecision(4)));
-            });
+            .text(() => "x1: ".concat((+node.mean).toPrecision(4)));
 
         // create tick marks at all zscores in the bounds of the data
         var lineFunction = d3.svg.line()
             .x(d => d.x)
-            .y(d => d.y) 
+            .y(d => d.y)
             .interpolate("linear");
 
         var colSeq = ["#A2CD5A", "orange", "red"]; // will cycle through color sequence, and then repeat last color
@@ -763,30 +757,29 @@ export function bars(node, div, priv) {
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height * .8 + ")")
             .call(d3.svg.axis()
-                .scale(x)
-                .ticks(0)
-                .orient("bottom"))
+                  .scale(x)
+                  .ticks(0)
+                  .orient("bottom"));
 
         var slider = plotsvg.append("g")
             .attr("class", "slider")
             .call(brush);
 
+        let points = i => d => {
+            let s = 6, xnm;
+            if (node.setxvals[i] == '') {
+                // if nominal, use the median frequency as the position for the setx slider
+                xnm = node.nature == 'nominal' ? x(Math.round(xVals.length / 2) - 1) : x(node.mean);
+            } else {
+                xnm = x(node.setxvals[i]);
+            };
+            return (xnm - s) + "," + (-s) + " " + (xnm + s) + "," + (-s) + " " + xnm + "," + (s * 1.3);
+        };
+
         var handle = slider.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .7 + ")")
-            .attr("points", function(d) {
-                var s = 6;
-                if (node.setxvals[0] == "") {
-                    if (node.nature == "nominal") { // if nominal, use the median frequency as the position for the setx slider
-                        var xnm = x(Math.round(xVals.length / 2) - 1);
-                    } else {
-                        var xnm = x(node.mean);
-                    }
-                } else {
-                    var xnm = x(node.setxvals[0])
-                };
-                return (xnm - s) + "," + (-s) + " " + (xnm + s) + "," + (-s) + " " + xnm + "," + (s * 1.3);
-            });
+            .attr("points", points(0));
 
         var slider2 = plotsvg.append("g")
             .attr("class", "slider")
@@ -795,24 +788,12 @@ export function bars(node, div, priv) {
         var handle2 = slider2.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .9 + ")")
-            .attr("points", function(d) {
-                var s = 6;
-                if (node.setxvals[1] == "") {
-                    if (node.nature == "nominal") { // if nominal, use the median frequency as the position for the setx slider
-                        var xnm = x(Math.round(xVals.length / 2) - 1);
-                    } else {
-                        var xnm = x(node.mean);
-                    }
-                } else {
-                    var xnm = x(node.setxvals[1])
-                };
-                return (xnm - s) + "," + s + " " + (xnm + s) + "," + s + " " + xnm + "," + (-s * 1.3);
-            });
+            .attr("points", points(1));
     }
 
     function twoSF(x) {
         var tsf = d3.format(".2r"); // format to two significant figures after the decimal place
-        return tsf(x).replace(/0+$/, "").replace(/\.$/, "") // trim trailing zeros after a period, and any orphaned period
+        return tsf(x).replace(/0+$/, "").replace(/\.$/, ""); // trim trailing zeros after a period, and any orphaned period
     }
 
     // brushing functions
