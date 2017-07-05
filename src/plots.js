@@ -764,27 +764,24 @@ export function bars(node, div, priv) {
         var slider = plotsvg.append("g")
             .attr("class", "slider")
             .call(brush);
+        var slider2 = plotsvg.append("g")
+            .attr("class", "slider")
+            .call(brush2);
 
         let points = i => d => {
-            let s = 6, xnm;
+            let xnm, s = 6;
             if (node.setxvals[i] == '') {
                 // if nominal, use the median frequency as the position for the setx slider
                 xnm = node.nature == 'nominal' ? x(Math.round(xVals.length / 2) - 1) : x(node.mean);
             } else {
                 xnm = x(node.setxvals[i]);
             };
-            return (xnm - s) + "," + (-s) + " " + (xnm + s) + "," + (-s) + " " + xnm + "," + (s * 1.3);
+            return `${xnm - s},${-s} ${xnm + s},${-s} ${xnm},${s * 1.3}`;
         };
-
         var handle = slider.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .7 + ")")
             .attr("points", points(0));
-
-        var slider2 = plotsvg.append("g")
-            .attr("class", "slider")
-            .call(brush2);
-
         var handle2 = slider2.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .9 + ")")
