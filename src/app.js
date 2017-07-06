@@ -33,6 +33,7 @@ var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
 export let lefttab = "tab1"; // current tab in left panel
 export let lefttab1 = "tab1";
+export let summaryHold = false;
 var righttab = "btnModels"; // current tab in right panel
 
 // transformation toolbar options
@@ -67,8 +68,6 @@ var zparams = {
 };
 
 var modelCount = 0;
-var summaryHold = false;
-
 var valueKey = [];
 var allNodes = [];
 var nodes = [];
@@ -323,8 +322,8 @@ function scaffolding(callback) {
 
         if (evt.keyCode == 13) { // keyup on Enter
             n = $('#tInput').val();
-            var t = transParse(n = n);
-            if (t == null)
+            var t = transParse(n=n);
+            if (!t)
                 return;
             transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
         }
@@ -333,7 +332,7 @@ function scaffolding(callback) {
     var t;
     $('#transList li').click(evt => {
         // if interact is selected, show variable list again
-        if ($(this).text() === "interact(d,e)") {
+        if ($(this).text() == "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
             selInteract = true;
             $(this).parent().fandeOut(100);
@@ -854,6 +853,8 @@ function layout(v) {
                 m.redraw();
             })
             .on('mouseout', d => {
+                if (summaryHold)
+                    return;
                 tabLeft(lefttab1);
                 'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(id => fill(d, id, .1, 0, 100));
                 m.redraw();
@@ -2105,25 +2106,16 @@ export function subsetSelect(btn) {
 
 function readPreprocess(url, p, v, callback) {
     console.log(url);
-    d3.json(url, function(error, json) {
-        if (error)
-            return console.warn(error);
-        var jsondata = json;
+    d3.json(url, (err, json) => {
+        if (err)
+            return console.warn(err);
+        console.log('inside readPreprocess function');
+        console.log(json);
 
-        console.log("inside readPreprocess function");
-        console.log(jsondata);
-        console.log(jsondata["variables"]);
-
-        if (jsondata.dataset.priv)
-            priv = jsondata["dataset"]["priv"];
-
-        //copying the object
-        for (var key in jsondata["variables"]) {
-            p[key] = jsondata["variables"][key];
-        }
-
-        if (typeof callback === "function")
-            callback();
+        priv = json.dataset.priv || priv;
+        // copy object
+        Object.keys(json.variables).forEach(k => p[k] = json.variables[k]);
+        if (typeof callback == 'function') callback();
     });
 }
 
@@ -2135,10 +2127,7 @@ function rePlot() {
     d3.select('#setx')
         .selectAll('svg')
         .remove();
-    allNodes.forEach(n => {
-        n.setxplot = false;
-        n.subsetplot = false;
-    });
+    allNodes.forEach(n => n.setxplot = n.subsetplot = false);
 }
 
 function showLog() {
