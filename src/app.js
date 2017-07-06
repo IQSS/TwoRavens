@@ -79,7 +79,7 @@ var rightClickLast = false;
 var selInteract = false;
 var callHistory = []; // transform and subset calls
 
-var svg, width, height, div, obj, estimateLadda, selectLadda;
+var svg, width, height, div, estimateLadda, selectLadda;
 var arc3, arc4;
 
 let byId = id => document.getElementById(id);
@@ -528,7 +528,7 @@ function layout(v) {
         circle.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
     }
 
-    //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
+    //  add listeners to leftpanel.left. every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
         .on("mouseover", d => {
             $("body div.popover")
@@ -666,8 +666,8 @@ function layout(v) {
         // add plot
         g.each(function(d) {
             d3.select(this);
-            if (d.plottype == 'continuous') densityNode(d, obj = this);
-            else if (d.plottype == 'bar') barsNode(d, obj = this);
+            if (d.plottype == 'continuous') densityNode(d, this);
+            else if (d.plottype == 'bar') barsNode(d, this);
         });
 
         g.append("path")
@@ -1027,7 +1027,7 @@ export function estimate(btn) {
     console.log("POST out: ", solajsonout);
 
     zparams.allVars = valueKey.slice(10, 25); // because the URL is too long...
-    var jsonout = JSON.stringify(zparams);
+    jsonout = JSON.stringify(zparams);
     var selectorurlcall = rappURL + "selectorapp";
 
     function estimateSuccess(btn, json) {
@@ -1037,9 +1037,8 @@ export function estimate(btn) {
         console.log("json in: ", json);
 
         var myparent = byId("results");
-        if (estimated == false) {
+        if (estimated == false)
             myparent.removeChild(byId("resultsHolder"));
-        }
 
         estimated = true;
         d3.select("#results")
@@ -1072,9 +1071,8 @@ export function estimate(btn) {
             .on("click", function() {
                 var a = this.style.backgroundColor.replace(/\s*/g, "");
                 var b = hexToRgba(selVarColor).replace(/\s*/g, "");
-                if (a.substr(0, 17) === b.substr(0, 17)) {
-                    return; // escapes the function early if the displayed model is clicked
-                }
+                if (a.substr(0, 17) === b.substr(0, 17))
+                    return; // escape function if displayed model is clicked
                 modCol();
                 d3.select(this)
                     .style('background-color', hexToRgba(selVarColor));
@@ -1210,9 +1208,7 @@ function viz(m) {
 
     d3.select("#resultsView")
         .append("p")
-        .html(function() {
-            return "<b>Formula: </b>".concat(json.call[0]);
-        });
+        .html(() => "<b>Formula: </b>".concat(json.call[0]));
 }
 
 // parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
