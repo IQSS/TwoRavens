@@ -554,7 +554,7 @@ function layout(v) {
                         }
                         return hexToRgba(selVarColor);
                     } else { // dropping a variable
-                        nodes.splice(findNode(myText)["index"], 1);
+                        nodes.splice(findNode(myText).index, 1);
                         spliceLinksForNode(findNode(myText));
 
                         if (mySC == dvColor) {
@@ -961,14 +961,14 @@ var findNodeIndex = function(name) {
 
 var nodeIndex = function(nodeName) {
     for (var i in nodes) {
-        if (nodes[i]["name"] === nodeName)
+        if (nodes[i].name == nodeName)
             return i;
     }
 }
 
 var findNode = function(nodeName) {
     for (var i in allNodes) {
-        if (allNodes[i]["name"] === nodeName)
+        if (allNodes[i].name == nodeName)
             return allNodes[i];
     };
 }
@@ -1359,23 +1359,23 @@ function transform(n, t, typeTransform) {
                     var obj1 = {
                         id: i,
                         reflexive: false,
-                        "name": key,
-                        "labl": "transformlabel",
+                        name: key,
+                        labl: "transformlabel",
                         data: [5, 15, 20, 0, 5, 15, 20],
                         count: [.6, .2, .9, .8, .1, .3, .4],
-                        "nodeCol": colors(i),
-                        "baseCol": colors(i),
-                        "strokeColor": selVarColor,
-                        "strokeWidth": "1",
-                        "subsetplot": false,
-                        "subsetrange": ["", ""],
-                        "setxplot": false,
-                        "setxvals": ["", ""],
-                        "grayout": false,
-                        "defaultInterval": jsondata[key]["interval"],
-                        "defaultNumchar": jsondata[key]["numchar"],
-                        "defaultNature": jsondata[key]["nature"],
-                        "defaultBinary": jsondata[key]["binary"]
+                        nodeCol: colors(i),
+                        baseCol: colors(i),
+                        strokeColor: selVarColor,
+                        strokeWidth: "1",
+                        subsetplot: false,
+                        subsetrange: ["", ""],
+                        setxplot: false,
+                        setxvals: ["", ""],
+                        grayout: false,
+                        defaultInterval: jsondata[key].interval,
+                        defaultNumchar: jsondata[key].numchar,
+                        defaultNature: jsondata[key].nature,
+                        defaultBinary: jsondata[key].binary
                     };
 
                     jQuery.extend(true, obj1, jsondata[key]);
@@ -1443,7 +1443,7 @@ function scaffoldingPush(v) { // adding a variable to the variable list after a 
                         return hexToRgba(selVarColor);
                     } else { // dropping a variable
 
-                        nodes.splice(findNode(myText)["index"], 1);
+                        nodes.splice(findNode(myText).index, 1);
                         spliceLinksForNode(findNode(myText));
 
                         if (mySC == dvColor) {
@@ -1608,7 +1608,7 @@ export function tabLeft(tab) {
     byId('tab2').style.display = 'none';
     byId('tab3').style.display = 'none';
     byId(tab).style.display = 'block';
-    [lefttab, lefttab1] = [tab, lefttab];
+    [lefttab, lefttab1, summaryHold] = [tab, lefttab, false];
 }
 
 export function tabRight(tabid) {
