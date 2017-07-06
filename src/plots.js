@@ -1114,20 +1114,8 @@ export function densityNode(node, obj) {
 
     var yVals = node.ploty;
     var xVals = node.plotx;
-
-    // an array of objects
-    var data2 = [];
-    for (var i = 0; i < node.plotx.length; i++) {
-        data2.push({
-            x: node.plotx[i],
-            y: node.ploty[i]
-        });
-    }
-
-    data2.forEach(function(d) {
-        d.x = +d.x;
-        d.y = +d.y;
-    });
+    // array of objects
+    let data2 = node.plotx.map((x, i) => ({x: +x, y: +node.ploty[i]}));
 
     var width = 60; // hardcoded, should be set automatically
     var height = 30;
