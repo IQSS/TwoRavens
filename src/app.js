@@ -997,23 +997,17 @@ function zPop() {
     zparams.zmodelcount = modelCount;
     zparams.zedges = [];
     zparams.zvars = [];
-
-    for (var j = 0; j < nodes.length; j++) { //populate zvars array
+    for (let j = 0; j < nodes.length; j++) { //populate zvars array
         zparams.zvars.push(nodes[j].name);
-        var temp = nodes[j].id;
-
+        let temp = nodes[j].id;
         zparams.zsetx[j] = allNodes[temp].setxvals;
         zparams.zsubset[j] = allNodes[temp].subsetrange;
     }
-
-    for (var j = 0; j < links.length; j++) { //populate zedges array
-        var srctgt = [];
+    for (let j = 0; j < links.length; j++) { //populate zedges array
         //correct the source target ordering for Zelig
-        if (links[j].left === false) {
-            srctgt = [links[j].source.name, links[j].target.name];
-        } else {
-            srctgt = [links[j].target.name, links[j].source.name];
-        }
+        let srctgt = links[j].left == false ?
+            [links[j].source.name, links[j].target.name] :
+            [links[j].target.name, links[j].source.name];
         zparams.zedges.push(srctgt);
     }
 }
@@ -1158,9 +1152,8 @@ function viz(m) {
     var mym = +m.substr(5, 5) - 1;
 
     function removeKids(parent) {
-        while (parent.firstChild) {
+        while (parent.firstChild)
             parent.removeChild(parent.firstChild);
-        }
     }
 
     var myparent = byId("resultsView");
@@ -1183,7 +1176,6 @@ function viz(m) {
     for (var key in json.sumInfo) {
         if (key == 'colnames')
             continue;
-
         obj = json.sumInfo[key];
         resultsArray.push(obj);
     }
@@ -1198,24 +1190,19 @@ function viz(m) {
         .data(json.sumInfo.colnames)
         .enter()
         .append("th")
-        .text(function(d) {
-            return d;
-        });
+        .text(d => d);
 
     var tbody = table.append("tbody");
     tbody.selectAll("tr")
         .data(resultsArray)
         .enter().append("tr")
         .selectAll("td")
-        .data(function(d) {
-            return d;
-        })
+        .data(d => d)
         .enter().append("td")
         .text(function(d) {
             var myNum = Number(d);
-            if (isNaN(myNum)) {
+            if (isNaN(myNum))
                 return d;
-            }
             return myNum.toPrecision(3);
         })
         .on("mouseover", function() {
@@ -1243,18 +1230,13 @@ function transParse(n) {
     // out2 is all matched variables, indexed is an array, each element is an object that contains the matched variables starting index and finishing index.  e.g., n="wars+2", out2=[war, wars], indexed=[{0,2},{0,3}]
     for (var i in valueKey) {
         var m2 = n.match(valueKey[i]);
-        if (m2 !== null) {
+        if (m2 != null)
             out2.push(m2[0]);
-        }
 
-        var re = new RegExp(valueKey[i], "g")
+        var re = new RegExp(valueKey[i], "g");
         var s = n.search(re);
-        if (s != -1) {
-            indexed.push({
-                from: s,
-                to: s + valueKey[i].length
-            });
-        }
+        if (s != -1)
+            indexed.push({from: s, to: s + valueKey[i].length});
     }
 
     // nested loop not good, but indexed is not likely to be very large.
@@ -1263,9 +1245,8 @@ function transParse(n) {
     console.log("indexed ", indexed);
     for (var i = indexed.length - 1; i > -1; i--) {
         for (var j = indexed.length - 1; j > -1; j--) {
-            if (i === j) {
+            if (i === j)
                 continue;
-            }
             if ((indexed[i].from >= indexed[j].from) & (indexed[i].to <= indexed[j].to)) {
                 console.log(i, " is nested in ", j);
                 out2.splice(i, 1);
@@ -1295,9 +1276,8 @@ function transform(n, t, typeTransform) {
         return;
     }
 
-    if (!typeTransform) {
+    if (!typeTransform)
         t = t.replace("+", "_plus_"); // can't send the plus operator
-    }
 
     console.log(n);
     console.log(t);
@@ -1306,7 +1286,7 @@ function transform(n, t, typeTransform) {
 
     var myn = allNodes[findNodeIndex(n[0])];
     if (typeof myn === "undefined") {
-        var myn = allNodes[findNodeIndex(n)];
+        myn = allNodes[findNodeIndex(n)];
     }
 
     var outtypes = {
@@ -1431,9 +1411,7 @@ function transform(n, t, typeTransform) {
                     } else if (allNodes[i].plottype === "bar") {
                         barsNode(allNodes[i]);
                     }
-                } //for
-
-
+                }
             });
 
             // update the log
@@ -1455,9 +1433,7 @@ function scaffoldingPush(v) { // adding a variable to the variable list after a 
     d3.select("#tab1")
         .data(v)
         .append("p")
-        .attr("id", function() {
-            return v[0].replace(/\W/g, "_");
-        })
+        .attr("id", () => v[0].replace(/\W/g, "_"))
         .text(v[0])
         .style('background-color', hexToRgba(selVarColor))
         .attr("data-container", "body")
@@ -1839,7 +1815,7 @@ function panelPlots() {
                 d3.select(temp)
                     .remove();
                 allNodes[nodeid].subsetplot = false;
-                var temp = "#".concat(myname, "_tab2_", nodeid);
+                temp = "#".concat(myname, "_tab2_", nodeid);
                 d3.select(temp)
                     .remove();
             }
