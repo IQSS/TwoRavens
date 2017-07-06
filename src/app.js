@@ -960,9 +960,8 @@ var findNodeIndex = function(name) {
 
 var nodeIndex = function(nodeName) {
     for (var i in nodes) {
-        if (nodes[i]["name"] === nodeName) {
+        if (nodes[i]["name"] === nodeName)
             return i;
-        }
     }
 }
 
@@ -985,15 +984,12 @@ export function forceSwitch() {
 }
 
 function spliceLinksForNode(node) {
-    var toSplice = links.filter(function(l) {
-        return (l.source === node || l.target === node);
-    });
-    toSplice.map(x => links.splice(links.indexOf(x), 1));
+    links.filter(l => l.source == node || l.target == node)
+        .map(x => links.splice(links.indexOf(x), 1));
 }
 
 function zPop() {
-    if (dataurl)
-        zparams.zdataurl = dataurl;
+    if (dataurl) zparams.zdataurl = dataurl;
     zparams.zmodelcount = modelCount;
     zparams.zedges = [];
     zparams.zvars = [];
@@ -1013,7 +1009,7 @@ function zPop() {
 }
 
 export function estimate(btn) {
-    if (production && zparams.zsessionid == "") {
+    if (production && zparams.zsessionid == '') {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
