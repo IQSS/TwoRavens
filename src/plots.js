@@ -111,19 +111,17 @@ export function density(node, div, priv) {
             .style("width", 300) // set height to the height of #main.left
             .style("height", 200)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", `translate(${margin.left},${margin.top})`);
     } else {
         var plotsvg = d3.select(mydiv)
             .append("svg")
-            .attr("id", function() {
-                var myname = node.name.toString();
-                myname = myname.replace(/\(|\)/g, "");
-                return myname.concat("_", mydiv.substr(1), "_", node.id);
-            })
+            .attr("id", () => node.name.toString()
+                  .replace(/\(|\)/g, "")
+                  .concat("_", mydiv.substr(1), "_", node.id))
             .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
             .style("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", `translate(${margin.left},${margin.top})`);
     };
     plotsvg.append("path")
         .datum(data2)
