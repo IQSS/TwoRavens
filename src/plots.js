@@ -92,7 +92,8 @@ export function density(node, div, priv) {
     var area = d3.svg.area()
         .interpolate("monotone")
         .x(d => x(d.x))
-        .y0(height);
+        .y0(height)
+        .y1(d => y(d.y));
     var line = d3.svg.line()
         .x(d => x(d.x))
         .y(d => y(d.y))
