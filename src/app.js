@@ -1116,30 +1116,18 @@ function dataDownload() {
     var jsonout = JSON.stringify(zparams);
     var btn = "nobutton";
 
-    var urlcall = rappURL + "dataapp"; //base.concat(jsonout);
+    var urlcall = rappURL + "dataapp";
     var solajsonout = "solaJSON=" + jsonout;
     console.log("urlcall out: ", urlcall);
     console.log("POST out: ", solajsonout);
 
-    function downloadSuccess(btn, json) {
-        console.log("dataDownload json in: ", json);
+    let downloadSuccess = (btn, json) => {
+        console.log('dataDownload json in: ', json);
         zparams.zsessionid = json.sessionid[0];
-
-        // set the link URL
-        if (production) {
-            var logURL = rappURL + "log_dir/log_" + zparams.zsessionid + ".txt";
-            byId("logID").href = logURL;
-        } else {
-            var logURL = "rook/log_" + zparams.zsessionid + ".txt";
-            byId("logID").href = logURL;
-        }
-
-    }
-
-    function downloadFail(btn) {
-        console.log("Data have not been downloaded");
-    }
-
+        // set link URL
+        byId("logID").href = `${production ? rappURL + 'log_dir/log_' : 'rook/log_' }${zparams.zsessionid}.txt`;
+    };
+    let downloadFail = _ => console.log('Data have not been downloaded');
     makeCorsRequest(urlcall, btn, downloadSuccess, downloadFail, solajsonout);
 }
 
