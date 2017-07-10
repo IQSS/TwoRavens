@@ -256,7 +256,7 @@ let $fill = (obj, op, d1, d2) => d3.select(obj).transition()
     .attr('fill-opacity', op)
     .delay(d1)
     .duration(d2);
-let fill = (d, id, op, d1, d2) => $fill(('#' + id).concat(d.id), op, d1, d2);
+let fill = (d, id, op, d1, d2) => $fill('#' + id + d.id, op, d1, d2);
 let fillThis = (self, op, d1, d2) => $fill(self, op, d1, d2);
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
@@ -850,10 +850,8 @@ function layout(v) {
                 m.redraw();
             })
             .on('mouseout', d => {
-                if (summaryHold)
-                    return;
-                tabLeft(lefttab1);
-                'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split().map(id => fill(d, id, .1, 0, 100));
+                if (!summaryHold) tabLeft(lefttab1);
+                'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split(' ').map(x => fill(d, x, 0, 100, 500));
                 m.redraw();
             });
 
