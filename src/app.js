@@ -557,23 +557,16 @@ function layout(v) {
                         nodes.splice(findNode(myText).index, 1);
                         spliceLinksForNode(findNode(myText));
 
-                        if (mySC == dvColor) {
-                            var dvIndex = zparams.zdv.indexOf(myText);
-                            if (dvIndex > -1)
-                                zparams.zdv.splice(dvIndex, 1);
-                        } else if (mySC == csColor) {
-                            var csIndex = zparams.zcross.indexOf(myText);
-                            if (csIndex > -1)
-                                zparams.zcross.splice(csIndex, 1);
-                        } else if (mySC == timeColor) {
-                            var timeIndex = zparams.ztime.indexOf(myText);
-                            if (timeIndex > -1)
-                                zparams.ztime.splice(timeIndex, 1);
-                        } else if (mySC == nomColor) {
-                            var nomIndex = zparams.znom.indexOf(myText);
-                            if (nomIndex > -1)
-                                zparams.znom.splice(dvIndex, 1);
-                        }
+                        let splice = (val, key) => {
+                            if (mySC != val)
+                                return;
+                            let idx = zparams[key].indexOf(myText);
+                            idx > -1 && zparams[key].splice(idx, 1);
+                        };
+                        splice(dvColor, 'zdv') ;
+                        splice(csColor, 'zcross');
+                        splice(timeColor, 'ztime');
+                        splice(nomColor, 'znom');
 
                         nodeReset(allNodes[findNodeIndex(myText)]);
                         borderState();
@@ -597,7 +590,7 @@ function layout(v) {
                         zparams.zmodel = d.toString();
                         return hexToRgba(selVarColor);
                     } else {
-                        zparams.zmodel = "";
+                        zparams.zmodel = '';
                         return varColor;
                     }
                 });
@@ -650,7 +643,7 @@ function layout(v) {
         circle = circle.data(nodes, x => x.id);
 
         // update existing nodes (reflexive & selected visual states)
-        //d3.rgb is the function adjusting the color here.
+        // d3.rgb is the function adjusting the color here
         circle.selectAll('circle')
             .classed('reflexive', x => x.reflexive)
             .style('fill', x => d3.rgb(x.nodeCol))
@@ -658,9 +651,9 @@ function layout(v) {
             .style('stroke-width', x => x.strokeWidth);
 
         // add new nodes
-        var g = circle.enter()
+        let g = circle.enter()
             .append('svg:g')
-            .attr("id", x => x.name + 'biggroup');
+            .attr('id', x => x.name + 'biggroup');
 
         // add plot
         g.each(function(d) {
@@ -669,8 +662,10 @@ function layout(v) {
             else if (d.plottype == 'bar') barsNode(d, this);
         });
 
+        let append = (str, attr) => x => str + x[attr || 'id'];
+
         g.append("path")
-            .attr("id", x => "dvArc".concat(x.id))
+            .attr("id", append('dvArc'))
             .attr("d", arc3)
             .style("fill", dvColor)
             .attr("fill-opacity", 0)
@@ -682,23 +677,23 @@ function layout(v) {
                 fillThis(this, 0, 100, 500);
                 fill(d, 'dvText', 0, 100, 500);
             })
-            .on('click', function(d) {
+            .on('click', d => {
                 setColors(d, dvColor);
                 legend(dvColor);
                 restart();
             });
 
         g.append("text")
-            .attr("id", x => "dvText".concat(x.id))
+            .attr("id", append('dvText'))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", d => '#dvArc'.concat(d.id))
+            .attr("xlink:href", append('#dvArc'))
             .text("Dep Var");
 
         g.append("path")
-            .attr("id", d => 'nomArc'.concat(d.id))
+            .attr("id", append('nomArc'))
             .attr("d", arc4)
             .style("fill", nomColor)
             .attr("fill-opacity", 0)
@@ -723,12 +718,12 @@ function layout(v) {
             });
 
         g.append("text")
-            .attr("id", d => "nomText".concat(d.id))
+            .attr("id", append("nomText"))
             .attr("x", 6)
             .attr("dy", 11.5)
             .attr("fill-opacity", 0)
             .append("textPath")
-            .attr("xlink:href", d => "#nomArc".concat(d.id))
+            .attr("xlink:href", append("#nomArc"))
             .text("Nominal");
 
         g.append('svg:circle')
@@ -743,9 +738,11 @@ function layout(v) {
                 d3.event.stopPropagation(); // stop click from bubbling
                 summaryHold = true;
             })
-            .on('contextmenu', function(d) { // right click on node
+            .on('contextmenu', function(d) {
+                // right click on node
                 d3.event.preventDefault();
-                d3.event.stopPropagation(); // stop right click from bubbling
+                d3.event.stopPropagation();
+
                 rightClickLast = true;
 
                 mousedown_node = d;
@@ -763,7 +760,7 @@ function layout(v) {
                 restart();
             })
             .on('mouseup', function(d) {
-                d3.event.stopPropagation(); // stop mouseup from bubbling
+                d3.event.stopPropagation();
 
                 if (rightClickLast) {
                     rightClickLast = false;
