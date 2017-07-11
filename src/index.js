@@ -99,7 +99,7 @@ function leftpanel() {
                 title: 'Subset data by the intersection of all selected values.',
                 onclick: _ => app.subsetSelect('btnSelect'),
                 style: {
-                    display: tab('tab2', 'block', 'none'),
+                    display: app.subset ? 'block' : 'none',
                     float: "right",
                     "margin-right": "10px"
                 }

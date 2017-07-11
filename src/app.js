@@ -31,8 +31,8 @@ var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
 var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
-export let lefttab = "tab1"; // current tab in left panel
-export let lefttab1 = "tab1";
+export let lefttab = 'tab1'; // current tab in left panel
+export let subset = false;
 export let summaryHold = false;
 var righttab = "btnModels"; // current tab in right panel
 
@@ -850,7 +850,7 @@ function layout(v) {
                 m.redraw();
             })
             .on('mouseout', d => {
-                if (!summaryHold) tabLeft(lefttab1);
+                if (!summaryHold) tabLeft(subset ? 'tab2' : 'tab1');
                 'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split(' ').map(x => fill(d, x, 0, 100, 500));
                 m.redraw();
             });
@@ -1603,7 +1603,11 @@ export function tabLeft(tab) {
     byId('tab2').style.display = 'none';
     byId('tab3').style.display = 'none';
     byId(tab).style.display = 'block';
-    [lefttab, lefttab1, summaryHold] = [tab, lefttab, false];
+    if (tab != 'tab3') {
+        subset = tab == 'tab2';
+        summaryHold = false;
+    }
+    lefttab = tab;
 }
 
 export function tabRight(tabid) {
