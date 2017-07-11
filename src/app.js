@@ -34,7 +34,7 @@ var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 export let lefttab = 'tab1'; // current tab in left panel
 export let subset = false;
 export let summaryHold = false;
-var righttab = "btnModels"; // current tab in right panel
+export let righttab = 'btnModels'; // current tab in right panel
 
 // transformation toolbar options
 var transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split();
@@ -580,7 +580,7 @@ function layout(v) {
 
     d3.select("#models").selectAll("p") // models tab
         //  d3.select("#Display_content")
-        .on("click", () => {
+        .on("click", function() {
             var myColor = d3.select(this).style('background-color');
             d3.select("#models").selectAll("p")
                 .style('background-color', varColor);
@@ -1615,28 +1615,19 @@ export function tabRight(tabid) {
     byId('setx').style.display = 'none';
     byId('results').style.display = 'none';
     if (tabid == "btnModels") {
-        byId('btnSetx').setAttribute("class", "btn btn-default");
-        byId('btnResults').setAttribute("class", "btn btn-default");
-        byId('btnModels').setAttribute("class", "btn active");
         byId('models').style.display = 'block';
         d3.select("#rightpanel")
             .attr("class", "sidepanel container clearfix");
     } else if (tabid == "btnSetx") {
-        byId('btnModels').setAttribute("class", "btn btn-default");
-        byId('btnResults').setAttribute("class", "btn btn-default");
-        byId('btnSetx').setAttribute("class", "btn active");
         byId('setx').style.display = 'block';
-        if (righttab == "btnSetx" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
+        if (righttab == "btnSetx" || d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
             toggleR();
     } else if (tabid == "btnResults") {
-        byId('btnModels').setAttribute("class", "btn btn-default");
-        byId('btnSetx').setAttribute("class", "btn btn-default");
-        byId('btnResults').setAttribute("class", "btn active");
         byId('results').style.display = 'block';
-        if (estimated === false) {
+        if (estimated == false) {
             d3.select("#rightpanel")
                 .attr("class", "sidepanel container clearfix");
-        } else if (righttab == "btnResults" | d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
+        } else if (righttab == "btnResults" || d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
             toggleR();
     }
 
@@ -1644,8 +1635,8 @@ export function tabRight(tabid) {
 
     function toggleR() {
         d3.select("#rightpanel")
-            .attr("class", d => {
-                if (this.getAttribute("class") === "sidepanel container clearfix expandpanel")
+            .attr("class", function() {
+                if (this.getAttribute("class") == "sidepanel container clearfix expandpanel")
                     return "sidepanel container clearfix";
                 return "sidepanel container clearfix expandpanel";
             });

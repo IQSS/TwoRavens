@@ -147,23 +147,18 @@ function leftpanel() {
 }
 
 function rightpanel() {
+    let button = (id, width, text) => m(`button#${id}.btn.${app.righttab == id ? 'active' : 'btn-default'}[type=button]`, {
+        onclick: _ => app.tabRight(id),
+        style: {width: width}
+    }, text);
     return top(
         'right', 'Model Selection',
         m(".btn-group.btn-group-justified[aria-label=...][role=group]", {
             style: {"margin-top": ".5em"}
         }, [
-            m('button#btnModels.btn.active[type=button]', {
-                onclick: _ => app.tabRight('btnModels'),
-                style: {width: "33%"}
-            }, "Models"),
-            m('button#btnSetx.btn.btn-default[type=button]', {
-                onclick: _ => app.tabRight('btnSetx'),
-                style: {width: "34%"}
-            }, "Set Covar."),
-            m('button#btnResults.btn.btn-default[type=button]', {
-                onclick: _ => app.tabRight('btnResults'),
-                style: {width: "33%"}
-            }, "Results")
+            button('btnModels', "33%", "Models"),
+            button('btnSetx', "34%", "Set Covar."),
+            button('btnResults', "33%", "Results")
         ]),
         m('.row-fluid' + closepanel('right'),
           m('#rightpanelcontent',
