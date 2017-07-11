@@ -134,10 +134,10 @@ function leftpanel() {
                           style: {padding: ".5em 1em"},
                           title: "Select a variable from within the visualization in the center panel to view its summary statistics."
                       }, m('center', m('b', app.summary.name), m('br'), m('i', app.summary.labl)),
-                        m('table', app.summary.data.map(x => m('tr', {
+                        m('table', app.summary.data.map(x => m('tr', x.map(y => m('td', {
                             onmouseover: function() {this.style['background-color'] = 'aliceblue';},
                             onmouseout: function() {this.style['background-color'] = '#f9f9f9';}
-                        }, x.map(y => m('td', y)))))
+                        }, y)))))
                       )
                    )
                 ])
