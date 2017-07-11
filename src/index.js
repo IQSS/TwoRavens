@@ -169,7 +169,10 @@ function rightpanel() {
                 }
             }, [
                 m('#results', {
-                    style: {"margin-top": ".5em"}
+                    style: {
+                        display: app.righttab == 'btnResults' ? 'block' : 'none',
+                        'margin-top': ".5em"
+                    }
                 }, [
                     m("#resultsView.container", {
                         style: {
@@ -194,11 +197,11 @@ function rightpanel() {
                     })
                 ]),
                 m('#setx', {
-                    style: {display: "none"}
+                    style: {display: app.righttab == 'btnSetx' ? 'block' : 'none'}
                 }),
                 m('#models', {
                     style: {
-                        display: "block",
+                        display: app.righttab == 'btnModels' ? 'block' : 'none',
                         padding: "6px 12px",
                         "text-align": "center"
                     }

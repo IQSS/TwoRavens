@@ -1611,19 +1611,13 @@ export function tabLeft(tab) {
 }
 
 export function tabRight(tabid) {
-    byId('models').style.display = 'none';
-    byId('setx').style.display = 'none';
-    byId('results').style.display = 'none';
     if (tabid == "btnModels") {
-        byId('models').style.display = 'block';
         d3.select("#rightpanel")
             .attr("class", "sidepanel container clearfix");
     } else if (tabid == "btnSetx") {
-        byId('setx').style.display = 'block';
         if (righttab == "btnSetx" || d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
             toggleR();
     } else if (tabid == "btnResults") {
-        byId('results').style.display = 'block';
         if (estimated == false) {
             d3.select("#rightpanel")
                 .attr("class", "sidepanel container clearfix");
