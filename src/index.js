@@ -16,10 +16,12 @@ let Model = {
     toggleLegend: false
 };
 
-function subpanel(id, title, target, buttons={}) {
-    let toggle = 'toggle' + title;
+function subpanel(title, buttons={}) {
+    let id = title == "Legend" ? "legend.legendary" : "logdiv.logbox";
+    let [target, toggle] = ['collapse' + title, 'toggle' + title];
+    let z = app.zparams;
     return m(`#${id}.panel.panel-default`, {
-        style: {display: "none"}
+        style: {display: title == 'Legend' && z.ztime.length + z.zcross.length + z.zdv.length + z.znom.length ? 'block' : 'none'}
     }, [m(".panel-heading",
           m("h3.panel-title", [
               title,
@@ -320,13 +322,13 @@ class Body {
                       onclick: app.erase
                   }, m("span.glyphicon.glyphicon-magnet"))
               ]),
-              subpanel("legend.legendary", "Legend", "collapseLegend", {
+              subpanel("Legend", {
                   timeButton: 'Time',
                   csButton: 'Cross Sec',
                   dvButton: 'Dep Var',
                   nomButton: 'Nom Var'
               }),
-              subpanel("logdiv.logbox", "History", 'collapseLog'),
+              subpanel("History"),
               m('#ticker', {
                   style: {
                       background: "#F9F9F9",

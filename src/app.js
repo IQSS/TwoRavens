@@ -49,7 +49,7 @@ var myspace = 0;
 var forcetoggle = ["true"];
 var priv = true;
 
-var zparams = {
+export let zparams = {
     zdata: [],
     zedges: [],
     ztime: [],
@@ -1529,19 +1529,13 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
         if (names[0] == "warning") {
             warningcallback(btn);
             alert("Warning: " + json.warning);
-        } else {
-            callback(btn, json);
-        }
+        } else callback(btn, json);
     };
     xhr.onerror = function() {
         // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
-        if (xhr.status == 0) {
-            alert('There was an error making the request. xmlhttprequest status is 0.');
-        } else if (xhr.readyState != 4) {
-            alert('There was an error making the request. xmlhttprequest readystate is not 4.');
-        } else {
-            alert('Woops, there was an error making the request.');
-        }
+        if (xhr.status == 0) alert('There was an error making the request. xmlhttprequest status is 0.');
+        else if (xhr.readyState != 4) alert('There was an error making the request. xmlhttprequest readystate is not 4.');
+        else alert('Woops, there was an error making the request.');
         console.log(xhr);
         estimateLadda.stop();
         selectLadda.stop();
@@ -1550,20 +1544,19 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
 }
 
 function legend(c) {
-    byId("legend").setAttribute("style", "display:" + (zparams.ztime.length != 0 | zparams.zcross.length != 0 | zparams.zdv.length != 0 | zparams.znom.length != 0 ? 'block' : 'none'));
     let clearfix = (attr, id) => byId(id).setAttribute("class", 'clearfix' + (zparams[attr].length == 0 ? "hide" : "show"));
     clearfix('ztime', 'timeButton');
     clearfix('zcross', "csButton");
     clearfix('zdv', "dvButton");
     clearfix('znom', "nomButton");
     borderState();
+    m.redraw();
 }
 
 // programmatically deselecting every selected variable...
 export function erase() {
     leftpanelMedium();
     rightpanelMedium();
-    byId("legend").setAttribute("style", "display:none");
     tabLeft('tab1');
     jQuery.fn.d3Click = function() {
         this.children().each(function(i, e) {
