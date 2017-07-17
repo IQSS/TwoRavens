@@ -36,7 +36,7 @@ function subpanel(title, buttons={}) {
         ),
         m(`#${target}.panel-collapse.collapse.in`,
           m(".panel-body", Object.entries(buttons).map(x => {
-              return m(`#${x[0]}.clearfix.hide`, [
+              return m(`#${x[0]}.clearfix.${z[x[1][0]].length == 0 ? "hide" : "show"}`, [
                   m(".rectColor",
                     m("svg", {
                         style: {
@@ -45,7 +45,7 @@ function subpanel(title, buttons={}) {
                         }
                     }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
                    ),
-                  m(".rectLabel", x[1])
+                  m(".rectLabel", x[1][1])
               ]);
           })))
     ]);
@@ -323,10 +323,10 @@ class Body {
                   }, m("span.glyphicon.glyphicon-magnet"))
               ]),
               subpanel("Legend", {
-                  timeButton: 'Time',
-                  csButton: 'Cross Sec',
-                  dvButton: 'Dep Var',
-                  nomButton: 'Nom Var'
+                  timeButton: ['ztime', 'Time'],
+                  csButton: ['zcross', 'Cross Sec'],
+                  dvButton: ['zdv', 'Dep Var'],
+                  nomButton: ['znom', 'Nom Var']
               }),
               subpanel("History"),
               m('#ticker', {

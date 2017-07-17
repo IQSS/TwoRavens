@@ -1544,11 +1544,6 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
 }
 
 function legend(c) {
-    let clearfix = (attr, id) => byId(id).setAttribute("class", 'clearfix' + (zparams[attr].length == 0 ? "hide" : "show"));
-    clearfix('ztime', 'timeButton');
-    clearfix('zcross', "csButton");
-    clearfix('zdv', "dvButton");
-    clearfix('znom', "nomButton");
     borderState();
     m.redraw();
 }
