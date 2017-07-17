@@ -16,12 +16,11 @@ let Model = {
     toggleLegend: false
 };
 
-function panel(id, title, target, buttons={}) {
+function subpanel(id, title, target, buttons={}) {
     let toggle = 'toggle' + title;
     return m(`#${id}.panel.panel-default`, {
         style: {display: "none"}
-    }, [
-        m(".panel-heading",
+    }, [m(".panel-heading",
           m("h3.panel-title", [
               title,
               m(`span.glyphicon.glyphicon-large.glyphicon-chevron-${Model[toggle] ? 'up' : 'down'}.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
@@ -32,7 +31,7 @@ function panel(id, title, target, buttons={}) {
                   }
               })
           ])
-         ),
+        ),
         m(`#${target}.panel-collapse.collapse.in`,
           m(".panel-body", Object.entries(buttons).map(x => {
               return m(`#${x[0]}.clearfix.hide`, [
@@ -50,16 +49,16 @@ function panel(id, title, target, buttons={}) {
     ]);
 }
 
-let closepanel = side => {
+let closepanel = (val, side) => {
     if (Model[side + 'Closed'])
-        return '.closepanel';
-    return side == 'left' && app.lefttab == 'tab2' ? '.expandpanel' : '';
+        return val + '.closepanel';
+    return side == 'left' && app.lefttab == 'tab2' ? val + '.expandpanel' : val;
 };
 
 function top(side, title, ...args) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
-    return m(`#${side}panel.sidepanel.container.clearfix${closepanel(side)}`, [
+    return m(closepanel(`#${side}panel.sidepanel.container.clearfix`, side), [
         m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`,
           m('span', {
               onclick: _ => {
@@ -107,7 +106,7 @@ function leftpanel() {
                 style: {"pointer-events": "none"}
             }, "Select"))
         ]),
-        m('.row-fluid' + closepanel('left'),
+        m(closepanel('.row-fluid', 'left'),
             m('#leftpanelcontent',
                 m('#leftContentArea', {
                     style: {
@@ -160,7 +159,7 @@ function rightpanel() {
             button('btnSetx', "34%", "Set Covar."),
             button('btnResults', "33%", "Results")
         ]),
-        m('.row-fluid' + closepanel('right'),
+        m(closepanel('.row-fluid', 'right'),
           m('#rightpanelcontent',
             m('#rightContentArea', {
                 style: {
@@ -321,13 +320,13 @@ class Body {
                       onclick: app.erase
                   }, m("span.glyphicon.glyphicon-magnet"))
               ]),
-              panel("legend.legendary", "Legend", "collapseLegend", {
+              subpanel("legend.legendary", "Legend", "collapseLegend", {
                   timeButton: 'Time',
                   csButton: 'Cross Sec',
                   dvButton: 'Dep Var',
                   nomButton: 'Nom Var'
               }),
-              panel("logdiv.logbox", "History", 'collapseLog'),
+              subpanel("logdiv.logbox", "History", 'collapseLog'),
               m('#ticker', {
                   style: {
                       background: "#F9F9F9",
