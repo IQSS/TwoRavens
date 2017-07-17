@@ -16,7 +16,7 @@ let Model = {
     toggleLegend: false
 };
 
-function subpanel(title, buttons={}) {
+function subpanel(title, buttons=[]) {
     let id = title == "Legend" ? "legend.legendary" : "logdiv.logbox";
     let [target, toggle] = ['collapse' + title, 'toggle' + title];
     let z = app.zparams;
@@ -35,8 +35,8 @@ function subpanel(title, buttons={}) {
           ])
         ),
         m(`#${target}.panel-collapse.collapse.in`,
-          m(".panel-body", Object.entries(buttons).map(x => {
-              return m(`#${x[0]}.clearfix.${z[x[1][0]].length == 0 ? "hide" : "show"}`, [
+          m(".panel-body", buttons.map(x => {
+              return m(`#${x[0]}.clearfix.${z[x[1]].length == 0 ? "hide" : "show"}`, [
                   m(".rectColor",
                     m("svg", {
                         style: {
@@ -45,7 +45,7 @@ function subpanel(title, buttons={}) {
                         }
                     }, m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))
                    ),
-                  m(".rectLabel", x[1][1])
+                  m(".rectLabel", x[2])
               ]);
           })))
     ]);
@@ -322,12 +322,12 @@ class Body {
                       onclick: app.erase
                   }, m("span.glyphicon.glyphicon-magnet"))
               ]),
-              subpanel("Legend", {
-                  timeButton: ['ztime', 'Time'],
-                  csButton: ['zcross', 'Cross Sec'],
-                  dvButton: ['zdv', 'Dep Var'],
-                  nomButton: ['znom', 'Nom Var']
-              }),
+              subpanel("Legend", [
+                  ['timeButton', 'ztime', 'Time'],
+                  ['csButton', 'zcross', 'Cross Sec'],
+                  ['dvButton', 'zdv', 'Dep Var'],
+                  ['nomButton', 'znom', 'Nom Var']
+              ]),
               subpanel("History"),
               m('#ticker', {
                   style: {
