@@ -1748,35 +1748,30 @@ function leftpanelMedium() {
         .attr("class", "sidepanel container clearfix");
 }
 
-// function to convert color codes
+// converts color codes
 function hexToRgba(hex) {
     var int = parseInt(hex.replace('#', ''), 16);
     return `rgba(${[(int >> 16) & 255, (int >> 8) & 255, int & 255, '0.5'].join(',')})`;
 }
 
-// function takes a node and a color and updates zparams
+// takes node and color and updates zparams
 function setColors(n, c) {
-    if (n.strokeWidth == '1') { // adding time, cs, dv, nom to a node with no stroke
+    if (n.strokeWidth == '1') {
+        // adding time, cs, dv, nom to node with no stroke
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
-        if (dvColor == c) {
-            // check if array, if not, make it an array
-            // console.log(Object.prototype.toString.call(zparams.zdv));
-            zparams.zdv = Object.prototype.toString.call(zparams.zdv) == "[object Array]" ? zparams.zdv : [];
-            zparams.zdv.push(n.name);
-        } else if (csColor == c) {
-            zparams.zcross = Object.prototype.toString.call(zparams.zcross) == "[object Array]" ? zparams.zcross : [];
-            zparams.zcross.push(n.name);
-        } else if (timeColor == c) {
-            zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
-            zparams.ztime.push(n.name);
-        } else if (nomColor == c) {
-            zparams.znom = Object.prototype.toString.call(zparams.znom) == "[object Array]" ? zparams.znom : [];
-            zparams.znom.push(n.name);
-            allNodes[findNodeIndex(n.name)].nature = "nominal";
-            transform(n.name, t = null, typeTransform = true);
-        }
+        let push = ([color, key]) => {
+            if (color != c)
+                return;
+            zparams[key] = Array.isArray(zparams[key]) ? zparams[key] : [];
+            zparams[key].push(n.name);
+            if (key == 'znom') {
+                allNodes[findNodeIndex(n.name)].nature = "nominal";
+                transform(n.name, t = null, typeTransform = true);
+            }
+        };
+        [[dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']].forEach(push);
         d3.select("#tab1").select("p#".concat(n.name))
             .style('background-color', hexToRgba(c));
     } else if (n.strokeWidth == '4') {
