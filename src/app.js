@@ -92,14 +92,10 @@ export function main(fileid, hostname, ddiurl, dataurl) {
         throw new Error("Error: No fileid has been provided.");
     }
 
-    var dataverseurl = "";
-    if (hostname) {
-        dataverseurl = "https://" + hostname;
-    } else if (production) {
-        dataverseurl = "%PRODUCTION_DATAVERSE_URL%";
-    } else {
-        dataverseurl = "http://localhost:8080";
-    }
+    let dataverseurl = '';
+    if (hostname) dataverseurl = "https://" + hostname;
+    else if (production) dataverseurl = "%PRODUCTION_DATAVERSE_URL%";
+    else dataverseurl = "http://localhost:8080";
 
     if (fileid && !dataurl) {
         // file id supplied; assume we are dealing with dataverse and cook a standard dataverse data access url
@@ -137,9 +133,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
         .outerRadius(allR + 20)
         .startAngle(start)
         .endAngle(end);
-    let arc0 = arc(0, 3.2);
-    var arc1 = arc(0, 1);
-    var arc2 = arc(1.1, 2.2);
+    let [arc0, arc1, arc2] = [arc(0, 3.2), arc(0, 1), arc(1.1, 2.2)];
     arc3 = arc(2.3, 3.3);
     arc4 = arc(4.3, 5.3);
 
@@ -392,7 +386,7 @@ function scaffolding(callback) {
         .attr("data-content", d => mods[d]);
 
     // call layout() because at this point all scaffolding is up and ready
-    if (typeof callback === "function") callback();
+    if (typeof callback == "function") callback();
 }
 
 let splice = (color, text, ...args) => {
@@ -737,7 +731,6 @@ function layout(v) {
                 d3.event.stopPropagation();
 
                 rightClickLast = true;
-
                 mousedown_node = d;
                 if (mousedown_node === selected_node) selected_node = null;
                 else selected_node = mousedown_node;
