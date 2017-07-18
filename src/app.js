@@ -16,7 +16,7 @@ import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 // local files if nothing is supplied.
 
 var production = false;
-var rappURL = (production ? 'https://beta.dataverse.org/' : 'http://0.0.0.0:8000/') + '/custom/';
+var rappURL = (production ? 'https://beta.dataverse.org' : 'http://0.0.0.0:8000') + '/custom/';
 
 // initial color scale used to establish the initial colors of nodes
 // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field

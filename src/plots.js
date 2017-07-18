@@ -241,7 +241,7 @@ export function density(node, div, priv) {
         var handle = slider.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .7 + ")")
-            .attr("points", d => {
+            .attr("points", _ => {
                 let s = 6;
                 let xnm = node.setxvals[0] == '' ? x(node.mean) : x(node.setxvals[0]);
                 return (xnm - s) + "," + (-s) + " " + (xnm + s) + "," + (-s) + " " + xnm + "," + (s * 1.3);
@@ -252,7 +252,7 @@ export function density(node, div, priv) {
         var handle2 = slider2.append("polygon")
             .attr("class", "handle")
             .attr("transform", "translate(0," + height * .9 + ")")
-            .attr("points", d => {
+            .attr("points", _ => {
                 let s = 6;
                 let xnm = node.setxvals[1] == '' ? x(node.mean) : x(node.setxvals[1]);
                 return (xnm - s) + "," + s + " " + (xnm + s) + "," + s + " " + xnm + "," + (-s * 1.3);
@@ -289,15 +289,12 @@ export function density(node, div, priv) {
                 var sd = +node.sd;
                 var zScore = (value - m) / sd; // z-score
                 var zRound = Math.round(zScore); // nearest integer z-score
-                if (.1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+                if (.1 > Math.abs(zRound - zScore)) // snap to integer z-score
                     xpos = x(m + (zRound * sd));
-                }
             }
 
             // create slider symbol and text
-            handle.attr("points", function(d) {
-                return (xpos - s) + "," + (-s) + " " + (xpos + s) + "," + (-s) + " " + xpos + "," + (s * 1.3);
-            });
+            handle.attr("points", _ => (xpos - s) + "," + (-s) + " " + (xpos + s) + "," + (-s) + " " + xpos + "," + (s * 1.3));
             plotsvg.select("text#range")
                 .text(() => "x: ".concat((invx(xpos)).toPrecision(4)));
             node.setxvals[1] = (invx(xpos)).toPrecision(4);
@@ -305,7 +302,7 @@ export function density(node, div, priv) {
     }
 
     // certainly a more clever way to do this, but for now it's basically copied with brush and handle changes to brush2 and handle2 and #range to #range2 and setxvals[0] to setxvals[1]
-    function brushed2() { 
+    function brushed2() {
         var value = brush2.extent()[0];
         var s = 6; // scaling for triangle shape
 
@@ -325,15 +322,12 @@ export function density(node, div, priv) {
             var sd = +node.sd;
             var zScore = (value - m) / sd; // z-score
             var zRound = Math.round(zScore); // nearest integer z-score
-            if (.1 > Math.abs(zRound - zScore)) { // snap to integer z-score
+            if (.1 > Math.abs(zRound - zScore)) // snap to integer z-score
                 xpos = x(m + (zRound * sd));
-            }
         }
 
         // create slider symbol and text
-        handle2.attr("points", function(d) {
-            return (xpos - s) + "," + s + " " + (xpos + s) + "," + s + " " + xpos + "," + (-s * 1.3);
-        });
+        handle2.attr("points", _ => (xpos - s) + "," + s + " " + (xpos + s) + "," + s + " " + xpos + "," + (-s * 1.3));
         plotsvg.select("text#range2")
             .text(() => "x1: ".concat((invx(xpos)).toPrecision(4)));
         node.setxvals[1] = (invx(xpos)).toPrecision(4);
@@ -356,12 +350,11 @@ export function bars(node, div, priv) {
     var xVals = new Array;
     var yValKey = new Array;
 
-    if (node.nature === "nominal") {
+    if (node.nature == "nominal") {
         var xi = 0;
         for (var i = 0; i < keys.length; i++) {
-            if (node.plotvalues[keys[i]] == 0) {
+            if (node.plotvalues[keys[i]] == 0)
                 continue;
-            }
             yVals[xi] = node.plotvalues[keys[i]];
             xVals[xi] = xi;
             if (priv) {
@@ -378,18 +371,10 @@ export function bars(node, div, priv) {
             });
             xi = xi + 1;
         }
-        yValKey.sort(function(a, b) {
-            return b.y - a.y
-        }); // array of objects, each object has y, the same as yVals, and x, the category
-        yVals.sort(function(a, b) {
-            return b - a
-        }); // array of y values, the height of the bars
-        ciUpperVals.sort(function(a, b) {
-            return b.y - a.y
-        }); // ?
-        ciLowerVals.sort(function(a, b) {
-            return b.y - a.y
-        }); // ?
+        yValKey.sort((a, b) => b.y - a.y); // array of objects, each object has y, the same as yVals, and x, the category
+        yVals.sort((a, b) => b - a); // array of y values, the height of the bars
+        ciUpperVals.sort((a, b) => b.y - a.y); // ?
+        ciLowerVals.sort((a, b) => b.y - a.y); // ?
     } else {
         for (var i = 0; i < keys.length; i++) {
             console.log("plotvalues in bars");
@@ -406,31 +391,21 @@ export function bars(node, div, priv) {
         }
     }
 
-    if ((yVals.length > 15 & node.numchar === "numeric") | (yVals.length > 5 & node.numchar === "character")) {
+    if ((yVals.length > 15 & node.numchar == "numeric") || (yVals.length > 5 & node.numchar == "character"))
         plotXaxis = false;
-    }
     var maxY = d3.max(yVals); // in the future, set maxY to the value of the maximum confidence limit
-    if (priv) {
-        if (node.plotvaluesCI) {
-            var maxCI = d3.max(ciUpperVals);
-            maxY = maxCI;
-        };
-    };
+    if (priv && node.plotvaluesCI) maxY = d3.max(ciUpperVals);
     var minX = d3.min(xVals);
     var maxX = d3.max(xVals);
 
-    var mydiv;
-    if (div == "setx") {
-        mydiv = "#setx";
-    } else if (div == "varSummary") {
-        mydiv = "#tab3";
-    } else {
+    let mydiv;
+    if (div == "setx") mydiv = "#setx";
+    else if (div == "varSummary") mydiv = "#tab3";
+    else
         return alert("Error: incorrect div selected for plots");
-    }
 
     var tempWidth = d3.select(mydiv).style("width")
     var width = tempWidth.substring(0, (tempWidth.length - 2));
-
     var tempHeight = d3.select(mydiv).style("height")
     var height = tempHeight.substring(0, (tempHeight.length - 2));
 
