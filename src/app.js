@@ -395,9 +395,9 @@ function scaffolding(callback) {
     if (typeof callback === "function") callback();
 }
 
-let splice = (text, ...args) => {
+let splice = (color, text, ...args) => {
     args.forEach(x => {
-        if (allNodes[findNodeIndex(text)].strokeColor != x[0])
+        if (color != x[0])
             return;
         let idx = zparams[x[1]].indexOf(text);
         idx > -1 && zparams[x[1]].splice(idx, 1);
@@ -560,8 +560,9 @@ function layout(v) {
                         // dropping a variable
                         nodes.splice(findNode(text).index, 1);
                         spliceLinksForNode(findNode(text));
-                        splice(text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-                        nodeReset(allNodes[findNodeIndex(text)]);
+                        let node = allNodes[findNodeIndex(text)];
+                        splice(node.strokeColor, text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+                        nodeReset(node);
                         legend();
                         return varColor;
                     }
@@ -1782,46 +1783,20 @@ function setColors(n, c) {
             n.nodeCol = colors(n.id);
             d3.select("#tab1").select("p#".concat(n.name))
                 .style('background-color', hexToRgba(selVarColor));
-
-            if (dvColor == c) {
-                var dvIndex = zparams.zdv.indexOf(n.name);
-                if (dvIndex > -1) zparams.zdv.splice(dvIndex, 1);
-            } else if (csColor == c) {
-                var csIndex = zparams.zcross.indexOf(n.name);
-                if (csIndex > -1) zparams.zcross.splice(csIndex, 1);
-            } else if (timeColor == c) {
-                var timeIndex = zparams.ztime.indexOf(n.name);
-                if (timeIndex > -1) zparams.ztime.splice(timeIndex, 1);
-            } else if (nomColor == c) {
-                var nomIndex = zparams.znom.indexOf(n.name);
-                if (nomIndex > -1) {
-                    zparams.znom.splice(nomIndex, 1);
-                    allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
-                    transform(n.name, t = null, typeTransform = true);
-                }
+            splice(c, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+            if (nomColor == c && zparams.znom.indexOf(n.name) > -1) {
+                allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
+                transform(n.name, t = null, typeTransform = true);
             }
         } else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
-            if (dvColor == n.strokeColor) {
-                var dvIndex = zparams.zdv.indexOf(n.name);
-                if (dvIndex > -1) zparams.zdv.splice(dvIndex, 1);
-            } else if (csColor == n.strokeColor) {
-                var csIndex = zparams.zcross.indexOf(n.name);
-                if (csIndex > -1) zparams.zcross.splice(csIndex, 1);
-            } else if (timeColor == n.strokeColor) {
-                var timeIndex = zparams.ztime.indexOf(n.name);
-                if (timeIndex > -1) zparams.ztime.splice(timeIndex, 1);
-            } else if (nomColor == n.strokeColor) {
-                var nomIndex = zparams.znom.indexOf(n.name);
-                if (nomIndex > -1) {
-                    zparams.znom.splice(nomIndex, 1);
-                    allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
-                    transform(n.name, t = null, typeTransform = true);
-                }
+            splice(n.strokeColor, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+            if (nomColor == n.strokeColor && zparams.znom.indexOf(n.name) > -1) {
+                allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
+                transform(n.name, t = null, typeTransform = true);
             }
             n.strokeColor = c;
             d3.select("#tab1").select("p#".concat(n.name))
                 .style('background-color', hexToRgba(c));
-
             if (dvColor == c) zparams.zdv.push(n.name);
             else if (csColor == c) zparams.zcross.push(n.name);
             else if (timeColor == c) zparams.ztime.push(n.name);
