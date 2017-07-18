@@ -306,7 +306,13 @@ class Body {
                         m('#transformations.transformTool', {
                             title: 'Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you can enter "log(d)" or "d^2".'
                         })
-                    ])
+                    ]),
+                    m('.text-center', {
+                        style: {margin: '5px'}
+                    }, m(".btn-group", [
+                        m(`a.btn.btn-default${location.href.endsWith('model') ? '.active' : ''}[href=/model][role=button]`, {oncreate: m.route.link}, "Model"),
+                        m(`a.btn.btn-default${location.href.endsWith('explore') ? '.active' : ''}[href=/explore][role=button]`, {oncreate: m.route.link}, "Explore")
+                    ]))
                 ])
             ),
             m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}`,
@@ -345,4 +351,7 @@ class Body {
     }
 }
 
-m.mount(document.body, Body);
+m.route(document.body, '/model', {
+    '/model': Body,
+    '/explore': Body
+});
