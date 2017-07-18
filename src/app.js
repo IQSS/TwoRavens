@@ -394,6 +394,15 @@ function scaffolding(callback) {
     if (typeof callback === "function") callback();
 }
 
+let splice = (text, ...args) => {
+    args.forEach(x => {
+        if (allNodes[findNodeIndex(text)].strokeColor != x[0])
+            return;
+        let idx = zparams[x[1]].indexOf(text);
+        idx > -1 && zparams[x[1]].splice(idx, 1);
+    });
+};
+
 function layout(v) {
     var myValues = [];
     nodes = [];
@@ -527,7 +536,7 @@ function layout(v) {
         circle.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
     }
 
-    //  add listeners to leftpanel.left. every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
+    // add listeners to leftpanel.left. every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
     d3.select("#tab1").selectAll("p")
         .on("mouseover", d => {
             $("body div.popover")
@@ -540,36 +549,18 @@ function layout(v) {
                 return null;
             d3.select(this)
                 .style('background-color', function(d) {
-                    var myText = d3.select(this).text();
-                    var myColor = d3.select(this).style('background-color');
-                    var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-
-                    zparams.zvars = []; //empty the zvars array
-                    if (d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
-                        if (nodes.length == 0) {
-                            nodes.push(findNode(myText));
-                            nodes[0].reflexive = true;
-                        } else {
-                            nodes.push(findNode(myText));
-                        }
+                    zparams.zvars = [];
+                    let text = d3.select(this).text();
+                    if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
+                        nodes.push(findNode(text));
+                        if (nodes.length == 0) nodes[0].reflexive = true;
                         return hexToRgba(selVarColor);
-                    } else { // dropping a variable
-                        nodes.splice(findNode(myText).index, 1);
-                        spliceLinksForNode(findNode(myText));
-
-                        let splice = (val, key) => {
-                            if (mySC != val)
-                                return;
-                            let idx = zparams[key].indexOf(myText);
-                            idx > -1 && zparams[key].splice(idx, 1);
-                        };
-                        splice(dvColor, 'zdv') ;
-                        splice(csColor, 'zcross');
-                        splice(timeColor, 'ztime');
-                        splice(nomColor, 'znom');
-
-                        nodeReset(allNodes[findNodeIndex(myText)]);
-                        borderState();
+                    } else {
+                        // dropping a variable
+                        nodes.splice(findNode(text).index, 1);
+                        spliceLinksForNode(findNode(text));
+                        splice(text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+                        nodeReset(allNodes[findNodeIndex(text)]);
                         legend();
                         return varColor;
                     }
@@ -1423,47 +1414,18 @@ function scaffoldingPush(v) { // adding a variable to the variable list after a 
         .on("click", function varClick() { // we've added a new variable, so we need to add the listener
             d3.select(this)
                 .style('background-color', function(d) {
-                    var myText = d3.select(this).text();
-                    var myColor = d3.select(this).style('background-color');
-                    var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-
-                    zparams.zvars = []; //empty the zvars array
-                    if (d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
-                        if (nodes.length == 0) {
-                            nodes.push(findNode(myText));
-                            nodes[0].reflexive = true;
-                        } else {
-                            nodes.push(findNode(myText));
-                        }
+                    zparams.zvars = [];
+                    let text = d3.select(this).text();
+                    if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
+                        nodes.push(findNode(text));
+                        if (nodes.length == 0) nodes[0].reflexive = true;
                         return hexToRgba(selVarColor);
-                    } else { // dropping a variable
-
-                        nodes.splice(findNode(myText).index, 1);
-                        spliceLinksForNode(findNode(myText));
-
-                        if (mySC == dvColor) {
-                            var dvIndex = zparams.zdv.indexOf(myText);
-                            if (dvIndex > -1) {
-                                zparams.zdv.splice(dvIndex, 1);
-                            }
-                        } else if (mySC == csColor) {
-                            var csIndex = zparams.zcross.indexOf(myText);
-                            if (csIndex > -1) {
-                                zparams.zcross.splice(csIndex, 1);
-                            }
-                        } else if (mySC == timeColor) {
-                            var timeIndex = zparams.ztime.indexOf(myText);
-                            if (timeIndex > -1) {
-                                zparams.ztime.splice(dvIndex, 1);
-                            }
-                        } else if (mySC == nomColor) {
-                            var nomIndex = zparams.znom.indexOf(myText);
-                            if (nomIndex > -1) {
-                                zparams.znom.splice(dvIndex, 1);
-                            }
-                        }
-
-                        nodeReset(allNodes[findNodeIndex(myText)]);
+                    } else {
+                        // dropping a variable
+                        nodes.splice(findNode(text).index, 1);
+                        spliceLinksForNode(findNode(text));
+                        splice(text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+                        nodeReset(allNodes[findNodeIndex(text)]);
                         borderState();
                         return varColor;
                     }
@@ -1788,13 +1750,8 @@ function leftpanelMedium() {
 
 // function to convert color codes
 function hexToRgba(hex) {
-    var h = hex.replace('#', '');
-    var bigint = parseInt(h, 16);
-    var r = (bigint >> 16) & 255;
-    var g = (bigint >> 8) & 255;
-    var b = bigint & 255;
-    var a = '0.5';
-    return 'rgba(' + [r, g, b, a].join(',') + ')';
+    var int = parseInt(hex.replace('#', ''), 16);
+    return `rgba(${[(int >> 16) & 255, (int >> 8) & 255, int & 255, '0.5'].join(',')})`;
 }
 
 // function takes a node and a color and updates zparams
@@ -1805,7 +1762,7 @@ function setColors(n, c) {
         n.nodeCol = taggedColor;
         if (dvColor == c) {
             // check if array, if not, make it an array
-            //  console.log(Object.prototype.toString.call(zparams.zdv));
+            // console.log(Object.prototype.toString.call(zparams.zdv));
             zparams.zdv = Object.prototype.toString.call(zparams.zdv) == "[object Array]" ? zparams.zdv : [];
             zparams.zdv.push(n.name);
         } else if (csColor == c) {
