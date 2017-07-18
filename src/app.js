@@ -37,8 +37,9 @@ export let summaryHold = false;
 export let righttab = 'btnModels'; // current tab in right panel
 
 // transformation toolbar options
-var transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split();
-var transformVar = '';
+let t, typeTransform;
+let transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split(' ');
+let transformVar = '';
 
 // Radius of circle
 var allR = 40;
@@ -313,7 +314,7 @@ function scaffolding(callback) {
         return false;
     });
 
-    var n, typeTransform;
+    var n;
     $('#tInput').keyup(evt => {
         var t = byId('transSel').style.display;
         var t1 = byId('transList').style.display;
