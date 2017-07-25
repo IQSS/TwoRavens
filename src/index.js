@@ -60,8 +60,9 @@ let closepanel = (val, side) => {
 function top(side, title, ...args) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
-    return m(closepanel(`#${side}panel.sidepanel.container.clearfix`, side), [
-        m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`,
+    let style = {style: 'height:calc(100^ - 60px)'};
+    return m(closepanel(`#${side}panel.sidepanel.container.clearfix`, style, side), [
+        m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`, style,
           m('span', {
               onclick: _ => {
                   let key = side + 'Closed';
@@ -85,9 +86,7 @@ function leftpanel() {
                 "margin-top": ".5em"
             }
         }, [
-            m(".btn-group", {
-                style: {"margin-left": "0"}
-            }, [
+            m(".btn-group", [
                 m(`button#btnVariables.btn.${tab('tab1', 'active', 'btn-default')}[type=button]`, {
                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
                     onclick: _ => app.tabLeft('tab1')
@@ -112,8 +111,8 @@ function leftpanel() {
             m('#leftpanelcontent',
                 m('#leftContentArea', {
                     style: {
-                        height: "488px",
-                        overflow: "scroll"
+                        height: '453px',
+                        overflow: 'auto'
                     }
                 }, [
                     m('#tab1', {
@@ -165,8 +164,8 @@ function rightpanel() {
           m('#rightpanelcontent',
             m('#rightContentArea', {
                 style: {
-                    height: "488px",
-                    overflow: "scroll"
+                    height: '453px',
+                    overflow: 'auto'
                 }
             }, [
                 m('#results', {
@@ -307,15 +306,16 @@ class Body {
                             title: 'Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you can enter "log(d)" or "d^2".'
                         })
                     ]),
-                    m('.text-center', {
+                    /*m('.text-center', {
                         style: {margin: '5px'}
                     }, m(".btn-group", [
                         m(`a.btn.btn-default${location.href.endsWith('model') ? '.active' : ''}[href=/model][role=button]`, {oncreate: m.route.link}, "Model"),
                         m(`a.btn.btn-default${location.href.endsWith('explore') ? '.active' : ''}[href=/explore][role=button]`, {oncreate: m.route.link}, "Explore")
-                    ]))
+                    ]))*/
                 ])
             ),
             m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}`,
+              {overflow: 'auto'},
               m("#innercarousel.carousel-inner",
                 m('#m0.item.active', m('svg#whitespace'))),
               m("#spacetools.spaceTool", {
@@ -339,9 +339,10 @@ class Body {
                   style: {
                       background: "#F9F9F9",
                       bottom: "0",
-                      height: "50px",
+                      height: "40px",
                       position: "fixed",
-                      width: "100%"
+                      width: "100%",
+                      'border-top': '1px solid #ADADAD`'
                   }
               }, m("a#logID[href=somelink][target=_blank]", "Replication")),
               leftpanel(),

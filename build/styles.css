@@ -177,7 +177,7 @@ div.sidepanel div.panelbar {
 div.sidepanel div.panelbar span {
   display: block;
   width:16px;
-  height:576px;
+  height:533px;
   text-align: center;
   padding-top:258px;
   font-size:.75em;
@@ -188,7 +188,7 @@ div.sidepanel div.panelbar span {
 #main {
     border:1px solid #ADADAD;
     width: 100%;
-    margin-bottom:50px;   /* This is the hard coded height of the ticker div.  Was 160px; which gave too much padding and empty bottom space.*/
+    margin-bottom:0px;   /* This is the hard coded height of the ticker div.  Was 160px; which gave too much padding and empty bottom space.*/
     position: relative;
 }
 
