@@ -50,6 +50,7 @@ var myspace = 0;
 var forcetoggle = ["true"];
 var priv = true;
 
+export let logArray = [];
 export let zparams = {
     zdata: [],
     zedges: [],
@@ -74,7 +75,6 @@ var allNodes = [];
 var allResults = [];
 var nodes = [];
 var links = [];
-var logArray = [];
 var mods = {};
 var estimated = false;
 var rightClickLast = false;
@@ -1014,12 +1014,9 @@ export function estimate(btn) {
     function estimateSuccess(btn, json) {
         estimateLadda.stop(); // stop spinner
         allResults.push(json);
-        console.log(allResults);
         console.log("json in: ", json);
 
-        var myparent = byId("results");
-        if (estimated == false)
-            myparent.removeChild(byId("resultsHolder"));
+        if (!estimated) byId("results").removeChild(byId("resultsHolder"));
 
         estimated = true;
         d3.select("#results")
@@ -1034,8 +1031,7 @@ export function estimate(btn) {
         // programmatic click on Results button
         $("#btnResults").trigger("click");
 
-        modelCount = modelCount + 1;
-        var model = "Model".concat(modelCount);
+        let model = "Model".concat(modelCount = modelCount + 1);
 
         function modCol() {
             d3.select("#modelView")
@@ -1052,7 +1048,7 @@ export function estimate(btn) {
             .on("click", function() {
                 var a = this.style.backgroundColor.replace(/\s*/g, "");
                 var b = hexToRgba(selVarColor).replace(/\s*/g, "");
-                if (a.substr(0, 17) === b.substr(0, 17))
+                if (a.substr(0, 17) == b.substr(0, 17))
                     return; // escape function if displayed model is clicked
                 modCol();
                 d3.select(this)
@@ -1060,10 +1056,9 @@ export function estimate(btn) {
                 viz(this.id);
             });
 
-        var rCall = [];
+        let rCall = [];
         rCall[0] = json.call;
-        logArray.push("estimate: ".concat(rCall[0]));
-        showLog();
+        showLog("estimate", rCall);
 
         viz(model);
     }
@@ -1119,10 +1114,9 @@ function viz(m) {
             parent.removeChild(parent.firstChild);
     }
 
-    var myparent = byId("resultsView");
-    removeKids(myparent);
+    removeKids(byId("resultsView"));
 
-    var json = allResults[mym];
+    let json = allResults[mym];
 
     // pipe in figures to right panel
     var filelist = new Array;
@@ -1374,9 +1368,7 @@ function transform(n, t, typeTransform) {
                 }
             });
 
-            // update the log
-            logArray.push("transform: ".concat(rCall[0]));
-            showLog();
+            showLog('transform', rCall);
         }
     }
 
@@ -1936,8 +1928,7 @@ export function subsetSelect(btn) {
             }
         }
 
-        logArray.push("subset: ".concat(rCall[0]));
-        showLog();
+        showLog('subset', rCall);
         reWriteLog();
 
         d3.select("#innercarousel")
@@ -2009,17 +2000,9 @@ function rePlot() {
     allNodes.forEach(n => n.setxplot = n.subsetplot = false);
 }
 
-function showLog() {
-    if (logArray.length > 0) {
-        byId('logdiv').setAttribute("style", "display:block");
-        d3.select("#collapseLog div.panel-body").selectAll("p")
-            .data(logArray)
-            .enter()
-            .append("p")
-            .text(d => d);
-	      return;
-    }
-    byId('logdiv').setAttribute("style", "display:none");
+let showLog = (val, rCall) => {
+    logArray.push((val + ': ').concat(rCall[0]));
+    m.redraw();
 }
 
 function reWriteLog() {

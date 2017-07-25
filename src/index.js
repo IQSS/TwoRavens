@@ -17,11 +17,11 @@ let Model = {
 };
 
 function subpanel(title, buttons=[]) {
-    let id = title == "Legend" ? "legend.legendary" : "logdiv.logbox";
+    let legend = title == "Legend";
     let [target, toggle] = ['collapse' + title, 'toggle' + title];
     let z = app.zparams;
-    return m(`#${id}.panel.panel-default`, {
-        style: {display: title == 'Legend' && z.ztime.length + z.zcross.length + z.zdv.length + z.znom.length ? 'block' : 'none'}
+    return m(`#${legend ? "legend.legendary" : "logdiv.logbox"}.panel.panel-default`, {
+        style: {display: legend && z.ztime.length + z.zcross.length + z.zdv.length + z.znom.length || !legend && app.logArray.length > 0 ? 'block' : 'none'}
     }, [m(".panel-heading",
           m("h3.panel-title", [
               title,
@@ -35,7 +35,7 @@ function subpanel(title, buttons=[]) {
           ])
         ),
         m(`#${target}.panel-collapse.collapse.in`,
-          m(".panel-body", buttons.map(x => {
+          m(".panel-body", !legend ? app.logArray.map(x => m('p', x)) : buttons.map(x => {
               return m(`#${x[0]}.clearfix.${z[x[1]].length == 0 ? "hide" : "show"}`, [
                   m(".rectColor",
                     m("svg", {
