@@ -118,7 +118,7 @@ function leftpanel() {
                     m('#tab1', {
                         style: {
                             display: tab('tab1', 'block', 'none'),
-                            padding: "6px 12px",
+                            padding: "10px 8px",
                             "text-align": "center"
                         }
                     }),
@@ -306,7 +306,7 @@ class Body {
                       display: Model.about ? 'block' : 'none',
                       left: "140px",
                       position: "absolute",
-                      width: "380px",
+                      width: "500px",
                       "z-index": "50"
                   }
               }, m('.panel-body',
