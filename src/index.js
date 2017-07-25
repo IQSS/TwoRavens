@@ -60,7 +60,7 @@ let closepanel = (val, side) => {
 function top(side, title, ...args) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
-    let style = {style: 'height:calc(100^ - 60px)'};
+    let style = {style: {height: 'calc(100% - 60px)'}};
     return m(closepanel(`#${side}panel.sidepanel.container.clearfix`, style, side), [
         m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`, style,
           m('span', {
@@ -241,7 +241,7 @@ class Body {
     view() {
         return m('main',
             m("nav#navbar.navbar.navbar-default.navbar-fixed-top[role=navigation]",
-              m("a.navbar-brand", {style: 'margin-left: 0'}, [
+              m("a.navbar-brand", {style: {'margin-left': 0}}, [
                   m("img[src=images/TwoRavens.png][alt=TwoRavens][width=100]", {
                       onmouseover: _ => Model.about = true,
                       onmouseout: _ => Model.about = false,
@@ -251,7 +251,7 @@ class Body {
                       }
                   })
               ]),
-              m("#navbarNav", [
+              m("#navbarNav", {style: {padding: '0.5em'}}, [
                   m('#dataField.field', {
                       style: {
                           "margin-top": "0.5em",
