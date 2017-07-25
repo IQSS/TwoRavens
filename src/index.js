@@ -240,79 +240,79 @@ class Body {
 
     view() {
         return m('main',
-            m("nav#option.navbar.navbar-default[role=navigation]",
-                m("div", [
-                    m("#navbarheader.navbar-header", [
-                        m("img[alt=TwoRavens][src=images/TwoRavens.png][width=100]", {
-                            onmouseover: _ => Model.about = true,
-                            onmouseout: _ => Model.about = false,
-                            style: {
-                                "margin-left": "2em",
-                                "margin-top": "-0.5em"
-                            }
-                        }),
-                        m('#about.panel.panel-default', {
-                            style: {
-                                display: Model.about ? 'block' : 'none',
-                                left: "140px",
-                                position: "absolute",
-                                width: "380px",
-                                "z-index": "50"
-                            }
-                        }, m('.panel-body',
-                             'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'
-                            ))
-                    ]),
-                    m('#dataField.field', {
+            m("nav#navbar.navbar.navbar-default.navbar-fixed-top[role=navigation]",
+              m("a.navbar-brand", {style: 'margin-left: 0'}, [
+                  m("img[src=images/TwoRavens.png][alt=TwoRavens][width=100]", {
+                      onmouseover: _ => Model.about = true,
+                      onmouseout: _ => Model.about = false,
+                      style: {
+                          "margin-left": "2em",
+                          "margin-top": "-0.5em"
+                      }
+                  })
+              ]),
+              m("#navbarNav", [
+                  m('#dataField.field', {
+                      style: {
+                          "margin-top": "0.5em",
+                          "text-align": "center"
+                      }
+                  }, m('h4#dataName', {
+                      onclick: _ => Model.cite = Model.citetoggle = !Model.citetoggle,
+                      onmouseout: _ => Model.citetoggle || (Model.cite = false),
+                      onmouseover: _ => Model.cite = true,
+                      style: {display: "inline"}
+                    }, "Dataset Name"),
+                    m("#cite.panel.panel-default", {
                         style: {
-                            "margin-top": "0.5em",
-                            "text-align": "center"
+                            display: Model.cite ? 'block' : 'none',
+                            position: "absolute",
+                            right: "50%",
+                            width: "380px",
+                            "text-align": "left",
+                            "z-index": "50"
                         }
-                    }, [
-                        m('h4#dataName', {
-                            onclick: _ => Model.cite = Model.citetoggle = !Model.citetoggle,
-                            onmouseout: _ => Model.citetoggle || (Model.cite = false),
-                            onmouseover: _ => Model.cite = true,
-                            style: {display: "inline"}
-                        }, "Dataset Name"),
-                        m("#cite.panel.panel-default", {
-                            style: {
-                                display: Model.cite ? 'block' : 'none',
-                                position: "absolute",
-                                right: "50%",
-                                width: "380px",
-                                "text-align": "left",
-                                "z-index": "50"
-                            }
-                        }, m(".panel-body")),
-                        m("button#btnEstimate.btn.btn-default.ladda-button.navbar-right[data-spinner-color=#000000][data-style=zoom-in]", {
-                            onclick: _ => app.estimate('btnEstimate'),
-                            style: {
-                                "margin-left": "2em",
-                                "margin-right": "1em"
-                            }
-                        }, m("span.ladda-label", "Estimate")),
-                        m("button#btnReset.btn.btn-default.navbar-right[title=Reset]", {
-                            onclick: app.reset,
-                            style: {"margin-left": "2.0em"}
-                        }, m("span.glyphicon.glyphicon-repeat", {
-                            style: {
-                                color: "#818181",
-                                "font-size": "1em",
-                                "pointer-events": "none"
-                            }
-                        })),
-                        m('#transformations.transformTool', {
-                            title: 'Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you can enter "log(d)" or "d^2".'
-                        })
-                    ]),
-                    /*m('.text-center', {
-                        style: {margin: '5px'}
-                    }, m(".btn-group", [
-                        m(`a.btn.btn-default${location.href.endsWith('model') ? '.active' : ''}[href=/model][role=button]`, {oncreate: m.route.link}, "Model"),
-                        m(`a.btn.btn-default${location.href.endsWith('explore') ? '.active' : ''}[href=/explore][role=button]`, {oncreate: m.route.link}, "Explore")
-                    ]))*/
-                ])
+                    }, m(".panel-body")),
+                    m("button#btnEstimate.btn.btn-default.ladda-button.navbar-right[data-spinner-color=#000000][data-style=zoom-in]", {
+                        onclick: _ => app.estimate('btnEstimate'),
+                        style: {
+                            "margin-left": "2em",
+                            "margin-right": "1em"
+                        }
+                    }, m("span.ladda-label", "Estimate")),
+                    m("button#btnReset.btn.btn-default.navbar-right[title=Reset]", {
+                        onclick: app.reset,
+                        style: {"margin-left": "2.0em"}
+                    }, m("span.glyphicon.glyphicon-repeat", {
+                        style: {
+                            color: "#818181",
+                            "font-size": "1em",
+                            "pointer-events": "none"
+                        }
+                    })),
+                    m('#transformations.transformTool', {
+                        title: 'Construct transformations of existing variables using valid R syntax. For example, assuming a variable named d, you can enter "log(d)" or "d^2".'
+                    })
+                  ),
+              ]),
+              /*m('.text-center', {
+                style: {margin: '5px'}
+                }, m(".btn-group", [
+                m(`a.btn.btn-default${location.href.endsWith('model') ? '.active' : ''}[href=/model][role=button]`, {oncreate: m.route.link}, "Model"),
+                m(`a.btn.btn-default${location.href.endsWith('explore') ? '.active' : ''}[href=/explore][role=button]`, {oncreate: m.route.link}, "Explore")
+               ]))*/
+              m('#about.panel.panel-default', {
+                  style: {
+                      display: Model.about ? 'block' : 'none',
+                      left: "140px",
+                      position: "absolute",
+                      width: "380px",
+                      "z-index": "50"
+                  }
+              }, m('.panel-body',
+                   'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'
+                  )
+              )
             ),
             m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}`,
               {overflow: 'auto'},

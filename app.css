@@ -98,25 +98,20 @@ text.id {
     box-sizing: border-box; margin: 0;
     overflow:scroll;
 }
+
+.navbar-default {
+    height: 62px;
+}
+
 #main svg {
     width:100%;
     height:100%;   /*was 600px;*/
 }
+
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: 100%;} /* This is size when left/right panel minimized. Was: calc(100% - 300px);}*/
+
 #main.svg-leftpanel.svg-rightpanel svg {width: 100%;}   /*  Was: calc(100% - 300px);} /*
 /* Above changes fix issue when screen gets very small, and right margin is fixed at 300px, obscuring central display, even while left tab is shrinking below 300px */
-
-
-/* #main.svg-marg-left svg {margin-left:0px;}
-#main.svg-marg-right svg {margin-right:0px;} */
-
-#option.navbar {
-    padding:.5em;
-    margin-bottom:0;
-}
-#option {
-    position:relative;
-}
 
 div.popover.variables {
     max-width:none;
@@ -130,44 +125,64 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 }
 
 #leftpanel {
-    border:1px solid #ADADAD;
-    width: 20%;
-    height:calc(100% - 17px);
-    position:absolute;top:10px;left:10px;
-    background:#F9F9F9;
-    padding-right:16px;padding-left:0;padding-top:0;
-    z-index:25;
+    border: 1px solid #ADADAD;
+    position: fixed;
+    top: 72px;
+    left: 10px;
+    width: 250px;
+    height: calc(100% - 122px);
+    background: #F9F9F9;
+    padding: 0 16px 0 0;
+    z-index: 25;
 }
+
 #leftpanel #leftContentArea div {display:none;}
 #leftpanel #leftContentArea div.active {display:block;}
-#leftpanel.expandpanel {width:40%;}
 #leftpanel.closepanel {width:1px;}
 #leftpanel.closepanel #leftpaneltitle, #leftpanel.closepanel div.btn-toolbar, #leftpanel.closepanel div.row-fluid.closepanel {display:none;}
 
-#rightpanel {
-    border:1px solid #ADADAD;
-    width:20%;
-    height:calc(100% - 17px);
-    position:absolute;top:10px;right:10px;
-    background:#F9F9F9;
-    padding-left:16px;padding-right:0;padding-top:0; 
-    z-index:25;
+#leftpanel {
+    border: 1px solid #ADADAD;
+    position: fixed;
+    top: 72px;
+    left: 10px;
+    width: 250px;
+    height: calc(100% - 122px);
+    background: #F9F9F9;
+    padding: 0 16px 0 0;
+    z-index: 25;
 }
+
+#rightpanel {
+    border: 1px solid #ADADAD;
+    position: fixed;
+    top: 72px;
+    right: 27px;
+    width: 250px;
+    height: calc(100% - 122px);
+    background: #F9F9F9;
+    padding: 0 0 0 16px;
+    z-index: 25;
+}
+
 #rightpanel #rightContentArea div {display:none;}
 #rightpanel #rightContentArea div.active {display:block;}
-#rightpanel.expandpanel {width:40%;}
 #rightpanel.closepanel {width:1px;}
 #rightpanel.closepanel #rightpaneltitle, #rightpanel.closepanel div.btn-group-justified, #rightpanel.closepanel div.row-fluid.closepanel {display:none;}
 
 div.sidepanel div.panelbar {
-  position:absolute;
+    position: absolute;
+    height: calc(100% - 60px)
 }
+
 #leftpanel div#toggleLpanelicon.panelbar {
-  left:calc(100% - 16px);
+    left: calc(100% - 16px);
 }
+
 #rightpanel div#toggleRpanelicon.panelbar {
-  right:calc(100% - 16px);
+    right: calc(100% - 16px);
 }
+
 div.sidepanel div.panelbar span {
   display: block;
   width:16px;
@@ -182,8 +197,28 @@ div.sidepanel div.panelbar span {
 #main {
     border:1px solid #ADADAD;
     width: 100%;
-    margin-bottom:0px;   /* This is the hard coded height of the ticker div.  Was 160px; which gave too much padding and empty bottom space.*/
-    position: relative;
+    height: calc(100% - 62px - 40px);
+    margin-top:62px;
+    position: fixed;
+    overflow:auto;
+}
+
+#canvas {
+    width: 100%;
+    height: calc(100% - 62px - 40px);
+    margin: 62px 0 0 0;
+    position: fixed;
+    overflow: auto;
+}
+
+#ticker {
+    position: fixed;
+    height: 40px;
+    width: 100%;
+    background: #F9F9F9;
+    bottom: 0;
+    border-top: 1px solid #ADADAD;
+    z-index: 1000;
 }
 
 #spacetools {
