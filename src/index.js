@@ -121,7 +121,7 @@ function leftpanel() {
                             padding: "10px 8px",
                             "text-align": "center"
                         }
-                    }),
+                    }, m('input#searchvar.form-control[type=text][placeholder=Search variables and labels]', {style: {width: '100%%', 'margin-bottom': '5px'}})),
                     m('#tab2', {
                         style: {
                             display: tab('tab2', 'block', 'none'),
