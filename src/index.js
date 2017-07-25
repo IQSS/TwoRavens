@@ -177,7 +177,6 @@ function rightpanel() {
                     m("#resultsView.container", {
                         style: {
                             float: "right",
-                            display: "none",
                             overflow: "auto",
                             width: "80%",
                             "background-color": "white",

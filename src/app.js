@@ -1106,8 +1106,8 @@ function dataDownload() {
     makeCorsRequest(urlcall, btn, downloadSuccess, downloadFail, solajsonout);
 }
 
-function viz(m) {
-    var mym = +m.substr(5, 5) - 1;
+function viz(mym) {
+    var mym = +mym.substr(5, 5) - 1;
 
     function removeKids(parent) {
         while (parent.firstChild)
@@ -1171,6 +1171,8 @@ function viz(m) {
     d3.select("#resultsView")
         .append("p")
         .html(() => "<b>Formula: </b>".concat(json.call[0]));
+
+    m.redraw();
 }
 
 // parses the transformation input. variable names are often nested inside one another, e.g., ethwar, war, wars, and so this is handled
