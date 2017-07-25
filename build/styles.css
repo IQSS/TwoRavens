@@ -178,7 +178,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 
 div.sidepanel div.panelbar {
     position: absolute;
-    height: calc(100% - 60px)
+    height: 100%;
 }
 
 #leftpanel div#toggleLpanelicon.panelbar {
@@ -190,14 +190,15 @@ div.sidepanel div.panelbar {
 }
 
 div.sidepanel div.panelbar span {
-  display: block;
-  width:16px;
-  height:533px;
-  text-align: center;
-  padding-top:258px;
-  font-size:.75em;
-  color:#ADADAD;
-  background:#eee;
+  display: flex;
+  width: 16px;
+  height: 100%;
+  position:relative;
+  justify-content:center;
+  align-items:center;
+  font-size: .75em;
+  color: #ADADAD;
+  background: #eee;
 }
 
 #main {
