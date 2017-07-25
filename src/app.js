@@ -71,8 +71,10 @@ export let zparams = {
 var modelCount = 0;
 var valueKey = [];
 var allNodes = [];
+var allResults = [];
 var nodes = [];
 var links = [];
+var logArray = [];
 var mods = {};
 var estimated = false;
 var rightClickLast = false;
@@ -105,8 +107,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     }
 
     svg = d3.select("#whitespace");
-
-    var logArray = [];
 
     var tempWidth = d3.select("#main.left").style("width");
     width = tempWidth.substring(0, tempWidth.length - 2);
@@ -141,7 +141,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var dataset2 = [];
     var lablArray = [];
     var hold = [];
-    var allResults = [];
     var subsetNodes = [];
 
     var spaces = [];
@@ -161,12 +160,12 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     });
 
     // default to California PUMS subset
-
-    let metadataurl = ddiurl || (fileid ? `${dataverseurl}/api/meta/datafile/${fileid}` : 'data/PUMS5small-ddi.xml');
+    let data = 'data/' + (false ? 'PUMS5small' : 'fearonLaitin');
+    let metadataurl = ddiurl || (fileid ? `${dataverseurl}/api/meta/datafile/${fileid}` : data + '.xml');
     // read pre-processed metadata and data
-    let pURL = dataurl ? `${dataurl}&format=prep` : 'data/preprocessPUMS5small.json';
+    let pURL = dataurl ? `${dataurl}&format=prep` : data + '.json';
     var preprocess = {};
-
+    
     // loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
     var url, p, v, callback;
     readPreprocess(url = pURL, p = preprocess, v = null, callback = function() {
@@ -1140,8 +1139,7 @@ function viz(m) {
     for (var key in json.sumInfo) {
         if (key == 'colnames')
             continue;
-        obj = json.sumInfo[key];
-        resultsArray.push(obj);
+        resultsArray.push(json.sumInfo[key]);
     }
 
     var table = d3.select("#resultsView")

@@ -135,7 +135,7 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
     position: fixed;
     top: 72px;
     left: 10px;
-    width: 250px;
+    width: 300px;
     height: calc(100% - 122px);
     background: #F9F9F9;
     padding: 0 16px 0 0;
@@ -147,24 +147,12 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 #leftpanel.closepanel {width:1px;}
 #leftpanel.closepanel #leftpaneltitle, #leftpanel.closepanel div.btn-toolbar, #leftpanel.closepanel div.row-fluid.closepanel {display:none;}
 
-#leftpanel {
-    border: 1px solid #ADADAD;
-    position: fixed;
-    top: 72px;
-    left: 10px;
-    width: 250px;
-    height: calc(100% - 122px);
-    background: #F9F9F9;
-    padding: 0 16px 0 0;
-    z-index: 25;
-}
-
 #rightpanel {
     border: 1px solid #ADADAD;
     position: fixed;
     top: 72px;
     right: 10px;
-    width: 250px;
+    width: 300px;
     height: calc(100% - 122px);
     background: #F9F9F9;
     padding: 0 0 0 16px;
@@ -207,7 +195,7 @@ div.sidepanel div.panelbar span {
     height: calc(100% - 62px - 40px);
     margin-top:62px;
     position: fixed;
-    overflow:auto;
+    overflow: auto;
 }
 
 #canvas {
@@ -231,16 +219,19 @@ div.sidepanel div.panelbar span {
 #spacetools {
     z-index: 17;
 }
+
 .spaceTool {
-    top:0; 
-    right:21%;
-    margin-right:10px; 
-    margin-top:10px; 
-    position:absolute;
+    top: 0;
+    right: 310px;
+    margin-right: 10px;
+    margin-top: 10px;
+    position: absolute;
 }
+
 .spaceTool button:first-child {
     margin-right:1em;
 }
+
 .spaceTool button span {
     font-size:1em;
     color:#818181;
@@ -268,26 +259,29 @@ div.sidepanel div.panelbar span {
 #transList li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
 
 .legendary {
-    width:10%;
-    position:absolute;
-    bottom:0;
-    right:21%;
-    margin-right:10px;
-    margin-bottom:10px;
+    width: 10%;
+    position: absolute;
+    bottom: 0;
+    right: 310px;
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
+
 .legendary .clearfix {
     margin-bottom:4px;
 }
+
 .legendary .rectColor {
     float:left;
     width:20px;
     height:20px;
     margin-right:4px;
-    /*opacity: 0.5;*/
 }
+
 .legendary .rectColor circle {
     opacity: 0.5;
 }
+
 .legendary .rectLabel {
     float:left;
 }
