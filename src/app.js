@@ -684,20 +684,17 @@ function layout(v) {
             .style("fill", nomColor)
             .attr("fill-opacity", 0)
             .on('mouseover', function(d) {
-                if (d.defaultNumchar == "character")
-                    return;
+                if (d.defaultNumchar == "character") return;
                 fillThis(this, .3, 0, 100);
                 fill(d, "nomText", .9, 0, 100);
             })
             .on('mouseout', function(d) {
-                if (d.defaultNumchar == "character")
-                    return;
+                if (d.defaultNumchar == "character") return;
                 fillThis(this, 0, 100, 500);
                 fill(d, "nomText", 0, 100, 500);
             })
             .on('click', function(d) {
-                if (d.defaultNumchar == "character")
-                    return;
+                if (d.defaultNumchar == "character") return;
                 setColors(d, nomColor);
                 legend(nomColor);
                 restart();
@@ -720,7 +717,7 @@ function layout(v) {
             .style('opacity', "0.5")
             .style('stroke', d => d3.rgb(d.strokeColor).toString())
             .classed('reflexive', d => d.reflexive)
-            .on('dblclick', function(d) {
+            .on('dblclick', function(_) {
                 d3.event.stopPropagation(); // stop click from bubbling
                 summaryHold = true;
             })
@@ -731,8 +728,7 @@ function layout(v) {
 
                 rightClickLast = true;
                 mousedown_node = d;
-                if (mousedown_node === selected_node) selected_node = null;
-                else selected_node = mousedown_node;
+                selected_node = mousedown_node === selected_node ? null : mousedown_node;
                 selected_link = null;
 
                 // reposition drag line
@@ -751,8 +747,7 @@ function layout(v) {
                     rightClickLast = false;
                     return;
                 }
-                if (!mousedown_node)
-                    return;
+                if (!mousedown_node) return;
 
                 // needed by FF
                 drag_line
@@ -859,8 +854,7 @@ function layout(v) {
                 $('#tInput').val(n);
                 evt.stopPropagation();
                 var t = transParse(n = n);
-                if (!t)
-                    return;
+                if (!t) return;
                 $(this).parent().fadeOut(100);
                 transform(n = t.slice(0, t.length - 1), t = t[t.length - 1], typeTransform = false);
                 return;
@@ -882,8 +876,7 @@ function layout(v) {
         d3.event.preventDefault();
         // because :active only works in WebKit?
         svg.classed('active', true);
-        if (d3.event.ctrlKey || mousedown_node || mousedown_link)
-            return;
+        if (d3.event.ctrlKey || mousedown_node || mousedown_link) return;
         restart();
     }
 
@@ -924,34 +917,26 @@ function layout(v) {
 }
 
 // returns id
-function find($nodes, name) {
-    for (let i in $nodes) {
-        if ($nodes[i].name == name)
-            return $nodes[i].id;
-    };
-}
+let find = ($nodes, name) => {
+    for (let i in $nodes)
+        if ($nodes[i].name == name) return $nodes[i].id;
+};
 
 // returns id
-var findNodeIndex = function(name) {
-    for (let i in allNodes) {
-        if (allNodes[i].name == name)
-            return allNodes[i].id;
-    };
-}
+let findNodeIndex = name => {
+    for (let i in allNodes)
+        if (allNodes[i].name == name) return allNodes[i].id;
+};
 
-var nodeIndex = function(nodeName) {
-    for (var i in nodes) {
-        if (nodes[i].name == nodeName)
-            return i;
-    }
-}
+let nodeIndex = nodeName => {
+    for (let i in nodes)
+        if (nodes[i].name == nodeName) return i;
+};
 
-var findNode = function(nodeName) {
-    for (var i in allNodes) {
-        if (allNodes[i].name == nodeName)
-            return allNodes[i];
-    };
-}
+let findNode = nodeName => {
+    for (let i in allNodes)
+        if (allNodes[i].name == nodeName) return allNodes[i];
+};
 
 // function called by force button
 export function forceSwitch() {
@@ -2039,7 +2024,7 @@ $("#searchvar").ready(function(){
 });
 
 function tog(v){
-	  return v?'addClass':'removeClass';
+	  return v ? 'addClass' : 'removeClass';
 }
 
 $(document).on('input', '#searchvar', function() {
@@ -2083,12 +2068,8 @@ function addlistener(nodes){
             $("body div.popover div.popover-content")
                 .addClass("form-horizontal");
         })
-        .on("mouseout", function() {
-						//Remove the tooltip
-						//d3.select("#tooltip").style("display", "none");
-        })
         .on("click", function varClick(){
-            if(allNodes[findNodeIndex(this.id)].grayout) {return null;}
+            if (allNodes[findNodeIndex(this.id)].grayout) return null;
 
             d3.select(this)
                 .style('background-color',function(d) {
@@ -2112,35 +2093,26 @@ function addlistener(nodes){
                             tagColors(myNode, nomColor);
                             return hexToRgba(nomColor);
                         }
-                        else {
-                            return hexToRgba(selVarColor);
-                        }
-
-                    }
-                    else { // dropping a variable
+                        else return hexToRgba(selVarColor);
+                    } else { // dropping a variable
                         nodes.splice(findNode(myText)["index"], 1);
                         spliceLinksForNode(findNode(myText));
                         if(mySC==dvColor) {
                             var dvIndex = zparams.zdv.indexOf(myText);
                             if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                            //zparams.zdv="";
                         }
                         else if(mySC==csColor) {
                             var csIndex = zparams.zcross.indexOf(myText);
                             if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
                         }
                         else if(mySC==timeColor) {
-                	          //console.log("entering some if");
                             var timeIndex = zparams.ztime.indexOf(myText);
-                            //console.log("Timeindex=",timeIndex);
                             if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
                         }
                         else if(mySC==nomColor) {
                             var nomIndex = zparams.znom.indexOf(myText);
                             if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
                         }
-
-                        // nodeReset(allNodes[findNodeIndex(myText)]);
                         borderState();
                         legend();
                         return varColor;
