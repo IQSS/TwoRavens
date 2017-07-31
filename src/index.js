@@ -73,72 +73,48 @@ function panel(side, title, ...args) {
     ].concat(args));
 }
 
+let or = function(side, val, y='block', n='none') {
+    return app[side + 'tab'] === val ? y : n;
+};
+
 function leftpanel() {
-    let tab = (a, b, c) => app.lefttab == a ? b : c;
     return panel(
         'left', 'Data Selection',
         m(".btn-toolbar[role=toolbar][style=margin-left: .5em; margin-top: .5em", [
             m(".btn-group", [
-                m(`button#btnVariables.btn.${tab('tab1', 'active', 'btn-default')}[type=button]`, {
+                m(`button#btnVariables.btn.${or('left', 'tab1', 'active', 'btn-default')}[type=button]`, {
                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
                     onclick: _ => app.tabLeft('tab1')
                 }, "Variables"),
-                m(`button#btnSubset.btn.${tab('tab2', 'active', 'btn-default')}[type=button]`, {
+                m(`button#btnSubset.btn.${or('left', 'tab2', 'active', 'btn-default')}[type=button]`, {
                     onclick: _ => app.tabLeft('tab2')
-                }, "Subset")
-            ]),
+                }, "Subset")]),
             m("button#btnSelect.btn.btn-default.ladda-button[data-spinner-color=#000000][data-style=zoom-in][type=button]", {
-                title: 'Subset data by the intersection of all selected values.',
+                style: `display: ${app.subset ? 'block' : 'none'}; float: "right"; margin-right: 10px]`,
                 onclick: _ => app.subsetSelect('btnSelect'),
-                style: {
-                    display: app.subset ? 'block' : 'none',
-                    float: "right",
-                    "margin-right": "10px"
-                }
-            }, m("span.ladda-label[style=pointer-events: none]", "Select"))
-        ]),
+                title: 'Subset data by the intersection of all selected values.'
+            }, m("span.ladda-label[style=pointer-events: none]", "Select"))]),
         m(closepanel('.row-fluid', 'left'),
-            m('#leftpanelcontent',
-                m('#leftContentArea', {
-                    style: {
-                        height: '453px',
-                        overflow: 'auto'
-                    }
-                }, [
-                    m('#tab1', {
-                        style: {
-                            display: tab('tab1', 'block', 'none'),
-                            padding: "10px 8px",
-                            "text-align": "center"
-                        }
-                    }, m('input#searchvar.form-control[type=text][placeholder=Search variables and labels]', {style: {width: '100%%', 'margin-bottom': '5px'}})),
-                    m('#tab2', {
-                        style: {
-                            display: tab('tab2', 'block', 'none'),
-                            "margin-top": ".5em"
-                        }
-                    }),
-                    m('#tab3',
-                      m("p", {
-                          display: tab('tab3', 'block', 'none'),
-                          style: {padding: ".5em 1em"},
-                          title: "Select a variable from within the visualization in the center panel to view its summary statistics."
-                      }, m('center', m('b', app.summary.name), m('br'), m('i', app.summary.labl)),
-                        m('table', app.summary.data.map(x => m('tr', x.map(y => m('td', {
-                            onmouseover: function() {this.style['background-color'] = 'aliceblue';},
-                            onmouseout: function() {this.style['background-color'] = '#f9f9f9';}
-                        }, y)))))
-                      )
-                   )
-                ])
-             )
-         )
-    );
+          m('#leftpanelcontent',
+            m('#leftContentArea[style=height: 453px; overflow: auto]', [
+                m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
+                  m('input#searchvar.form-control[type=text][placeholder=Search variables and labels][style=width: 100%; margin-bottom: 5px]')),
+                m(`#tab2[style=display: ${or('left', 'tab2')}; margin-top: .5em]`),
+                m('#tab3',
+                  m(`p[style=padding: .5em 1em; display: ${or('left', 'tab3')}]`, {
+                      title: "Select a variable from within the visualization in the center panel to view its summary statistics."
+                  }, m('center',
+                       m('b', app.summary.name),
+                       m('br'),
+                       m('i', app.summary.labl)),
+                    m('table', app.summary.data.map(x => m('tr', x.map(y => m('td', {
+                        onmouseover: function() {this.style['background-color'] = 'aliceblue';},
+                        onmouseout: function() {this.style['background-color'] = '#f9f9f9';}
+                    }, y)))))))]))));
 }
 
 function rightpanel() {
-    let display = (val, y, n) => app.righttab == val ? (y || 'block') : (n || 'none');
-    let button = (id, width, text) => m(`button#${id}.btn.${display(id, 'active', 'btn-default')}[type=button][style=width: ${width}]`, {
+    let button = (id, width, text) => m(`button#${id}.btn.${or('right', id, 'active', 'btn-default')}[type=button][style=width: ${width}]`, {
         onclick: _ => app.tabRight(id)
     }, text);
     return panel(
@@ -150,12 +126,12 @@ function rightpanel() {
         m(closepanel('.row-fluid', 'right'),
           m('#rightpanelcontent',
             m('#rightContentArea[style=height: 453px; overflow: auto]', [
-                m(`#results[style=display: ${display('btnResults')}; margin-top: .5em`, [
+                m(`#results[style=display: ${or('right', 'btnResults')}; margin-top: .5em]`, [
                     m("#resultsView.container[style=float: right; overflow: auto; width: 80%; background-color: white; white-space: nowrap]"),
                     m('#modelView[style=display: none; float: left; width: 20%; background-color: white]'),
-                    m("p#resultsHolder[style=padding: .5em 1em")]),
-                m(`#setx[style=display: ${display('btnSetx')}]`),
-                m(`#models[style=display: ${display('btnModels')}; padding: 6px 12px; text-align: center]`)]))));
+                    m("p#resultsHolder[style=padding: .5em 1em]")]),
+                m(`#setx[style=display: ${or('right', 'btnSetx')}]`),
+                m(`#models[style=display: ${or('right', 'btnModels')}; padding: 6px 12px; text-align: center]`)]))));
 }
 
 class Body {
