@@ -52,40 +52,32 @@ function subpanel(title, buttons=[]) {
 }
 
 let closepanel = (val, side) => {
-    if (Model[side + 'Closed'])
-        return val + '.closepanel';
+    if (Model[side + 'Closed']) return val + '.closepanel';
     return side == 'left' && app.lefttab == 'tab2' ? val + '.expandpanel' : val;
 };
 
-function top(side, title, ...args) {
+function panel(side, title, ...args) {
     let id = `#${side}panel`;
     let dot = m.trust('&#9679;');
     let style = {style: {height: 'calc(100% - 60px)'}};
     return m(closepanel(`#${side}panel.sidepanel.container.clearfix`, style, side), [
         m(`#toggle${side == 'left' ? 'L' : 'R'}panelicon.panelbar`, style,
           m('span', {
-              onclick: _ => {
+              onclick(_) {
                   let key = side + 'Closed';
                   Model[key] = !Model[key];
               }
-          }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])
-        ),
+          }, [dot, m('br'), dot, m('br'), dot, m('br'), dot])),
         m(`#${side}paneltitle.panel-heading.text-center`,
-          m("h3.panel-title", title)
-        )
+          m("h3.panel-title", title))
     ].concat(args));
 }
 
 function leftpanel() {
     let tab = (a, b, c) => app.lefttab == a ? b : c;
-    return top(
+    return panel(
         'left', 'Data Selection',
-        m(".btn-toolbar[role=toolbar]", {
-            style: {
-                "margin-left": ".5em",
-                "margin-top": ".5em"
-            }
-        }, [
+        m(".btn-toolbar[role=toolbar][style=margin-left: .5em; margin-top: .5em", [
             m(".btn-group", [
                 m(`button#btnVariables.btn.${tab('tab1', 'active', 'btn-default')}[type=button]`, {
                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
@@ -103,9 +95,7 @@ function leftpanel() {
                     float: "right",
                     "margin-right": "10px"
                 }
-            }, m("span.ladda-label", {
-                style: {"pointer-events": "none"}
-            }, "Select"))
+            }, m("span.ladda-label[style=pointer-events: none]", "Select"))
         ]),
         m(closepanel('.row-fluid', 'left'),
             m('#leftpanelcontent',
@@ -147,68 +137,25 @@ function leftpanel() {
 }
 
 function rightpanel() {
-    let button = (id, width, text) => m(`button#${id}.btn.${app.righttab == id ? 'active' : 'btn-default'}[type=button]`, {
-        onclick: _ => app.tabRight(id),
-        style: {width: width}
+    let display = (val, y, n) => app.righttab == val ? (y || 'block') : (n || 'none');
+    let button = (id, width, text) => m(`button#${id}.btn.${display(id, 'active', 'btn-default')}[type=button][style=width: ${width}]`, {
+        onclick: _ => app.tabRight(id)
     }, text);
-    return top(
+    return panel(
         'right', 'Model Selection',
-        m(".btn-group.btn-group-justified[aria-label=...][role=group]", {
-            style: {"margin-top": ".5em"}
-        }, [
+        m(".btn-group.btn-group-justified[aria-label=...][role=group][style=margin-top: .5em]", [
             button('btnModels', "33%", "Models"),
             button('btnSetx', "34%", "Set Covar."),
-            button('btnResults', "33%", "Results")
-        ]),
+            button('btnResults', "33%", "Results")]),
         m(closepanel('.row-fluid', 'right'),
           m('#rightpanelcontent',
-            m('#rightContentArea', {
-                style: {
-                    height: '453px',
-                    overflow: 'auto'
-                }
-            }, [
-                m('#results', {
-                    style: {
-                        display: app.righttab == 'btnResults' ? 'block' : 'none',
-                        'margin-top': ".5em"
-                    }
-                }, [
-                    m("#resultsView.container", {
-                        style: {
-                            float: "right",
-                            overflow: "auto",
-                            width: "80%",
-                            "background-color": "white",
-                            "white-space": "nowrap"
-                        }
-                    }),
-                    m('#modelView', {
-                        style: {
-                            display: "none",
-                            float: "left",
-                            width: "20%",
-                            "background-color": "white"
-                        }
-                    }),
-                    m("p#resultsHolder", {
-                        style: {padding: ".5em 1em"}
-                    })
-                ]),
-                m('#setx', {
-                    style: {display: app.righttab == 'btnSetx' ? 'block' : 'none'}
-                }),
-                m('#models', {
-                    style: {
-                        display: app.righttab == 'btnModels' ? 'block' : 'none',
-                        padding: "6px 12px",
-                        "text-align": "center"
-                    }
-                })
-            ])
-           )
-        )
-    );
+            m('#rightContentArea[style=height: 453px; overflow: auto]', [
+                m(`#results[style=display: ${display('btnResults')}; margin-top: .5em`, [
+                    m("#resultsView.container[style=float: right; overflow: auto; width: 80%; background-color: white; white-space: nowrap]"),
+                    m('#modelView[style=display: none; float: left; width: 20%; background-color: white]'),
+                    m("p#resultsHolder[style=padding: .5em 1em")]),
+                m(`#setx[style=display: ${display('btnSetx')}]`),
+                m(`#models[style=display: ${display('btnModels')}; padding: 6px 12px; text-align: center]`)]))));
 }
 
 class Body {
@@ -222,19 +169,18 @@ class Body {
             console.log(name, ': ', val);
             return val;
         };
-        let fileid = extract('fileid', 'dfId', 5);
-        let hostname = extract('hostname', 'host', 5);
         let apikey = extract('apikey', 'key', 4);
-        let ddiurl = extract('ddiurl', 'ddiurl', 7)
-            .replace(/%25/g, '%')
-            .replace(/%3A/g, ':')
-            .replace(/%2F/g, '/');
-        let dataurl = extract('dataurl', 'dataurl', 8)
-            .replace(/%25/g, '%')
-            .replace(/%3A/g, ':')
-            .replace(/%2F/g, '/');
-
-        app.main(fileid, hostname, ddiurl, dataurl);
+        app.main(
+            extract('fileid', 'dfId', 5),
+            extract('hostname', 'host', 5),
+            extract('ddiurl', 'ddiurl', 7)
+                .replace(/%25/g, '%')
+                .replace(/%3A/g, ':')
+                .replace(/%2F/g, '/'),
+            extract('dataurl', 'dataurl', 8)
+                .replace(/%25/g, '%')
+                .replace(/%3A/g, ':')
+                .replace(/%2F/g, '/'));
     }
 
     view() {
