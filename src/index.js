@@ -6,34 +6,12 @@ import m from 'mithril';
 
 import * as app from './app';
 import Panel, {getClass} from './views/Panel';
+import Subpanel from './views/Subpanel';
 
 let Model = {
     about: false,
     cite: false,
-    citetoggle: false,
-    toggleHistory: false,
-    toggleLegend: false
-};
-
-let subpanel = function(title, buttons=[]) {
-    let legend = title === 'Legend';
-    let [target, toggle] = ['collapse' + title, 'toggle' + title];
-    let z = app.zparams;
-    return m(`#${legend ? "legend.legendary" : "logdiv.logbox"}.panel.panel-default`, {
-        style: {display: legend && z.ztime.length + z.zcross.length + z.zdv.length + z.znom.length || !legend && app.logArray.length > 0 ? 'block' : 'none'}},
-             m(".panel-heading",
-               m("h3.panel-title",
-                 title,
-                 m(`span.glyphicon.glyphicon-large.glyphicon-chevron-${Model[toggle] ? 'up' : 'down'}.pull-right[data-target=#${target}][data-toggle=collapse][href=#${target}]`, {
-                     style: 'cursor: pointer',
-                     onclick: _ => Model[toggle] = !Model[toggle]}))),
-             m(`#${target}.panel-collapse.collapse.in`,
-               m(".panel-body", !legend ? app.logArray.map(x => m('p', x)) : buttons.map(x => {
-                   return m(`#${x[0]}.clearfix.${z[x[1]].length === 0 ? "hide" : "show"}`,
-                            m(".rectColor",
-                              m("svg[style=width: 20px; height: 20px]",
-                                m("circle[cx=10][cy=10][fill=white][r=9][stroke=black][stroke-width=2]"))),
-                            m(".rectLabel", x[2]));}))));
+    citetoggle: false
 };
 
 let or = function(side, val, y='block', n='none') {
@@ -162,12 +140,12 @@ class Body {
                        m("span.glyphicon.glyphicon-pushpin")),
                      m("button#btnEraser.btn.btn-default[title=Wipe all variables from the modeling space.]", {onclick: app.erase},
                        m("span.glyphicon.glyphicon-magnet"))),
-                   subpanel("Legend", [
+                   m(Subpanel, {title: "Legend", buttons: [
                        ['timeButton', 'ztime', 'Time'],
                        ['csButton', 'zcross', 'Cross Sec'],
                        ['dvButton', 'zdv', 'Dep Var'],
-                       ['nomButton', 'znom', 'Nom Var']]),
-                   subpanel("History"),
+                       ['nomButton', 'znom', 'Nom Var']]}),
+                   m(Subpanel, {title: "History"}),
                    m('#ticker[style=background: #F9F9F9; bottom: 0; height: 40px; position: fixed; width: 100%; border-top: 1px solid #ADADAD]',
                      m("a#logID[href=somelink][target=_blank]", "Replication")),
                    leftpanel(),
