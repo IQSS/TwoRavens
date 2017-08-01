@@ -5,13 +5,12 @@ import '../Ladda/dist/ladda-themeless.min.css';
 import m from 'mithril';
 
 import * as app from './app.js';
+import Panel, {getClass} from './views/Panel';
 
 let Model = {
     about: false,
     cite: false,
     citetoggle: false,
-    leftClosed: false,
-    rightClosed: false,
     toggleHistory: false,
     toggleLegend: false
 };
@@ -37,86 +36,64 @@ let subpanel = function(title, buttons=[]) {
                             m(".rectLabel", x[2]));}))));
 };
 
-let getClass = function(side) {
-    if (Model[side + 'Closed']) return '.closepanel';
-    return (side === 'left' && app.lefttab === 'tab2') ? '.expandpanel' : '';
-};
-
-let panel = function(side, title, ...args) {
-    let sidepanel = side + 'panel';
-    let dot = [m.trust('&#9679;'), m('br')];
-    return m(`#${sidepanel}.sidepanel.container.clearfix${getClass(side)}`, [
-        m(`#toggle${side === 'left' ? 'L' : 'R'}panelicon.panelbar[style=height: calc(100% - 60px)]`,
-          m('span', {
-              onclick(_) {
-                  let key = side + 'Closed';
-                  Model[key] = !Model[key];
-              }}, [].concat([dot, dot, dot, dot]))),
-        m(`#${sidepanel}title.panel-heading.text-center`,
-          m("h3.panel-title", title))
-    ].concat(args));
-};
-
 let or = function(side, val, y='block', n='none') {
     return app[side + 'tab'] === val ? y : n;
 };
 
 let leftpanel = function() {
-    return panel(
-        'left', 'Data Selection',
-        m(".btn-toolbar[role=toolbar][style=margin-left: .5em; margin-top: .5em]",
-          m(".btn-group",
-            m(`button#btnVariables.btn.${or('left', 'tab1', 'active', 'btn-default')}[type=button]`, {
-                title: 'Click variable name to add or remove the variable pebble from the modeling space.',
-                onclick: _ => app.tabLeft('tab1')},
-              "Variables"),
-            m(`button#btnSubset.btn.${or('left', 'tab2', 'active', 'btn-default')}[type=button]`, {onclick: _ => app.tabLeft('tab2')},
-              "Subset")),
-          m("button#btnSelect.btn.btn-default.ladda-button[data-spinner-color=#000000][data-style=zoom-in][type=button]", {
-              style: `display: ${app.subset ? 'block' : 'none'}; float: right; margin-right: 10px`,
-              onclick: _ => app.subsetSelect('btnSelect'),
-              title: 'Subset data by the intersection of all selected values.'},
-            m("span.ladda-label[style=pointer-events: none]", "Select"))),
-        m('.row-fluid' + getClass('left'),
-          m('#leftpanelcontent',
-            m('#leftContentArea[style=height: 453px; overflow: auto]',
-              m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
-                m('input#searchvar.form-control[type=text][placeholder=Search variables and labels][style=width: 100%; margin-bottom: 5px]')),
-              m(`#tab2[style=display: ${or('left', 'tab2')}; margin-top: .5em]`),
-              m('#tab3',
-                m(`p[style=padding: .5em 1em; display: ${or('left', 'tab3')}]`, {
-                    title: "Select a variable from within the visualization in the center panel to view its summary statistics."},
-                  m('center',
-                     m('b', app.summary.name),
-                     m('br'),
-                     m('i', app.summary.labl)),
-                  m('table', app.summary.data.map(
-                      tr => m('tr', tr.map(
-                          td => m('td', {
-                              onmouseover: function() {this.style['background-color'] = 'aliceblue';},
-                              onmouseout: function() {this.style['background-color'] = '#f9f9f9';}},
-                             td)))))))))));
+    return m(Panel, {side: 'left', title: 'Data Selection'},
+             m(".btn-toolbar[role=toolbar][style=margin-left: .5em; margin-top: .5em]",
+               m(".btn-group",
+                 m(`button#btnVariables.btn.${or('left', 'tab1', 'active', 'btn-default')}[type=button]`, {
+                     title: 'Click variable name to add or remove the variable pebble from the modeling space.',
+                     onclick: _ => app.tabLeft('tab1')},
+                   "Variables"),
+                 m(`button#btnSubset.btn.${or('left', 'tab2', 'active', 'btn-default')}[type=button]`, {onclick: _ => app.tabLeft('tab2')},
+                   "Subset")),
+               m("button#btnSelect.btn.btn-default.ladda-button[data-spinner-color=#000000][data-style=zoom-in][type=button]", {
+                   style: `display: ${app.subset ? 'block' : 'none'}; float: right; margin-right: 10px`,
+                   onclick: _ => app.subsetSelect('btnSelect'),
+                   title: 'Subset data by the intersection of all selected values.'},
+                 m("span.ladda-label[style=pointer-events: none]", "Select"))),
+             m('.row-fluid' + getClass({side: 'left'}),
+               m('#leftpanelcontent',
+                 m('#leftContentArea[style=height: 453px; overflow: auto]',
+                   m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
+                     m('input#searchvar.form-control[type=text][placeholder=Search variables and labels][style=width: 100%; margin-bottom: 5px]')),
+                   m(`#tab2[style=display: ${or('left', 'tab2')}; margin-top: .5em]`),
+                   m('#tab3',
+                     m(`p[style=padding: .5em 1em; display: ${or('left', 'tab3')}]`, {
+                         title: "Select a variable from within the visualization in the center panel to view its summary statistics."},
+                       m('center',
+                         m('b', app.summary.name),
+                         m('br'),
+                         m('i', app.summary.labl)),
+                       m('table', app.summary.data.map(
+                           tr => m('tr', tr.map(
+                               td => m('td', {
+                                   onmouseover: function() {this.style['background-color'] = 'aliceblue';},
+                                   onmouseout: function() {this.style['background-color'] = '#f9f9f9';}},
+                                       td)))))))))));
 };
 
 let rightpanel = function() {
     let button = (id, width, text) =>
         m(`button#${id}.btn.${or('right', id, 'active', 'btn-default')}[type=button][style=width: ${width}]`, {onclick: _ => app.tabRight(id)},
           text);
-    return panel(
-        'right', 'Model Selection',
-        m(".btn-group.btn-group-justified[aria-label=...][role=group][style=margin-top: .5em]",
-          button('btnModels', "33%", "Models"),
-          button('btnSetx', "34%", "Set Covar."),
-          button('btnResults', "33%", "Results")),
-        m('.row-fluid' + getClass('right'),
-          m('#rightpanelcontent',
-            m('#rightContentArea[style=height: 453px; overflow: auto]',
-              m(`#results[style=display: ${or('right', 'btnResults')}; margin-top: .5em]`,
-                m("#resultsView.container[style=float: right; overflow: auto; width: 80%; background-color: white; white-space: nowrap]"),
-                m('#modelView[style=display: none; float: left; width: 20%; background-color: white]'),
-                m("p#resultsHolder[style=padding: .5em 1em]")),
-              m(`#setx[style=display: ${or('right', 'btnSetx')}]`),
-              m(`#models[style=display: ${or('right', 'btnModels')}; padding: 6px 12px; text-align: center]`)))));
+    return m(Panel, {side: 'right', title: 'Model Selection'},
+             m(".btn-group.btn-group-justified[aria-label=...][role=group][style=margin-top: .5em]",
+               button('btnModels', "33%", "Models"),
+               button('btnSetx', "34%", "Set Covar."),
+               button('btnResults', "33%", "Results")),
+             m('.row-fluid' + getClass({side: 'right'}),
+               m('#rightpanelcontent',
+                 m('#rightContentArea[style=height: 453px; overflow: auto]',
+                   m(`#results[style=display: ${or('right', 'btnResults')}; margin-top: .5em]`,
+                     m("#resultsView.container[style=float: right; overflow: auto; width: 80%; background-color: white; white-space: nowrap]"),
+                     m('#modelView[style=display: none; float: left; width: 20%; background-color: white]'),
+                     m("p#resultsHolder[style=padding: .5em 1em]")),
+                   m(`#setx[style=display: ${or('right', 'btnSetx')}]`),
+                   m(`#models[style=display: ${or('right', 'btnModels')}; padding: 6px 12px; text-align: center]`)))));
 };
 
 class Body {
