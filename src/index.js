@@ -8,12 +8,6 @@ import * as app from './app';
 import Panel, {getClass} from './views/Panel';
 import Subpanel from './views/Subpanel';
 
-let Model = {
-    about: false,
-    cite: false,
-    citetoggle: false
-};
-
 let or = function(side, val, y='block', n='none') {
     return app[side + 'tab'] === val ? y : n;
 };
@@ -75,6 +69,12 @@ let rightpanel = function() {
 };
 
 class Body {
+    oninit() {
+        this.about = false;
+        this.cite = false;
+        this.citeHidden = false;
+    }
+
     oncreate() {
         let extract = (name, key, offset) => {
             key = key + '=';
@@ -104,16 +104,16 @@ class Body {
                  m("nav#navbar.navbar.navbar-default.navbar-fixed-top[role=navigation]",
                    m("a.navbar-brand[style=margin-left: 0]",
                      m("img[src=images/TwoRavens.png][alt=TwoRavens][width=100][style=margin-left: 2em; margin-top: -0.5em]", {
-                         onmouseover: _ => Model.about = true,
-                         onmouseout: _ => Model.about = false})),
+                         onmouseover: _ => this.about = true,
+                         onmouseout: _ => this.about = false})),
                    m('#navbarNav[style=padding: 0.5em]',
                      m('#dataField.field[style=margin-top: 0.5em; text-align: center]',
                        m('h4#dataName[style=display: inline]', {
-                           onclick: _ => Model.cite = Model.citetoggle = !Model.citetoggle,
-                           onmouseout: _ => Model.citetoggle || (Model.cite = false),
-                           onmouseover: _ => Model.cite = true},
+                           onclick: _ => this.cite = this.citeHidden = !this.citeHidden,
+                           onmouseout: _ => this.citeHidden || (this.cite = false),
+                           onmouseover: _ => this.cite = true},
                          "Dataset Name"),
-                       m(`#cite.panel.panel-default[style=display: ${Model.cite ? 'block' : 'none'}; position: absolute; right: 50%; width: 380px; text-align: left; z-index: 50]`,
+                       m(`#cite.panel.panel-default[style=display: ${this.cite ? 'block' : 'none'}; position: absolute; right: 50%; width: 380px; text-align: left; z-index: 50]`,
                          m(".panel-body")),
                        m("button#btnEstimate.btn.btn-default.ladda-button.navbar-right[data-spinner-color=#000000][data-style=zoom-in][style=margin-left: 2em; margin-right: 1em]", {
                            onclick: _ => app.estimate('btnEstimate')},
@@ -128,10 +128,10 @@ class Body {
                      m(`a.btn.btn-default${location.href.endsWith('model') ? '.active' : ''}[href=/model][role=button]`, {oncreate: m.route.link}, "Model"),
                      m(`a.btn.btn-default${location.href.endsWith('explore') ? '.active' : ''}[href=/explore][role=button]`, {oncreate: m.route.link}, "Explore")
                      ]))*/
-                   m(`#about.panel.panel-default[style=display: ${Model.about ? 'block' : 'none'}; left: 140px; position: absolute; width: 500px; z-index: 50]`,
+                   m(`#about.panel.panel-default[style=display: ${this.about ? 'block' : 'none'}; left: 140px; position: absolute; width: 500px; z-index: 50]`,
                      m('.panel-body',
                        'TwoRavens v0.1 "Dallas" -- The Norse god Odin had two talking ravens as advisors, who would fly out into the world and report back all they observed. In the Norse, their names were "Thought" and "Memory". In our coming release, our thought-raven automatically advises on statistical model selection, while our memory-raven accumulates previous statistical models from Dataverse, to provide cummulative guidance and meta-analysis.'))),
-                 m(`#main.left.carousel.slide${Model.leftClosed ? '.svg-leftpanel' : ''}${Model.rightClosed ? '.svg-rightpanel' : ''}[style=overflow: auto]`,
+                 m(`#main.left.carousel.slide.svg-leftpanel.svg-rightpanel[style=overflow: auto]`,
                    m("#innercarousel.carousel-inner",
                      m('#m0.item.active',
                        m('svg#whitespace'))),
