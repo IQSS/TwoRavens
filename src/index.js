@@ -4,7 +4,7 @@ import '../Ladda/dist/ladda-themeless.min.css';
 
 import m from 'mithril';
 
-import * as app from './app.js';
+import * as app from './app';
 import Panel, {getClass} from './views/Panel';
 
 let Model = {

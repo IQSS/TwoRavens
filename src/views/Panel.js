@@ -7,7 +7,7 @@ export let getClass = function(panel) {
     return (panel.side === 'left' && app.lefttab === 'tab2') ? '.expandpanel' : '';
 };
 
-export class Panel {
+class Panel {
     oninit(vnode) {
         this.side = vnode.attrs.side;
         this.title = vnode.attrs.title;
