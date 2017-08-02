@@ -249,6 +249,7 @@ if (dataurl) {
     purltest="users/"+username+"/fearonLaitinDatapreprocess.json"
     //This is testing whether a newer json file exists or not. if yes, we will use that file, else use the default file
    var test=UrlExists(purltest);
+   console.log(test + "test");
    if(test==true){
       pURL = purltest;
      // console.log("test is true");
@@ -278,7 +279,8 @@ if (dataurl) {
 		    var http = new XMLHttpRequest();
 		    http.open('HEAD', url, false);
 		    http.send();
-		    return http.status!=404;
+		    //console.log("status:" + http.status);
+		    return http.status!=404 && http.status!=0;  // status 0 is a result of timeout from no response, which is also a problem
 		}
     //pURL = "data/fearonLaitinPreprocess4.json";
 	
