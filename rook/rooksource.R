@@ -48,6 +48,7 @@ if (!production) {
 #!/usr/bin/env Rscript
 
 library(Zelig)
+library(caret)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 modulesPath<-paste(getwd(),"/privacyfunctions/",sep="")
@@ -68,11 +69,7 @@ if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
     status <- -1
-    if (as.integer(R.version[["svn rev"]]) > 72310) {
-        status <- .Call(tools:::C_startHTTPD, myInterface, myPort)
-    } else {
-        status <- .Call(tools:::startHTTPD, myInterface, myPort)
-    }
+    status<-.Call(tools:::startHTTPD, myInterface, myPort)
 
 
     if( status!=0 ){
@@ -101,6 +98,7 @@ if(!production){
 source("rooksubset.R")
 source("rooktransform.R")
 source("rookzelig.R")
+source("rookcaret.R")
 source("rookutils.R")
 source("rookdata.R")
 source("rookwrite.R")
@@ -115,6 +113,7 @@ if(production){
 
 if(!production){
     R.server$add(app = zelig.app, name = "zeligapp")
+    R.server$add(app = caret.app, name = "caretapp")
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
     R.server$add(app = data.app, name="dataapp")
