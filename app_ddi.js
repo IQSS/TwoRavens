@@ -1,4 +1,3 @@
-
 //////////
 // Globals
 
@@ -68,6 +67,8 @@ var logArray = [];
 var tempWidth = d3.select("#main.left").style("width")
 var width = tempWidth.substring(0,(tempWidth.length-2));
 
+/*var tempHeight = d3.select("#main.left").style("height")
+var height = tempHeight.substring(0,(tempHeight.length-2));*/
 
 var height = $(window).height() -120;  // Hard coding for header and footer and bottom margin.
 
@@ -253,7 +254,7 @@ if (dataurl) {
      // console.log("test is true");
     }
    else
-    pURL = "data/fearonLaitinpreprocess8.json";
+   	pURL = "data/fearonLaitinpreprocess8.json";
    
   // console.log("yo value of test",test);
    /*$.ajax({
@@ -261,29 +262,29 @@ if (dataurl) {
     type:'HEAD',
     error: function()
     {
-      console.log("error");
-      pURL = "data/fearonLaitinPreprocess4.json";
+    	console.log("error");
+    	pURL = "data/fearonLaitinPreprocess4.json";
         //file not exists
     },
     success: function()
     {
-      console.log("success");
-      pURL = purltest;
+    	console.log("success");
+    	pURL = purltest;
         //file exists
     }
-  });*/
-    function UrlExists(url)
-    {
-        var http = new XMLHttpRequest();
-        http.open('HEAD', url, false);
-        http.send();
-        return http.status!=404;
-    }
+	});*/
+		function UrlExists(url)
+		{
+		    var http = new XMLHttpRequest();
+		    http.open('HEAD', url, false);
+		    http.send();
+		    return http.status!=404;
+		}
     //pURL = "data/fearonLaitinPreprocess4.json";
-  
+	
     //console.log(purltest);
-   // console.log(pURL);  
-  //pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
+   // console.log(pURL);	
+	//pURL = "data/preprocessPUMS5small.json";   // This is California PUMS subset
     //pURL = "data/FL_insurance_sample.tab.json";
 
     // pURL = "data/qog_pp.json";   // This is Qual of Gov
@@ -291,23 +292,20 @@ if (dataurl) {
 
 var preprocess = {};
 var mods = new Object;
-var mods_ml = new Object;
-var mods_pp = new Object;
-var mods_ps = new Object;
 console.log("Value of username: ",username);
 //This function finds whether a key is present in the json file, and sends the key's value if present.
 function findValue(json, key) {
-     if (key in json) return json[key];
-     else {
-          var otherValue;
-          for (var otherKey in json) {
-            if (json[otherKey] && json[otherKey].constructor === Object) {
-              otherValue = findValue(json[otherKey], key);
-              if (otherValue !== undefined) return otherValue;
-            }
-          }
-        }
-    }
+		 if (key in json) return json[key];
+		 else {
+			    var otherValue;
+			    for (var otherKey in json) {
+			      if (json[otherKey] && json[otherKey].constructor === Object) {
+			        otherValue = findValue(json[otherKey], key);
+			        if (otherValue !== undefined) return otherValue;
+			      }
+			    }
+			  }
+		}
 
 
 
@@ -320,10 +318,13 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
               //console.log(UrlExists(metadataurl));
 
 
-              
-               d3.json(url,function(json){  
+              	//if(UrlExists(metadataurl)){
+               //d3.xml(metadataurl, "application/xml", function(xml) {
+
+				//				  d3.json(url, function(error, json) {
+               d3.json(url,function(json){	
                   
-                  
+									
 
 
                   var jsondata=json;
@@ -331,7 +332,7 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                     //console.log("Findvalue: ",findValue(jsondata,"fileName"));
                     //  var vars = xml.documentElement.getElementsByTagName("var");
                       var vars=jsondata.variables;
-            //console.log("value of vars");
+					  //console.log("value of vars");
               //        console.log(vars);
                      // var temp = xml.documentElement.getElementsByTagName("fileName");
                       var temp = findValue(jsondata,"fileName");
@@ -375,28 +376,28 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       var myvalues = [0, 0, 0, 0, 0];
                        //console.log("length: ",vars.length);
                       // console.log(vars);
-            
-            //var tmp=vars.ccode;
-            //console.log("tmp= ",tmp); 
-            var i=0;                     
-                    for(var key in vars) {
-                    //  console.log(vars[key]);
-                              //p[key] = jsondata["variables"][key];
-                              valueKey[i]=key;
-                              
-                              if(vars[key].labl.length===0){lablArray[i]="no label";}
-                              else{lablArray[i]=vars[key].labl;}
-                              
+						
+						//var tmp=vars.ccode;
+						//console.log("tmp= ",tmp); 
+						var i=0;                     
+										for(var key in vars) {
+										//	console.log(vars[key]);
+							                //p[key] = jsondata["variables"][key];
+							                valueKey[i]=key;
+							                
+							                if(vars[key].labl.length===0){lablArray[i]="no label";}
+							                else{lablArray[i]=vars[key].labl;}
+							                
 
-                              i++;
+							                i++;
 
-                          }
-                          //console.log("test=",ccode.labl.);     
-          //console.log("lablArray=",lablArray);                      
-          
+							            }
+							            //console.log("test=",ccode.labl.);     
+					//console.log("lablArray=",lablArray);                      
+					
 
                       for (i=0;i<valueKey.length;i++) {
-                      
+                    	
 
                       //valueKey[i] = vars[i].attributes.name.nodeValue;
                       
@@ -415,85 +416,38 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
                       
                       // console.log(vars[i].childNodes[4].attributes.type.ownerElement.firstChild.data);
                       allNodes.push(obj1);
+					 
                       };
-            
+						
                       //console.log("allNodes: ", allNodes);
                       // Reading the zelig models and populating the model list in the right panel.
-            
                       d3.json("data/zelig5models.json", function(error, json) {
-                             if (error) return console.warn(error);
-                             var jsondata = json;
-                              
-                            //console.log("zelig models json: ", jsondata);
-                             for(var key in jsondata.zelig5models) {
-                             if(jsondata.zelig5models.hasOwnProperty(key)) {
-                             mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
-                             }
-                             }
-                              
-                             d3.json("data/zelig5choicemodels.json", function(error, json) {
-                                     if (error) return console.warn(error);
-                                     var jsondata = json;
-                                      console.log("zelig choice models json: ", jsondata);
-                                     for(var key in jsondata.zelig5choicemodels) {
-                                     if(jsondata.zelig5choicemodels.hasOwnProperty(key)) {
-                                     mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
-                                     }
-                                     }
-                                      
-                                     scaffolding(callback=layout);
-                                     dataDownload();
-                                     });
-                             });
-                
-                
-                                  
-                      // Reading the caret models and populating the model list in the right panel.
-                      d3.json("data/caret5models.json", function(error, json) {
                               if (error) return console.warn(error);
                               var jsondata = json;
                               
-                              //console.log("caret models json: ", jsondata);
-                              for(var key in jsondata.caret5models) {
-                              if(jsondata.caret5models.hasOwnProperty(key)) {
-                              mods_ml[jsondata.caret5models[key].name[0]] = jsondata.caret5models[key].description[0];
+                              //console.log("zelig models json: ", jsondata);
+                              for(var key in jsondata.zelig5models) {
+                              if(jsondata.zelig5models.hasOwnProperty(key)) {
+                              mods[jsondata.zelig5models[key].name[0]] = jsondata.zelig5models[key].description[0];
                               }
                               }
-                    
-                                      
-                                      //scaffolding(callback=layout);
-                                      dataDownload();
-
-
-                              });
-
-
-                      // Reading the caret preprocess and populating the process list in the right panel.
-                      d3.json("data/caret5preprocess.json", function(error, json) {
-                              if (error) return console.warn(error);
-                              var jsondata = json;
                               
-                              //console.log("caret models json: ", jsondata);
-                              for(var key in jsondata.caret5preprocess) {
-                              if(jsondata.caret5preprocess.hasOwnProperty(key)) {
-                              mods_pp[jsondata.caret5preprocess[key].name[0]] = jsondata.caret5preprocess[key].description[0];
-                              }
-                              }
-
-                                      //scaffolding(callback=layout);
+                              d3.json("data/zelig5choicemodels.json", function(error, json) {
+                                      if (error) return console.warn(error);
+                                      var jsondata = json;
+                                      //console.log("zelig choice models json: ", jsondata);
+                                      for(var key in jsondata.zelig5choicemodels) {
+                                      if(jsondata.zelig5choicemodels.hasOwnProperty(key)) {
+                                      mods[jsondata.zelig5choicemodels[key].name[0]] = jsondata.zelig5choicemodels[key].description[0];
+                                      }
+                                      }
+                                      
+                                      scaffolding(callback=layout);
                                       dataDownload();
-
-
+                                      });
                               });
-
-                      // d3.json({
-                      //   mods_ = pre_varList.slice();
-                      //   console.log("reading the select data: ",mods_ps[0]);
-                      
-
-            
                       });
-            
+						
                });
 
 
@@ -510,22 +464,22 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
 
 //searching a variable
 
-      //scaffolding(callback=layout);
-    /*
-     d3.select("#tab1").selectAll("p")
-    //do something with this..
-    
-    .data(vkey)
-    .enter()
-    .append("p")
-    .attr("id",function(d){
-        return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
-        }) // perhapse ensure this id is unique by adding '_' to the front?
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-         if(findNodeIndex(d) > 2) {return varColor;}
-         else {return hexToRgba(selVarColor);}
-         })
+			//scaffolding(callback=layout);
+		/*
+	   d3.select("#tab1").selectAll("p")
+		//do something with this..
+		
+		.data(vkey)
+		.enter()
+		.append("p")
+		.attr("id",function(d){
+			  return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
+			  }) // perhapse ensure this id is unique by adding '_' to the front?
+		.text(function(d){return d;})
+		.style('background-color',function(d) {
+			   if(findNodeIndex(d) > 2) {return varColor;}
+			   else {return hexToRgba(selVarColor);}
+			   })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
     .attr("data-trigger", "hover")
@@ -534,159 +488,16 @@ readPreprocess(url=pURL, p=preprocess, v=null, callback=function(){
     .attr("onmouseover", "$(this).popover('toggle');")
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
-  */
+	*/
 
 
 
-// function populatePopoverVariable () {
-    
-//     d3.select("#pre_selection").selectAll("p")
-//     .attr("data-content", function(d) {
-      
-//           var onNode = findNodeIndex(d);
-        
-//           return popoverContent(allNodes[onNode]);
-//           });
-// }
-
-
-//get the current select var's name
-function pre_varlist(){
-    console.log("pre_varList called ");
-    var mods_ps = new Array()
-    for(var i=0; i<nodes.length;i++){
-
-
-      mods_ps.push(nodes[i].name);
-      //var div = document.getElementById("pre_selection");
-      //var html = .children[0].innerHTML += "<li>"+selectVar[selectVar.length-1]+"</li>";
-      //div.innerHTML+= "<li>"+selectVar[selectVar.length-1]+"</li>";
-      //div.innerHTML+= '<label><input name="variable" type="checkbox" value="'+selectVar[selectVar.length-1]+'"/>'+selectVar[selectVar.length-1]+'</label><br /> ';
-      //div.innerHTML+= '<label><input name="variable" type="checkbox" value="'+i+'"/>'+selectVar[selectVar.length-1]+'</label><br /> ';
-    }
-  for(var i=0; i<mods_ps.length; i++){
-      //console.log(" the mods_ps : "+ mods_ps[i]);
-    }
-
-    d3.select("#pre_selection").selectAll("p")
-    .data(mods_ps)
-    .enter()
-    .append("p")
-    .attr("id", function(d){
-         return "_preprocess_select_".concat(d);
-         })
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-         return varColor;
-          })
-    //.onClick()
-    .attr("data-container", "body")
-    .attr("data-toggle", "popover")
-    .attr("data-trigger", "hover")
-    .attr("data-placement", "top")
-    .attr("data-html", "true")
-    .attr("onmouseover", "$(this).popover('toggle');")
-    .attr("onmouseout", "$(this).popover('toggle');")
-
-
-    //click action
-    d3.select("#pre_selection").selectAll("p") // preprocess tab
-    .on("mouseover", function(d) {
-        // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
-         //console.log(" this is mouseover");
-        })
-    .on("mouseout", function() {
-        //Remove the tooltip
-        //d3.select("#tooltip").style("display", "none");
-        })
-        //  d3.select("#Display_content")
-        .on("click", function varClick(){
-          console.log(" listen , this is pre_varlist Click");
-
-        d3.select(this)
-        .style('background-color',function(d,i) {
-               //console.log(" d",d.id);
-               var myText = d3.select(this).text();
-               console.log("myText",myText);
-               var myColor = d3.select(this).style('background-color');
-               //var mySC = mods_ps[findSelectVarIndex(myText)].strokeColor;
-               //var myNode = mods_ps[findSelectVarIndex(this.id)];
-               var mySC = mods_ps[i].strokeColor;
-               var myNode = mods_ps[i];
-
-               //console.log("myNode",myNode);
-
-               console.log("this is ", this.id);
-               // SC=timeColor;
-               
-               zparams.zvars = []; //empty the zvars array
-               if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
-               
-                if(nodes.length==0) {
-                    nodes.push(findNode(myText));
-                    nodes[0].reflexive=true;
-                }
-                
-                else {nodes.push(findNode(myText));}
-                  
-               if(myNode.time==="yes") {
-                    tagColors(myNode, timeColor);
-                    return hexToRgba(timeColor);
-               }
-               else if(myNode.nature==="nominal") {
-                    tagColors(myNode, nomColor);
-                    return hexToRgba(nomColor);
-               }
-               else {
-                    return hexToRgba(selVarColor);
-               }
-
-               }
-               else { // dropping a variable
-            
-                    nodes.splice(findNode(myText)["index"], 1);
-                    spliceLinksForNode(findNode(myText));
-               
-                if(mySC==dvColor) {
-                    var dvIndex = zparams.zdv.indexOf(myText);
-                    if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                    //zparams.zdv="";
-                }
-                else if(mySC==csColor) {
-                    var csIndex = zparams.zcross.indexOf(myText);
-                    if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
-                }
-                else if(mySC==timeColor) {
-                  //console.log("entering some if");
-                    var timeIndex = zparams.ztime.indexOf(myText);
-                    //console.log("Timeindex=",timeIndex);
-                    if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
-                }
-               else if(mySC==nomColor) {
-                    var nomIndex = zparams.znom.indexOf(myText);
-                    if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
-               }
-
-               // nodeReset(allNodes[findNodeIndex(myText)]);
-                borderState();
-               legend();
-                return varColor;
-               }
-               });
-        
-        //check the nodes
-        console.log("The nodes element: ",nodes[0]);
-        panelPlots();
-        //restart();
-        });
-    
-  }
 
 
 // scaffolding is called after all external data are guaranteed to have been read to completion. this populates the left panel with variable names, the right panel with model names, the transformation tool, an the associated mouseovers. its callback is layout(), which initializes the modeling space
 function scaffolding(callback) {
-  //console.log("scaffolding called");
-  //console.log(valueKey);
+	//console.log("scaffolding called");
+	//console.log(valueKey);
     // establishing the transformation element
     d3.select("#transformations")
     .append("input")
@@ -784,24 +595,24 @@ function scaffolding(callback) {
                              });
                             
    
-  
+	
 
 //alert("scaffoldingflag"+flag);
 
 
-    // populating the variable list in the left panel
-    
-    d3.select("#tab1").selectAll("p")       //do something with this..
-    .data(valueKey)
-    .enter()
-    .append("p")
-    .attr("id",function(d){
-        return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
-        }) // perhapse ensure this id is unique by adding '_' to the front?
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-         if(findNodeIndex(d) > 2) {return varColor;}
-         else {
+		// populating the variable list in the left panel
+		
+		d3.select("#tab1").selectAll("p") 			//do something with this..
+		.data(valueKey)
+		.enter()
+		.append("p")
+		.attr("id",function(d){
+			  return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
+			  }) // perhapse ensure this id is unique by adding '_' to the front?
+		.text(function(d){return d;})
+		.style('background-color',function(d) {
+			   if(findNodeIndex(d) > 2) {return varColor;}
+			   else {
                 return hexToRgba(allNodes[findNodeIndex(d)].strokeColor);}
                })
     .attr("data-container", "body")
@@ -812,12 +623,12 @@ function scaffolding(callback) {
     .attr("onmouseover", "$(this).popover('toggle');")
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
-  
-    
-  
-    
+	
+		
+	
+		
 
-  
+	
     
     d3.select("#models")
     .style('height', 2000)
@@ -843,127 +654,32 @@ function scaffolding(callback) {
     .attr("data-html", "true")
     .attr("onmouseover", "$(this).popover('toggle');")
     .attr("onmouseout", "$(this).popover('toggle');")
-    .attr("data-original-title", "ML Description")
+    .attr("data-original-title", "Model Description")
     .attr("data-content", function(d){
           return mods[d];
           });
     
-  
-  d3.select("#ml_model")
-    .style('height', 2000)
-    .style('overfill', 'scroll');
-    
-    var ml_list = Object.keys(mods_ml);
-    
-    d3.select("#ml_model").selectAll("p")
-    .data(ml_list)
-    .enter()
-    .append("p")
-    .attr("id", function(d){
-         return "_ml_".concat(d);
-         })
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-         return varColor;
-          })
-    .attr("data-container", "body")
-    .attr("data-toggle", "popover")
-    .attr("data-trigger", "hover")
-    .attr("data-placement", "top")
-    .attr("data-html", "true")
-    .attr("onmouseover", "$(this).popover('toggle');")
-    .attr("onmouseout", "$(this).popover('toggle');")
-    .attr("data-original-title", "ml Description")
-    .attr("data-content", function(d){
-         return mods_ml[d];
-         });
-
-
-  d3.select("#preprocess")
-    .style('height', 2000)
-    .style('overfill', 'scroll');
-    
-    var pp_list = Object.keys(mods_pp);
-    
-    d3.select("#preprocess").selectAll("p")
-    .data(pp_list)
-    .enter()
-    .append("p")
-    .attr("id", function(d){
-         return "_preprocess_".concat(d);
-         })
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-         return varColor;
-          })
-    .attr("data-container", "body")
-    .attr("data-toggle", "popover")
-    .attr("data-trigger", "hover")
-    .attr("data-placement", "top")
-    .attr("data-html", "true")
-    .attr("onmouseover", "$(this).popover('toggle');")
-    .attr("onmouseout", "$(this).popover('toggle');")
-    .attr("data-original-title", "Preprocess Description")
-    .attr("data-content", function(d){
-         return mods_pp[d];
-         });
-
-
-    // d3.select("#pre_selection")
-    // .style('height', 500)
-    // .style('overfill', 'scroll');
-    
-    // var pre_select = Object.keys(mods_ps);
-    
-    // for(var i=0; i<mods_ps.length; i++){
-    //   console.log(" the mods_ps : "+ mods_ps[i]);
-    // }
-
-    // d3.select("#pre_selection").selectAll("p")
-    // .data(mods_ps)
-    // .enter()
-    // .append("p")
-    // .attr("id", function(d){
-    //      return "_preprocess_select_".concat(d);
-    //      })
-    // .text(function(d){return d;})
-    // .style('background-color',function(d) {
-    //      return varColor;
-    //       })
-    // .attr("data-container", "body")
-    // .attr("data-toggle", "popover")
-    // .attr("data-trigger", "hover")
-    // .attr("data-placement", "top")
-    // .attr("data-html", "true")
-    // .attr("onmouseover", "$(this).popover('toggle');")
-    // .attr("onmouseout", "$(this).popover('toggle');")
-    // .attr("data-original-title", "Preprocess Description")
-    // .attr("data-content", function(d){
-    //      return mods_ps[d];
-    //      });
-  
-  
     if(typeof callback === "function") {
         callback(); // this calls layout() because at this point all scaffolding is up and ready
     }
 }
 /*
 $("#clearbtn").click(function() {
-  $("#searchvar").val('').focus();
-  restart();
-  updatedata(valueKey);
-  //scaffolding(callback);
-  });
+	$("#searchvar").val('').focus();
+	restart();
+	updatedata(valueKey);
+	//scaffolding(callback);
+	});
 */
 $("#searchvar").ready(function(){
-  $("#searchvar").val('');
-  
+	$("#searchvar").val('');
+	
 });
-  //Rohit Bhattacharjee
+	//Rohit Bhattacharjee
    //to add a clear button in the search barS
    
  function tog(v){
-  return v?'addClass':'removeClass';
+	return v?'addClass':'removeClass';
 } 
 
 $(document).on('input', '#searchvar', function() {
@@ -972,135 +688,120 @@ $(document).on('input', '#searchvar', function() {
     $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');   
 }).on('click', '.onX', function(){
     $(this).removeClass('x onX').val('').focus();
-  updatedata(valueKey,0);
+	updatedata(valueKey,0);
 });
 
 
   
    
-  
-  var srchid=[];
-  var vkey=[];
-  $("#searchvar").on("keyup",function search(e) {
+	
+	var srchid=[];
+	var vkey=[];
+	$("#searchvar").on("keyup",function search(e) {
     //if(e.keyCode == 8 ) {
-    //d3.select("#tab1").selectAll("p")
-    
-    $("#tab1").children().popover('hide');
-  //}
-  var flag=0;
-    var k=0;
-      vkey=[];
-     srchid=[];
-     
-     if($(this).val()===''){
-      srchid=[];
-      flag=0;
-      updatedata(valueKey,flag);
-      return;
-    }
-    
-    for(var i=0;i<allNodes.length;i++)
-    {
-      if((allNodes[i]["name"].indexOf($(this).val())!=-1))
-      { 
-        srchid[k]=i;
+		//d3.select("#tab1").selectAll("p")
+		
+		$("#tab1").children().popover('hide');
+	//}
+	var flag=0;
+		var k=0;
+		  vkey=[];
+		 srchid=[];
+		 
+		 if($(this).val()===''){
+			srchid=[];
+			flag=0;
+			updatedata(valueKey,flag);
+			return;
+		}
+		
+		for(var i=0;i<allNodes.length;i++)
+		{
+			if((allNodes[i]["name"].indexOf($(this).val())!=-1))
+			{	
+				srchid[k]=i;
+				
+			k=k+1;}
+		}
+		for(var i=0;i<allNodes.length;i++)
+		{
+			if((allNodes[i]["labl"].indexOf($(this).val())!=-1) && ($.inArray(i, srchid)==-1))
+			{	
+				
+				srchid[k]=i;
+				
+			k=k+1;}
+		}
+		
+		//console.log(srchid);
+		lngth=srchid.length;
+	if(k==0){
+			vkey=valueKey;
+			
+	}
+	else{
+			
+				flag=1;
+				vkey=[];
+			
+				k=0;
+				var i=0;
+				for( i=0;i<srchid.length;i++)	{
+					vkey[i]=valueKey[srchid[i]];
+				
+				}
+				
+				for(var j=0;j<valueKey.length;j++){
+					
+					if($.inArray(valueKey[j],vkey)==-1){
+							vkey[i]=valueKey[j];
+							i++;
+					}
+				
+				}
+				}
+				
+		
         
-      k=k+1;}
-    }
-    for(var i=0;i<allNodes.length;i++)
-    {
-      if((allNodes[i]["labl"].indexOf($(this).val())!=-1) && ($.inArray(i, srchid)==-1))
-      { 
-        
-        srchid[k]=i;
-        
-      k=k+1;}
-    }
-    
-    //console.log(srchid);
-    lngth=srchid.length;
-  if(k==0){
-      vkey=valueKey;
-      
-  }
-  else{
-      
-        flag=1;
-        vkey=[];
-      
-        k=0;
-        var i=0;
-        for( i=0;i<srchid.length;i++) {
-          vkey[i]=valueKey[srchid[i]];
-        
-        }
-        
-        for(var j=0;j<valueKey.length;j++){
-          
-          if($.inArray(valueKey[j],vkey)==-1){
-              vkey[i]=valueKey[j];
-              i++;
-          }
-        
-        }
-        }
-        
-    
-        
-  updatedata(vkey,flag);
+	updatedata(vkey,flag);
 
 });
-  
-  
 
-
-  //get the currect decision var's name
-  function decisionVar(){
-    var variableList = document.getElementById("selectList").variable;
-    for(var i=0;i<variableList.length;i++){
-        if(variableList[i].checked){
-            //userid = radionum[i].value
-        }
-    }
-
-  }
-
-
-  function updatedata(value,flag)
-  {
-  var clr='#000000' ;
-  
-  var nodename=[];
-  var bordercol='#000000';
-  var borderstyle='solid';
-  for(var i=0;i<nodes.length;i++)
-  {
-    nodename[i]=nodes[i].name;
-  }
-  
-  d3.select("#tab1").selectAll("p").data(valueKey).remove();
-  
-  
-  d3.select("#tab1").selectAll("p")
-    //do something with this..
-    
-    .data(value)
-    .enter()
-    .append("p")
-    .attr("id",function(d){
-        return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
-        }) // perhapse ensure this id is unique by adding '_' to the front?
-    .text(function(d){return d;})
-    .style('background-color',function(d) {
-        if($.inArray(findNode(d).name,nodename)==-1) {return varColor;}
-      
-         else {return hexToRgba(selVarColor);}
-         }).style('border-style',function(d){
-           if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return borderstyle;}
-         })
-         .style('border-color',function(d){
-           if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return bordercol;}
-         })
+	function updatedata(value,flag)
+	{
+	var clr='#000000' ;
+	
+	var nodename=[];
+	var bordercol='#000000';
+	var borderstyle='solid';
+	for(var i=0;i<nodes.length;i++)
+	{
+		nodename[i]=nodes[i].name;
+	}
+	
+	d3.select("#tab1").selectAll("p").data(valueKey).remove();
+	
+	
+	d3.select("#tab1").selectAll("p")
+		//do something with this..
+		
+		.data(value)
+		.enter()
+		.append("p")
+		.attr("id",function(d){
+			  return d.replace(/\W/g, "_"); // replace non-alphanumerics for selection purposes
+			  }) // perhapse ensure this id is unique by adding '_' to the front?
+		.text(function(d){return d;})
+		.style('background-color',function(d) {
+			  if($.inArray(findNode(d).name,nodename)==-1) {return varColor;}
+			
+			   else {return hexToRgba(selVarColor);}
+			   }).style('border-style',function(d){
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return borderstyle;}
+			   })
+			   .style('border-color',function(d){
+				   if($.inArray(findNodeIndex(d),srchid)!=-1 && flag==1){return bordercol;}
+			   })
     .attr("data-container", "body")
     .attr("data-toggle", "popover")
     .attr("data-trigger", "hover")
@@ -1109,38 +810,38 @@ $(document).on('input', '#searchvar', function() {
     .attr("onmouseover", "$(this).popover('toggle');")
     .attr("onmouseout", "$(this).popover('toggle');")
     .attr("data-original-title", "Summary Statistics");
-  
-  
-  fakeClick();
-  
-  $("#tab1").children().popover('hide');
-  populatePopover();
-  
-  addlistener(nodes);
+	
+	
+	fakeClick();
+	
+	$("#tab1").children().popover('hide');
+	populatePopover();
+	
+	addlistener(nodes);
 
-  
-  }
-  
+	
+	}
+	
 
 var circle = svg.append('svg:g').selectAll('g');
  var path = svg.append('svg:g').selectAll('path');
     
-  
-  // line displayed when dragging new nodes
+	
+	// line displayed when dragging new nodes
        
-    
-  //ROHIT BHATTACHARJEE
-  // mouse event vars
+		
+	//ROHIT BHATTACHARJEE
+	// mouse event vars
         var selected_node = null,
         selected_link = null,
         mousedown_link = null,
         mousedown_node = null,
         mouseup_node = null;
 var force;
-  function layout(v) {
-  
-  
-      var myValues=[];
+	function layout(v) {
+	
+	
+	    var myValues=[];
     nodes = [];
     links = [];
     
@@ -1158,7 +859,7 @@ var force;
                                       return hexToRgba(nodes[j].strokeColor);
                                       });
         
-    }
+		}
   
         for(var j=0; j < zparams.zedges.length; j++) {
             var mysrc = nodeIndex(zparams.zedges[j][0]);
@@ -1195,16 +896,16 @@ var force;
     panelPlots(); // after nodes is populated, add subset and setx panels
     populatePopover(); // pipes in the summary stats shown on mouseovers
    // restart();
-  
-  
+	
+	
     
-  //Rohit Bhattacharjee FORCE D3
-  // init D3 force layout 
-  
-    //var 
-    force=forced3layout(nodes, links, width, height,tick);
-    // init D3 force layout
-    //function forced3layout(var nodes, var links, var width, var height)
+	//Rohit Bhattacharjee FORCE D3
+	// init D3 force layout 
+	
+		//var 
+		force=forced3layout(nodes, links, width, height,tick);
+		// init D3 force layout
+		//function forced3layout(var nodes, var links, var width, var height)
         //var force = d3.layout.force()
         //.nodes(nodes)
         //.links(links)
@@ -1214,9 +915,9 @@ var force;
         //.on('tick',tick);  // .start() is important to initialize the layout
   
         
-    //Rohit Bhattacharjee SVG
-    //function svgappend()
-    // define arrow markers for graph links
+		//Rohit Bhattacharjee SVG
+		//function svgappend()
+		// define arrow markers for graph links
         svg.append('svg:defs').append('svg:marker')
         .attr('id', 'end-arrow')
         .attr('viewBox', '0 -5 10 10')
@@ -1259,14 +960,14 @@ var force;
         mouseup_node = null;
 
         //ROHIT BHATTACHARJEE reset mouse
-    //function
-     resetMouseVars(); //{
+		//function
+		 resetMouseVars(); //{
         //    mousedown_node = null;
         //    mouseup_node = null;
         //    mousedown_link = null;
         //}
         
-    //ROHIT BHATTACHARJEE TICK
+		//ROHIT BHATTACHARJEE TICK
         // update force layout (called automatically each iteration)
        //function tick() {
        //    // draw directed edges with proper padding from node centers
@@ -1295,10 +996,10 @@ var force;
        //
     
     //  add listeners to leftpanel.left.  every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
-  //Rohit BHATTACHARJEE add listener
-  addlistener(nodes);
+	//Rohit BHATTACHARJEE add listener
+	addlistener(nodes);
    //unction addlistener(){
-  //d3.select("#tab1").selectAll("p")
+	//d3.select("#tab1").selectAll("p")
    //.on("mouseover", function(d) {
    //    // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
    //    $("body div.popover")
@@ -1312,7 +1013,7 @@ var force;
    //    })
    //.on("click", function varClick(){
    //    if(allNodes[findNodeIndex(this.id)].grayout) {return null;}
-  //
+	//
    //    d3.select(this)
    //    .style('background-color',function(d) {
    //           var myText = d3.select(this).text();
@@ -1360,14 +1061,14 @@ var force;
    //    panelPlots();
    //    restart();
    //    });
-  //}
-  //
+	//}
+	//
         
-  //var 
-  drag_line = svg.append('svg:path')
+	//var 
+	drag_line = svg.append('svg:path')
         .attr('class', 'link dragline hidden')
-       .attr('d', 'M0,0L0,0');  
-  //  
+       .attr('d', 'M0,0L0,0');	
+	//	
     d3.select("#models").selectAll("p") // models tab
     .on("mouseover", function(d) {
         // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
@@ -1395,103 +1096,13 @@ var force;
             restart();
             });
 
-
-    d3.select("#ml_model").selectAll("p") // ml_model tab
-    .on("mouseover", function(d) {
-        // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
-        })
-    .on("mouseout", function() {
-        //Remove the tooltip
-        //d3.select("#tooltip").style("display", "none");
-        })
-        //  d3.select("#Display_content")
-        .on("click", function(){
-            var myColor = d3.select(this).style('background-color');
-            d3.select("#ml_model").selectAll("p")
-            .style('background-color',varColor);
-            d3.select(this)
-            .style('background-color',function(d) {
-                   if(d3.rgb(myColor).toString() === varColor.toString()) {
-                    zparams.zmodel = d.toString();
-                    return hexToRgba(selVarColor);
-                   }
-                   else {
-                    zparams.zmodel = "";
-                    return varColor;
-                   }
-                   });
-            restart();
-            });
-
-
-    d3.select("#preprocess").selectAll("p") // preprocess tab
-    .on("mouseover", function(d) {
-        //console.log(" preprocess is mouseover");
-        // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
-        })
-    .on("mouseout", function() {
-        //Remove the tooltip
-        //d3.select("#tooltip").style("display", "none");
-        })
-        //  d3.select("#Display_content")
-        .on("click", function(){
-            console.log(" preprocess is clicked");
-            var myColor = d3.select(this).style('background-color');
-            d3.select("#preprocess").selectAll("p")
-            .style('background-color',varColor);
-            d3.select(this)
-            .style('background-color',function(d) {
-                   if(d3.rgb(myColor).toString() === varColor.toString()) {
-                    zparams.zmodel = d.toString();
-                    return hexToRgba(selVarColor);
-                   }
-                   else {
-                    zparams.zmodel = "";
-                    return varColor;
-                   }
-                   });
-            restart();
-            });
-
-
-
-    // d3.select("#pre_selection").selectAll("p") // preprocess tab
-    // .on("mouseover", function(d) {
-    //     // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
-    //      console.log(" this is mouseover");
-    //     })
-    // .on("mouseout", function() {
-    //     //Remove the tooltip
-    //     //d3.select("#tooltip").style("display", "none");
-    //     })
-    //     //  d3.select("#Display_content")
-    //     .on("click", function(){
-    //       console.log(" this is clicked");
-    //         //pre_varlist();
-    //         // var myColor = d3.select(this).style('background-color');
-    //         // d3.select("#pre_selection ").selectAll("p")
-    //         // .style('background-color',varColor);
-    //         // d3.select(this)
-    //         // .style('background-color',function(d) {
-    //         //        if(d3.rgb(myColor).toString() === varColor.toString()) {
-    //         //         zparams.zmodel = d.toString();
-    //         //         return hexToRgba(selVarColor);
-    //         //        }
-    //         //        else {
-    //         //         zparams.zmodel = "";
-    //         //         return varColor;
-    //         //        }
-    //         //        });
-    //         // restart();
-    //         });
-
             
 
     
     // update graph (called when needed)
-  //restart();
-  //ROHIT BHATTACHARJEE RESTART FUNCTION
-  //end restart function
+	//restart();
+	//ROHIT BHATTACHARJEE RESTART FUNCTION
+	//end restart function
     
     //ROHIT BHATTACHARJEE MOUSE FUNCTIONS
   // function mousedown(d) {
@@ -1529,7 +1140,7 @@ var force;
   //     resetMouseVars();
   // }
     
-    
+		
 
     
     // app starts here
@@ -1553,24 +1164,24 @@ var force;
     
     restart(); // this is the call the restart that initializes the force.layout()
     fakeClick();
-}     // end layout
+} 		// end layout
 //nodes
 //console.log("nodes: "+nodes);
 
  
-    
-  
+		
+	
         $(document).ready(function(){
 
-            $("#btnSave").hide();
+        		$("#btnSave").hide();
         });
-  
+	
 //Rohit BHATTACHARJEE circle
 //circle = svg.append('svg:g').selectAll('g');
 function restart() {
         // nodes.id is pegged to allNodes, i.e. the order in which variables are read in
         // nodes.index is floating and depends on updates to nodes.  a variables index changes when new variables are added.
-    //var force=forced3layout(nodes, links,  width,  height, tick);
+		//var force=forced3layout(nodes, links,  width,  height, tick);
         circle.call(force.drag);
         if(forcetoggle[0]==="true")
         {
@@ -1690,52 +1301,52 @@ function restart() {
             .duration(500);
             })
         .on('click', function(d){ //this event changes the all nodes time value
-          
+        	
             setColors(d, timeColor);
             
             legend(timeColor);
-      if(allNodes[findNodeIndex(d.name)].time==="no"){
-      if(confirm("Do you want to tag this variable as a time variable?")==true)
-      {
-        newallNodes=allNodes;
+			if(allNodes[findNodeIndex(d.name)].time==="no"){
+			if(confirm("Do you want to tag this variable as a time variable?")==true)
+			{
+				newallNodes=allNodes;
 
-        
-        allNodes[findNodeIndex(d.name)].time="yes";
-        
-        
-        if(allNodes===newallNodes){
-          
-          $("#btnSave").show();
-        }
-        else
-          console.log("False");
-      
-      }
-      else("dont tag it");
-    }
-      else{
+				
+				allNodes[findNodeIndex(d.name)].time="yes";
+				
+				
+				if(allNodes===newallNodes){
+					
+					$("#btnSave").show();
+				}
+				else
+					console.log("False");
+			
+			}
+			else("dont tag it");
+		}
+			else{
 
-          if(confirm("This Variable is tagged as a time variable. Do you want to untag it?")==true)
-      {
-        newallNodes=allNodes;
+					if(confirm("This Variable is tagged as a time variable. Do you want to untag it?")==true)
+			{
+				newallNodes=allNodes;
 
-        
-        
-        allNodes[findNodeIndex(d.name)].time="no";
-        
-        
-        if(allNodes===newallNodes){
-          
-          $("#btnSave").show();
-        }
-        else
-          console.log("False");
-      
-      }
-      else("dont tag it");
+				
+				
+				allNodes[findNodeIndex(d.name)].time="no";
+				
+				
+				if(allNodes===newallNodes){
+					
+					$("#btnSave").show();
+				}
+				else
+					console.log("False");
+			
+			}
+			else("dont tag it");
 
-      }
-      
+			}
+			
             restart();
            
             });
@@ -1869,29 +1480,29 @@ function restart() {
         .on('click', function(d){
             if(d.defaultNumchar=="character") {return;}
             else if(d.defaultNumchar=="numeric" && d.nature!="nominal"){
-              if(confirm("Do you want to tag this variable as a nominal?")==true)
-              {
-                setColors(d, nomColor);
-                allNodes[findNodeIndex(d.name)].nature="nominal";
-                $("#btnSave").show();
+            	if(confirm("Do you want to tag this variable as a nominal?")==true)
+            	{
+            		setColors(d, nomColor);
+            		allNodes[findNodeIndex(d.name)].nature="nominal";
+            		$("#btnSave").show();
 
 
-              }
-              else("dont tag it");
+            	}
+            	else("dont tag it");
 
             }
-          else if(d.defaultNumchar=="numeric" && d.nature=="nominal"){
-        if(confirm("This variable is tagged as a nominal variable. Do you want to untag it?")==true)
-              {
-                setColors(d, nomColor);
-                allNodes[findNodeIndex(d.name)].nature="ordinal";
-                $("#btnSave").show();
+        	else if(d.defaultNumchar=="numeric" && d.nature=="nominal"){
+				if(confirm("This variable is tagged as a nominal variable. Do you want to untag it?")==true)
+            	{
+            		setColors(d, nomColor);
+            		allNodes[findNodeIndex(d.name)].nature="ordinal";
+            		$("#btnSave").show();
 
 
-              }
-              else("dont tag it")
+            	}
+            	else("dont tag it")
 
-          }
+        	}
             
             legend(nomColor);
             restart();
@@ -2009,9 +1620,9 @@ function restart() {
             
             resetMouseVars();
             restart();
-      //forced3layout(nodes, links,  width,  height, tick);
+			//forced3layout(nodes, links,  width,  height, tick);
             
-      });
+			});
         
        
         // show node Names
@@ -2169,26 +1780,26 @@ function restart() {
             //  };
             
         }
-  
+	
 
-  //ROHIT BHATTACHARJEE Write to JSON Function, to write new metadata file after the user has tagged a variable as a time variable
-  function writetojson(btn){
-    
-    //var jsonallnodes=JSON.stringify(allNodes);
-        
+	//ROHIT BHATTACHARJEE Write to JSON Function, to write new metadata file after the user has tagged a variable as a time variable
+	function writetojson(btn){
+		
+		//var jsonallnodes=JSON.stringify(allNodes);
+				
     var outtypes = [];
     for(var j=0; j < allNodes.length; j++) {
         outtypes.push({varnamesTypes:allNodes[j].name, nature:allNodes[j].nature, numchar:allNodes[j].numchar, binary:allNodes[j].binary, interval:allNodes[j].interval,time:allNodes[j].time});
     }
 
    // console.log("Outtypes:"+outtypes);
-    writeout={outtypes:outtypes}
-        writeoutjson=JSON.stringify(writeout);
-        //console.log(jsonallnodes);
-        urlcall = rappURL+"writeapp"; 
+		writeout={outtypes:outtypes}
+				writeoutjson=JSON.stringify(writeout);
+				//console.log(jsonallnodes);
+				urlcall = rappURL+"writeapp"; 
 
-        //base.concat(jsonout);
-      function cleanstring(s) {
+				//base.concat(jsonout);
+    	function cleanstring(s) {
                         s=s.replace(/\&/g, "and");
                         s=s.replace(/\;/g, ",");
                         s=s.replace(/\%/g, "-");
@@ -2201,8 +1812,8 @@ function restart() {
 
 function writesuccess(btn,json){
 
-  selectLadda.stop();
-  // $("#btnVariables").trigger("click"); // programmatic clicks
+	selectLadda.stop();
+	// $("#btnVariables").trigger("click"); // programmatic clicks
       //  $("#btnModels").trigger("click");
       $('#btnSave').hide();
 
@@ -2213,7 +1824,7 @@ function writesuccess(btn,json){
 
 function writefail(btn)
 {
-  selectLadda.stop();
+	selectLadda.stop();
 
 }
 
@@ -2267,33 +1878,33 @@ function mousedown(d) {
 
 
 
-    //ROHIT Bhattacharjee
-    // init D3 force layout
-    function forced3layout(nodes, links,  width,  height,tick)
+		//ROHIT Bhattacharjee
+		// init D3 force layout
+		function forced3layout(nodes, links,  width,  height,tick)
         {
-    var force = d3.layout.force()
+		var force = d3.layout.force()
         .nodes(nodes)
         .links(links)
         .size([width, height])
         .linkDistance(150)
         .charge(-800)
         .on('tick',tick);  // .start() is important to initialize the layout
-    
-    return force;
-    }
-    
-    function resetMouseVars() {
+		
+		return force;
+		}
+		
+		function resetMouseVars() {
             mousedown_node = null;
             mouseup_node = null;
             mousedown_link = null;
         }
 
-  //ROHIT BHATTACHARJEE ad listener function
-  function addlistener(nodes){
-  d3.select("#tab1").selectAll("p")
+	//ROHIT BHATTACHARJEE ad listener function
+	function addlistener(nodes){
+	d3.select("#tab1").selectAll("p")
     .on("mouseover", function(d) {
         
-    // REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
+		// REMOVED THIS TOOLTIP CODE AND MADE A BOOTSTRAP POPOVER COMPONENT
         $("body div.popover")
         .addClass("variables");
         $("body div.popover div.popover-content")
@@ -2301,8 +1912,8 @@ function mousedown(d) {
          })
     .on("mouseout", function() {
         
-                    //Remove the tooltip
-                      //d3.select("#tooltip").style("display", "none");
+										//Remove the tooltip
+											//d3.select("#tooltip").style("display", "none");
         })
 
         
@@ -2316,11 +1927,11 @@ function mousedown(d) {
                var mySC = allNodes[findNodeIndex(myText)].strokeColor;
                var myNode = allNodes[findNodeIndex(this.id)];
 
-                //console.log("inside SC wala if");
-               console.log("tab1 myNode",myNode);
+               	//console.log("inside SC wala if");
+               //	SC=timeColor;
                
                zparams.zvars = []; //empty the zvars array
-               if(d3.rgb(myColor).toString() === varColor.toString()) { // we are adding a var
+               if(d3.rgb(myColor).toString() === varColor.toString()) {	// we are adding a var
                
                 if(nodes.length==0) {
                     nodes.push(findNode(myText));
@@ -2328,7 +1939,7 @@ function mousedown(d) {
                 }
                 
                 else {nodes.push(findNode(myText));}
-                  
+                	
                if(myNode.time==="yes") {
                     tagColors(myNode, timeColor);
                     return hexToRgba(timeColor);
@@ -2357,7 +1968,7 @@ function mousedown(d) {
                     if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
                 }
                 else if(mySC==timeColor) {
-                  //console.log("entering some if");
+                	//console.log("entering some if");
                     var timeIndex = zparams.ztime.indexOf(myText);
                     //console.log("Timeindex=",timeIndex);
                     if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
@@ -2373,27 +1984,19 @@ function mousedown(d) {
                 return varColor;
                }
                });
-         
+			   
         panelPlots();
         restart();
         });
-  }
-    //console.log("Search ID at start: "+srchid);
-    
-    
+	}
+		//console.log("Search ID at start: "+srchid);
+		
+		
 // returns id
 var findNodeIndex = function(nodeName) {
     for (var i in allNodes) {
         if(allNodes[i]["name"] === nodeName) {return allNodes[i]["id"];}
-    
-    };
-}
-
-
-var findSelectVarIndex = function(nodeName) {
-    for (var i in mods_ps) {
-        if(mods_ps[i]["name"] === nodeName) {return mods_ps[i]["id"];}
-    
+		
     };
 }
 
@@ -2405,10 +2008,6 @@ var nodeIndex = function(nodeName) {
 
 var findNode = function(nodeName) {
     for (var i in allNodes) {if (allNodes[i]["name"] === nodeName) return allNodes[i]};
-}
-
-var findSelectVarNode = function(nodeName) {
-    for (var i in mods_ps) {if (mods_ps[i]["name"] === nodeName) return mods_ps[i]};
 }
 
 
@@ -2437,8 +2036,9 @@ function spliceLinksForNode(node) {
 }
 
 function zPop() {
+    console.log("zPop function is being processing");
     if (dataurl) {
-  zparams.zdataurl = dataurl;
+	     zparams.zdataurl = dataurl;
     } 
 
     zparams.zmodelcount = modelCount;
@@ -2470,18 +2070,15 @@ function zPop() {
     }
 }
 
-
-
 function estimate(btn) {
     
+    //console.log("estimate function is being processing");
     if(production && zparams.zsessionid=="") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
 
-    
     zPop();
-    console.log("estimate function after pop()");
     // write links to file & run R CMD
     
     //package the output as JSON
@@ -2498,17 +2095,15 @@ function estimate(btn) {
   
     zparams.allVars = valueKey.slice(10,25); // this is because the URL is too long...
     var jsonout = JSON.stringify(zparams);
-    console.log("jsonout",jsonout);
-
     //var selectorBase = rappURL+"selectorapp?solaJSON=";
     var selectorurlcall = rappURL+"selectorapp"; //.concat(jsonout);
     
     function estimateSuccess(btn,json) {
         estimateLadda.stop();  // stop spinner
         allResults.push(json);
-       // console.log(allResults);
+        //console.log("estimateSuccess");
         //console.log("json in: ", json);
-        console.log("estimate function after estimateSuccess()");
+        
         var myparent = document.getElementById("results");
         if(estimated==false) {
             myparent.removeChild(document.getElementById("resultsHolder"));
@@ -2586,112 +2181,6 @@ function estimate(btn) {
 
     
 }
-
-
-//main function for caret model app
-function caretEstimate(btn) {
-    console.log("caretEstimate method called");
-    if (production && zparams.zsessionid == "") {
-        alert("Warning: Data download is not complete. Try again soon.");
-        return;
-    }
-
-    zPop();
-    console.log("caretEstimate zpop: ", zparams);
-
-    zparams.callHistory=callHistory;
-    var jsonout = JSON.stringify(zparams);
-    
-    //var base = rappURL+"caretapp?solaJSON="
-    urlcall = rappURL+"caretapp"; //base.concat(jsonout);
-    var solajsonout = "solaJSON="+jsonout;
-    console.log("urlcall out: ", urlcall);
-    //console.log("POST out: ", solajsonout);
-
-    var jsonout = JSON.stringify(zparams);
-    console.log("jsonout",jsonout);
-
-    function caretEstimateSuccess(btn,json) {
-        console.log("caretEstimateSuccess method called");
-        estimateLadda.stop();  // stop spinner
-        allResults.push(json);
-        //var json_explore = json;
-
-        var myparent = document.getElementById("results");
-        if(estimated==false) {
-            myparent.removeChild(document.getElementById("resultsHolder"));
-        }
-        
-        estimated=true;
-        d3.select("#results")
-        .style("display", "block");
-        
-        d3.select("#resultsView")
-        .style("display", "block");
-        
-        d3.select("#modelView")
-        .style("display", "block");
-        
-        // programmatic click on Results button
-        $("#btnResults").trigger("click");
-       
-        modelCount = modelCount+1;
-        var model = "Model".concat(modelCount);
-        
-        function modCol() {
-            d3.select("#modelView")
-            .selectAll("p")
-            .style('background-color', hexToRgba(varColor));
-        }
-        
-        modCol();
-        
-        d3.select("#modelView")
-        .insert("p",":first-child") // top stack for results
-        .attr("id",model)
-        .text(model)
-        .style('background-color', hexToRgba(selVarColor))
-        .on("click", function(){
-            var a = this.style.backgroundColor.replace(/\s*/g, "");
-            var b = hexToRgba(selVarColor).replace(/\s*/g, "");
-            if(a.substr(0,17)===b.substr(0,17)) {
-                return; //escapes the function early if the displayed model is clicked
-            }
-            modCol();
-            d3.select(this)
-            .style('background-color', hexToRgba(selVarColor));
-            viz(this.id);
-            });
-        
-        var rCall = [];
-        rCall[0] = json.call;
-        logArray.push("caretEstimate: ".concat(rCall[0]));
-        showLog();
-        
-        viz(model);
-
-    }
-
-
-    function caretEstimateFail(btn) {
-        estimateLadda.stop();  // stop spinner
-        estimated=true;
-    }
-    
-    // function selectorSuccess(btn, json) {
-    //     d3.select("#ticker")
-    //     .text("Suggested variables and percent improvement on RMSE: " + json.vars);
-    //    // console.log("selectorSuccess: ", json);
-    // }
-    
-    // function selectorFail(btn) {
-    //     alert("Selector Fail");
-    // }
-
-    estimateLadda.start();  // start spinner
-    makeCorsRequest(urlcall, btn, caretEstimateSuccess, caretEstimateFail, solajsonout); 
-}
-
 
 
 function dataDownload() {
@@ -2936,8 +2425,8 @@ function transform(n,t, typeTransform) {
             d3.json(json.url, function(error, json) {
                         if (error) return console.warn(error);
                         var jsondata = json;
-                      var vars=jsondata["variables"];
-                      
+                    	var vars=jsondata["variables"];
+                    	
                         for(var key in vars) {
                             var myIndex = findNodeIndex(key);
                             jQuery.extend(true, allNodes[myIndex], jsondata.variables[key]);
@@ -3179,7 +2668,7 @@ function createCORSRequest(method, url, callback) {
 // Make the actual CORS request.
 function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     var xhr = createCORSRequest('POST', url);
-  //console.log("inside cors json size:"+jsonstring.length);
+	//console.log("inside cors json size:"+jsonstring.length);
     if (!xhr) {
         alert('CORS not supported');
         return;
@@ -3190,7 +2679,7 @@ function makeCorsRequest(url,btn,callback, warningcallback, jsonstring) {
     xhr.onload = function() {
         
       var text = xhr.responseText;
-      console.log("text ", text);
+      //console.log("text ", text);
         
         try {
             var json = JSON.parse(text);   // should wrap in try / catch
@@ -3367,73 +2856,23 @@ function tabLeft(tab) {
     document.getElementById(tab).style.display = 'block';
 }
 
-
-// function selectVar() {
-//   var selectVariavle = document.getElementById("select_input").value.toString();
-//   var varArray = selectVariavle.split(",");
-
-//   return varArray;
-// }
-
 function tabRight(tabid) {
 
     document.getElementById('models').style.display = 'none';
-    document.getElementById('ml_model').style.display = 'none';
-    document.getElementById('preprocess').style.display = 'none';
     document.getElementById('setx').style.display = 'none';
     document.getElementById('results').style.display = 'none';
-
-    document.getElementById('pre_selection').style.display = 'none';
     
     if(tabid=="btnModels") {
       document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-      document.getElementById('btnML').setAttribute("class", "btn btn-default");
-      document.getElementById('btnPP').setAttribute("class", "btn btn-default");
       document.getElementById('btnModels').setAttribute("class", "btn active");
       document.getElementById('models').style.display = 'block';
         
         d3.select("#rightpanel")
         .attr("class", "sidepanel container clearfix");
     }
-  
-  else if(tabid=="btnML"){
-     document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-     document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-     document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-     document.getElementById('btnPP').setAttribute("class", "btn btn-default");
-     document.getElementById('btnML').setAttribute("class", "btn active");
-     document.getElementById('ml_model').style.display = 'block';
-    
-   d3.select("#rightpanel")
-       .attr("class", "sidepanel container clearfix");
-  }
-
-
-  else if(tabid=="btnPP"){
-     //console.log("btnPP clicked");
-     document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
-     document.getElementById('btnResults').setAttribute("class", "btn btn-default");
-     document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-     document.getElementById('btnML').setAttribute("class", "btn btn-default");
-     document.getElementById('btnPP').setAttribute("class", "btn active");
-     document.getElementById('preprocess').style.display = 'block';
-     document.getElementById('pre_selection').style.display = 'block';
-
-        if(estimated===false) {
-            d3.select("#rightpanel")
-                .attr("class", "sidepanel container clearfix expandpanel");
-        }
-        else if(righttab=="btnPP" | d3.select("#rightpanel").attr("class")=="sidepanel container clearfix ") {toggleR()};
-
-        pre_varlist();
-  }
-
-  
     else if (tabid=="btnSetx") {
       document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnPP').setAttribute("class", "btn btn-default");
-      document.getElementById('btnML').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn btn-default");
       document.getElementById('btnSetx').setAttribute("class", "btn active");
       document.getElementById('setx').style.display = 'block';
@@ -3442,8 +2881,6 @@ function tabRight(tabid) {
     }
     else if (tabid=="btnResults") {
       document.getElementById('btnModels').setAttribute("class", "btn btn-default");
-      document.getElementById('btnPP').setAttribute("class", "btn btn-default");
-      document.getElementById('btnML').setAttribute("class", "btn btn-default");
       document.getElementById('btnSetx').setAttribute("class", "btn btn-default");
       document.getElementById('btnResults').setAttribute("class", "btn active");
       document.getElementById('results').style.display = 'block';
@@ -3537,7 +2974,7 @@ function populatePopover () {
     
     d3.select("#tab1").selectAll("p")
     .attr("data-content", function(d) {
-      
+    	
           var onNode = findNodeIndex(d);
         
           return popoverContent(allNodes[onNode]);
@@ -3727,7 +3164,7 @@ function setColors (n, c) {
    //if(c==timeColor){
 
     if(n.strokeWidth=='1') { // adding time, cs, dv, nom to a node with no stroke
-      //console.log("inside strokewidth if");
+    	//console.log("inside strokewidth if");
         n.strokeWidth = '4';
         n.strokeColor = c;
         n.nodeCol = taggedColor;
@@ -3742,7 +3179,7 @@ function setColors (n, c) {
             zparams.zcross.push(n.name);
         }
         else if(timeColor==c) {
-          
+        	
             zparams.ztime = Object.prototype.toString.call(zparams.ztime) == "[object Array]" ? zparams.ztime : [];
             zparams.ztime.push(n.name);
         }
@@ -3896,7 +3333,7 @@ function nodeReset (n) {
 function subsetSelect(btn) {
 
     if (dataurl) {
-  zparams.zdataurl = dataurl;
+	zparams.zdataurl = dataurl;
     }
     
     if(production && zparams.zsessionid=="") {
@@ -3951,8 +3388,6 @@ function subsetSelect(btn) {
         selectLadda.stop(); // stop motion
         $("#btnVariables").trigger("click"); // programmatic clicks
         $("#btnModels").trigger("click");
-        $("#btnML").trigger("click");
-        $("#btnPP").trigger("click");
         
         var grayOuts = [];
         
@@ -4034,9 +3469,9 @@ function subsetSelect(btn) {
                 for(var key in jsondata["variables"]) {
                 
                     var myIndex = findNodeIndex(key);
-                  //console.log("Key Value:"+key);
-                  //console.log("My index:"+myIndex);
-                  //console.log("Node Index"+findNodeIndex(key));
+                	//console.log("Key Value:"+key);
+                	//console.log("My index:"+myIndex);
+                	//console.log("Node Index"+findNodeIndex(key));
                     allNodes[myIndex].plotx=undefined;
                     allNodes[myIndex].ploty=undefined;
                     allNodes[myIndex].plotvalues=undefined;
