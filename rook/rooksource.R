@@ -48,7 +48,6 @@ if (!production) {
 #!/usr/bin/env Rscript
 
 library(Zelig)
-library(caret)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 modulesPath<-paste(getwd(),"/privacyfunctions/",sep="")
@@ -98,7 +97,6 @@ if(!production){
 source("rooksubset.R")
 source("rooktransform.R")
 source("rookzelig.R")
-source("rookcaret.R")
 source("rookutils.R")
 source("rookdata.R")
 source("rookwrite.R")
@@ -113,7 +111,6 @@ if(production){
 
 if(!production){
     R.server$add(app = zelig.app, name = "zeligapp")
-    R.server$add(app = caret.app, name = "caretapp")
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
     R.server$add(app = data.app, name="dataapp")
