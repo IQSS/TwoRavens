@@ -68,7 +68,11 @@ if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
     status <- -1
-    status<-.Call(tools:::startHTTPD, myInterface, myPort)
+    if (as.integer(R.version[["svn rev"]]) > 72310) {
+        status <- .Call(tools:::C_startHTTPD, myInterface, myPort)
+    } else {
+        status <- .Call(tools:::startHTTPD, myInterface, myPort)
+    }
 
 
     if( status!=0 ){
