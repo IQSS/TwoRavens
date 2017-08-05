@@ -278,7 +278,7 @@ if (dataurl) {
 		    var http = new XMLHttpRequest();
 		    http.open('HEAD', url, false);
 		    http.send();
-		    return http.status!=404;
+		    return http.status!=404 && http.status!=0;  // status 0 is a result of timeout from no response, which is also a problem
 		}
     //pURL = "data/fearonLaitinPreprocess4.json";
 	
