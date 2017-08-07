@@ -9,19 +9,17 @@ export let getClass = function(panel) {
 
 class Panel {
     oninit(vnode) {
-        this.side = vnode.attrs.side;
-        this.title = vnode.attrs.title;
         this.closed = false;
     }
 
     view(vnode) {
         let dot = [m.trust('&#9679;'), m('br')];
-        return m(`#${this.side}panel.sidepanel.container.clearfix${getClass(this)}`, [
-            m(`#toggle${this.side === 'left' ? 'L' : 'R'}panelicon.panelbar[style=height: calc(100% - 60px)]`,
+        return m(`#${vnode.attrs.side}panel.sidepanel.container.clearfix${getClass(this)}`, [
+            m(`#toggle${vnode.attrs.side === 'left' ? 'L' : 'R'}panelicon.panelbar[style=height: calc(100% - 60px)]`,
               m('span', {onclick: _ => this.closed = !this.closed},
                 [].concat([dot, dot, dot, dot]))),
             m(`#${this.side}paneltitle.panel-heading.text-center`,
-              m("h3.panel-title", this.title))
+              m("h3.panel-title", vnode.attrs.title))
         ].concat(vnode.children));
     }
 }
