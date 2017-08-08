@@ -6,7 +6,7 @@ import m from 'mithril';
 
 import * as app from './app';
 import Panel, {getClass} from './views/Panel';
-import Search from './views/Search';
+import Search, {search} from './views/Search';
 import Subpanel from './views/Subpanel';
 
 let or = function(side, val, y='block', n='none') {
@@ -32,7 +32,7 @@ let leftpanel = function() {
                m('#leftpanelcontent',
                  m('#leftContentArea[style=height: 453px; overflow: auto]',
                    m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
-                     m(Search)),
+                     m(Search, {oninput: m.withAttr('value', search)})),
                    m(`#tab2[style=display: ${or('left', 'tab2')}; margin-top: .5em]`),
                    m('#tab3',
                      m(`p[style=padding: .5em 1em; display: ${or('left', 'tab3')}]`, {

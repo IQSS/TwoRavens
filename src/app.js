@@ -26,10 +26,10 @@ var csColor = '#419641';
 var dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
 var nomColor = '#ff6600';
-var selVarColor = '#fa8072'; //d3.rgb("salmon");
+export let varColor = '#f0f8ff'; //d3.rgb("aliceblue");
+export let selVarColor = '#fa8072'; //d3.rgb("salmon");
 var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
-var varColor = '#f0f8ff'; //d3.rgb("aliceblue");
 
 export let lefttab = 'tab1'; // current tab in left panel
 export let subset = false;
@@ -71,9 +71,9 @@ export let zparams = {
 
 var modelCount = 0;
 var valueKey = [];
-var allNodes = [];
+export let allNodes = [];
 var allResults = [];
-var nodes = [];
+export let nodes = [];
 var links = [];
 var mods = {};
 var estimated = false;
@@ -933,7 +933,7 @@ let nodeIndex = nodeName => {
         if (nodes[i].name == nodeName) return i;
 };
 
-let findNode = nodeName => {
+export let findNode = nodeName => {
     for (let i in allNodes)
         if (allNodes[i].name == nodeName) return allNodes[i];
 };
@@ -1592,10 +1592,10 @@ function varSummary(d) {
         .remove();
 }
 
-function populatePopover() {
+export let populatePopover = () => {
     d3.select("#tab1").selectAll("p")
         .attr("data-content", d => popoverContent(allNodes[findNodeIndex(d)]));
-}
+};
 
 function popoverContent(d) {
     var rint = d3.format("r");
@@ -1721,10 +1721,10 @@ function leftpanelMedium() {
 }
 
 // converts color codes
-function hexToRgba(hex) {
-    var int = parseInt(hex.replace('#', ''), 16);
+export let hexToRgba = hex => {
+    let int = parseInt(hex.replace('#', ''), 16);
     return `rgba(${[(int >> 16) & 255, (int >> 8) & 255, int & 255, '0.5'].join(',')})`;
-}
+};
 
 // takes node and color and updates zparams
 function setColors(n, c) {
@@ -2003,152 +2003,17 @@ function reWriteLog() {
 }
 
 // acts as if the user clicked in whitespace. useful when restart() is outside of scope
-function fakeClick() {
-    var myws = "#whitespace".concat(myspace);
+export let fakeClick = () => {
+    let ws = "#whitespace".concat(myspace);
     // d3 and programmatic events don't mesh well, here's a SO workaround that looks good but uses jquery...
-    jQuery.fn.d3Click = function () {
+    jQuery.fn.d3Click = function() {
         this.each((i, e) => {
-            var evt = document.createEvent("MouseEvents");
+            let evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
             e.dispatchEvent(evt);
         });
     };
-    $(myws).d3Click();
-    d3.select(myws)
+    $(ws).d3Click();
+    d3.select(ws)
         .classed('active', false);
-}
-
-// searchvar
-$("#searchvar").ready(function(){
-	  $("#searchvar").val('');
-});
-
-function tog(v){
-	  return v ? 'addClass' : 'removeClass';
-}
-
-$(document).on('input', '#searchvar', function() {
-    $(this)[tog(this.value)]('x');
-}).on('mousemove', '.x', function(e) {
-    $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');
-}).on('click', '.onX', function(){
-    $(this).removeClass('x onX').val('').focus();
-	  updatedata(valueKey,0);
-});
-
-let [srchid, vkey] = [[], []];
-$("#searchvar").on("keyup", function search(e) {
-		$("#tab1").children().popover('hide');
-	  let [flag, k, vkey, srchid] = [0, 0, [], []];
-		if ($(this).val() == '') {
-			  [srchid, flag] = [[], 0];
-			  updatedata(valueKey, flag);
-			  return;
-		}
-
-		for (let node in allNodes)
-			  if (node.name.indexOf($(this).val()) != -1) srchid[++k] = i;
-		for (let node in allNodes)
-			  if ((node.labl.indexOf($(this).val()) != -1) && ($.inArray(i, srchid) == -1)) srchid[++k] = i;
-
-	  if (k == 0) vkey = valueKey;
-	  else {
-				[flag, k, vkey] = [1, 0, srchid.map(x => valueKey[x])];
-				for (let x in valueKey)
-					  if ($.inArray(x, vkey) == -1) vkey[++i] = x;
-		}
-	  updatedata(vkey, flag);
-});
-
-function addlistener(nodes){
-	  d3.select("#tab1").selectAll("p")
-        .on("mouseover", function(d) {
-            $("body div.popover")
-                .addClass("variables");
-            $("body div.popover div.popover-content")
-                .addClass("form-horizontal");
-        })
-        .on("click", function varClick(){
-            if (allNodes[findNodeIndex(this.id)].grayout) return null;
-
-            d3.select(this)
-                .style('background-color',function(d) {
-                    var myText = d3.select(this).text();
-                    var myColor = d3.select(this).style('background-color');
-                    var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-                    var myNode = allNodes[findNodeIndex(this.id)];
-
-                    zparams.zvars = []; //empty the zvars array
-                    if(d3.rgb(myColor).toString() === varColor.toString()) {	// we are adding a var
-                        if(nodes.length==0) {
-                            nodes.push(findNode(myText));
-                            nodes[0].reflexive=true;
-                        }
-                        else {nodes.push(findNode(myText));}
-                        if(myNode.time==="yes") {
-                            tagColors(myNode, timeColor);
-                            return hexToRgba(timeColor);
-                        }
-                        else if(myNode.nature==="nominal") {
-                            tagColors(myNode, nomColor);
-                            return hexToRgba(nomColor);
-                        }
-                        else return hexToRgba(selVarColor);
-                    } else { // dropping a variable
-                        nodes.splice(findNode(myText)["index"], 1);
-                        spliceLinksForNode(findNode(myText));
-                        if(mySC==dvColor) {
-                            var dvIndex = zparams.zdv.indexOf(myText);
-                            if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
-                        }
-                        else if(mySC==csColor) {
-                            var csIndex = zparams.zcross.indexOf(myText);
-                            if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
-                        }
-                        else if(mySC==timeColor) {
-                            var timeIndex = zparams.ztime.indexOf(myText);
-                            if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
-                        }
-                        else if(mySC==nomColor) {
-                            var nomIndex = zparams.znom.indexOf(myText);
-                            if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
-                        }
-                        borderState();
-                        legend();
-                        return varColor;
-                    }
-                });
-            panelPlots();
-            restart();
-        });
-}
-
-function updatedata(val, flag) {
-	  let clr = '#000000';
-	  let bordercol = clr;
-	  var borderstyle='solid';
-    let nodenames = nodes.map(x => x.name);
-
-	  d3.select("#tab1").selectAll("p").data(valueKey).remove();
-	  d3.select("#tab1").selectAll("p")
-		    .data(val)
-		    .enter()
-		    .append("p")
-		    .attr("id", d => d.replace(/\W/g, "_")) // replace non-alphanumerics for selection purposes, perhaps ensure this id is unique by adding '_' to the front?
-		    .text(d => d)
-		    .style('background-color', d => $.inArray(findNode(d).name, nodenames) == -1 ? varColor : hexToRgba(selVarColor))
-        .style('border-style', d => $.inArray(findNodeIndex(d), srchid) != -1 && flag == 1 ? borderstyle : null)
-			  .style('border-color', d => $.inArray(findNodeIndex(d), srchid) != -1 && flag == 1 ? bordercol : null)
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-placement", "right")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics");
-	  fakeClick();
-	  $("#tab1").children().popover('hide');
-	  populatePopover();
-	  addlistener(nodes);
-}
+};
