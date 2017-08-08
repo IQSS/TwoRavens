@@ -12,6 +12,7 @@ class Search {
 export default Search;
 
 export let search = val => {
+    $('#tab1').children().popover('hide');
     let all = app.allNodes;
     if (val === '') return updatedata(all.map(n => n.name), [], 0);
     let matches = all.filter(n => n.name.includes(val) || n.labl.includes(val));
@@ -20,19 +21,6 @@ export let search = val => {
         .map(n => n.name);
 	  updatedata(names, matches, 1);
 };
-
-function tog(v){
-	  return v ? 'addClass' : 'removeClass';
-}
-
-$(document).on('input', '#searchvar', function() {
-    $(this)[tog(this.value)]('x');
-}).on('mousemove', '.x', function(e) {
-    $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');
-}).on('click', '.onX', function(){
-    $(this).removeClass('x onX').val('').focus();
-	  updatedata(valueKey,0);
-});
 
 function addlistener(nodes){
 	  d3.select("#tab1").selectAll("p")
