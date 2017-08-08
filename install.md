@@ -11,7 +11,7 @@ npm start
 
 With the last command, Webpack will run in the background, detect any changes you make to the src/ directory, and combine all files into build/app.js. Webpack starts its search at src/index.js, so any files importemsed there are included.
 
-## R install
+### R install
 
 Download and install R at https://www.r-project.org. Execute the following with R to install R packages:
 
