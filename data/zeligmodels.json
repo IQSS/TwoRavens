@@ -1,0 +1,1361 @@
+{"zeligmodels":[
+      {
+        "-name": "aov",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Fit an Analysis of Variance Model",
+        "helpLink": { "url": "http://gking.harvard.edu/zelig/doc/aov.pdf" },
+        "module": {
+         "name": "Zelig",
+                 "minversion": "4.0"
+        },
+        "packageDependency": {
+          "name": "stats",
+          "version": "2.5.0"
+        },
+        "modeltype": "(based on controlled voabulary)",     
+        "formula": {
+          "minEquations": "1",
+          "maxEquations": "1",
+          "simulEq": "0",
+          "equation": {
+            "name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "maxSetx": "2" }
+      },
+       {
+        "-name": "coxph",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "-specialFunction": "Surv",
+        "description": "Cox Proportional Hazard Regression for Duration Dependent Variables",
+        "helpLink": { "url": "http://gking.harvard.edu/zelig/doc/coxph.pdf" },
+        "packageDependency": {
+          "name": "survival",
+          "version": "2.34"
+        },
+        "formula": {
+          "minEquations": "1",
+          "maxEquations": "1",
+          "simulEq": "0",
+          "equation": {
+            "name": "mu",
+            "outcome": {
+              "-maxVar": "2",
+              "-minVar": "2",
+              "modelingType": "continuous"
+            },
+            "explanatory": {
+              "minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "maxSetx": "2" }
+      },
+       {
+        "-name": "ei.dynamic",
+        "-label": "Ecological Inference Models",
+        "-specialFunction": "cbind",
+        "description": "Quinn's Dynamic Ecological Inference Model",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/ei.dynamic.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.8-2"
+        },
+        "formula": {
+          "minEquations": "1",
+          "maxEquations": "1",
+          "simulEq": "0",
+          "equation": {
+            "name": "mu",
+            "outcome": {
+              "minVar": "2",
+              "modelingType": "continuous"
+            },
+            "explanatory": {
+              "minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "maxSetx": "2" }
+      },
+       {
+        "-name": "ei.hier",
+        "-label": "Ecological Inference Models",
+        "-specialFunction": "cbind",
+        "description": "Hierarchical Ecological Inference Model for  2 x 2 Tables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/ei.hier.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.8-2"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-minVar": "2",
+              "modelingType": "continuous"
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+       {
+        "-name": "ei.RxC",
+        "-label": "Ecological Inference Models",
+        "-specialFunction": "cbind",
+        "description": "Hierarchical Multinomial-Dirichlet Ecological Inference Model for R x C Tables",
+        "helpLink": { "url": "http://gking.harvard.edu/zelig/doc/ei.RxC.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-minVar": "2",
+              "modelingType": "continuous"
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+       {
+        "-name": "exp",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "-specialFunction": "Surv",
+        "description": "Exponential Regression for Duration Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/exp.pdf" },
+        "packageDependency": {
+          "-name": "survival",
+          "-version": "2.0"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": [
+              {
+                "-minVar": "1",
+                "-maxVar": "1",
+                "-label": "Duration",
+                "modelingType": "continuous"
+              },
+              {
+                "-maxVar": "1",
+                "-minVar": "0",
+                "-label": "Censored",
+                "modelingType": "binary"
+              }
+            ],
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+       {
+        "-name": "factor.bayes",
+        "-label": "Models for Continuous Dependent Variables",
+        "-specialFunction": "cbind",
+        "description": "Bayesian Factor Analysis",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/factor.bayes.pdf" },
+        "packageDependency": {
+          "name": "MCMCpack",
+          "version": "0.6"
+        },
+        "formula": {
+          "minEquations": "1",
+          "maxEquations": "1",
+          "simulEq": "0",
+          "equation": {
+            "name": "mu",
+            "outcome": {
+              "minVar": "3",
+              "modelingType": "continuous"
+            }
+          }
+        },
+        "setx": { "-maxSetx": "0" }
+      },
+         {
+        "-name": "factor.mix",
+        "-label": "Models for Mixed Dependent Variables",
+        "-specialFunction": "cbind",
+        "description": "Mixed Data Factor Analysis",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/factor.mix.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-minVar": "2",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "0" }
+      },
+         {
+        "-name": "factor.ord",
+        "-label": "Models for Ordinal Dependent Variables",
+        "-specialFunction": "cbind",
+        "description": "Ordinal Data Factor Analysis",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/factor.ord.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-minVar": "2",
+              "modelingType": "ordinal"
+            }
+          }
+        },
+        "setx": { "-maxSetx": "0" }
+      },
+         {
+        "-name": "gamma",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "description": "Gamma Regression for Continuous, Positive Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/gamma.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "gamma.gee",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "description": "General Estimating Equation for Gamma Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/gamma.gee.pdf" },
+        "packageDependency": {
+          "-name": "gee",
+          "-version": "4.13-12"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "gamma.survey",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "description": "Survey-Weighted Gamma Regression for Continuous, Positive Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/gamma.survey.pdf" },
+        "packageDependency": {
+          "-name": "survey",
+          "-version": "3.6-13"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "irt1d",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "-specialFunction": "cbind",
+        "description": "One Dimensional Item Response Model",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/irt1d.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": {
+              "-minVar": "1",
+              "modelingType": "binary"
+            }
+          }
+        },
+        "setx": { "-maxSetx": "0" }
+      },
+         {
+        "-name": "logit",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Logistic Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/logit.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "logit.bayes",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Bayesian Logistic Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/logit.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "logit.gam",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Generalized Additive Model for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/logit.gam.pdf" },
+        "packageDependency": {
+          "-name": "mgcv",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "logit.gee",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "General Estimating Equation for Logistic Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/logit.gee.pdf" },
+        "packageDependency": {
+          "-name": "gee",
+          "-version": "4.13-12"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "logit.survey",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Survey-Weighted Logistic Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/logit.survey.pdf" },
+        "packageDependency": {
+          "-name": "survey",
+          "-version": "3.6-13"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "lognorm",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "-specialFunction": "Surv",
+        "description": "Log-Normal Regression for Duration Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/lognorm.pdf" },
+        "packageDependency": {
+          "-name": "survival",
+          "-version": "2.2"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": [
+              {
+                "-minVar": "1",
+                "-maxVar": "1",
+                "-label": "Duration",
+                "modelingType": "continuous"
+              },
+              {
+                "-maxVar": "1",
+                "-minVar": "0",
+                "-label": "Censored",
+                "modelingType": "binary"
+              }
+            ],
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "ls",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Least Squares Regression for Continuous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/ls.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "mlogit.bayes",
+        "-label": "Multinomial Choice Models",
+        "-specialFunction": "as.factor",
+        "description": "Bayesian Multinomial Logistic Regression for Dependent Variables with Unordered Categorical Values",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/mlogit.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-maxVar": "1",
+              "-minVar": "1",
+              "modelingType": [
+                "nominal",
+                "ordinal"
+              ]
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "negbin",
+        "-label": "Event Count Models",
+        "description": "Negative Binomial Regression for Event Count Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/negbin.pdf" },
+        "packageDependency": {
+          "-name": "MASS",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "normal.gam",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Generalized Additive Model for Continuous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/normal.gam.pdf" },
+        "packageDependency": {
+          "-name": "mgcv",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "normal.gee",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "General Estimating Equation for Normal Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/normal.gee.pdf" },
+        "packageDependency": {
+          "-name": "gee",
+          "-version": "4.13-12"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+        {
+        "-name": "normal.survey",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Survey-Weighted Normal Regression for Continuous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/normal.survey.pdf" },
+        "packageDependency": {
+          "-name": "survey",
+          "-version": "3.6-13"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "ologit",
+        "-label": "Models for Ordinal Dependent Variables",
+        "-specialFunction": "as.factor",
+        "description": "Ordinal Logistic Regression for Ordered Categorical Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/ologit.pdf" },
+        "packageDependency": {
+          "-name": "MASS",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-maxVar": "1",
+              "-minVar": "1",
+              "modelingType": "ordinal"
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "oprobit",
+        "-label": "Models for Ordinal Dependent Variables",
+        "-specialFunction": "as.factor",
+        "description": "Ordinal Probit Regression for Ordered Categorical Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/oprobit.pdf" },
+        "packageDependency": {
+          "-name": "MASS",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-maxVar": "1",
+              "-minVar": "1",
+              "modelingType": "ordinal"
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "oprobit.bayes",
+        "-label": "Models for Ordinal Dependent Variables",
+        "-specialFunction": "as.factor",
+        "description": "Bayesian Ordered Probit Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/oprobit.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": {
+              "-maxVar": "1",
+              "-minVar": "1",
+              "modelingType": "ordinal"
+            },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "poisson",
+        "-label": "Event Count Models",
+        "description": "Poisson Regression for Event Count Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/poisson.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "poisson.bayes",
+        "-label": "Event Count Models",
+        "description": "Bayesian Poisson Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/poisson.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "poisson.gam",
+        "-label": "Event Count Models",
+        "description": "Generalized Additive Model for Event Count Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/poisson.gam.pdf" },
+        "packageDependency": {
+          "-name": "mgcv",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+        {
+        "-name": "poisson.gee",
+        "-label": "Event Count Models",
+        "description": "General Estimating Equation for Poisson Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/poisson.gee.pdf" },
+        "packageDependency": {
+          "-name": "gee",
+          "-version": "4.13-12"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "poisson.survey",
+        "-label": "Event Count Models",
+        "description": "Survey-Weighted Poisson Regression for Event Count Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/poisson.survey.pdf" },
+        "packageDependency": {
+          "-name": "survey",
+          "-version": "3.6-13"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": { "modelingType": "discrete" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "probit",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Probit Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "probit.bayes",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Bayesian Probit Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+        {
+        "-name": "probit.gam",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Generalized Additive Model for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.gam.pdf" },
+        "packageDependency": {
+          "-name": "mgcv",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "probit.gee",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "General Estimating Equation for Probit Regression",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.gee.pdf" },
+        "packageDependency": {
+          "-name": "gee",
+          "-version": "4.13-12"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "probit.net",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Social Network Probit Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.net.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "probit.survey",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Survey-Weighted Probit Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/probit.survey.pdf" },
+        "packageDependency": {
+          "-name": "survey",
+          "-version": "3.6-13"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "relogit",
+        "-label": "Models for Dichotomous Dependent Variables",
+        "description": "Rare Events Logistic Regression for Dichotomous Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/relogit.pdf" },
+        "packageDependency": {
+          "-name": "stats",
+          "-version": "0.1"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "pi",
+            "outcome": { "modelingType": "binary" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "tobit",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Linear regression for Left-Censored Dependent Variable",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/tobit.pdf" },
+        "packageDependency": {
+          "-name": "survival",
+          "-version": "2.2"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "tobit.bayes",
+        "-label": "Models for Continuous Dependent Variables",
+        "description": "Bayesian Linear Regression for a Censored Dependent Variable",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/tobit.bayes.pdf" },
+        "packageDependency": {
+          "-name": "MCMCpack",
+          "-version": "0.6"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "mu",
+            "outcome": { "modelingType": "continuous" },
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      },
+         {
+        "-name": "weibull",
+        "-label": "Models for Continous Bounded Dependent Variables",
+        "-specialFunction": "Surv",
+        "description": "Weibull Regression for Duration Dependent Variables",
+        "helpLink": { "-url": "http://gking.harvard.edu/zelig/doc/weibull.pdf" },
+        "packageDependency": {
+          "-name": "survival",
+          "-version": "2.2"
+        },
+        "formula": {
+          "-minEquations": "1",
+          "-maxEquations": "1",
+          "-simulEq": "0",
+          "equation": {
+            "-name": "lambda",
+            "outcome": [
+              {
+                "-minVar": "1",
+                "-maxVar": "1",
+                "-label": "Duration",
+                "modelingType": "continuous"
+              },
+              {
+                "-maxVar": "1",
+                "-minVar": "0",
+                "-label": "Censored",
+                "modelingType": "binary"
+              }
+            ],
+            "explanatory": {
+              "-minVar": "1",
+              "modelingType": [
+                "continuous",
+                "discrete",
+                "nominal",
+                "ordinal",
+                "binary"
+              ]
+            }
+          }
+        },
+        "setx": { "-maxSetx": "2" }
+      }
+                ]}
