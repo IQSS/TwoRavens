@@ -102,7 +102,7 @@ Quantile.release <- function(eps, cdfstep, data, range, gran) {
   
   
   #Move any data outside range to min or max
-  data <- lapply(data, function(x) MovetoRange(x, range))
+  data <- lapply(data, function(x) Quantile.MovetoRange(x, range))
   
   #Create binary tree stored as an array
   universe_size <- ((range[2] - range[1]) / gran) + 1
@@ -138,7 +138,7 @@ Quantile.release <- function(eps, cdfstep, data, range, gran) {
   
   #Call computeInterval function to obtain the counts in the desired intervals
   for(i in 1:length(returnValue)) {
-  	returnValue[i] <- computeInterval(tree, range[1] + (cdfstep * i), range, gran)
+  	returnValue[i] <- Quantile.computeInterval(tree, range[1] + (cdfstep * i), range, gran)
   }
   
   return(returnValue)

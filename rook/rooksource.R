@@ -20,7 +20,7 @@ if(production) {
 }
 
 if(!production){
-    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr","XML")
+    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr", "XML")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
@@ -34,10 +34,10 @@ if(!production){
 library(Rook)
 library(rjson)
 library(jsonlite)
-library(devtools)
 library(DescTools)
 
 if (!production) {
+    library(devtools)
     if(!("Zelig" %in% rownames(installed.packages()))) {
         install_github("IQSS/Zelig")
     } else if(package_version(packageVersion("Zelig"))$major != 5) {
@@ -68,12 +68,12 @@ if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
     status <- -1
+    #status<-.Call(tools:::startHTTPD, myInterface, myPort)
     if (as.integer(R.version[["svn rev"]]) > 72310) {
-        status <- .Call(tools:::C_startHTTPD, myInterface, myPort)
+            status <- .Call(tools:::C_startHTTPD, myInterface, myPort)
     } else {
-        status <- .Call(tools:::startHTTPD, myInterface, myPort)
+            status <- .Call(tools:::startHTTPD, myInterface, myPort)
     }
-
 
     if( status!=0 ){
         print("WARNING: Error setting interface or port")
@@ -120,7 +120,7 @@ if(!production){
     R.server$add(app = data.app, name="dataapp")
     R.server$add(app = write.app, name="writeapp")
     
-        ## These add the .apps for the privacy budget allocator interface
+    ## These add the .apps for the privacy budget allocator interface
     if(addPrivacy){
         R.server$add(app = privateStatistics.app, name="privateStatisticsapp")
         R.server$add(app = privateAccuracies.app, name="privateAccuraciesapp")
@@ -137,4 +137,3 @@ if(!production){
 #mydata<-read.delim("../data/fearonLaitin.tsv")
 #mydata<-getDataverse(hostname="dvn-build.hmdc.harvard.edu", fileid="2429360")
 #z.out<-zelig(cntryerb~cntryera + dyadidyr, model="ls", data=mydata)
-

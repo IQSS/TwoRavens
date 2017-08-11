@@ -24,7 +24,7 @@ svg {
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
   pointer-events: none;
 }
-			
+
 #setx {
   /*position: absolute;*/
   float:left;margin-right:.5em;
@@ -41,7 +41,7 @@ svg {
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
 /*  pointer-events: none;*/
 }
-			
+
 .hidden {
   display: none;
 }
@@ -98,25 +98,20 @@ text.id {
     box-sizing: border-box; margin: 0;
     overflow:scroll;
 }
-#main svg {
-    width:100%;
-    height:100%;   /*was 600px;*/
+
+.navbar-default {
+    height: 62px;
 }
+
+#main svg {
+    width: 100%;
+    height: 100%;
+}
+
 #main.svg-leftpanel svg, #main.svg-rightpanel svg {width: 100%;} /* This is size when left/right panel minimized. Was: calc(100% - 300px);}*/
+
 #main.svg-leftpanel.svg-rightpanel svg {width: 100%;}   /*  Was: calc(100% - 300px);} /*
 /* Above changes fix issue when screen gets very small, and right margin is fixed at 300px, obscuring central display, even while left tab is shrinking below 300px */
-
-
-/* #main.svg-marg-left svg {margin-left:0px;}
-#main.svg-marg-right svg {margin-right:0px;} */
-
-#option.navbar {
-    padding:.5em;
-    margin-bottom:0;
-}
-#option {
-    position:relative;
-}
 
 div.popover.variables {
     max-width:none;
@@ -130,75 +125,109 @@ div.popover.variables div.popover-content.form-horizontal .form-group {
 }
 
 #leftpanel {
-    border:1px solid #ADADAD;
-    width: 20%;
-    height:calc(100% - 17px);
-    position:absolute;top:10px;left:10px;
-    background:#F9F9F9;
-    padding-right:16px;padding-left:0;padding-top:0;
-    z-index:25;
+    border: 1px solid #ADADAD;
+    position: fixed;
+    top: 72px;
+    left: 10px;
+    width: 300px;
+    height: calc(100% - 122px);
+    background: #F9F9F9;
+    padding: 0 16px 0 0;
+    z-index: 25;
 }
+
 #leftpanel #leftContentArea div {display:none;}
 #leftpanel #leftContentArea div.active {display:block;}
-#leftpanel.expandpanel {width:40%;}
 #leftpanel.closepanel {width:1px;}
 #leftpanel.closepanel #leftpaneltitle, #leftpanel.closepanel div.btn-toolbar, #leftpanel.closepanel div.row-fluid.closepanel {display:none;}
+#leftpanel.expandpanel {width: 30%;}
 
 #rightpanel {
-    border:1px solid #ADADAD;
-    width:20%;
-    height:calc(100% - 17px);
-    position:absolute;top:10px;right:10px;
-    background:#F9F9F9;
-    padding-left:16px;padding-right:0;padding-top:0; 
-    z-index:25;
+    border: 1px solid #ADADAD;
+    position: fixed;
+    top: 72px;
+    right: 10px;
+    width: 300px;
+    height: calc(100% - 122px);
+    background: #F9F9F9;
+    padding: 0 0 0 16px;
+    z-index: 25;
 }
+
 #rightpanel #rightContentArea div {display:none;}
 #rightpanel #rightContentArea div.active {display:block;}
-#rightpanel.expandpanel {width:40%;}
 #rightpanel.closepanel {width:1px;}
 #rightpanel.closepanel #rightpaneltitle, #rightpanel.closepanel div.btn-group-justified, #rightpanel.closepanel div.row-fluid.closepanel {display:none;}
+#rightpanel.expandpanel {width: 40%;}
 
 div.sidepanel div.panelbar {
-  position:absolute;
+    position: absolute;
+    height: 100%;
 }
+
 #leftpanel div#toggleLpanelicon.panelbar {
-  left:calc(100% - 16px);
+    left: calc(100% - 16px);
 }
+
 #rightpanel div#toggleRpanelicon.panelbar {
-  right:calc(100% - 16px);
+    right: calc(100% - 16px);
 }
+
 div.sidepanel div.panelbar span {
-  display: block;
-  width:16px;
-  height:576px;
-  text-align: center;
-  padding-top:258px;
-  font-size:.75em;
-  color:#ADADAD;
-  background:#eee;
+  display: flex;
+  width: 16px;
+  height: 100%;
+  position:relative;
+  justify-content:center;
+  align-items:center;
+  font-size: .75em;
+  color: #ADADAD;
+  background: #eee;
 }
 
 #main {
     border:1px solid #ADADAD;
     width: 100%;
-    margin-bottom:50px;   /* This is the hard coded height of the ticker div.  Was 160px; which gave too much padding and empty bottom space.*/
-    position: relative;
+    height: calc(100% - 62px - 40px);
+    margin-top:62px;
+    position: fixed;
+    overflow: auto;
+}
+
+#canvas {
+    width: 100%;
+    height: calc(100% - 62px - 40px);
+    margin: 62px 0 0 0;
+    position: fixed;
+    overflow: auto;
+}
+
+#ticker {
+    position: fixed;
+    height: 40px;
+    width: 100%;
+    background: #F9F9F9;
+    bottom: 0;
+    border-top: 1px solid #ADADAD;
+    z-index: 1000;
 }
 
 #spacetools {
     z-index: 17;
 }
+
 .spaceTool {
-    top:0; 
-    right:21%;
-    margin-right:10px; 
-    margin-top:10px; 
-    position:absolute;
+    top: 0;
+    right: 310px;
+    margin-right: 10px;
+    margin-top: 10px;
+    position: absolute;
 }
+
 .spaceTool button:first-child {
     margin-right:1em;
 }
+
 .spaceTool button span {
     font-size:1em;
     color:#818181;
@@ -208,7 +237,7 @@ div.sidepanel div.panelbar span {
 #transformations {
     z-index:33;
     height:8%;
-    width:14%; 
+    width:14%;
     right:200px;
     top:14px;
     position:absolute;
@@ -226,41 +255,46 @@ div.sidepanel div.panelbar span {
 #transList li:hover { background-color:rgba(250, 128, 114, 0.5); cursor:pointer;}
 
 .legendary {
-    width:10%;
-    position:absolute;
-    bottom:0;
-    right:21%;
-    margin-right:10px;
-    margin-bottom:10px;
+    width: 10%;
+    position: absolute;
+    bottom: 0;
+    right: 310px;
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
+
 .legendary .clearfix {
     margin-bottom:4px;
 }
+
 .legendary .rectColor {
     float:left;
     width:20px;
     height:20px;
     margin-right:4px;
-    /*opacity: 0.5;*/
 }
+
 .legendary .rectColor circle {
     opacity: 0.5;
 }
+
 .legendary .rectLabel {
     float:left;
 }
 
 .logbox {
-    width:15%;
-    position:absolute;
-    bottom:0;
-    left:21%;
-    margin-left:10px;
-    margin-bottom:10px;
+    width: 15%;
+    position: absolute;
+    bottom: 0;
+    left: 310px;
+    margin-left: 10px;
+    margin-bottom: 10px;
 }
+
 .logbox .clearfix {
     margin-bottom:4px;
 }
+
 .logbox .rectColor {
     float:left;
     width:20px;
@@ -268,6 +302,7 @@ div.sidepanel div.panelbar span {
     margin-left:4px;
     opacity: 0.5;
 }
+
 .logbox .rectLabel {
     float:left;
 }
@@ -279,7 +314,7 @@ div.sidepanel div.panelbar span {
 
 /* p { padding-left: 15px; } */
 
-path { 
+path {
     fill: steelblue;
 }
 
@@ -338,13 +373,13 @@ td {
 
 .carousel-linked-nav,
 .item img {
-  display: block; 
+  display: block;
   margin: 0 auto;
 }
 
 .carousel-linked-nav {
   width:200px;
-  margin: 10px auto;   
+  margin: 10px auto;
 }
 .carousel-linked-nav li {position:relative;}
 
@@ -371,11 +406,11 @@ td {
 
 
 #searchvar{
-  background: #fff url(icoX.gif) no-repeat right -10px center;
+/*  background: #fff url(icoX.gif) no-repeat right -10px center;*/
   border: 1px solid #999;
   padding: 3px 18px 3px 4px;     /* Use the same right padding (18) in jQ! */
   border-radius: 3px;
   transition: background 0.4s;
 }
 #searchvar.x  { background-position: right 5px center; } /* (jQ) Show icon */
-#searchvar.onX{ cursor: pointer; }     
+#searchvar.onX{ cursor: pointer; }

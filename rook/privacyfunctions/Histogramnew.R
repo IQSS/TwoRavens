@@ -216,7 +216,6 @@ stabilityHistogram.release <- function(bins=NULL, data, eps, del)
    else
    {
       hist <- table(factor(data, exclude=c()), useNA="ifany")
-
       # excludes all counts below thresholds in the returned table
       hist <- hist[hist > 0]
       if(length(hist) == 0)
