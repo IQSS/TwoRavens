@@ -30,7 +30,7 @@
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
   pointer-events: none;
 }
-			
+
 #setx {
   /*position: absolute;*/
   float:left;margin-right:.5em;
@@ -47,7 +47,7 @@
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);*/
 /*  pointer-events: none;*/
 }
-			
+
 .hidden {
   display: none;
 }
@@ -243,7 +243,7 @@ div.sidepanel div.panelbar span {
 #transformations {
     z-index:33;
     height:8%;
-    width:14%; 
+    width:14%;
     right:200px;
     top:14px;
     position:absolute;
@@ -320,7 +320,7 @@ div.sidepanel div.panelbar span {
 
 /* p { padding-left: 15px; } */
 
-path { 
+path {
     fill: steelblue;
 }
 
@@ -379,13 +379,13 @@ td {
 
 .carousel-linked-nav,
 .item img {
-  display: block; 
+  display: block;
   margin: 0 auto;
 }
 
 .carousel-linked-nav {
   width:200px;
-  margin: 10px auto;   
+  margin: 10px auto;
 }
 .carousel-linked-nav li {position:relative;}
 
@@ -409,6 +409,17 @@ td {
   fill: none;
 }
 
+
+
+#searchvar{
+/*  background: #fff url(icoX.gif) no-repeat right -10px center;*/
+  border: 1px solid #999;
+  padding: 3px 18px 3px 4px;     /* Use the same right padding (18) in jQ! */
+  border-radius: 3px;
+  transition: background 0.4s;
+}
+#searchvar.x  { background-position: right 5px center; } /* (jQ) Show icon */
+#searchvar.onX{ cursor: pointer; }
 /*!
  * Ladda
  * http://lab.hakim.se/ladda

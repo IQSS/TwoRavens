@@ -9,7 +9,7 @@ npm install
 npm start
 ```
 
-With the last command, Webpack will run in the background, detect any changes you make to the src/ directory, and combine all files into build/app.js. Webpack starts its search at src/index.js, so any files importemsed there are included.
+With the last command, Webpack will run in the background, detect any changes you make to the src/ directory, and combine all files into build/app.js. Webpack starts its search at src/index.js, so any files imported there are included.
 
 ### R install
 
