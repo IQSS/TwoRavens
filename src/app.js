@@ -41,6 +41,9 @@ let t, typeTransform;
 let transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split(' ');
 let transformVar = '';
 
+ // var list for each space contain variables in original data plus trans in that space
+let trans = [];
+
 // Radius of circle
 var allR = 40;
 
@@ -144,7 +147,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var subsetNodes = [];
 
     var spaces = [];
-    var trans = []; // var list for each space contain variables in original data plus trans in that space
 
     // collapsable user log
     $('#collapseLog').on('shown.bs.collapse', () => {
