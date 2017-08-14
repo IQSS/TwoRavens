@@ -964,26 +964,19 @@ export let findNode = nodeName => {
     the older format in production (rp 8.14.2017)
  */
 export function getVariableData(jsonData){
-
-    /*  "New" response:
-        {
-            "dataset" : {...}
-            "variables" : {
-                "var1" : {...}, (etc)
-            }
+    /* "new" response:
+    {
+        "dataset" : {...}
+        "variables" : {
+            "var1" : {...}, (etc)
         }
-    */
-    if (jsonData.hasOwnProperty('variables')){
-        return jsonData.variables;
     }
-
-    /* "old" response
-        {
-            "var1" : {...},
-            (etc)
-        }
-    */
-    return jsonData
+    "old" response
+    {
+         "var1" : {...},
+         (etc)
+    }*/
+    return jsonData.hasOwnProperty('variables') ? jsonData.variables : jsonData;
 }
 
 // function called by force button
@@ -997,10 +990,9 @@ export function forceSwitch() {
     }
 }
 
-function spliceLinksForNode(node) {
-    links.filter(l => l.source == node || l.target == node)
-        .map(x => links.splice(links.indexOf(x), 1));
-}
+let spliceLinksForNode = node => links
+    .filter(l => l.source === node || l.target === node)
+    .map(x => links.splice(links.indexOf(x), 1));
 
 function zPop() {
     if (dataurl) zparams.zdataurl = dataurl;
@@ -1624,10 +1616,8 @@ function varSummary(d) {
          str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)];
 
     summary.data = [];
-    for (let i = 0; i < t1.length; i++)
-        if (t2[i].indexOf('NaN') == -1 && t2[i] != 'NA' && t2[i] != '')
-            summary.data.push([t1[i], t2[i]]);
-        
+    t1.forEach((e, i) => !t2[i].includes('NaN') && t2[i] != 'NA' && t2[i] != '' && summary.data.push([e, t2[i]]));
+
     summary.name = d.name;
     summary.labl = d.labl;
 
@@ -1747,10 +1737,9 @@ function panelPlots() {
             var myname = regstr.exec(this.id);
             var nodeid = myname[2];
             myname = myname[1];
-            var j = vars.indexOf(myname);
-            if (j == -1) {
+            if (!vars.includes(myname)) {
                 allNodes[nodeid].setxplot = false;
-                var temp = "#".concat(myname, "_setx_", nodeid);
+                let temp = "#".concat(myname, "_setx_", nodeid);
                 d3.select(temp)
                     .remove();
                 allNodes[nodeid].subsetplot = false;
@@ -1806,13 +1795,13 @@ function setColors(n, c) {
             d3.select("#tab1").select("p#".concat(n.name))
                 .style('background-color', hexToRgba(selVarColor));
             splice(c, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-            if (nomColor == c && zparams.znom.indexOf(n.name) > -1) {
+            if (nomColor == c && zparams.znom.includes(n.name)) {
                 allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
                 transform(n.name, t = null, typeTransform = true);
             }
         } else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
             splice(n.strokeColor, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-            if (nomColor == n.strokeColor && zparams.znom.indexOf(n.name) > -1) {
+            if (nomColor == n.strokeColor && zparams.znom.includes(n.name)) {
                 allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
                 transform(n.name, t = null, typeTransform = true);
             }
