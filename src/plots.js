@@ -1,4 +1,5 @@
 let d3Color = '#1f77b4'; // d3's default blue
+export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 
 // function to use d3 to graph density plots with preprocessed data
 export function density(node, div, priv) {
@@ -276,7 +277,7 @@ export function density(node, div, priv) {
             brush2.extent([value, value]);
         }
 
-        // set x position of slider center 
+        // set x position of slider center
         var xpos = x(value);
         if (value > d3.max(xVals)) { // dragged past max
             xpos = x(d3.max(xVals));
@@ -301,7 +302,7 @@ export function density(node, div, priv) {
 
 export function bars(node, div, priv) {
     // Histogram spacing
-    var barPadding = .015; // Space between bars 
+    var barPadding = .015; // Space between bars
     var topScale = 1.2; // Multiplicative factor to assign space at top within graph - currently removed from implementation
     var plotXaxis = true;
 
@@ -471,7 +472,7 @@ export function bars(node, div, priv) {
         .attr("x", (d, i) => x(xVals[i] - 0.5 + barPadding))
         .attr("y", d => y(maxY - d))
         .attr("width", rectWidth)
-        .attr("height", y) 
+        .attr("height", y)
         .attr("fill", "#1f77b4");
 
     // draw error bars, threshold line and extra bin
@@ -742,7 +743,7 @@ export function bars(node, div, priv) {
             brush.extent([value, value]);
         }
 
-        // set x position of slider center                     
+        // set x position of slider center
         var xpos = x(value);
         if (value > maxX) { // dragged past max
             xpos = x(maxX);
@@ -785,7 +786,7 @@ export function bars(node, div, priv) {
             brush2.extent([value, value]);
         }
 
-        // set x position of slider center 
+        // set x position of slider center
         var xpos = x(value);
         if (value > maxX) { // dragged past max
             xpos = x(maxX);
@@ -1004,7 +1005,7 @@ export function barsSubset(node) {
         .on("mouseout", function() {
             var i = this.getAttribute("name");
             plotsvg.select("text#mymouseover")
-                .text(() => "Value: Frequency"); 
+                .text(() => "Value: Frequency");
         });
 
     if (plotXaxis) {
@@ -1017,7 +1018,7 @@ export function barsSubset(node) {
             .attr("id", "mymouseover")
             .attr("x", 25)
             .attr("y", height + 20)
-            .text(() => "Value: Frequency"); 
+            .text(() => "Value: Frequency");
     }
 
     plotsvg.append("text")
@@ -1165,7 +1166,7 @@ export function barsNode(node, obj) {
         .insert("svg", ":first-child")
         .attr("x", -40)
         .attr("y", -45)
-        .attr("id", () => myname) 
+        .attr("id", () => myname)
         .style("width", width) // set height to the height of #main.left
         .style("height", height)
         .append("g")
@@ -1178,6 +1179,6 @@ export function barsNode(node, obj) {
         .attr("x", (d, i) =>  x(xVals[i] - 0.5 + barPadding))
         .attr("y", d =>  y(maxY - d))
         .attr("width", x(minX + 0.5 - 2 * barPadding)) // the "width" is the coordinate of the end of the first bar
-        .attr("height", y) 
+        .attr("height", y)
         .attr("fill", "#1f77b4");
 }
