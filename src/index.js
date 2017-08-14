@@ -34,7 +34,7 @@ let leftpanel = function() {
                    m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
                      m(Search, {oninput: m.withAttr('value', search)})),
                    m(`#tab2[style=display: ${or('left', 'tab2')}; margin-top: .5em]`),
-                   m('#tab3',
+                   m('#tab3[style=height: 350px]',
                      m(`p[style=padding: .5em 1em; display: ${or('left', 'tab3')}]`, {
                          title: "Select a variable from within the visualization in the center panel to view its summary statistics."},
                        m('center',

@@ -550,16 +550,10 @@ export function bars(node, div, priv) {
                 .enter()
                 .append("rect")
                 .attr("class", "denseError")
-                .attr("x", function(d, i) {
-                    return x(xVals[i] - 0.5 + barPadding);
-                })
-                .attr("y", function(d) {
-                    return y(maxY - d) - .1 * y(d);
-                })
+                .attr("x", (d, i) => x(xVals[i] - 0.5 + barPadding))
+                .attr("y", d => y(maxY - d) - .1 * y(d))
                 .attr("width", rectWidth)
-                .attr("height", function(d) {
-                    return (y(maxY - d) + .1 * y(d)) - (y(maxY - d) - .1 * y(d));
-                })
+                .attr("height", d => (y(maxY - d) + .1 * y(d)) - (y(maxY - d) - .1 * y(d)))
                 .attr("fill", "silver");
         }
 
@@ -571,7 +565,7 @@ export function bars(node, div, priv) {
                 .attr("y", y(maxY) - node.stabilityBin)
                 .attr("width", rectWidth)
                 .attr("height", node.stabilityBin)
-                .attr("fill", "silver")
+                .attr("fill", "silver");
         }
 
         //threshold line
