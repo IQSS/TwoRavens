@@ -2,7 +2,6 @@ import m from 'mithril';
 
 import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 
-
 // hostname default - the app will use it to obtain the variable metadata
 // (ddi) and pre-processed data info if the file id is supplied as an
 // argument (for ex., gui.html?dfId=17), but hostname isn't.
@@ -19,7 +18,6 @@ import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 var production = false;
 var rappURL = (production ? 'https://beta.dataverse.org' : 'http://0.0.0.0:8000') + '/custom/';
 
-
 // for debugging
 export function cdb(msg) {
     if (!production){
@@ -35,9 +33,9 @@ var csColor = '#419641';
 var dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
 var nomColor = '#ff6600';
-export let varColor = '#f0f8ff'; //d3.rgb("aliceblue");
-export let selVarColor = '#fa8072'; //d3.rgb("salmon");
-var taggedColor = '#f5f5f5'; //d3.rgb("whitesmoke");
+export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
+export let selVarColor = '#fa8072'; // d3.rgb("salmon");
+var taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
 
 export let lefttab = 'tab1'; // current tab in left panel
@@ -50,8 +48,8 @@ let t, typeTransform;
 let transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split(' ');
 let transformVar = '';
 
- // var list for each space contain variables in original data
- // plus trans in that space
+// var list for each space contain variables in original data
+// plus trans in that space
 let trans = [];
 let preprocess = {}; // hold pre-processed data
 let spaces = [];
@@ -59,7 +57,6 @@ let spaces = [];
 // layout function constants
 const layoutAdd = "add";
 const layoutMove = "move";
-
 
 // Radius of circle
 var allR = 40;
@@ -830,6 +827,7 @@ function layout(v) {
             .on("mouseover", d => {
                 tabLeft('tab3');
                 varSummary(d);
+
                 byId('transformations').setAttribute('style', 'display:block');
                 byId("transSel").selectedIndex = d.id;
                 transformVar = valueKey[d.id];
@@ -844,10 +842,11 @@ function layout(v) {
                 fill(d, "csText", .5, 0, 100);
                 fill(d, "timeArc", .1, 0, 100);
                 fill(d, "timeText", .5, 0, 100);
+
                 m.redraw();
             })
             .on('mouseout', d => {
-                if (!summaryHold) tabLeft(subset ? 'tab2' : 'tab1');
+                summaryHold || tabLeft(subset ? 'tab2' : 'tab1');
                 'csArc csText timeArc timeText dvArc dvText nomArc nomText'.split(' ').map(x => fill(d, x, 0, 100, 500));
                 m.redraw();
             });
@@ -1614,19 +1613,21 @@ export let summary = {data: []};
 
 function varSummary(d) {
     let t1 = 'Mean:, Median:, Most Freq:, Occurrences:, Median Freq:, Occurrences:, Least Freq:, Occurrences:, Std Dev:, Minimum:, Maximum:, Invalid:, Valid:, Uniques:, Herfindahl'.split(', ');
+
     let rint = d3.format('r');
     let str = (x, p) => (+x).toPrecision(p || 4).toString();
     let t2 = priv && d.meanCI ?
-        [str(d.mean, 2) + ' (' + str(d.meanCI.lowerBound, 2) + ' - ' + str(d.meanCI.upperBound, 2) + ')', str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)] :
-        [str(d.mean), str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest), str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)];
+        [str(d.mean, 2) + ' (' + str(d.meanCI.lowerBound, 2) + ' - ' + str(d.meanCI.upperBound, 2) + ')',
+         str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),
+         str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)] :
+        [str(d.mean), str(d.median), d.mode, rint(d.freqmode), d.mid, rint(d.freqmid), d.fewest, rint(d.freqfewest),
+         str(d.sd), str(d.min), str(d.max), rint(d.invalid), rint(d.valid), rint(d.uniques), str(d.herfindahl)];
 
     summary.data = [];
-    for (let i = 0; i < t1.length; i++) {
-        if (t2[i].indexOf('NaN') > -1 || t2[i] == 'NA' || t2[i] == '')
-            continue;
-        summary.data.push([t1[i], t2[i]]);
-    };
-
+    for (let i = 0; i < t1.length; i++)
+        if (t2[i].indexOf('NaN') == -1 && t2[i] != 'NA' && t2[i] != '')
+            summary.data.push([t1[i], t2[i]]);
+        
     summary.name = d.name;
     summary.labl = d.labl;
 
@@ -1636,9 +1637,9 @@ function varSummary(d) {
 
     if (!d.plottype)
         return;
-    if (d.plottype == 'continuous') density(d, 'varSummary', priv);
-    else if (d.plottype == "bar") bars(d, 'varSummary', priv);
-    else d3.select("#tab3") // no graph to draw, but still need to remove previous graph
+    d.plottype == 'continuous' ? density(d, 'varSummary', priv) :
+        d.plottype == "bar" ? bars(d, 'varSummary', priv) :
+        d3.select("#tab3") // no graph to draw, but still need to remove previous graph
         .selectAll("svg")
         .remove();
 }
