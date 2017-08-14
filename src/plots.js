@@ -1,51 +1,21 @@
-var d3Color = '#1f77b4'; // d3's default blue
+let d3Color = '#1f77b4'; // d3's default blue
 
 // function to use d3 to graph density plots with preprocessed data
 export function density(node, div, priv) {
-    var mydiv = {
-        subset: '#tab2',
-        setx: '#setx',
-        varSummary: '#tab3'
-    }[div];
-    if (!mydiv)
+    div = {subset: '#tab2', setx: '#setx', varSummary: '#tab3'}[div];
+    if (!div)
         return alert("Error: incorrect div selected for plots");
 
-    var yVals = node.ploty;
-    var xVals = node.plotx;
-
-    // an array of objects
-    var data2 = [];
-    for (var i = 0; i < node.plotx.length; i++) {
-        data2.push({
-            x: node.plotx[i],
-            y: node.ploty[i]
-        });
-    }
-    let add = d => {
-        d.x = +d.x;
-        d.y = +d.y;
-    };
-    data2.forEach(add);
+    let [xVals, yVals] = [node.plotx, node.ploty];
     if (priv && node.plotCI) {
-        // stores values for upper/lower bound
-	      let store = bound => {
-            let error = [];
-            for (let i = 0; i < node.plotx.length; i++) {
-                error.push({
-                    x: node.plotx[i],
-                    y: node.plotCI[bound][i]
-                });
-            }
-            return error.map(add);
-        };
-        let upperError = store('upperBound');
-        let lowerError = store('lowerBound');
+        let [upperError, lowerError] = ['upperBound', 'lowerBound'].map(
+            bound => xVals.map((x, i) => ({x: +x, y: +node.plotCI[bound][i]})));
         console.log('upperError\n', upperError);
     }
 
-    var tempWidth = d3.select(mydiv).style("width");
+    var tempWidth = d3.select(div).style("width");
     var width = tempWidth.substring(0, (tempWidth.length - 2));
-    var tempHeight = d3.select(mydiv).style("height");
+    var tempHeight = d3.select(div).style("height");
     var height = tempHeight.substring(0, (tempHeight.length - 2));
     var margin = {
         top: 20,
@@ -55,10 +25,10 @@ export function density(node, div, priv) {
     };
 
     // Need to fix automatic width and height settings for leftpanel (#tab2, #tab3)
-    if (mydiv == "#tab3") {
+    if (div == "#tab3") {
         width = 0.7 * (width - margin.left - margin.right),
         height = 0.3 * (height - margin.top - margin.bottom);
-    } else if (mydiv == "#tab2" | mydiv == "#setx") {
+    } else if (div == "#tab2" | div == "#setx") {
         width = 200;
         height = 120;
     } else {
@@ -101,48 +71,44 @@ export function density(node, div, priv) {
 
     // cumbersome to treat "tab3" differently, but works for now
     // tab3, has an issue, that unless width height hardcoded, they grow with each additional graph.
-    if (mydiv == "#tab3") {
-        var plotsvg = d3.select(mydiv)
+    if (div == "#tab3") {
+        var plotsvg = d3.select(div)
             .selectAll("svg")
             .remove();
-        plotsvg = d3.select(mydiv)
+        plotsvg = d3.select(div)
             .append("svg")
-            .attr("id", () => node.name.toString().concat(mydiv.substr(1)))
+            .attr("id", () => node.name.toString().concat(div.substr(1)))
             .style("width", 300) // set height to the height of #main.left
             .style("height", 200)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
     } else {
-        var plotsvg = d3.select(mydiv)
+        var plotsvg = d3.select(div)
             .append("svg")
             .attr("id", () => node.name.toString()
                   .replace(/\(|\)/g, "")
-                  .concat("_", mydiv.substr(1), "_", node.id))
+                  .concat("_", div.substr(1), "_", node.id))
             .style("width", width + margin.left + margin.right) //setting height to the height of #main.left
             .style("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
     };
     plotsvg.append("path")
-        .datum(data2)
+        .datum(xVals.map((x, i) => ({x: +x, y: +node.ploty[i]})))
         .attr("class", "area")
         .attr("d", area);
 
-    if (priv && node.plotCI) {
-        //add upper bound
-        plotsvg.append("path")
-            .attr("class", "upperError")
-            .datum(upperError)
-            .attr("d", area);
-    }
+    //add upper bound
+    priv && node.plotCI && plotsvg.append("path")
+        .attr("class", "upperError")
+        .datum(upperError)
+        .attr("d", area);
 
-    if (priv && node.plotCI) {
-        //add lower bound
-        plotsvg.append("path")
-            .attr("class", "lowerError")
-            .datum(lowerError)
-            .attr("d", area);
-    }
+    //add lower bound
+    priv && node.plotCI && plotsvg.append("path")
+        .attr("class", "lowerError")
+        .datum(lowerError)
+        .attr("d", area);
 
     plotsvg.append("g")
         .attr("class", "x axis")
@@ -157,13 +123,12 @@ export function density(node, div, priv) {
         .text(node.name);
 
     // add brush if subset
-    if (mydiv == "#tab2") {
+    if (div == "#tab2") {
         plotsvg.append("text")
             .attr("id", "range")
             .attr("x", 25)
             .attr("y", height + 40)
             .text(() => "Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)));
-
         plotsvg.append("g")
             .attr("class", "x brush")
             .call(brush)
@@ -172,7 +137,7 @@ export function density(node, div, priv) {
     }
 
     // add z lines and sliders setx
-    if (mydiv == "#setx") {
+    if (div == "#setx") {
         plotsvg.append("text")
             .attr("id", "range")
             .attr("x", 25)
@@ -261,7 +226,7 @@ export function density(node, div, priv) {
 
     // brushing functions
     function brushed() {
-        if (mydiv == "#tab2") {
+        if (div == "#tab2") {
             plotsvg.select("text#range")
                 .text(() => brush.empty() ?
                     "Range: ".concat(d3.min(xVals).toPrecision(4), " to ", d3.max(xVals).toPrecision(4)) :
@@ -270,7 +235,7 @@ export function density(node, div, priv) {
             node.subsetrange = brush.extent()[0].toPrecision(4) != brush.extent()[1].toPrecision(4) ?
                 [(brush.extent()[0]).toPrecision(4), (brush.extent()[1]).toPrecision(4)] :
                 ["", ""];
-        } else if (mydiv == "#setx") {
+        } else if (div == "#setx") {
             var value = brush.extent()[0];
             var s = 6;
             if (d3.event.sourceEvent) {

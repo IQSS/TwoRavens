@@ -51,7 +51,8 @@ let leftpanel = function() {
 
 let rightpanel = function() {
     let button = (id, width, text) =>
-        m(`button#${id}.btn.${or('right', id, 'active', 'btn-default')}[type=button][style=width: ${width}]`, {onclick: _ => app.tabRight(id)},
+        m(`button#${id}.btn.${or('right', id, 'active', 'btn-default')}[type=button][style=width: ${width}]`,
+          {onclick: _ => app.tabRight(id)},
           text);
     return m(Panel, {side: 'right', title: 'Model Selection'},
              m(".btn-group.btn-group-justified[aria-label=...][role=group][style=margin-top: .5em]",
