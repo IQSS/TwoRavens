@@ -2,6 +2,7 @@ import m from 'mithril';
 
 import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 
+
 // hostname default - the app will use it to obtain the variable metadata
 // (ddi) and pre-processed data info if the file id is supplied as an
 // argument (for ex., gui.html?dfId=17), but hostname isn't.
@@ -17,6 +18,14 @@ import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
 
 var production = false;
 var rappURL = (production ? 'https://beta.dataverse.org' : 'http://0.0.0.0:8000') + '/custom/';
+
+
+// for debugging
+export function cdb(msg) {
+    if (!production){
+        console.log(msg);
+    };
+};
 
 // initial color scale used to establish the initial colors of nodes
 // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
@@ -41,8 +50,12 @@ let t, typeTransform;
 let transformList = 'log(d) exp(d) d^2 sqrt(d) interact(d,e)'.split(' ');
 let transformVar = '';
 
- // var list for each space contain variables in original data plus trans in that space
+ // var list for each space contain variables in original data
+ // plus trans in that space
 let trans = [];
+let preprocess = {}; // hold pre-processed data
+let spaces = [];
+
 
 // Radius of circle
 var allR = 40;
@@ -146,7 +159,6 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     var hold = [];
     var subsetNodes = [];
 
-    var spaces = [];
 
     // collapsable user log
     $('#collapseLog').on('shown.bs.collapse', () => {
@@ -166,8 +178,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
     let metadataurl = ddiurl || (fileid ? `${dataverseurl}/api/meta/datafile/${fileid}` : data + '.xml');
     // read pre-processed metadata and data
     let pURL = dataurl ? `${dataurl}&format=prep` : data + '.json';
-    var preprocess = {};
-    
+
     // loads all external data: metadata (DVN's ddi), preprocessed (for plotting distributions), and zeligmodels (produced by Zelig) and initiates the data download to the server
     var url, p, v, callback;
     readPreprocess(url = pURL, p = preprocess, v = null, callback = function() {
@@ -227,7 +238,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
             d3.json("data/zelig5models.json", (err, data) => {
                 if (err)
                     return console.warn(err);
-                console.log("zelig models json: ", data);
+                cdb("zelig models json: ", data);
                 for (let key in data.zelig5models) {
                     if (data.zelig5models.hasOwnProperty(key))
                         mods[data.zelig5models[key].name[0]] = data.zelig5models[key].description[0];
@@ -235,7 +246,7 @@ export function main(fileid, hostname, ddiurl, dataurl) {
                 d3.json("data/zelig5choicemodels.json", (err, data) => {
                     if (err)
                         return console.warn(err);
-                    console.log("zelig choice models json: ", data);
+                    cdb("zelig choice models json: ", data);
                     for (let key in data.zelig5choicemodels) {
                         if (data.zelig5choicemodels.hasOwnProperty(key))
                             mods[data.zelig5choicemodels[key].name[0]] = data.zelig5choicemodels[key].description[0];
@@ -918,16 +929,20 @@ function layout(v) {
     fakeClick();
 }
 
-// returns id
+
 let find = ($nodes, name) => {
     for (let i in $nodes)
         if ($nodes[i].name == name) return $nodes[i].id;
 };
 
 // returns id
-let findNodeIndex = name => {
-    for (let i in allNodes)
-        if (allNodes[i].name == name) return allNodes[i].id;
+export let findNodeIndex = name => {
+    for (let i in allNodes){
+        if (allNodes[i].name == name){
+            //cdb('Yes!' + allNodes[i].id);
+            return allNodes[i].id;
+        }
+    }
 };
 
 let nodeIndex = nodeName => {
@@ -939,6 +954,34 @@ export let findNode = nodeName => {
     for (let i in allNodes)
         if (allNodes[i].name == nodeName) return allNodes[i];
 };
+
+/*
+    Retrieve the variable list from the preprocess data.
+    This helps handle the new format and (temporarily)
+    the older format in production (rp 8.14.2017)
+ */
+export function getVariableData(jsonData){
+
+    /*  "New" response:
+        {
+            "dataset" : {...}
+            "variables" : {
+                "var1" : {...}, (etc)
+            }
+        }
+    */
+    if (jsonData.hasOwnProperty('variables')){
+        return jsonData.variables;
+    }
+
+    /* "old" response
+        {
+            "var1" : {...},
+            (etc)
+        }
+    */
+    return jsonData
+}
 
 // function called by force button
 export function forceSwitch() {
@@ -991,8 +1034,8 @@ export function estimate(btn) {
 
     var urlcall = rappURL + "zeligapp"; //base.concat(jsonout);
     var solajsonout = "solaJSON=" + jsonout;
-    console.log("urlcall out: ", urlcall);
-    console.log("POST out: ", solajsonout);
+    cdb("urlcall out: ", urlcall);
+    cdb("POST out: ", solajsonout);
 
     zparams.allVars = valueKey.slice(10, 25); // because the URL is too long...
     jsonout = JSON.stringify(zparams);
@@ -1001,7 +1044,7 @@ export function estimate(btn) {
     function estimateSuccess(btn, json) {
         estimateLadda.stop(); // stop spinner
         allResults.push(json);
-        console.log("json in: ", json);
+        cdb("json in: ", json);
 
         if (!estimated) byId("results").removeChild(byId("resultsHolder"));
 
@@ -1058,7 +1101,7 @@ export function estimate(btn) {
     function selectorSuccess(btn, json) {
         d3.select("#ticker")
             .text("Suggested variables and percent improvement on RMSE: " + json.vars);
-        console.log("selectorSuccess: ", json);
+        cdb("selectorSuccess: ", json);
     }
 
     function selectorFail(btn) {
@@ -1080,16 +1123,16 @@ function dataDownload() {
 
     var urlcall = rappURL + "dataapp";
     var solajsonout = "solaJSON=" + jsonout;
-    console.log("urlcall out: ", urlcall);
-    console.log("POST out: ", solajsonout);
+    cdb("urlcall out: ", urlcall);
+    cdb("POST out: ", solajsonout);
 
     let downloadSuccess = (btn, json) => {
-        console.log('dataDownload json in: ', json);
+        cdb('dataDownload json in: ', json);
         zparams.zsessionid = json.sessionid[0];
         // set link URL
         byId("logID").href = `${production ? rappURL + 'log_dir/log_' : 'rook/log_' }${zparams.zsessionid}.txt`;
     };
-    let downloadFail = _ => console.log('Data have not been downloaded');
+    let downloadFail = _ => cdb('Data have not been downloaded');
     makeCorsRequest(urlcall, btn, downloadSuccess, downloadFail, solajsonout);
 }
 
@@ -1185,13 +1228,13 @@ function transParse(n) {
     // nested loop not good, but indexed is not likely to be very large.
     // if a variable is nested, it is removed from out2
     // notice, loop is backwards so that index changes don't affect the splice
-    console.log("indexed ", indexed);
+    cdb("indexed ", indexed);
     for (var i = indexed.length - 1; i > -1; i--) {
         for (var j = indexed.length - 1; j > -1; j--) {
             if (i === j)
                 continue;
             if ((indexed[i].from >= indexed[j].from) & (indexed[i].to <= indexed[j].to)) {
-                console.log(i, " is nested in ", j);
+                cdb(i, " is nested in ", j);
                 out2.splice(i, 1);
             }
         }
@@ -1205,7 +1248,7 @@ function transParse(n) {
 
     if (out2.length > 0) {
         out2.push(t2);
-        console.log("new out ", out2);
+        cdb("new out ", out2);
         return (out2);
     } else {
         alert("No variable name found. Perhaps check your spelling?");
@@ -1222,8 +1265,8 @@ function transform(n, t, typeTransform) {
     if (!typeTransform)
         t = t.replace("+", "_plus_"); // can't send the plus operator
 
-    console.log(n);
-    console.log(t);
+    cdb(n);
+    cdb(t);
 
     var btn = byId('btnEstimate');
 
@@ -1240,7 +1283,7 @@ function transform(n, t, typeTransform) {
         binary: myn.binary
     };
 
-    console.log(myn);
+    cdb(myn);
     // if typeTransform but we already have the metadata
     if (typeTransform) {
         if (myn.nature == "nominal" & typeof myn.plotvalues !== "undefined") {
@@ -1271,12 +1314,12 @@ function transform(n, t, typeTransform) {
     var jsonout = JSON.stringify(transformstuff);
     var urlcall = rappURL + "transformapp";
     var solajsonout = "solaJSON=" + jsonout;
-    console.log("urlcall out: ", urlcall);
-    console.log("POST out: ", solajsonout);
+    cdb("urlcall out: ", urlcall);
+    cdb("POST out: ", solajsonout);
 
     function transformSuccess(btn, json) {
         estimateLadda.stop();
-        console.log("json in: ", json);
+        cdb("json in: ", json);
         if (json.typeTransform[0]) {
             d3.json(json.url, (error, json) => {
                 if (error)
@@ -1291,7 +1334,7 @@ function transform(n, t, typeTransform) {
                 fakeClick();
                 populatePopover();
                 panelPlots();
-                console.log(allNodes[myIndex]);
+                cdb(allNodes[myIndex]);
             });
         } else {
             callHistory.push({
@@ -1450,7 +1493,7 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
 
     xhr.onload = function() {
         var text = xhr.responseText;
-        console.log("text ", text);
+        cdb("text ", text);
 
         try {
             var json = JSON.parse(text); // should wrap in try / catch
@@ -1458,7 +1501,7 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
         } catch (err) {
             estimateLadda.stop();
             selectLadda.stop();
-            console.log(err);
+            cdb(err);
             alert('Error: Could not parse incoming JSON.');
         }
 
@@ -1472,7 +1515,7 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
         if (xhr.status == 0) alert('There was an error making the request. xmlhttprequest status is 0.');
         else if (xhr.readyState != 4) alert('There was an error making the request. xmlhttprequest readystate is not 4.');
         else alert('Woops, there was an error making the request.');
-        console.log(xhr);
+        cdb(xhr);
         estimateLadda.stop();
         selectLadda.stop();
     };
@@ -1858,8 +1901,8 @@ export function subsetSelect(btn) {
     var jsonout = JSON.stringify(subsetstuff);
     var urlcall = rappURL + "subsetapp";
     var solajsonout = "solaJSON=" + jsonout;
-    console.log("urlcall out: ", urlcall);
-    console.log("POST out: ", solajsonout);
+    cdb("urlcall out: ", urlcall);
+    cdb("POST out: ", solajsonout);
 
     function subsetSelectSuccess(btn, json) {
         selectLadda.stop(); // stop motion
@@ -1929,11 +1972,14 @@ export function subsetSelect(btn) {
         svg = d3.select("#whitespace");
 
         d3.json(json.url, function(error, json) {
-            if (error)
+            if (error){
                 return console.warn(error);
-            var jsondata = json;
+            }
+            var jsondata = getVariableData(json);
+
             for (var key in jsondata) {
                 var myIndex = findNodeIndex(key);
+
                 allNodes[myIndex].plotx = undefined;
                 allNodes[myIndex].ploty = undefined;
                 allNodes[myIndex].plotvalues = undefined;
@@ -1950,10 +1996,10 @@ export function subsetSelect(btn) {
                     allNodes[myIndex].grayout = true;
                 }
             }
-
             rePlot();
             populatePopover();
-            layout(v = "add");
+            //layout(v = "add");
+            layout("add");
         });
 
         varOut(grayOuts);
@@ -1964,12 +2010,12 @@ export function subsetSelect(btn) {
 }
 
 function readPreprocess(url, p, v, callback) {
-    console.log(url);
+
     d3.json(url, (err, json) => {
         if (err)
             return console.warn(err);
-        console.log('inside readPreprocess function');
-        console.log(json);
+        cdb('inside readPreprocess function');
+        cdb(json);
 
         priv = json.dataset.priv || priv;
         // copy object

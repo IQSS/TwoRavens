@@ -1,3 +1,6 @@
 node_modules/
 npm-debug.log
 rook/
+build/
+data/preprocessSubset*.txt
+.DS_Store

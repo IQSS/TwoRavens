@@ -31,14 +31,14 @@ function addlistener(nodes){
                 .addClass("form-horizontal");
         })
         .on("click", function varClick(){
-            if (allNodes[findNodeIndex(this.id)].grayout) return null;
+            if (allNodes[app.findNodeIndex(this.id)].grayout) return null;
 
             d3.select(this)
                 .style('background-color',function(d) {
                     var myText = d3.select(this).text();
                     var myColor = d3.select(this).style('background-color');
-                    var mySC = allNodes[findNodeIndex(myText)].strokeColor;
-                    var myNode = allNodes[findNodeIndex(this.id)];
+                    var mySC = allNodes[app.findNodeIndex(myText)].strokeColor;
+                    var myNode = allNodes[app.findNodeIndex(this.id)];
 
                     zparams.zvars = []; //empty the zvars array
                     if(d3.rgb(myColor).toString() === varColor.toString()) {	// we are adding a var
@@ -109,4 +109,3 @@ function updatedata(all, matches, flag) {
 	  app.populatePopover();
 	  addlistener(nodes);
 }
-
