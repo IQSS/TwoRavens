@@ -1,6 +1,7 @@
 import m from 'mithril';
 
 import * as app from '../app';
+import {selVarColor} from '../plots';
 
 class Search {
     view(vnode) {
@@ -14,7 +15,8 @@ export default Search;
 export let search = val => {
     $('#tab1').children().popover('hide');
     let all = app.allNodes;
-    if (val === '') return updatedata(all.map(n => n.name), [], 0);
+    if (val === '')
+        return updatedata(all.map(n => n.name), [], 0);
     let matches = all.filter(n => n.name.includes(val) || n.labl.includes(val));
     let names = matches
         .concat(all.filter(n => !matches.includes(n)))
@@ -31,7 +33,8 @@ function addlistener(nodes){
                 .addClass("form-horizontal");
         })
         .on("click", function varClick(){
-            if (allNodes[app.findNodeIndex(this.id)].grayout) return null;
+            if (allNodes[app.findNodeIndex(this.id)].grayout)
+                return;
 
             d3.select(this)
                 .style('background-color',function(d) {
@@ -86,16 +89,18 @@ function addlistener(nodes){
 }
 
 function updatedata(all, matches, flag) {
-	  d3.select("#tab1").selectAll("p").data(app.allNodes.map(n => n.name)).remove();
+	  d3.select("#tab1").selectAll("p")
+        .data(app.allNodes.map(n => n.name))
+        .remove();
 	  d3.select("#tab1").selectAll("p")
 		    .data(all)
 		    .enter()
 		    .append("p")
 		    .attr("id", d => d.replace(/\W/g, "_")) // replace non-alphanumerics for selection purposes, perhaps ensure this id is unique by adding '_' to the front?
 		    .text(d => d)
-		    .style('background-color', d => app.nodes.includes(app.findNode(d)) ? app.hexToRgba(app.selVarColor) : app.varColor)
-        .style('border-style', d => matches.includes(app.findNode(d)) && flag == 1 ? 'solid' : null)
-			  .style('border-color', d => matches.includes(app.findNode(d)) && flag == 1 ? '#000000' : null)
+		    .style('background-color', d => app.hexToRgba(app.nodes.includes(app.findNode(d)) ? selVarColor : app.varColor))
+        .style('border-style', d => matches.includes(app.findNode(d)) && flag == 1 && 'solid')
+			  .style('border-color', d => matches.includes(app.findNode(d)) && flag == 1 && '#000000')
         .attr("data-container", "body")
         .attr("data-toggle", "popover")
         .attr("data-trigger", "hover")

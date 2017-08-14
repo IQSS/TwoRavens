@@ -34,7 +34,6 @@ var dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
 var nomColor = '#ff6600';
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
-//export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 var taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
 
