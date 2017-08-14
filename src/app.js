@@ -1,6 +1,6 @@
 import m from 'mithril';
 
-import {bars, barsNode, barsSubset, density, densityNode} from './plots.js';
+import {bars, barsNode, barsSubset, density, densityNode, selVarColor} from './plots.js';
 
 // hostname default - the app will use it to obtain the variable metadata
 // (ddi) and pre-processed data info if the file id is supplied as an
@@ -34,7 +34,7 @@ var dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
 var nomColor = '#ff6600';
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
-export let selVarColor = '#fa8072'; // d3.rgb("salmon");
+//export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 var taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 var timeColor = '#2d6ca2';
 

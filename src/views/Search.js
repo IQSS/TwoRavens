@@ -55,7 +55,7 @@ function addlistener(nodes){
                             tagColors(myNode, nomColor);
                             return hexToRgba(nomColor);
                         }
-                        else return hexToRgba(selVarColor);
+                        else return hexToRgba(app.selVarColor);
                     } else { // dropping a variable
                         nodes.splice(findNode(myText)["index"], 1);
                         spliceLinksForNode(findNode(myText));
