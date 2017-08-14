@@ -56,6 +56,10 @@ let trans = [];
 let preprocess = {}; // hold pre-processed data
 let spaces = [];
 
+// layout function constants
+const layoutAdd = "add";
+const layoutMove = "move";
+
 
 // Radius of circle
 var allR = 40;
@@ -415,7 +419,7 @@ function layout(v) {
     nodes = [];
     links = [];
 
-    if (v == "add" || v == "move") {
+    if (v == layoutAdd || v == layoutMove) {
         d3.select("#tab1").selectAll("p").style('background-color', varColor);
         for (var j = 0; j < zparams.zvars.length; j++) {
             var ii = findNodeIndex(zparams.zvars[j]);
@@ -1508,7 +1512,9 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
         if (names[0] == "warning") {
             warningcallback(btn);
             alert("Warning: " + json.warning);
-        } else callback(btn, json);
+        } else {
+            callback(btn, json);
+        }
     };
     xhr.onerror = function() {
         // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
@@ -1998,8 +2004,8 @@ export function subsetSelect(btn) {
             }
             rePlot();
             populatePopover();
-            //layout(v = "add");
-            layout("add");
+
+            layout(layoutAdd);
         });
 
         varOut(grayOuts);
