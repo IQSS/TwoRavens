@@ -337,7 +337,7 @@ function scaffolding(callback) {
     });
 
     var t;
-    $('#transList li').click(evt => {
+    $('#transList li').click(function(evt){
         // if interact is selected, show variable list again
         if ($(this).text() == "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
@@ -1255,12 +1255,11 @@ function transform(n, t, typeTransform) {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
-
     if (!typeTransform)
         t = t.replace("+", "_plus_"); // can't send the plus operator
 
-    cdb(n);
-    cdb(t);
+    cdb('var: ' + n);
+    cdb('transform: ' + t);
 
     var btn = byId('btnEstimate');
 
