@@ -17,7 +17,9 @@ export let search = val => {
     let all = app.allNodes;
     if (val === '')
         return updatedata(all.map(n => n.name), [], 0);
-    let matches = all.filter(n => n.name.includes(val) || n.labl.includes(val));
+    val = val.toLowerCase();
+    let matches = all.filter(n => n.name.toLowerCase().includes(val) ||
+                                  n.labl.toLowerCase().includes(val));
     let names = matches
         .concat(all.filter(n => !matches.includes(n)))
         .map(n => n.name);
@@ -112,5 +114,5 @@ function updatedata(all, matches, flag) {
 	  app.fakeClick();
 	  $("#tab1").children().popover('hide');
 	  app.populatePopover();
-	  addlistener(nodes);
+	  addlistener(app.nodes);
 }
