@@ -102,6 +102,12 @@ var arc3, arc4;
 
 let byId = id => document.getElementById(id);
 
+// page reload linked to btnReset
+export const reset = function reloadPage() {
+  location.reload();
+}
+
+
 var dataurl;
 export function main(fileid, hostname, ddiurl, dataurl) {
     dataurl = dataurl;
