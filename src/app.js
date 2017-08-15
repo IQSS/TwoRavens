@@ -29,13 +29,13 @@ export function cdb(msg) {
 // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
 // everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
-var csColor = '#419641';
-var dvColor = '#28a4c9';
+export let csColor = '#419641';
+export let dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
-var nomColor = '#ff6600';
+export let nomColor = '#ff6600';
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
 var taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-var timeColor = '#2d6ca2';
+export let timeColor = '#2d6ca2';
 
 export let lefttab = 'tab1'; // current tab in left panel
 export let subset = false;
@@ -995,7 +995,7 @@ export function forceSwitch() {
     }
 }
 
-let spliceLinksForNode = node => links
+export let spliceLinksForNode = node => links
     .filter(l => l.source === node || l.target === node)
     .map(x => links.splice(links.indexOf(x), 1));
 
@@ -1547,7 +1547,7 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
     xhr.send(jsonstring);
 }
 
-function legend(c) {
+export function legend(c) {
     borderState();
     m.redraw();
 }
@@ -1729,7 +1729,7 @@ function popupX(d) {
         );
 }
 
-function panelPlots() {
+export function panelPlots() {
     // build arrays from nodes in main
     let vars = [];
     let ids = [];
@@ -1848,7 +1848,7 @@ function setColors(n, c) {
     }
 }
 
-function borderState() {
+export function borderState() {
     zparams.zdv.length > 0 ?
         $('#dvButton .rectColor svg circle').attr('stroke', dvColor) :
         $('#dvButton').css('border-color', '#ccc');

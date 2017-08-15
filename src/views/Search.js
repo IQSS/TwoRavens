@@ -35,58 +35,58 @@ function addlistener(nodes){
                 .addClass("form-horizontal");
         })
         .on("click", function varClick(){
-            if (allNodes[app.findNodeIndex(this.id)].grayout)
+            if (app.allNodes[app.findNodeIndex(this.id)].grayout)
                 return;
 
             d3.select(this)
                 .style('background-color',function(d) {
                     var myText = d3.select(this).text();
                     var myColor = d3.select(this).style('background-color');
-                    var mySC = allNodes[app.findNodeIndex(myText)].strokeColor;
-                    var myNode = allNodes[app.findNodeIndex(this.id)];
+                    var mySC = app.allNodes[app.findNodeIndex(myText)].strokeColor;
+                    var myNode = app.allNodes[app.findNodeIndex(this.id)];
 
-                    zparams.zvars = []; //empty the zvars array
-                    if(d3.rgb(myColor).toString() === varColor.toString()) {	// we are adding a var
+                    app.zparams.zvars = []; //empty the zvars array
+                    if(d3.rgb(myColor).toString() === app.varColor.toString()) {	// we are adding a var
                         if(nodes.length==0) {
-                            nodes.push(findNode(myText));
+                            nodes.push(app.findNode(myText));
                             nodes[0].reflexive=true;
                         }
-                        else {nodes.push(findNode(myText));}
+                        else {nodes.push(app.findNode(myText));}
                         if(myNode.time==="yes") {
-                            tagColors(myNode, timeColor);
-                            return hexToRgba(timeColor);
+                            tagColors(myNode, app.timeColor);
+                            return hexToRgba(app.timeColor);
                         }
                         else if(myNode.nature==="nominal") {
-                            tagColors(myNode, nomColor);
-                            return hexToRgba(nomColor);
+                            tagColors(myNode, app.nomColor);
+                            return hexToRgba(app.nomColor);
                         }
-                        else return hexToRgba(app.selVarColor);
+                        else return hexToRgba(selVarColor);
                     } else { // dropping a variable
-                        nodes.splice(findNode(myText)["index"], 1);
-                        spliceLinksForNode(findNode(myText));
-                        if(mySC==dvColor) {
-                            var dvIndex = zparams.zdv.indexOf(myText);
-                            if (dvIndex > -1) { zparams.zdv.splice(dvIndex, 1); }
+                        nodes.splice(app.findNode(myText)["index"], 1);
+                        app.spliceLinksForNode(app.findNode(myText));
+                        if(mySC==app.dvColor) {
+                            var dvIndex = app.zparams.zdv.indexOf(myText);
+                            if (dvIndex > -1) { app.zparams.zdv.splice(dvIndex, 1); }
                         }
-                        else if(mySC==csColor) {
-                            var csIndex = zparams.zcross.indexOf(myText);
-                            if (csIndex > -1) { zparams.zcross.splice(csIndex, 1); }
+                        else if(mySC==app.csColor) {
+                            var csIndex = app.zparams.zcross.indexOf(myText);
+                            if (csIndex > -1) { app.zparams.zcross.splice(csIndex, 1); }
                         }
-                        else if(mySC==timeColor) {
-                            var timeIndex = zparams.ztime.indexOf(myText);
-                            if (timeIndex > -1) { zparams.ztime.splice(timeIndex, 1); }
+                        else if(mySC==app.timeColor) {
+                            var timeIndex = app.zparams.ztime.indexOf(myText);
+                            if (timeIndex > -1) { app.zparams.ztime.splice(timeIndex, 1); }
                         }
-                        else if(mySC==nomColor) {
-                            var nomIndex = zparams.znom.indexOf(myText);
-                            if (nomIndex > -1) { zparams.znom.splice(dvIndex, 1); }
+                        else if(mySC==app.nomColor) {
+                            var nomIndex = app.zparams.znom.indexOf(myText);
+                            if (nomIndex > -1) { app.zparams.znom.splice(dvIndex, 1); }
                         }
-                        borderState();
-                        legend();
-                        return varColor;
+                        app.borderState();
+                        app.legend();
+                        return app.varColor;
                     }
                 });
-            panelPlots();
-            restart();
+            app.panelPlots();
+            app.restart();
         });
 }
 
