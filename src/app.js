@@ -1250,6 +1250,10 @@ function transParse(n) {
     }
 }
 
+/**
+  n = name of column/node
+  t = selected transformation
+ */
 function transform(n, t, typeTransform) {
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
@@ -1258,12 +1262,14 @@ function transform(n, t, typeTransform) {
     if (!typeTransform)
         t = t.replace("+", "_plus_"); // can't send the plus operator
 
-    cdb('var: ' + n);
-    cdb('transform: ' + t);
+    cdb('name of col: ' + n);
+    cdb('transformation: ' + t);
 
     var btn = byId('btnEstimate');
 
+    // find the node by name
     var myn = allNodes[findNodeIndex(n[0])];
+
     if (typeof myn === "undefined") {
         myn = allNodes[findNodeIndex(n)];
     }
@@ -1297,7 +1303,7 @@ function transform(n, t, typeTransform) {
     //package the output as JSON
     var transformstuff = {
         zdataurl: dataurl,
-        zvars: n,
+        zvars: myn.name,
         zsessionid: zparams.zsessionid,
         transform: t,
         callHistory: callHistory,
@@ -1307,17 +1313,21 @@ function transform(n, t, typeTransform) {
     var jsonout = JSON.stringify(transformstuff);
     var urlcall = rappURL + "transformapp";
     var solajsonout = "solaJSON=" + jsonout;
-    cdb("urlcall out: ", urlcall);
-    cdb("POST out: ", solajsonout);
+    cdb("urlcall out: " + urlcall);
+    cdb("POST out: " + solajsonout);
 
     function transformSuccess(btn, json) {
         estimateLadda.stop();
-        cdb("json in: ", json);
+        cdb("json in: " + JSON.stringify(json));
+
+        // Is this a typeTransform?
         if (json.typeTransform[0]) {
+            // Yes. We're updating an existing node
             d3.json(json.url, (error, json) => {
                 if (error)
                     return console.warn(error);
                 var jsondata = json;
+
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
@@ -1330,6 +1340,14 @@ function transform(n, t, typeTransform) {
                 cdb(allNodes[myIndex]);
             });
         } else {
+          /* No, we have a new node here--e.g. the transformed column
+               example response: {
+               "call":["t_year_2"],
+               "url":["data/preprocessSubset_BACCBC78-7DD9-4482-B31D-6EB01C3A0C95.txt"],
+               "trans":["year","_transvar0^2"],
+               "typeTransform":[false]
+             }
+          */
             callHistory.push({
                 func: "transform",
                 zvars: n,
@@ -1338,13 +1356,19 @@ function transform(n, t, typeTransform) {
 
             var subseted = false;
             var rCall = [];
+
             rCall[0] = json.call;
             var newVar = rCall[0][0];
+
             trans.push(newVar);
 
+            // Read the preprocess file containing values
+            // for the transformed variable
+            //
             d3.json(json.url, function(error, json) {
                 if (error) return console.warn(error);
-                var jsondata = json;
+
+                var jsondata = getVariableData(json);
 
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
@@ -1353,7 +1377,7 @@ function transform(n, t, typeTransform) {
                         return;
                     }
                     // add transformed variable to the current space
-                    var i = allNodes.length;
+                    var i = allNodes.length;  // get new index
                     var obj1 = {
                         id: i,
                         reflexive: false,
