@@ -29,13 +29,13 @@ export function cdb(msg) {
 // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
 // everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
 var colors = d3.scale.category20();
-var csColor = '#419641';
-var dvColor = '#28a4c9';
+export let csColor = '#419641';
+export let dvColor = '#28a4c9';
 var grayColor = '#c0c0c0';
-var nomColor = '#ff6600';
+export let nomColor = '#ff6600';
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
 var taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-var timeColor = '#2d6ca2';
+export let timeColor = '#2d6ca2';
 
 export let lefttab = 'tab1'; // current tab in left panel
 export let subset = false;
@@ -101,6 +101,12 @@ var svg, width, height, div, estimateLadda, selectLadda;
 var arc3, arc4;
 
 let byId = id => document.getElementById(id);
+
+// page reload linked to btnReset
+export const reset = function reloadPage() {
+  location.reload();
+}
+
 
 var dataurl;
 export function main(fileid, hostname, ddiurl, dataurl) {
@@ -337,7 +343,7 @@ function scaffolding(callback) {
     });
 
     var t;
-    $('#transList li').click(evt => {
+    $('#transList li').click(function(evt){
         // if interact is selected, show variable list again
         if ($(this).text() == "interact(d,e)") {
             $('#tInput').val(tvar.concat('*'));
@@ -989,7 +995,7 @@ export function forceSwitch() {
     }
 }
 
-let spliceLinksForNode = node => links
+export let spliceLinksForNode = node => links
     .filter(l => l.source === node || l.target === node)
     .map(x => links.splice(links.indexOf(x), 1));
 
@@ -1250,21 +1256,26 @@ function transParse(n) {
     }
 }
 
+/**
+  n = name of column/node
+  t = selected transformation
+ */
 function transform(n, t, typeTransform) {
     if (production && zparams.zsessionid == "") {
         alert("Warning: Data download is not complete. Try again soon.");
         return;
     }
-
     if (!typeTransform)
         t = t.replace("+", "_plus_"); // can't send the plus operator
 
-    cdb(n);
-    cdb(t);
+    cdb('name of col: ' + n);
+    cdb('transformation: ' + t);
 
     var btn = byId('btnEstimate');
 
+    // find the node by name
     var myn = allNodes[findNodeIndex(n[0])];
+
     if (typeof myn === "undefined") {
         myn = allNodes[findNodeIndex(n)];
     }
@@ -1298,7 +1309,7 @@ function transform(n, t, typeTransform) {
     //package the output as JSON
     var transformstuff = {
         zdataurl: dataurl,
-        zvars: n,
+        zvars: myn.name,
         zsessionid: zparams.zsessionid,
         transform: t,
         callHistory: callHistory,
@@ -1308,17 +1319,21 @@ function transform(n, t, typeTransform) {
     var jsonout = JSON.stringify(transformstuff);
     var urlcall = rappURL + "transformapp";
     var solajsonout = "solaJSON=" + jsonout;
-    cdb("urlcall out: ", urlcall);
-    cdb("POST out: ", solajsonout);
+    cdb("urlcall out: " + urlcall);
+    cdb("POST out: " + solajsonout);
 
     function transformSuccess(btn, json) {
         estimateLadda.stop();
-        cdb("json in: ", json);
+        cdb("json in: " + JSON.stringify(json));
+
+        // Is this a typeTransform?
         if (json.typeTransform[0]) {
+            // Yes. We're updating an existing node
             d3.json(json.url, (error, json) => {
                 if (error)
                     return console.warn(error);
                 var jsondata = json;
+
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
                     jQuery.extend(true, allNodes[myIndex], jsondata[key]);
@@ -1331,6 +1346,14 @@ function transform(n, t, typeTransform) {
                 cdb(allNodes[myIndex]);
             });
         } else {
+          /* No, we have a new node here--e.g. the transformed column
+               example response: {
+               "call":["t_year_2"],
+               "url":["data/preprocessSubset_BACCBC78-7DD9-4482-B31D-6EB01C3A0C95.txt"],
+               "trans":["year","_transvar0^2"],
+               "typeTransform":[false]
+             }
+          */
             callHistory.push({
                 func: "transform",
                 zvars: n,
@@ -1339,13 +1362,19 @@ function transform(n, t, typeTransform) {
 
             var subseted = false;
             var rCall = [];
+
             rCall[0] = json.call;
             var newVar = rCall[0][0];
+
             trans.push(newVar);
 
+            // Read the preprocess file containing values
+            // for the transformed variable
+            //
             d3.json(json.url, function(error, json) {
                 if (error) return console.warn(error);
-                var jsondata = json;
+
+                var jsondata = getVariableData(json);
 
                 for (var key in jsondata) {
                     var myIndex = findNodeIndex(key);
@@ -1354,7 +1383,7 @@ function transform(n, t, typeTransform) {
                         return;
                     }
                     // add transformed variable to the current space
-                    var i = allNodes.length;
+                    var i = allNodes.length;  // get new index
                     var obj1 = {
                         id: i,
                         reflexive: false,
@@ -1518,7 +1547,7 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
     xhr.send(jsonstring);
 }
 
-function legend(c) {
+export function legend(c) {
     borderState();
     m.redraw();
 }
@@ -1700,7 +1729,7 @@ function popupX(d) {
         );
 }
 
-function panelPlots() {
+export function panelPlots() {
     // build arrays from nodes in main
     let vars = [];
     let ids = [];
@@ -1819,7 +1848,7 @@ function setColors(n, c) {
     }
 }
 
-function borderState() {
+export function borderState() {
     zparams.zdv.length > 0 ?
         $('#dvButton .rectColor svg circle').attr('stroke', dvColor) :
         $('#dvButton').css('border-color', '#ccc');
