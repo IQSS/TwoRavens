@@ -6,30 +6,30 @@
 
 
 zelig.app <- function(env){
-    
+
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
-    warning<-FALSE  
+    warning<-FALSE
     result <-list()
 
     if(production){
         sink(file = stderr(), type = "output")
     }
-    
+
     request <- Request$new(env)
     response <- Response$new(headers = list( "Access-Control-Allow-Origin"="*"))
-    
+
     valid <- jsonlite::validate(request$POST()$solaJSON)
     print(valid)
     if(!valid) {
         warning <- TRUE
         result <- list(warning="The request is not valid json. Check for special characters.")
     }
-    
+
     if(!warning) {
         everything <- jsonlite::fromJSON(request$POST()$solaJSON)
         print(everything)
     }
-    
+
 	if(!warning){
 		mydv <- everything$zdv
         if(length(mydv) == 0){
@@ -38,7 +38,7 @@ zelig.app <- function(env){
 		}
         if(length(mydv) > 1){
 			warning <- TRUE
-			result<-list(warning="Too many dependent variable selected.")
+			result<-list(warning="Too many dependent variables selected.  Please choose only one.")
 		}
 	}
 
@@ -49,7 +49,7 @@ zelig.app <- function(env){
 			result<-list(warning="No model selected.")
 		}
 	}
-    
+
 	if(!warning){
 		mymodelcount <- everything$zmodelcount
 		if(identical(mymodelcount,"")){
@@ -57,7 +57,7 @@ zelig.app <- function(env){
 			result<-list(warning="No model count.")
 		}
 	}
-    
+
     if(!warning){
         myplot <- everything$zplot
         if(is.null(myplot)){
@@ -65,7 +65,7 @@ zelig.app <- function(env){
             result <- list(warning="Problem with zplot.")
         }
     }
-    
+
     if(!warning){
 		mysetx <- everything$zsetx
         myvars <- everything$zvars
@@ -82,7 +82,7 @@ zelig.app <- function(env){
 		#	result<-list(warning="Problem creating edges.")
 		#}
 	}
-    
+
     if(!warning){
         mysessionid <- everything$zsessionid
         mylogfile<-logFile(mysessionid, production)
@@ -113,13 +113,13 @@ zelig.app <- function(env){
             result <- list(warning="Problem with subset.")
         }
     }
-    
+
     if(!warning){
         history <- everything$callHistory
-        
+
         t<-jsonlite::toJSON(history)
         write(deparse(bquote(history<-jsonlite::fromJSON(.(t)))),mylogfile,append=TRUE)
-        
+
         if(is.null(history)){
             warning<-TRUE
             result<-list(warning="callHistory is null.")
@@ -143,19 +143,19 @@ zelig.app <- function(env){
 	if(!warning){
 		print(myformula)
         print(setxCall)
-      
+
         tryCatch({
-          
+
           ## 1. prepare mydata so that it is identical to the representation of the data in TwoRavens
           mydata <- executeHistory(data=mydata, history=history)
           write("mydata <- executeHistory(data=mydata, history=history)",mylogfile,append=TRUE)
-          
+
           ## 2. additional subset of the data in the event that a user wants to estimate a model on the subset, but hasn't "selected" on the subset. that is, just brushed the region, does not press "Select", and presses "Estimate"
           usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)
           usedata <- refactor(usedata) # when data is subset, factors levels do not update, and this causes an error in zelig's setx(). refactor() is a quick fix
           write("usedata <- subsetData(data=mydata, sub=mysubset, varnames=myvars, plot=myplot)",mylogfile,append=TRUE)
           write("usedata <- refactor(usedata))",mylogfile,append=TRUE)
-          
+
           ## VJD: Zelig5 handles missingness, no?
           # Here is present dealing with missing data
           # listwise deletion on variables in the formula
@@ -188,13 +188,13 @@ zelig.app <- function(env){
                 s.out <- sim(z.out, x=x.out, x1=x.alt)
                 write("s.out <- sim(z.out, x=x.out, x1=x.alt)",mylogfile,append=TRUE)
             }
-            
+
             if(production){
                 plotpath <- "png(file.path(\"/var/www/html/custom/pic_dir\", paste(mysessionid,\"_\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }else{
                 plotpath <- "png(file.path(getwd(), paste(\"output\",mymodelcount,qicount,\".png\",sep=\"\")))"
             }
-            
+
             # zplots() recreates Zelig plots
             images <- zplots(s.out, plotpath, mymodelcount, mysessionid, production=production)
             write("plot(s.out)",mylogfile,append=TRUE)
@@ -215,7 +215,7 @@ zelig.app <- function(env){
 
 
     #response$headers("localhost:8888")
-    
+
     #add the summary table to the results
     # R can't construct an array of lists...
     # NOTE: this will likely change for Zelig 5
@@ -226,7 +226,7 @@ zelig.app <- function(env){
     #  z.out <- zelig(ccode~country, model="ls", data=mydata)
     #x.out <- setx(z.out)
     #s.out <- sim(z.out, x.out)
-    
+
     # putting factor(var) in the formula fails with Zelig4
     # adding a factor variable to the data, or coercing variable to be a factor, works
     # rm(list=ls())
@@ -238,14 +238,14 @@ zelig.app <- function(env){
     #z.out <- zelig(war~lpop + factor(region), model="logit", data=mydata)
     #x.out <- setx(z.out)
     #s.out <- sim(z.out, x.out) # fail
-    
+
     #mydata <- read.delim("../data/fearonLaitin.tsv")
     #mydata <- mydata[,c("war", "lpop")]
     #mydata <- na.omit(mydata)
     #z.out <- zelig(war~lpop, model="logit", data=mydata)
     #x.out <- setx(z.out)
     #s.out <- sim(z.out, x.out) # fail
-    
+
     #  z.out <- zelig(war~aim+lpop+ccode, model="logit", data=mydata)
     #  imageVector <- "image"
     #  almostCall <- "call"
@@ -256,32 +256,30 @@ zelig.app <- function(env){
     if(!warning){
 
         summaryMatrix <- summary(z.out$zelig.out$z.out[[1]])$coefficients
-        
+
         sumColName <- c(" ", "Estimate", "SE", "t-value", "Pr(<|t|)")
         sumInfo <- list(colnames=sumColName)
-    
+
         sumRowName <- row.names(summaryMatrix)
         row.names(summaryMatrix) <- NULL # this makes remaining parsing cleaner
         colnames(summaryMatrix) <- NULL
-    
+
         for (i in 1:nrow(summaryMatrix)) {
             assign(paste("row", i, sep = ""), c(sumRowName[i],summaryMatrix[i,]))
             assign("sumInfo", c(sumInfo, list(eval(parse(text=paste("row",i,sep=""))))))
         }
         sumMat <- list(sumInfo=sumInfo)
-    
+
         result<- jsonlite:::toJSON(c(result,sumMat))   # rjson does not format json correctly for a list of lists
     }else{
         result<-jsonlite:::toJSON(result)
     }
-    
+
     print(result)
     if(production){
         sink()
     }
     response$write(result)
     response$finish()
-    
+
 }
-
-
