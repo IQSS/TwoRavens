@@ -59,6 +59,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     k<-ncol(mydata)
     varnames<-names(mydata)
     hold<-list()
+    holdcdf<-list()
     count<-0
     metadataflag<-0
 
@@ -78,21 +79,34 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
     
     for(i in 1:k){
         nat <- types$nature[which(types$varnamesTypes==varnames[i])]
+        myint <- types$interval[which(types$varnamesTypes==varnames[i])]
         if(nat!="nominal"){
             uniqueValues<-sort(na.omit(unique(mydata[,i])))
-            
-            if(length(uniqueValues)< histlimit){
+            lu <- length(uniqueValues)
+            cdf_func <- ecdf(mydata[,i])
+            if(lu< histlimit){
                 output<- table(mydata[,i])
                 hold[[i]]<- list(plottype="bar", plotvalues=output)
+                
+                cdfX <- seq(from=uniqueValues[1],to=uniqueValues[lu],length.out=lu)
+                cdfY <- cdf_func(cdfX)
+                holdcdf[[i]] <- list(cdfplottype="bar", cdfplotx=cdfX, cdfploty=cdfY)
             }else{
                 output<- density( mydata[,i], n=50, na.rm=TRUE )
                 hold[[i]]<- list(plottype="continuous", plotx=output$x, ploty=output$y)
-                
+                if(lu>=50 | (lu<50 & myint != "discrete")) { # if num uniques greater than 50, we get a cumulative density point for each unique
+                    cdfX <- seq(from=min(mydata[,i],na.rm=TRUE),to=max(mydata[,i],na.rm=TRUE),length.out=50)
+                } else { # if num uniques between histlimit and 50 and interval is discrete, we get a cumulative density point for each unique
+                    cdfX <- seq(from=min(mydata[,i],na.rm=TRUE),to=max(mydata[,i],na.rm=TRUE),length.out=lu)
+                }
+                cdfY <- cdf_func(cdfX)
+                holdcdf[[i]] <- list(cdfplottype="continuous", cdfplotx=cdfX, cdfploty=cdfY)
             }
             
         }else{
             output<- table(mydata[,i])
             hold[[i]]<- list(plottype="bar", plotvalues=output)
+            holdcdf[[i]] <- list(cdfplottype="NULL", cdfplotx="NULL", cdfploty="NULL")
         }
         
         if(metadataflag==1)
@@ -100,7 +114,7 @@ preprocess<-function(hostname=NULL, fileid=NULL, testdata=NULL, types=NULL, file
         else
           lablname=""
         
-        hold[[i]] <- c(hold[[i]],labl=lablname,lapply(mySumStats, `[[`,which(mySumStats$varnamesSumStat==varnames[i])),lapply(types, `[[`,which(types$varnamesTypes==varnames[i])))
+        hold[[i]] <- c(hold[[i]],holdcdf[[i]], labl=lablname,lapply(mySumStats, `[[`,which(mySumStats$varnamesSumStat==varnames[i])),lapply(types, `[[`,which(types$varnamesTypes==varnames[i])))
     }
     names(hold)<-varnames
     
