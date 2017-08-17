@@ -86,7 +86,7 @@ export let zparams = {
 };
 
 var modelCount = 0;
-var valueKey = [];
+export let valueKey = [];
 export let allNodes = [];
 var allResults = [];
 export let nodes = [];
@@ -363,25 +363,6 @@ function scaffolding(callback) {
         transform(n = tvar, t = tfunc, typeTransform = false);
     });
 
-    // populating the variable list in the left panel
-    d3.select("#tab1").selectAll("p")
-        .data(valueKey)
-        .enter()
-        .append("p")
-        // replace non-alphanumerics for selection purposes
-        // perhaps ensure this id is unique by adding '_' to the front?
-        .attr("id", d => d.replace(/\W/g, "_"))
-        .text(d => d)
-        .style('background-color', d => findNodeIndex(d) > 2 ? varColor : hexToRgba(selVarColor))
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-placement", "right")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics");
-
     d3.select("#models")
         .style('height', 2000)
         .style('overfill', 'scroll');
@@ -404,7 +385,10 @@ function scaffolding(callback) {
         .attr("data-content", d => mods[d]);
 
     // call layout() because at this point all scaffolding is up and ready
-    if (typeof callback == "function") callback();
+    if (typeof callback == "function") {
+        callback();
+        m.redraw();
+    }
 }
 
 let splice = (color, text, ...args) => {
@@ -415,6 +399,8 @@ let splice = (color, text, ...args) => {
         idx > -1 && zparams[x[1]].splice(idx, 1);
     });
 };
+
+export let clickVar;
 
 function layout(v) {
     var myValues = [];
@@ -549,39 +535,32 @@ function layout(v) {
         circle.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
     }
 
-    // add listeners to leftpanel.left. every time a variable is clicked, nodes updates and background color changes.  mouseover shows summary stats or model description.
-    d3.select("#tab1").selectAll("p")
-        .on("mouseover", d => {
-            $("body div.popover")
-                .addClass("variables");
-            $("body div.popover div.popover-content")
-                .addClass("form-horizontal");
-        })
-        .on("click", function varClick() {
-            if (allNodes[findNodeIndex(this.id)].grayout)
-                return null;
-            d3.select(this)
-                .style('background-color', function(d) {
-                    zparams.zvars = [];
-                    let text = d3.select(this).text();
-                    if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
-                        nodes.push(findNode(text));
-                        if (nodes.length == 0) nodes[0].reflexive = true;
-                        return hexToRgba(selVarColor);
-                    } else {
-                        // dropping a variable
-                        nodes.splice(findNode(text).index, 1);
-                        spliceLinksForNode(findNode(text));
-                        let node = allNodes[findNodeIndex(text)];
-                        splice(node.strokeColor, text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-                        nodeReset(node);
-                        legend();
-                        return varColor;
-                    }
-                });
-            panelPlots();
-            restart();
-        });
+    clickVar = function() {
+        // every time a variable in leftpanel is clicked, nodes updates and background color changes
+        if (findNodeIndex(this.id, true).grayout)
+            return null;
+        d3.select(this)
+            .style('background-color', function(d) {
+                zparams.zvars = [];
+                let text = d3.select(this).text();
+                if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
+                    nodes.push(findNode(text));
+                    if (nodes.length == 0) nodes[0].reflexive = true;
+                    return hexToRgba(selVarColor);
+                } else {
+                    // dropping a variable
+                    nodes.splice(findNode(text).index, 1);
+                    spliceLinksForNode(findNode(text));
+                    let node = findNodeIndex(text, true);
+                    splice(node.strokeColor, text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+                    nodeReset(node);
+                    legend();
+                    return varColor;
+                }
+            });
+        panelPlots();
+        restart();
+    }
 
     d3.select("#models").selectAll("p") // models tab
         //  d3.select("#Display_content")
@@ -944,11 +923,12 @@ let find = ($nodes, name) => {
 };
 
 // returns id
-export let findNodeIndex = name => {
-    for (let i in allNodes){
-        if (allNodes[i].name == name){
+export let findNodeIndex = (name, all) => {
+    for (let i in allNodes) {
+        let node = allNodes[i];
+        if (node.name === name) {
             //cdb('Yes!' + allNodes[i].id);
-            return allNodes[i].id;
+            return all? node : node.id;
         }
     }
 };
@@ -1274,10 +1254,10 @@ function transform(n, t, typeTransform) {
     var btn = byId('btnEstimate');
 
     // find the node by name
-    var myn = allNodes[findNodeIndex(n[0])];
+    var myn = findNodeIndex(n[0], true);
 
     if (typeof myn === "undefined") {
-        myn = allNodes[findNodeIndex(n)];
+        myn = findNodeIndex(n, true);
     }
 
     var outtypes = {
@@ -1465,7 +1445,7 @@ function scaffoldingPush(v) { // adding a variable to the variable list after a 
                         nodes.splice(findNode(text).index, 1);
                         spliceLinksForNode(findNode(text));
                         splice(text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-                        nodeReset(allNodes[findNodeIndex(text)]);
+                        nodeReset(findNodeIndex(text, true));
                         borderState();
                         return varColor;
                     }
@@ -1664,10 +1644,10 @@ function varSummary(d) {
 
 export let populatePopover = () => {
     d3.select("#tab1").selectAll("p")
-        .attr("data-content", d => popoverContent(allNodes[findNodeIndex(d)]));
+        .attr("data-content", d => popoverContent(findNodeIndex(d, true)));
 };
 
-function popoverContent(d) {
+export let popoverContent = d => {
     var rint = d3.format("r");
     var text = "";
     if (d.labl != "")
@@ -1808,7 +1788,7 @@ function setColors(n, c) {
             zparams[key] = Array.isArray(zparams[key]) ? zparams[key] : [];
             zparams[key].push(n.name);
             if (key == 'znom') {
-                allNodes[findNodeIndex(n.name)].nature = "nominal";
+                findNodeIndex(n.name, true).nature = "nominal";
                 transform(n.name, t = null, typeTransform = true);
             }
         };
@@ -1824,13 +1804,13 @@ function setColors(n, c) {
                 .style('background-color', hexToRgba(selVarColor));
             splice(c, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
             if (nomColor == c && zparams.znom.includes(n.name)) {
-                allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
+                findNodeIndex(n.name, true).nature = findNodeIndex(n.name, true).defaultNature;
                 transform(n.name, t = null, typeTransform = true);
             }
         } else { // deselecting time, cs, dv, nom AND changing it to time, cs, dv, nom
             splice(n.strokeColor, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
             if (nomColor == n.strokeColor && zparams.znom.includes(n.name)) {
-                allNodes[findNodeIndex(n.name)].nature = allNodes[findNodeIndex(n.name)].defaultNature;
+                findNodeIndex(n.name, true).nature = findNodeIndex(n.name, true).defaultNature;
                 transform(n.name, t = null, typeTransform = true);
             }
             n.strokeColor = c;
@@ -1841,7 +1821,7 @@ function setColors(n, c) {
             else if (timeColor == c) zparams.ztime.push(n.name);
             else if (nomColor == c) {
                 zparams.znom.push(n.name);
-                allNodes[findNodeIndex(n.name)].nature = "nominal";
+                findNodeIndex(n.name, true).nature = "nominal";
                 transform(n.name, t = null, typeTransform = true);
             }
         }
