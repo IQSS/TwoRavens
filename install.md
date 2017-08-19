@@ -19,7 +19,9 @@ Download and install R at https://www.r-project.org. Execute the following with 
 install.packages(c("VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "Zelig"))
 ```
 
-Then set your working directory to ~TwoRavens/rook via, for example:
+Note: this requires libssl-dev on Ubuntu 17.04.
+
+Then set your working directory to ~TwoRavens/rook, for example:
 
 ```
 setwd("/Users/vjdorazio/Desktop/github/TwoRavens/rook")
