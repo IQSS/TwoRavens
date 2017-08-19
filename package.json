@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack -d --watch"
+    "serve": "http-server -p 8888",
+    "start": "webpack -d --watch & npm run serve"
   },
   "keywords": [],
   "author": "",
-  "license": "BSD 3-clause",
+  "license": "BSD-3-clause",
   "dependencies": {
+    "http-server": "^0.10.0",
     "mithril": "^1.1.1"
   },
   "devDependencies": {
