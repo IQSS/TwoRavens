@@ -1389,7 +1389,6 @@ function transform(n, t, typeTransform) {
                     jQuery.extend(true, obj1, jsondata[key]);
                     allNodes.push(obj1);
 
-                    scaffoldingPush(rCall[0]);
                     valueKey.push(newVar);
                     nodes.push(allNodes[i]);
                     fakeClick();
@@ -1400,6 +1399,8 @@ function transform(n, t, typeTransform) {
                     } else if (allNodes[i].plottype === "bar") {
                         barsNode(allNodes[i]);
                     }
+
+                    m.redraw();
                 }
             });
 
@@ -1414,54 +1415,6 @@ function transform(n, t, typeTransform) {
 
     estimateLadda.start(); // start spinner
     makeCorsRequest(urlcall, btn, transformSuccess, transformFail, solajsonout);
-}
-
-function scaffoldingPush(v) { // adding a variable to the variable list after a transformation
-    d3.select("#tab1")
-        .data(v)
-        .append("p")
-        .attr("id", () => v[0].replace(/\W/g, "_"))
-        .text(v[0])
-        .style('background-color', hexToRgba(selVarColor))
-        .attr("data-container", "body")
-        .attr("data-toggle", "popover")
-        .attr("data-trigger", "hover")
-        .attr("data-placement", "right")
-        .attr("data-html", "true")
-        .attr("onmouseover", "$(this).popover('toggle');")
-        .attr("onmouseout", "$(this).popover('toggle');")
-        .attr("data-original-title", "Summary Statistics")
-        .on("click", function varClick() { // we've added a new variable, so we need to add the listener
-            d3.select(this)
-                .style('background-color', function(d) {
-                    zparams.zvars = [];
-                    let text = d3.select(this).text();
-                    if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
-                        nodes.push(findNode(text));
-                        if (nodes.length == 0) nodes[0].reflexive = true;
-                        return hexToRgba(selVarColor);
-                    } else {
-                        // dropping a variable
-                        nodes.splice(findNode(text).index, 1);
-                        spliceLinksForNode(findNode(text));
-                        splice(text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-                        nodeReset(findNodeIndex(text, true));
-                        borderState();
-                        return varColor;
-                    }
-                });
-            fakeClick();
-            panelPlots();
-        });
-    populatePopover(); // pipes in the summary stats
-
-    // drop down menu for tranformation toolbar
-    d3.select("#transSel")
-        .data(v)
-        .append("option")
-        .text(function(d) {
-            return d;
-        });
 }
 
 // below from http://www.html5rocks.com/en/tutorials/cors/ for cross-origin resource sharing
@@ -1793,14 +1746,14 @@ function setColors(n, c) {
             }
         };
         [[dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']].forEach(push);
-        d3.select("#tab1").select("p#".concat(n.name))
+        d3.select("#tab1").select(`p#${n.name}`)
             .style('background-color', hexToRgba(c));
     } else if (n.strokeWidth == '4') {
         if (c == n.strokeColor) { // deselecting time, cs, dv, nom
             n.strokeWidth = '1';
             n.strokeColor = selVarColor;
             n.nodeCol = colors(n.id);
-            d3.select("#tab1").select("p#".concat(n.name))
+            d3.select("#tab1").select(`p#${n.name}`)
                 .style('background-color', hexToRgba(selVarColor));
             splice(c, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
             if (nomColor == c && zparams.znom.includes(n.name)) {
@@ -1814,7 +1767,7 @@ function setColors(n, c) {
                 transform(n.name, t = null, typeTransform = true);
             }
             n.strokeColor = c;
-            d3.select("#tab1").select("p#".concat(n.name))
+            d3.select("#tab1").select(`p#${n.name}`)
                 .style('background-color', hexToRgba(c));
             if (dvColor == c) zparams.zdv.push(n.name);
             else if (csColor == c) zparams.zcross.push(n.name);
