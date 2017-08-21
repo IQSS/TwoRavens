@@ -1531,17 +1531,12 @@ export function tabLeft(tab) {
 }
 
 export function tabRight(tabid) {
+
     let cls = "sidepanel container clearfix";
     let select = cls => {
         let panel = d3.select("#rightpanel");
         return cls ? panel.attr('class', cls) : panel.attr('class');
     };
-    if (tabid == "btnModels") select(cls);
-    else if (tabid == "btnSetx") righttab == "btnSetx" || select() == cls && toggleR();
-    else if (tabid == "btnResults") !estimated ? select(cls) :
-        righttab == "btnResults" || select() == cls ? toggleR() : null;
-
-    righttab = tabid;
 
     let toggleR = () => {
         select(function() {
@@ -1549,6 +1544,14 @@ export function tabRight(tabid) {
             return this.getAttribute("class") === expand ? cls : expand;
         });
     };
+
+    if (tabid == "btnModels") select(cls);
+    else if (tabid == "btnSetx") righttab == "btnSetx" || select() == cls && toggleR();
+    else if (tabid == "btnResults") !estimated ? select(cls) :
+        righttab == "btnResults" || select() == cls ? toggleR() : null;
+
+    righttab = tabid;
+
 }
 
 export let summary = {data: []};
