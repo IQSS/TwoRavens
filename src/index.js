@@ -35,7 +35,7 @@ let leftpanel = function() {
                  m('#leftContentArea[style=height: 453px; overflow: auto]',
                    m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
                      m(Search, {placeholder: 'Search variables and labels'}),
-                     m('div[style=display: block]', app.valueKey.map((v, i) =>
+                     m('#varList[style=display: block]', app.valueKey.map((v, i) =>
                        m(`p#${v.replace(/\W/g, '_')}`, {
                          style: {
                            'background-color': app.zparams.zdv.includes(v) ? app.hexToRgba(app.dvColor) :

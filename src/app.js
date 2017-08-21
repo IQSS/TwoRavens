@@ -1483,6 +1483,7 @@ export let legend = _ => {
 
 // programmatically deselect every selected variable
 export function erase() {
+
     leftpanelMedium();
     rightpanelMedium();
     tabLeft('tab1');
@@ -1496,7 +1497,7 @@ export function erase() {
             e.dispatchEvent(evt);
         });
     };
-    // $("#tab1").d3Click();
+    $("#varList").d3Click();
 }
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
