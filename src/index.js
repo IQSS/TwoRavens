@@ -38,8 +38,10 @@ let leftpanel = function() {
                      m('div[style=display: block]', app.valueKey.map((v, i) =>
                        m(`p#${v.replace(/\W/g, '_')}`, {
                          style: {
-                           'background-color': app.nodes.map(n => n.name).includes(v) ?
-                             app.hexToRgba(plots.selVarColor) : app.varColor,
+                           'background-color': app.zparams.zdv.map(n => n).includes(v) ? app.hexToRgba(app.dvColor) :
+                              app.zparams.znom.map(n => n).includes(v) ? app.hexToRgba(app.nomColor) :
+                              app.nodes.map(n => n.name).includes(v) ? app.hexToRgba(plots.selVarColor) :
+                              app.varColor,
                            'border-color': '#000000',
                            'border-style': searchIndex && i < searchIndex ? 'solid' : 'none',
                          },

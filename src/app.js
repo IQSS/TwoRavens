@@ -25,6 +25,11 @@ export function cdb(msg) {
     };
 };
 
+export let inspect = obj => {
+    console.log(obj);
+    return obj;
+};
+
 // initial color scale used to establish the initial colors of nodes
 // allNodes.push() below establishes a field for the master node array allNodes called "nodeCol" and assigns a color from this scale to that field
 // everything there after should refer to the nodeCol and not the color scale, this enables us to update colors and pass the variable type to R based on its coloring
