@@ -7,7 +7,7 @@ import m from 'mithril';
 import * as app from './app';
 import * as plots from './plots';
 import Panel, {getClass} from './views/Panel';
-import Search, {search} from './views/Search';
+import Search, {searchIndex} from './views/Search';
 import Subpanel from './views/Subpanel';
 
 let or = function(side, val, y='block', n='none') {
@@ -34,10 +34,15 @@ let leftpanel = function() {
                m('#leftpanelcontent',
                  m('#leftContentArea[style=height: 453px; overflow: auto]',
                    m(`#tab1[style=display: ${or('left', 'tab1')}; padding: 10px 8px; text-align: center]`,
-                     m(Search, {oninput: m.withAttr('value', search)}),
-                     m('div[style=display: block]', app.valueKey.map(v =>
+                     m(Search, {placeholder: 'Search variables and labels'}),
+                     m('div[style=display: block]', app.valueKey.map((v, i) =>
                        m(`p#${v.replace(/\W/g, '_')}`, {
-                         style: `background-color: ${app.findNodeIndex(v) > 2 ? app.varColor : app.hexToRgba(plots.selVarColor)}`,
+                         style: {
+                           'background-color': app.nodes.map(n => n.name).includes(v) ?
+                             app.hexToRgba(plots.selVarColor) : app.varColor,
+                           'border-color': '#000000',
+                           'border-style': searchIndex && i < searchIndex ? 'solid' : 'none',
+                         },
                          onclick: app.clickVar,
                          onmouseover: function() {
                            $(this).popover('show');

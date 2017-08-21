@@ -408,7 +408,6 @@ function layout(v) {
     links = [];
 
     if (v == layoutAdd || v == layoutMove) {
-        d3.select("#tab1").selectAll("p").style('background-color', varColor);
         for (var j = 0; j < zparams.zvars.length; j++) {
             var ii = findNodeIndex(zparams.zvars[j]);
             if (allNodes[ii].grayout)
@@ -530,7 +529,7 @@ function layout(v) {
                 sourceY = d.source.y + (sourcePadding * normY),
                 targetX = d.target.x - (targetPadding * normX),
                 targetY = d.target.y - (targetPadding * normY);
-            return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+            return `M${sourceX},${sourceY}L${targetX},${targetY}`;
         });
         circle.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
     }
@@ -538,26 +537,20 @@ function layout(v) {
     clickVar = function() {
         // every time a variable in leftpanel is clicked, nodes updates and background color changes
         if (findNodeIndex(this.id, true).grayout)
-            return null;
-        d3.select(this)
-            .style('background-color', function(d) {
-                zparams.zvars = [];
-                let text = d3.select(this).text();
-                if (d3.rgb(d3.select(this).style('background-color')).toString() == varColor.toString()) { // we are adding a var
-                    nodes.push(findNode(text));
-                    if (nodes.length == 0) nodes[0].reflexive = true;
-                    return hexToRgba(selVarColor);
-                } else {
-                    // dropping a variable
-                    nodes.splice(findNode(text).index, 1);
-                    spliceLinksForNode(findNode(text));
-                    let node = findNodeIndex(text, true);
-                    splice(node.strokeColor, text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
-                    nodeReset(node);
-                    legend();
-                    return varColor;
-                }
-            });
+            return;
+        zparams.zvars = [];
+        let text = d3.select(this).text();
+        let node = findNode(text);
+        if (nodes.map(n => n.name).includes(text)) {
+            nodes.splice(node.index, 1);
+            spliceLinksForNode(node);
+            splice(node.strokeColor, text, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
+            nodeReset(node);
+            legend();
+        } else {
+            nodes.push(node);
+            if (nodes.length === 0) nodes[0].reflexive = true;
+        }
         panelPlots();
         restart();
     }
@@ -924,8 +917,7 @@ let find = ($nodes, name) => {
 
 // returns id
 export let findNodeIndex = (name, all) => {
-    for (let i in allNodes) {
-        let node = allNodes[i];
+    for (let node of allNodes) {
         if (node.name === name) {
             //cdb('Yes!' + allNodes[i].id);
             return all? node : node.id;
@@ -1309,21 +1301,20 @@ function transform(n, t, typeTransform) {
         // Is this a typeTransform?
         if (json.typeTransform[0]) {
             // Yes. We're updating an existing node
-            d3.json(json.url, (error, json) => {
-                if (error)
-                    return console.warn(error);
-                var jsondata = json;
-
-                for (var key in jsondata) {
-                    var myIndex = findNodeIndex(key);
-                    jQuery.extend(true, allNodes[myIndex], jsondata[key]);
-                    if (allNodes[myIndex].plottype === "continuous") densityNode(allNodes[myIndex]);
-                    else if (allNodes[myIndex].plottype === "bar") barsNode(allNodes[myIndex]);
+            d3.json(json.url, (err, data) => {
+                if (err)
+                    return console.warn(err);
+                let node;
+                for (let key in data) {
+                    node = findNodeIndex(key, true);
+                    jQuery.extend(true, node, data[key]);
+                    node.plottype === "continuous" ? densityNode(node) :
+                        node.plottype === "bar" ? barsNode(node) : null;
                 }
                 fakeClick();
                 populatePopover();
                 panelPlots();
-                cdb(allNodes[myIndex]);
+                cdb(node);
             });
         } else {
           /* No, we have a new node here--e.g. the transformed column
@@ -1469,10 +1460,10 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
         }
     };
     xhr.onerror = function() {
-        // note: xhr.readystate should be 4, and status should be 200.  a status of 0 occurs when the url becomes too large
-        if (xhr.status == 0) alert('There was an error making the request. xmlhttprequest status is 0.');
-        else if (xhr.readyState != 4) alert('There was an error making the request. xmlhttprequest readystate is not 4.');
-        else alert('Woops, there was an error making the request.');
+        // note: xhr.readystate should be 4 and status should be 200. a status of 0 occurs when the url is too large
+        xhr.status == 0 ? alert('There was an error making the request. xmlhttprequest status is 0.') :
+            xhr.readyState != 4 ? alert('There was an error making the request. xmlhttprequest readystate is not 4.') :
+            alert('Woops, there was an error making the request.');
         cdb(xhr);
         estimateLadda.stop();
         selectLadda.stop();
@@ -1480,12 +1471,12 @@ function makeCorsRequest(url, btn, callback, warningcallback, jsonstring) {
     xhr.send(jsonstring);
 }
 
-export function legend(c) {
+export let legend = _ => {
     borderState();
     m.redraw();
-}
+};
 
-// programmatically deselecting every selected variable...
+// programmatically deselect every selected variable
 export function erase() {
     leftpanelMedium();
     rightpanelMedium();
@@ -1500,7 +1491,7 @@ export function erase() {
             e.dispatchEvent(evt);
         });
     };
-    $("#tab1").d3Click();
+    // $("#tab1").d3Click();
 }
 
 // http://www.tutorials2learn.com/tutorials/scripts/javascript/xml-parser-javascript.html
@@ -1520,7 +1511,6 @@ function loadXMLDoc(XMLname) {
         return xmlDoc;
     }
     alert("Error loading document!");
-    return null;
 }
 
 export function tabLeft(tab) {
@@ -1536,30 +1526,24 @@ export function tabLeft(tab) {
 }
 
 export function tabRight(tabid) {
-    if (tabid == "btnModels") {
-        d3.select("#rightpanel")
-            .attr("class", "sidepanel container clearfix");
-    } else if (tabid == "btnSetx") {
-        if (righttab == "btnSetx" || d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
-            toggleR();
-    } else if (tabid == "btnResults") {
-        if (estimated == false) {
-            d3.select("#rightpanel")
-                .attr("class", "sidepanel container clearfix");
-        } else if (righttab == "btnResults" || d3.select("#rightpanel").attr("class") == "sidepanel container clearfix")
-            toggleR();
-    }
+    let cls = "sidepanel container clearfix";
+    let select = cls => {
+        let panel = d3.select("#rightpanel");
+        return cls ? panel.attr('class', cls) : panel.attr('class');
+    };
+    if (tabid == "btnModels") select(cls);
+    else if (tabid == "btnSetx") righttab == "btnSetx" || select() == cls && toggleR();
+    else if (tabid == "btnResults") !estimated ? select(cls) :
+        righttab == "btnResults" || select() == cls ? toggleR() : null;
 
     righttab = tabid;
 
-    function toggleR() {
-        d3.select("#rightpanel")
-            .attr("class", function() {
-                if (this.getAttribute("class") == "sidepanel container clearfix expandpanel")
-                    return "sidepanel container clearfix";
-                return "sidepanel container clearfix expandpanel";
-            });
-    }
+    let toggleR = () => {
+        select(function() {
+            let expand = cls + ' expandpanel';
+            return this.getAttribute("class") === expand ? cls : expand;
+        });
+    };
 }
 
 export let summary = {data: []};
@@ -1601,45 +1585,29 @@ export let populatePopover = () => {
 };
 
 export let popoverContent = d => {
-    var rint = d3.format("r");
-    var text = "";
-    if (d.labl != "")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Label</label><div class='col-sm-6'><p class='form-control-static'><i>" + d.labl + "</i></p></div></div>";
-    if (d.mean != "NA") {
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Mean</label><div class='col-sm-6'><p class='form-control-static'>";
-        text += priv && d.meanCI ?
-            (+d.mean).toPrecision(2).toString() + " (" + (+d.meanCI.lowerBound).toPrecision(2).toString() + " - " + (+d.meanCI.upperBound).toPrecision(2).toString() + ")" :
-            (+d.mean).toPrecision(4).toString();
-        text += "</p></div></div>";
-    }
-    if (d.median != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Median</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.median).toPrecision(4).toString() + "</p></div></div>";
-    if (d.mode != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Most Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mode + "</p></div></div>";
-    if (d.freqmode != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmode) + "</p></div></div>";
-    if (d.mid != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Median Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.mid + "</p></div></div>";
-    if (d.freqmid != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqmid) + "</p></div></div>";
-    if (d.fewest != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Least Freq</label><div class='col-sm-6'><p class='form-control-static'>" + d.fewest + "</p></div></div>";
-    if (d.freqfewest != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Occurrences</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.freqfewest) + "</p></div></div>";
-    if (d.sd != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Stand Dev</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.sd).toPrecision(4).toString() + "</p></div></div>";
-    if (d.max != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Maximum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.max).toPrecision(4).toString() + "</p></div></div>";
-    if (d.min != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Minimum</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.min).toPrecision(4).toString() + "</p></div></div>";
-    if (d.invalid != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Invalid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.invalid) + "</p></div></div>";
-    if (d.valid != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Valid</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.valid) + "</p></div></div>";
-    if (d.uniques != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Uniques</label><div class='col-sm-6'><p class='form-control-static'>" + rint(d.uniques) + "</p></div></div>";
-    if (d.herfindahl != "NA")
-        text += "<div class='form-group'><label class='col-sm-4 control-label'>Herfindahl</label><div class='col-sm-6'><p class='form-control-static'>" + (+d.herfindahl).toPrecision(4).toString() + "</p></div></div>";
+    let text = '';
+    let [rint, prec] = [d3.format('r'), (val, int) => (+val).toPrecision(int).toString()];
+    let div = (field, name, val) => {
+        if (field != 'NA') text += `<div class='form-group'><label class='col-sm-4 control-label'>${name}</label><div class='col-sm-6'><p class='form-control-static'>${val || field}</p></div></div>`;
+    };
+    d.labl != '' && div(d.labl, 'Label');
+    div(d.mean, 'Mean', priv && d.meanCI ?
+        `${prec(d.mean, 2)} (${prec(d.meanCI.lowerBound, 2)} - ${prec(d.meanCI.upperBound, 2)})` :
+        prec(d.mean, 4));
+    div(d.median, 'Median', prec(d.median, 4));
+    div(d.mode, 'Most Freq');
+    div(d.freqmode, 'Occurrences',  rint(d.freqmode));
+    div(d.mid, 'Median Freq');
+    div(d.freqmid, 'Occurrences', rint(d.freqmid));
+    div(d.fewest, 'Least Freq');
+    div(d.freqfewest, 'Occurrences', rint(d.freqfewest));
+    div(d.sd, 'Stand Dev', prec(d.sd, 4));
+    div(d.max, 'Maximum', prec(d.max, 4));
+    div(d.min, 'Minimum', prec(d.min, 4));
+    div(d.invalid, 'Invalid', rint(d.invalid));
+    div(d.valid, 'Valid', rint(d.valid));
+    div(d.uniques, 'Uniques', rint(d.uniques));
+    div(d.herfindahl, 'Herfindahl', prec(d.herfindahl, 4));
     return text;
 }
 
@@ -1746,15 +1714,11 @@ function setColors(n, c) {
             }
         };
         [[dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']].forEach(push);
-        d3.select("#tab1").select(`p#${n.name}`)
-            .style('background-color', hexToRgba(c));
     } else if (n.strokeWidth == '4') {
         if (c == n.strokeColor) { // deselecting time, cs, dv, nom
             n.strokeWidth = '1';
             n.strokeColor = selVarColor;
             n.nodeCol = colors(n.id);
-            d3.select("#tab1").select(`p#${n.name}`)
-                .style('background-color', hexToRgba(selVarColor));
             splice(c, n.name, [dvColor, 'zdv'], [csColor, 'zcross'], [timeColor, 'ztime'], [nomColor, 'znom']);
             if (nomColor == c && zparams.znom.includes(n.name)) {
                 findNodeIndex(n.name, true).nature = findNodeIndex(n.name, true).defaultNature;
@@ -1767,8 +1731,6 @@ function setColors(n, c) {
                 transform(n.name, t = null, typeTransform = true);
             }
             n.strokeColor = c;
-            d3.select("#tab1").select(`p#${n.name}`)
-                .style('background-color', hexToRgba(c));
             if (dvColor == c) zparams.zdv.push(n.name);
             else if (csColor == c) zparams.zcross.push(n.name);
             else if (timeColor == c) zparams.ztime.push(n.name);
