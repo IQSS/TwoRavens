@@ -38,38 +38,7 @@ data.app <- function(env){
           result<-list(warning="No dataverse URL.")
       }
   }
-    if(!warning){
-      dataname=everything$zdata
-      print(dataname)
-      index=regexpr(pattern='\\.',dataname)
-      datanm=substr(dataname,1,index-1)
-      # print()
-      metadataurl=everything$zmetadataurl
-      if(length(metadataurl)==0)
-      {metadataurl=NULL}
-      username=everything$zusername
-      if(length(username)==0)
-      {username=NULL}
-      else{
-        
-        mainDir<-"../users"
-        subDir<-username
-        #create a new directory for the particular user if it doesnt exist
-        if(!dir.exists(file.path(mainDir, subDir)))
-        { 
-          
-          dir.create(file.path(mainDir, subDir))
-        }
-        
-        #print("metadataurl")
-        #print(metadataurl)
-        #print("Username")
-        #print(username)
-      }
-      config=list(metadata=metadataurl,user=username,data=datanm)
-      outconfig=rjson::toJSON(config)
-      write(outconfig,file="config.json")
-    }
+  
   if(!warning){
       datacite=everything$zdatacite
       if(length(datacite) == 0){
@@ -77,8 +46,6 @@ data.app <- function(env){
           result<-list(warning="No data file citation.")
       }
   }
-    
-    
   
   if(!warning){
       

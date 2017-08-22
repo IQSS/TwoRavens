@@ -20,29 +20,24 @@ if(production) {
 }
 
 if(!production){
-    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr","XML")
+    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr")
 
-    # Find an available repository on CRAN
-    availableRepos <- getCRANmirrors()
-    flag <- availableRepos$Country=="USA" & grepl("https",availableRepos$URL,)
-    useRepos <- sample(availableRepos$URL[flag],1)
-
-    ## install missing packages, and update if newer version available
-    for(i in 1:length(packageList)){
+   ## install missing packages, and update if newer version available
+   for(i in 1:length(packageList)){
        if (!require(packageList[i],character.only = TRUE)){
-           install.packages(packageList[i], repos=useRepos)
+           install.packages(packageList[i], repos="http://lib.stat.cmu.edu/R/CRAN/")
        }
-    }
-    update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos=useRepos)
+   }
+   update.packages(ask = FALSE, dependencies = c('Suggests'), oldPkgs=packageList, repos="http://lib.stat.cmu.edu/R/CRAN/")
 }
 
 library(Rook)
 library(rjson)
 library(jsonlite)
-library(devtools)
 library(DescTools)
 
 if (!production) {
+    library(devtools)
     if(!("Zelig" %in% rownames(installed.packages()))) {
         install_github("IQSS/Zelig")
     } else if(package_version(packageVersion("Zelig"))$major != 5) {
@@ -73,11 +68,7 @@ if(!production){
     myPort <- "8000"
     myInterface <- "0.0.0.0"
     status <- -1
-    if (as.integer(R.version[["svn rev"]]) > 72310) {
-        status <- .Call(tools:::C_startHTTPD, myInterface, myPort)
-    } else {
-        status <- .Call(tools:::startHTTPD, myInterface, myPort)
-    }
+    status<-.Call(tools:::startHTTPD, myInterface, myPort)
 
 
     if( status!=0 ){
@@ -108,7 +99,6 @@ source("rooktransform.R")
 source("rookzelig.R")
 source("rookutils.R")
 source("rookdata.R")
-source("rookwrite.R")
 if(addPrivacy){
     source("rookprivate.R")
 }
@@ -123,9 +113,7 @@ if(!production){
     R.server$add(app = subset.app, name="subsetapp")
     R.server$add(app = transform.app, name="transformapp")
     R.server$add(app = data.app, name="dataapp")
-    R.server$add(app = write.app, name="writeapp")
-    
-        ## These add the .apps for the privacy budget allocator interface
+    ## These add the .apps for the privacy budget allocator interface
     if(addPrivacy){
         R.server$add(app = privateStatistics.app, name="privateStatisticsapp")
         R.server$add(app = privateAccuracies.app, name="privateAccuraciesapp")
