@@ -1309,13 +1309,15 @@ function transform(n, t, typeTransform) {
                 let node;
                 for (let key in data) {
                     node = findNodeIndex(key, true);
+		    if (!node)
+		        continue;
                     jQuery.extend(true, node, data[key]);
                     node.plottype === "continuous" ? densityNode(node) :
                         node.plottype === "bar" ? barsNode(node) : null;
                 }
                 fakeClick();
                 panelPlots();
-                cdb(node);
+                node && cdb(node);
             });
         } else {
           /* No, we have a new node here--e.g. the transformed column
