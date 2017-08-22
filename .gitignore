@@ -1,0 +1,15 @@
+node_modules/
+npm-debug.log
+
+# currently in rook directory
+rook/log_*.txt
+rook/output*.png
+rook/.Rapp.history
+rook/.RData
+rook/.Rhistory
+rook/config.json
+rook/test.json
+
+#build/
+data/preprocessSubset*.txt
+.DS_Store
