@@ -344,7 +344,6 @@ export function bars(node, div, priv) {
     } else {
         for (var i = 0; i < keys.length; i++) {
             console.log("plotvalues in bars");
-            console.log(node);
             yVals[i] = node.plotvalues[keys[i]];
             xVals[i] = Number(keys[i]);
             if (priv) {
