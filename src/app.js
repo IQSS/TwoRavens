@@ -464,7 +464,6 @@ function layout(v) {
     }
 
     panelPlots(); // after nodes is populated, add subset and setx panels
-    populatePopover(); // pipes in the summary stats shown on mouseovers
 
     var force = d3.layout.force()
         .nodes(nodes)
@@ -1271,13 +1270,11 @@ function transform(n, t, typeTransform) {
         if (myn.nature == "nominal" & typeof myn.plotvalues !== "undefined") {
             myn.plottype = "bar";
             barsNode(myn);
-            populatePopover();
             panelPlots();
             return;
         } else if (myn.nature != "nominal" & typeof myn.plotx !== "undefined") {
             myn.plottype = "continuous";
             densityNode(myn);
-            populatePopover();
             panelPlots();
             return;
         }
@@ -1317,7 +1314,6 @@ function transform(n, t, typeTransform) {
                         node.plottype === "bar" ? barsNode(node) : null;
                 }
                 fakeClick();
-                populatePopover();
                 panelPlots();
                 cdb(node);
             });
@@ -1483,7 +1479,6 @@ export let legend = _ => {
 
 // programmatically deselect every selected variable
 export function erase() {
-
     leftpanelMedium();
     rightpanelMedium();
     tabLeft('tab1');
@@ -1587,11 +1582,6 @@ function varSummary(d) {
         .selectAll("svg")
         .remove();
 }
-
-export let populatePopover = () => {
-    d3.select("#tab1").selectAll("p")
-        .attr("data-content", d => popoverContent(findNodeIndex(d, true)));
-};
 
 export let popoverContent = d => {
     let text = '';
@@ -1925,7 +1915,6 @@ export function subsetSelect(btn) {
                 }
             }
             rePlot();
-            populatePopover();
 
             layout(layoutAdd);
         });
