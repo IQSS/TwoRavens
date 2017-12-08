@@ -11,11 +11,9 @@
 ###
 
 callGUI <- function(dict, indices, stats, metadata, globals, action, var, stat){
-	#save(dict,file="dict.rda")
-	#save(indices,file="indices.rda")
-	df <- convert(dict, indices, stats, metadata)
-	#print(df)
-	save(df,file="df.rda")
+	grouped_var_dict <- globals$grouped_var_dict
+	df <- convert(dict, indices, stats, metadata, grouped_var_dict)
+	print(df)
     #clear any empty rows
     empty_rows <- -which(is.na(df$Variable))
     if(length(empty_rows)>0){
@@ -44,27 +42,26 @@ callGUI <- function(dict, indices, stats, metadata, globals, action, var, stat){
 	}
 	for(i in 1:length(reteps)){
 		stat <- df$Statistic[i]
-		var <- df$Variable[i]
+		var <- as.character(df$Variable[i])
 		epsind <- indices[[paste("epsilon_",stat,sep="")]]+1
 		accind <- indices[[paste("accuracy_",stat,sep="")]]+1
 		dict[[var]][epsind] <- reteps[i]
 		dict[[var]][accind] <- retacc[i]
 	}
-	#print(dict)
 	return(dict)
 }
 
 # Function to convert data from web app into the form that the GUI function expects
-convert <- function(dict, indices, stats, metadata){
+convert <- function(dict, indices, stats, metadata, grouped_var_dict){
+	# add 1 because javascript indexes from 0 and R indexes from 1.
 	typeindex <- indices$Variable_Type + 1
 	metainds <- as.numeric(indices[metadata])+1
 	content <- c()
-	
 	for(var in names(dict)){
 		varinfo <- dict[[var]]
 		type <- varinfo[typeindex]
 		metas <- varinfo[metainds]
-		# remove following after js auto assigns metadata to bools
+	  # remove following after js auto assigns metadata to bools
 		if(type == "Boolean"){
 			metas[1] <- 0
 			metas[2] <- 1
@@ -73,25 +70,26 @@ convert <- function(dict, indices, stats, metadata){
 			 
 		}
 		
-		# if variable has no metadata, delete it. 
-		# What to do if stats added later don't require metadata?
-		if(sum(metas=="")!=length(metas)){
+    # used to delete variables with no metadata. Now just check "2" status
+	#	if(sum(metas=="")!=length(metas)){
 			#print(stats)
 			for(stat in stats){
 				ind <- indices[[stat]]+1
+			
 				if(as.numeric(varinfo[ind]) == 2){
 					epsind <- indices[[paste("epsilon_",stat,sep="")]]+1
 					accind <- indices[[paste("accuracy_",stat,sep="")]]+1
 					holdind <- indices[[paste("hold_",stat,sep="")]]+1
-					row <- c(var, type, stat, metas, varinfo[epsind], varinfo[accind], varinfo[holdind])
+					missing_type_ind <- indices[["Missing_Type"]]+1
+					missing_input_ind <- indices[["Missing_Input"]]+1
+					row <- c(var, type, stat, metas, varinfo[epsind], varinfo[accind], varinfo[holdind], varinfo[missing_type_ind], varinfo[missing_input_ind])
 					content <- rbind(content,row)
 				}
 			}
 		}
-	}
-	
+	#}
 	df <- data.frame(content, row.names=NULL, stringsAsFactors=FALSE)
-	colnames(df) <- c("Variable", "Type", "Statistic", metadata, "Epsilon", "Accuracy","Hold")
+	colnames(df) <- c("Variable", "Type", "Statistic", metadata, "Epsilon", "Accuracy","Hold","Missing_Type","Missing_Input") #will need to add missing_type and missing_input
 
 	#recode histogram bin names:
 	binnames <- df$Bin_Names
@@ -127,6 +125,11 @@ convert <- function(dict, indices, stats, metadata){
 			df$Bin_Names[i] <- newnames
 		}
 		
+	}
+	
+	#Remove empty bottom row if it exists
+	if(is.na(df$Variable[nrow(df)])){
+		df <- df[1:(nrow(df) -1 ), ]
 	}
 	return(df)
 }
@@ -240,10 +243,8 @@ GUI <- function(df, action, globals, rownum=0, printerror=FALSE){
 			}
 			return(message)		
 	}
-	
 	# If no error, set new accuracy values	
 	df$Accuracy <- return_accuracies
-
 	return(df)
 }
 
