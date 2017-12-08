@@ -1,5 +1,5 @@
 ##
-##  rookprivate
+##  rookPrivate
 ##
 ##  Rook apps for calling differential privacy modules and updating accuracy table on ingest of private data
 ##  Initialized by rookSetup in development mode.  In production, called by TwoRaven's rApache.
@@ -8,10 +8,8 @@
 ##
 
 
-
 privateStatistics.app <-function(env){
     production<-FALSE     ## Toggle:  TRUE - Production, FALSE - Local Development
-
     if(production){
         sink(file = stderr(), type = "output")
     }
@@ -31,7 +29,7 @@ privateStatistics.app <-function(env){
     ## Check the POST sent to the app appears to be valid JSON
     if(!valid) {
         warning <- TRUE
-        result <- list(warning="The request is not valid json. Check for special characters.")
+        message <- "The request is not valid json. Check for special characters."
     }
     
     ## Translate the JSON into R types
@@ -46,6 +44,7 @@ privateStatistics.app <-function(env){
         metadata <- everything$metadata
         globals <- everything$globals
         fileid <- everything$fileid
+        transforms <- everything$transforms
     }
 
     ## Check the epsilons budgeted for the statistics come under the global epsilon
@@ -72,26 +71,74 @@ privateStatistics.app <-function(env){
         # data <- download.file(dataurl, destfile = "\tmp\test.tab", method="curl", extra=c("--insecure"))
 
         ## This is simplest, but fragile
-        data <- read.table(dataurl, header=TRUE, fill=TRUE) 
+        # We use colClasses="character" to make sure there's no funny business with type conversion.
+        # This means we should be careful later whenever we do type conversion
+        # (character to logical doesn't work well!) See permissiveAsLogical in Calculate_stats.R.
+        #block below when beta is down:
+        # data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t", colClasses="character") }
+                # , error=function(e) return(NA))
+        # if(is.na(data)) {
+            # warning <- TRUE
+            # message <- "There was an internal error downloading or processing the data from Dataverse. Please report this error if it persists."
+        # }
+    }    
+
+	#use below when beta is down
+	data <- read.csv("../../data/PUMS5extract10000.csv")
+    ## Generate differentially private values and return released statistics as JSON
+    if(!warning){
         cat("data successfully downloaded from Dataverse \n")
         print(data[1:5,])
         cat("---------------- \n")
 
-    }    
+        
 
-    ## Generate differentially private values and return released statistics as JSON
-    if(!warning){
         df <- convert(dict, indices, stats, metadata)
         cat("Cleared table conversion \n")
-        
-        releasedMetadata <- calculate_stats(data, df, globals)
+
+        if(!is.null(transforms)) {
+            verify <- verifyTransform(transforms, names(data))
+            if(!verify$success) {
+                warning <- TRUE
+                message <- paste("Malformed transformation:", verify$message)
+            } else {
+                dataOrMessage <- applyTransform(transforms, data)
+                if("data" %in% names(dataOrMessage)) {
+                    data <- dataOrMessage$data
+                }
+                else {
+                    warning <- TRUE
+                    message <- dataOrMessage$message
+                }
+            }
+        }
+    }
+    print("printing after transformation")
+    print(head(data))
+    
+ #blocked below to use library instead of enforce_constraints
+ # '
+    # if(!warning){
+        # dataOrMessage <- enforce_constraints(data, df) 
+        # if("data" %in% names(dataOrMessage)) {
+            # data <- dataOrMessage$data
+        # }
+        # else {
+            # warning <- TRUE
+            # message <- dataOrMessage$message
+        # }
+    # }
+# '
+    if(!warning) {
+        #releasedMetadata <- calculate_stats(data, df, globals)
+        releasedMetadata <- calculate_stats_with_PSIlence(data,df,globals)
         cat("Cleared release function \n")
 
         result <- jsonlite:::toJSON(releasedMetadata, digits=8)
         cat("Cleared JSON conversion \n")
 
     }else{
-        result <- jsonlite:::toJSON(message)
+        result <- jsonlite:::toJSON(list(warning=message))
     }
 
     print(result)
