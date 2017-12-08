@@ -20,7 +20,7 @@ if(production) {
 }
 
 if(!production){
-    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr")
+    packageList<-c("Rcpp","VGAM", "AER", "dplyr", "quantreg", "geepack", "maxLik", "Amelia", "Rook","jsonlite","rjson", "devtools", "DescTools", "nloptr", "openssl")
 
    ## install missing packages, and update if newer version available
    for(i in 1:length(packageList)){
@@ -35,6 +35,10 @@ library(Rook)
 library(rjson)
 library(jsonlite)
 library(DescTools)
+if(addPrivacy){
+    library(openssl)
+    library("VGAM") # for rlaplace in ATT code. Replace eventually.
+}
 
 if (!production) {
     library(devtools)
@@ -51,17 +55,26 @@ library(Zelig)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 modulesPath<-paste(getwd(),"/privacyfunctions/",sep="")
+libraryPath<-("/PSI-Library/R/")
 
 source(paste(modulesPath,"DPUtilities.R", sep=""))
-source(paste(modulesPath,"GetFunctions.R", sep=""))
+source(paste(modulesPath,"GetFunctionsWithPSIlenceHardCode.R", sep=""))
 source(paste(modulesPath,"update_parameters.R", sep=""))
 source(paste(modulesPath,"Calculate_stats.R", sep=""))
-source(paste(modulesPath,"Histogramnew.R", sep=""))
 source(paste(modulesPath,"CompositionTheorems.R", sep=""))
-source(paste(modulesPath,"DP_Quantiles.R", sep=""))
-source(paste(modulesPath,"DP_Means.R", sep=""))
+source(paste(modulesPath,"ReadJSON.R", sep=""))
 source(paste(modulesPath,"CreateXML.R", sep=""))
+source(paste(modulesPath,"transform.R", sep=""))
+source(paste(modulesPath,"cem-utilities.R", sep=""))
+source(paste(modulesPath,"dpATT.R", sep=""))
+source(paste(modulesPath,"dpCEM.R", sep=""))
+source(paste(modulesPath,"CEM_getFunctions.R", sep=""))
 
+#source PSIlence
+source(file.path(libraryPath, "mechanisms.R"))
+for (file in list.files(libraryPath)) {
+    source(file.path(libraryPath, file))
+}
 
 
 if(!production){
