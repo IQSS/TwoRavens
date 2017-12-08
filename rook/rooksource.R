@@ -55,7 +55,7 @@ library(Zelig)
 source(paste(getwd(),"/preprocess/preprocess.R",sep="")) # load preprocess function
 
 modulesPath<-paste(getwd(),"/privacyfunctions/",sep="")
-libraryPath<-("/PSI-Library/R/")
+libraryPath<-paste(getwd(),"/PSI-Library/R/",sep="")
 
 source(paste(modulesPath,"DPUtilities.R", sep=""))
 source(paste(modulesPath,"GetFunctionsWithPSIlenceHardCode.R", sep=""))
