@@ -96,7 +96,7 @@ convert <- function(dict, indices, stats, metadata, grouped_var_dict){
 	shorthands <- grep("+:+", binnames)
 	for(i in shorthands){
 		newnames <- c()
-		ends <- unlist(strsplit(binnames[i], split=":"))
+		ends <- unlist(strsplit(as.character(binnames[i]), split=":"))
 		if(length(ends) == 3){
 			newnames <- try(seq(as.numeric(ends[1]),as.numeric(ends[2]),as.numeric(ends[3])), silent=T)
 		}

@@ -274,7 +274,8 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 	variables <- unique(df$Variable)
 	#dpReleases <- vector("list",k)
 	#names(dpReleases) <- variables
-	dpReleases <- c()
+	dpReleases <- list()
+	releaseNames <- list()
 	release_col <- c()
 	eps <- as.numeric(globals$eps)
 	del <- as.numeric(globals$del)
@@ -295,6 +296,10 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		print(stat)
 		if(!(var %in% names(grouped_var_dict))){
 			type <- as.character(type_conversion_dict[as.character(type)])	
+			releaseNames[i] <- as.character(var)
+		}
+		else{
+			releaseNames[i] <- grouped_var_dict[as.character(var)]	
 		}
 		missing_type <- df$Missing_Type[i]
 		missing_input <- df$Missing_Input[i]
@@ -315,11 +320,20 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 			rng <- c(lo,up)
 			impute.rng <- rng
 		    if (missing_type == "fixed_value"){
-				impute.rng <- c(as.numerica(missing_input),as.numerica(missing_input))
+				fixed_val <- as.numeric(missing_input)
+		    		if(!is.na(fixed_val)){
+					impute.rng <- c(as.numeric(missing_input),as.numeric(missing_input))
+				}
 			}
 			else if(missing_type == "custom_range"){
-				# todo: take custom range from input and put it here. For now just do nothing
-				print("We don't support custom ranges on missing values yet. Using default range. ")
+				ends <- unlist(strsplit(as.character(missing_input), split=":"))
+				if(length(ends)==2){
+					end1 <- as.numeric(ends[1])
+					end2 <- as.numeric(ends[2])
+					if(!(is.na(end1) || is.na(end2))){
+						impute.rng <- c(min(end1, end2),max(end1,end2))
+					}
+				}
 			}
 			out <- dpMean$new(mechanism='mechanismLaplace', var.type=type, n=n, rng=rng, epsilon=eps_i, impute.rng=impute.rng, alpha=Beta)
 			col <-  which(colnames(data) == var)
@@ -333,11 +347,20 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 			rng <- c(lo,up)
 			impute.rng <- rng
 		    if (missing_type == "fixed_value"){
-				impute.rng <- c(as.numerica(missing_input),as.numerica(missing_input))
+		    		fixed_val <- as.numeric(missing_input)
+		    		if(!is.na(fixed_val)){
+					impute.rng <- c(as.numeric(missing_input),as.numeric(missing_input))
+				}
 			}
 			else if(missing_type == "custom_range"){
-				# todo: take custom range from input and put it here. For now just do nothing
-				print("We don't support custom ranges on missing values yet. Using default range. ")
+				ends <- unlist(strsplit(as.character(missing_input), split=":"))
+				if(length(ends)==2){
+					end1 <- as.numeric(ends[1])
+					end2 <- as.numeric(ends[2])
+					if(!(is.na(end1) || is.na(end2))){
+						impute.rng <- c(min(end1, end2),max(end1,end2))
+					}
+				}
 			}
 			out <- dpTree$new(mechanism='mechanismLaplace', var.type=type, n=n, rng=rng, gran=gran, epsilon=eps_i, impute.rng=impute.rng) 	
 			col <-  which(colnames(data) == var)
@@ -358,12 +381,21 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 				impute <- TRUE
 				impute.rng <- rng
 				if(missing_type == "fixed_value"){
-					impute.rng <- c(as.numerica(missing_input),as.numerica(missing_input))
+					fixed_val <- as.numeric(missing_input)
+		    			if(!is.na(fixed_val)){
+						impute.rng <- c(as.numeric(missing_input),as.numeric(missing_input))
+					}
 				}
 				else if(missing_type == "custom_range"){
-				# todo: take custom range from input and put it here. For now just do nothing
-				print("We don't support custom ranges on missing values yet. Using default range.")
-			}
+					ends <- unlist(strsplit(as.character(missing_input), split=":"))
+					if(length(ends)==2){
+						end1 <- as.numeric(ends[1])
+						end2 <- as.numeric(ends[2])
+						if(!(is.na(end1) || is.na(end2))){
+							impute.rng <- c(min(end1, end2),max(end1,end2))
+						}
+					}
+			  }
 			}
 			else if(type == "logical"){
 				# know bins in this case
@@ -417,7 +449,6 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		}
 		
 		else if(stat %in% c("ols_regression","logistic_regression","probit_regression") ){	
-				#todo: make sure ols can have boolean outcome
 				varlist <- grouped_var_dict[[as.character(var)]]
 				outcome <- df$Outcome_Variable[i]$"row"$"General"
 				covariate_list <- varlist[-which(varlist==outcome)]
@@ -506,20 +537,24 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 			if(stat != "att_with_matching"){
 				dpRelease <- out$release(input)
 				#this is what we actually send to get put in JSON
-				#todo should dpReleases be list instead of vector?
-				dpReleases <- c(dpReleases, out)
+				dpReleases[i] <- out
 				#this is what we send to front end for splash page.
 				release_col <- c(release_col, toString(dpRelease$release))	
 			}
 			else{
 				release_col <- c(release_col, toString(dpRelease))
-				dpReleases <- c(dpReleases, dpRelease)
+				dpReleases[i] <- dpRelease
 			}
 		}
 	}
 	#add release column to input df.
 	df$Releases <- release_col
-	return(list(globals=globals, df=df))
+	# below blocked until fix
+	print("Release names:")
+	print(releaseNames)
+	releaseJSON <- release2json(dpReleases)
+	#releaseJSON <- "Nothing here right now"
+	return(list(globals=globals, df=df, releaseJSON=releaseJSON))
 	#write json from dpReleases
 	
 	

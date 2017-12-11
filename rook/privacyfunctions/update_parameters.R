@@ -50,8 +50,8 @@ update_parameters <- function(params, hold, eps, del){
 	elist <- as.numeric(params[ ,1])
 	dlist <- as.numeric(params[ ,2])
 	#hard coded error tolerance for optimal composition approximation. Might do something more clever one day. 
-	err <- eps/10
-	
+	#err <- eps/10
+	err <- .01
 	# Check if there are unset epsilon values
 	unsetEpsilons <- c(which(is.na(elist)), which(elist==" "), which(elist==""), which(elist==0))
 	unsetEpsilons <- unique(unsetEpsilons)
@@ -143,5 +143,4 @@ scale_eps <- function(elist, dlist, eps, del, free, err){
 	}
 	return(goodlist)	
 }
-
 
