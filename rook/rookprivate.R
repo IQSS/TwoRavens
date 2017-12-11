@@ -82,7 +82,9 @@ privateStatistics.app <-function(env){
             # This means we should be careful later whenever we do type conversion
             # (character to logical doesn't work well!) See permissiveAsLogical in Calculate_stats.R.
             # block below when beta is down:
-            data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t", colClasses="character") }, error=function(e) return(NA))
+            data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t") }, error=function(e) return(NA))
+            #was: data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t", colClasses="character") }, error=function(e) return(NA))
+
             # if(is.na(data)) {
                 # warning <- TRUE
                 # message <- "There was an internal error downloading or processing the data from Dataverse. Please report this error if it persists."
