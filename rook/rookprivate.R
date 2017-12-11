@@ -44,6 +44,7 @@ privateStatistics.app <-function(env){
         metadata <- everything$metadata
         globals <- everything$globals
         fileid <- everything$fileid
+        apitoken <- everything$apitoken
         transforms <- everything$transforms
     }
 
@@ -54,43 +55,55 @@ privateStatistics.app <-function(env){
 		message <- "The individual epsilons budgeted across the list of statistics do not collectively compose below the global epsilon."
 	}
 
-    ## Get dataset from Dataverse
-    ## Compare to data.app in TwoRavens and decide if this could be done more robustly
     if(!warning){
 
-        # file id supplied; we are going to assume that we are dealing with
-        # a dataverse and cook a standard dataverse data access url,
-        # with the fileid supplied and the hostname we have
-        # either supplied or configured:
 
-        dataurl <- paste("https://beta.dataverse.org/api/access/datafile/", fileid, sep="")
-        # Might need to investigate adding an apikey:
-        #dataurl = dataurl+"?key="+apikey;
- 
-        # This to write locally
-        # data <- download.file(dataurl, destfile = "\tmp\test.tab", method="curl", extra=c("--insecure"))
+        if(production & !identical(fileid,"")){
+            ## Get dataset from Dataverse
+            ## Compare to data.app in TwoRavens and decide if this could be done more robustly
+   
+            # file id supplied; we are going to assume that we are dealing with
+            # a dataverse and cook a standard dataverse data access url,
+            # with the fileid supplied and the hostname we have
+            # either supplied or configured:
 
-        ## This is simplest, but fragile
-        # We use colClasses="character" to make sure there's no funny business with type conversion.
-        # This means we should be careful later whenever we do type conversion
-        # (character to logical doesn't work well!) See permissiveAsLogical in Calculate_stats.R.
-        #block below when beta is down:
-        # data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t", colClasses="character") }
-                # , error=function(e) return(NA))
-        # if(is.na(data)) {
-            # warning <- TRUE
-            # message <- "There was an internal error downloading or processing the data from Dataverse. Please report this error if it persists."
-        # }
+            dataurl <- paste("https://beta.dataverse.org/api/access/datafile/", fileid, sep="")
+            
+            # add apitoken if provided
+            if(!identical(apitoken,"")){
+                dataurl = paste(dataurl, "?key=", apitoken, sep="")
+            }
+            
+            # This to write locally
+            #data <- download.file(dataurl, destfile = "\tmp\test.tab", method="curl", extra=c("--insecure"))
+
+            ## This is simplest, but fragile
+            # We use colClasses="character" to make sure there's no funny business with type conversion.
+            # This means we should be careful later whenever we do type conversion
+            # (character to logical doesn't work well!) See permissiveAsLogical in Calculate_stats.R.
+            # block below when beta is down:
+            data <- tryCatch({ read.table(dataurl, header=TRUE, sep="\t", colClasses="character") }, error=function(e) return(NA))
+            # if(is.na(data)) {
+                # warning <- TRUE
+                # message <- "There was an internal error downloading or processing the data from Dataverse. Please report this error if it persists."
+            #}
+        } else{
+            #use below when beta.dataverse is down, or for local development, or no fileid provided
+            if(production){
+                data <- read.csv("../data/PUMS5extract10000.csv")  # data has a different relative path on server  
+            } else {
+                data <- read.csv("../../data/PUMS5extract10000.csv")
+            }
+        }
+
+
     }    
 
-	#use below when beta is down
-	data <- read.csv("../../data/PUMS5extract10000.csv")
     ## Generate differentially private values and return released statistics as JSON
     if(!warning){
         cat("data successfully downloaded from Dataverse \n")
         print(data[1:5,])
         cat("---------------- \n")
-
         
 
         df <- convert(dict, indices, stats, metadata)
