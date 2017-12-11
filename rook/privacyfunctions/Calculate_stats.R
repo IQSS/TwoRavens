@@ -296,11 +296,11 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		print(stat)
 		if(!(var %in% names(grouped_var_dict))){
 			type <- as.character(type_conversion_dict[as.character(type)])	
-			releaseNames[i] <- as.character(var)
+			#releaseNames[i] <- as.character(var)
 		}
-		else{
-			releaseNames[i] <- grouped_var_dict[as.character(var)]	
-		}
+		#else{
+	#		releaseNames[i] <- grouped_var_dict[as.character(var)]	
+	#	}
 		missing_type <- df$Missing_Type[i]
 		missing_input <- df$Missing_Input[i]
 		# todo: come up with a more durable solution to missing data for booleans
@@ -309,6 +309,7 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		}
 		error <- FALSE
 		 if(stat=="mean"){
+		 	releaseNames[i] <- as.character(var)
 			if(type =="logical"){
 				up <- 1
 				lo <- 0
@@ -341,6 +342,7 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		}
 		
 		else if(stat=="quantile"){
+			releaseNames[i] <- as.character(var)
 			gran <- as.numeric(df$Granularity[i])
 			up <- as.numeric(df$Upper_Bound[i]) 
 			lo <- as.numeric(df$Lower_Bound[i])
@@ -368,6 +370,7 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 		}
 		
 		else if(stat=="histogram"){
+			releaseNames[i] <- as.character(var)
 			rng <- NULL
 			n.bins <- as.numeric(df$Number_of_Bins[i])
 			bins <- df$Bin_Names[i]
@@ -475,9 +478,11 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 					}
 					cov_range <- c(as.numeric(cov_lo), as.numeric(cov_up))
 					cov_ranges <- rbind(cov_ranges,cov_range)
-					if(cov_num <length(covariate_list) )
-					form <- paste(form,"+")
+					if(cov_num <length(covariate_list) ){
+						form <- paste(form,"+")
+					}
 				}
+				releaseNames[i] <- form
 			if(stat =="ols_regression"){
 				objective <- "ols"
 			}
@@ -543,7 +548,7 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 			}
 			else{
 				release_col <- c(release_col, toString(dpRelease))
-				dpReleases[i] <- dpRelease
+				#dpReleases[i] <- dpRelease    #only send ATT to splash page. Note to read2JSON since we don't have an object for it. 
 			}
 		}
 	}
