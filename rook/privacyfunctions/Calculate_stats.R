@@ -284,7 +284,6 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 	grouped_var_dict <- globals$grouped_var_dict
 	df$Delta <- 1 - (1-del)^(1/(2*k))
 	type_conversion_dict <- list("Numerical"="numeric", "Categorical"="character", "Boolean"="logical")
-	
 	for(i in 1:k){
 		stat <- tolower(df$Statistic[i])
 		eps_i <- as.numeric(df$Epsilon[i])    
@@ -557,8 +556,12 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 	# below blocked until fix
 	print("Release names:")
 	print(releaseNames)
-	releaseJSON <- release2json(dpReleases, releaseNames)
-	#releaseJSON <- "Nothing here right now"
+	if(length(releaseNames)>0)
+		releaseJSON <- release2json(dpReleases, releaseNames)
+	}
+	else{
+		releaseJSON <- "Only ATTs were computed."
+	}
 	return(list(globals=globals, df=df, releaseJSON=releaseJSON))
 	#write json from dpReleases
 	
