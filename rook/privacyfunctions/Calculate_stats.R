@@ -552,7 +552,7 @@ calculate_stats_with_PSIlence <- function(data, df, globals){
 	# below blocked until fix
 	print("Release names:")
 	print(releaseNames)
-	releaseJSON <- release2json(dpReleases)
+	releaseJSON <- release2json(dpReleases, releaseNames)
 	#releaseJSON <- "Nothing here right now"
 	return(list(globals=globals, df=df, releaseJSON=releaseJSON))
 	#write json from dpReleases
