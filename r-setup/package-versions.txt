@@ -43,3 +43,9 @@ MatchIt 2.4-22
 survey 3.31-5
 MCMCpack 1.3-9
 Zelig 5.0-17
+rlang 0.2.1
+pkgconfig 2.0.1
+forcats 0.3.0
+hms 0.4.2
+readr 1.1.1
+haven 1.1.2
